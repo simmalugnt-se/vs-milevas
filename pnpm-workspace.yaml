@@ -1,0 +1,31 @@
+packages:
+  - '.'
+
+# --- Security settings ---
+
+# Delay installation of newly published versions by 24 hours.
+# Malicious releases are usually discovered and removed within hours.
+minimumReleaseAge: 1440
+
+# Fail installation when unreviewed build scripts are present.
+strictDepBuilds: true
+
+# Block transitive dependencies from using git/tarball sources.
+blockExoticSubdeps: true
+
+# --- Build scripts ---
+# Only these trusted packages are allowed to run postinstall / build scripts.
+# All other dependencies will have their lifecycle scripts blocked.
+onlyBuiltDependencies:
+  - '@parcel/watcher'
+  - '@swc/core'
+  - esbuild
+  - sharp
+  - unrs-resolver
+
+allowBuilds:
+  '@parcel/watcher': true
+  '@swc/core': true
+  esbuild: true
+  sharp: true
+  unrs-resolver: true

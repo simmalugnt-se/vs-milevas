@@ -1,0 +1,34 @@
+{
+  "common": {
+    "brand": "Payload Boilerplate",
+    "tagline": "Boilerplate for Payload CMS and Next.js.",
+    "allRightsReserved": "All rights reserved."
+  },
+  "nav": {
+    "home": "Home"
+  },
+  "locale": {
+    "selectLanguage": "Language"
+  },
+  "errors": {
+    "notFound": "Page not found",
+    "notFoundTitle": "This page does not exist.",
+    "notFoundDescription": "The page may simply be incorrect. Please check the URL and try again.",
+    "unexpectedError": "Something went wrong",
+    "unexpectedTitle": "An unexpected error occurred.",
+    "unexpectedDescription": "We ran into a problem loading this page. Please try again or return to the homepage.",
+    "dbSetup": "Setup",
+    "dbSetupTitle": "Initialize the CMS database",
+    "dbSetupDescription": "Postgres is running, but Payload tables are missing. From the project root, run migrations, then click Try again below.",
+    "schemaMismatch": "Schema Mismatch",
+    "schemaMismatchTitle": "Database schema is out of date",
+    "schemaMismatchDescription": "The database was initialized with an older or incompatible migration. A column or table that the current code expects is missing.",
+    "tryAgain": "Try again",
+    "goHome": "Go home",
+    "goToAdmin": "View admin"
+  },
+  "seo": {
+    "description": "Boilerplate for Payload CMS and Next.js.",
+    "titleTemplate": "%s | Payload Boilerplate"
+  }
+}

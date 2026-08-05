@@ -1,0 +1,24 @@
+/**
+ * Public-site design tokens (Tailwind @theme) + minimal layout utilities.
+ * Keeps Payload admin free of frontend-only CSS when globals.css is not loaded there.
+ */
+@theme inline {
+  --color-site-accent: #7a4c29;
+  --color-site-accent-strong: #4d2f19;
+  --color-site-muted: #6b5b4d;
+  --color-site-fg: #1f1a17;
+}
+
+/** Flat bordered panel (no glass, no shadow). */
+@utility surface {
+  border-width: 1px;
+  border-style: solid;
+  border-color: var(--color-neutral-200);
+  background-color: var(--color-white);
+}
+
+/** Full-page canvas: solid white, high-contrast text. */
+@utility canvas {
+  background-color: var(--color-white);
+  color: var(--color-neutral-950);
+}

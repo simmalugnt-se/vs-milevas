@@ -1,0 +1,34 @@
+{
+  "common": {
+    "brand": "Payload Boilerplate",
+    "tagline": "Boilerplate för Payload CMS och Next.js.",
+    "allRightsReserved": "Med ensamrätt."
+  },
+  "nav": {
+    "home": "Hem"
+  },
+  "locale": {
+    "selectLanguage": "Språk"
+  },
+  "errors": {
+    "notFound": "Sidan hittades inte",
+    "notFoundTitle": "Sidan finns inte.",
+    "notFoundDescription": "Sidan kanske är felaktig. Kontrollera webbadressen och försök igen.",
+    "unexpectedError": "Något gick fel",
+    "unexpectedTitle": "Ett oväntat fel inträffade.",
+    "unexpectedDescription": "Vi stötte på ett problem när sidan laddades. Försök igen eller gå till startsidan.",
+    "dbSetup": "Konfigurering",
+    "dbSetupTitle": "Initiera CMS-databasen",
+    "dbSetupDescription": "Postgres körs, men Payload-tabeller saknas. Kör migreringar från projektroten och klicka sedan på Försök igen.",
+    "schemaMismatch": "Schemafel",
+    "schemaMismatchTitle": "Databasschemat är inaktuellt",
+    "schemaMismatchDescription": "Databasen initierades med en äldre eller inkompatibel migrering. En kolumn eller tabell som koden förväntar sig saknas.",
+    "tryAgain": "Försök igen",
+    "goHome": "Gå till startsidan",
+    "goToAdmin": "Adminpanel"
+  },
+  "seo": {
+    "description": "Boilerplate för Payload CMS och Next.js.",
+    "titleTemplate": "%s | Payload Boilerplate"
+  }
+}
