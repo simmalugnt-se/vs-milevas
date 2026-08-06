@@ -72,6 +72,8 @@ export interface Config {
     media: Media;
     documents: Document;
     pages: Page;
+    'truck-families': TruckFamily;
+    'configurator-requests': ConfiguratorRequest;
     redirects: Redirect;
     'payload-mcp-api-keys': PayloadMcpApiKey;
     'payload-kv': PayloadKv;
@@ -86,6 +88,8 @@ export interface Config {
     media: MediaSelect<false> | MediaSelect<true>;
     documents: DocumentsSelect<false> | DocumentsSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
+    'truck-families': TruckFamiliesSelect<false> | TruckFamiliesSelect<true>;
+    'configurator-requests': ConfiguratorRequestsSelect<false> | ConfiguratorRequestsSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     'payload-mcp-api-keys': PayloadMcpApiKeysSelect<false> | PayloadMcpApiKeysSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
@@ -101,10 +105,12 @@ export interface Config {
   globals: {
     header: Header;
     footer: Footer;
+    'configurator-settings': ConfiguratorSetting;
   };
   globalsSelect: {
     header: HeaderSelect<false> | HeaderSelect<true>;
     footer: FooterSelect<false> | FooterSelect<true>;
+    'configurator-settings': ConfiguratorSettingsSelect<false> | ConfiguratorSettingsSelect<true>;
   };
   locale: 'en' | 'sv';
   widgets: {
@@ -337,6 +343,13 @@ export interface Page {
             blockName?: string | null;
             blockType: 'media';
           }
+        | {
+            heading?: string | null;
+            intro?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'configurator';
+          }
       )[]
     | null;
   meta?: {
@@ -350,6 +363,126 @@ export interface Page {
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "truck-families".
+ */
+export interface TruckFamily {
+  id: string;
+  name: string;
+  key: string;
+  sortOrder: number;
+  description?: string | null;
+  basePrice: number;
+  sku?: string | null;
+  image?: (string | null) | Media;
+  brochure?: (string | null) | Document;
+  deliveryTime: string;
+  warranty: string;
+  steps: {
+    key: string;
+    label: string;
+    heading: string;
+    description?: string | null;
+    groups: {
+      key: string;
+      label: string;
+      description?: string | null;
+      selectionMode: 'single' | 'multiple';
+      required?: boolean | null;
+      options: {
+        key: string;
+        label: string;
+        description?: string | null;
+        priceMode: 'included' | 'add' | 'replaceBase';
+        price: number;
+        defaultSelected?: boolean | null;
+        sku?: string | null;
+        conditions?: {
+          allOf?:
+            | {
+                /**
+                 * Format: grupp-nyckel.alternativ-nyckel
+                 */
+                reference: string;
+                id?: string | null;
+              }[]
+            | null;
+          anyOf?:
+            | {
+                /**
+                 * Format: grupp-nyckel.alternativ-nyckel
+                 */
+                reference: string;
+                id?: string | null;
+              }[]
+            | null;
+          noneOf?:
+            | {
+                /**
+                 * Format: grupp-nyckel.alternativ-nyckel
+                 */
+                reference: string;
+                id?: string | null;
+              }[]
+            | null;
+        };
+        specifications?:
+          | {
+              label: string;
+              value: string;
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+      }[];
+      id?: string | null;
+    }[];
+    id?: string | null;
+  }[];
+  publishedAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "configurator-requests".
+ */
+export interface ConfiguratorRequest {
+  id: string;
+  reference: string;
+  idempotencyKey: string;
+  requestType: 'order' | 'call';
+  status: 'new' | 'contacted' | 'processing' | 'completed' | 'rejected';
+  locale: 'sv' | 'en';
+  sourceUrl?: string | null;
+  contact: {
+    company?: string | null;
+    organizationNumber?: string | null;
+    name: string;
+    email?: string | null;
+    phone: string;
+  };
+  callPreference?: ('asap' | 'specific') | null;
+  preferredTime?: string | null;
+  message?: string | null;
+  snapshot:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  emailStatus: 'pending' | 'sent' | 'failed' | 'notConfigured';
+  salesEmailId?: string | null;
+  customerEmailId?: string | null;
+  emailError?: string | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -565,6 +698,14 @@ export interface PayloadLockedDocument {
         value: string | Page;
       } | null)
     | ({
+        relationTo: 'truck-families';
+        value: string | TruckFamily;
+      } | null)
+    | ({
+        relationTo: 'configurator-requests';
+        value: string | ConfiguratorRequest;
+      } | null)
+    | ({
         relationTo: 'redirects';
         value: string | Redirect;
       } | null)
@@ -746,6 +887,14 @@ export interface PagesSelect<T extends boolean = true> {
               id?: T;
               blockName?: T;
             };
+        configurator?:
+          | T
+          | {
+              heading?: T;
+              intro?: T;
+              id?: T;
+              blockName?: T;
+            };
       };
   meta?:
     | T
@@ -757,6 +906,117 @@ export interface PagesSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "truck-families_select".
+ */
+export interface TruckFamiliesSelect<T extends boolean = true> {
+  name?: T;
+  key?: T;
+  sortOrder?: T;
+  description?: T;
+  basePrice?: T;
+  sku?: T;
+  image?: T;
+  brochure?: T;
+  deliveryTime?: T;
+  warranty?: T;
+  steps?:
+    | T
+    | {
+        key?: T;
+        label?: T;
+        heading?: T;
+        description?: T;
+        groups?:
+          | T
+          | {
+              key?: T;
+              label?: T;
+              description?: T;
+              selectionMode?: T;
+              required?: T;
+              options?:
+                | T
+                | {
+                    key?: T;
+                    label?: T;
+                    description?: T;
+                    priceMode?: T;
+                    price?: T;
+                    defaultSelected?: T;
+                    sku?: T;
+                    conditions?:
+                      | T
+                      | {
+                          allOf?:
+                            | T
+                            | {
+                                reference?: T;
+                                id?: T;
+                              };
+                          anyOf?:
+                            | T
+                            | {
+                                reference?: T;
+                                id?: T;
+                              };
+                          noneOf?:
+                            | T
+                            | {
+                                reference?: T;
+                                id?: T;
+                              };
+                        };
+                    specifications?:
+                      | T
+                      | {
+                          label?: T;
+                          value?: T;
+                          id?: T;
+                        };
+                    id?: T;
+                  };
+              id?: T;
+            };
+        id?: T;
+      };
+  publishedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "configurator-requests_select".
+ */
+export interface ConfiguratorRequestsSelect<T extends boolean = true> {
+  reference?: T;
+  idempotencyKey?: T;
+  requestType?: T;
+  status?: T;
+  locale?: T;
+  sourceUrl?: T;
+  contact?:
+    | T
+    | {
+        company?: T;
+        organizationNumber?: T;
+        name?: T;
+        email?: T;
+        phone?: T;
+      };
+  callPreference?: T;
+  preferredTime?: T;
+  message?: T;
+  snapshot?: T;
+  emailStatus?: T;
+  salesEmailId?: T;
+  customerEmailId?: T;
+  emailError?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -930,6 +1190,29 @@ export interface Footer {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "configurator-settings".
+ */
+export interface ConfiguratorSetting {
+  id: string;
+  quoteValidityDays: number;
+  financingMethods: {
+    key: string;
+    label: string;
+    description?: string | null;
+    kind: 'purchase' | 'monthly';
+    months?: number | null;
+    /**
+     * Exempel: 0.01875 motsvarar 1,875 % av totalpriset.
+     */
+    monthlyFactor?: number | null;
+    id?: string | null;
+  }[];
+  _status?: ('draft' | 'published') | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "header_select".
  */
 export interface HeaderSelect<T extends boolean = true> {
@@ -981,6 +1264,28 @@ export interface FooterSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "configurator-settings_select".
+ */
+export interface ConfiguratorSettingsSelect<T extends boolean = true> {
+  quoteValidityDays?: T;
+  financingMethods?:
+    | T
+    | {
+        key?: T;
+        label?: T;
+        description?: T;
+        kind?: T;
+        months?: T;
+        monthlyFactor?: T;
+        id?: T;
+      };
+  _status?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "collections_widget".
  */
 export interface CollectionsWidget {
@@ -997,11 +1302,16 @@ export interface TaskSchedulePublish {
   input: {
     type?: ('publish' | 'unpublish') | null;
     locale?: string | null;
-    doc?: {
-      relationTo: 'pages';
-      value: string | Page;
-    } | null;
-    global?: ('header' | 'footer') | null;
+    doc?:
+      | ({
+          relationTo: 'pages';
+          value: string | Page;
+        } | null)
+      | ({
+          relationTo: 'truck-families';
+          value: string | TruckFamily;
+        } | null);
+    global?: ('header' | 'footer' | 'configurator-settings') | null;
     user?: (string | null) | User;
   };
   output?: unknown;

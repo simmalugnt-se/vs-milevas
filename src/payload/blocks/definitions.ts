@@ -1,5 +1,7 @@
 import type { Block } from "payload";
-import type { ReactNode } from "react";
+import { createElement, type ReactNode } from "react";
+import { ConfiguratorBlockComponent } from "./Configurator/Component";
+import { ConfiguratorBlock } from "./Configurator/config";
 import { HeroBlockComponent } from "./Hero/Component";
 import { HeroBlock } from "./Hero/config";
 import { MediaBlockComponent } from "./Media/Component";
@@ -39,12 +41,16 @@ export const layoutBlocks: Block[] = [
   HeroBlock,
   RichTextBlock,
   MediaBlock,
+  ConfiguratorBlock,
   // sl-cli:layout-blocks (do not remove)
 ];
 
 export const blockComponents = {
   hero: renderTypedBlock("hero", ({ block }) => HeroBlockComponent({ block })),
   media: renderTypedBlock("media", ({ block }) => MediaBlockComponent({ block })),
+  configurator: renderTypedBlock("configurator", ({ block }) =>
+    createElement(ConfiguratorBlockComponent, { block }),
+  ),
   richText: renderTypedBlock("richText", ({ block }) => RichTextBlockComponent({ block })),
   // sl-cli:block-components-map (do not remove)
 } satisfies Record<string, LayoutBlockRenderer>;

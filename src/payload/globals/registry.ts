@@ -1,4 +1,5 @@
 import type { GlobalConfig } from "payload";
+import { ConfiguratorSettings } from "./ConfiguratorSettings/config.ts";
 import { Footer } from "./Footer/config.ts";
 import { Header } from "./Header/config.ts";
 
@@ -7,5 +8,6 @@ import { Header } from "./Header/config.ts";
 export const payloadGlobals: GlobalConfig[] = [
   Header,
   Footer,
+  ConfiguratorSettings,
   // sl-cli:array (do not remove)
 ];
