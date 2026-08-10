@@ -38,6 +38,26 @@ export const ConfiguratorSettings: GlobalConfig = {
           min: 0,
           admin: { description: "Exempel: 0.01875 motsvarar 1,875 % av totalpriset." },
         },
+        {
+          name: "serviceAgreementEligible",
+          type: "checkbox",
+          defaultValue: false,
+          admin: { description: "Visar serviceavtal som ett val för denna finansieringsmetod." },
+        },
+      ],
+    },
+    {
+      name: "serviceAgreement",
+      type: "group",
+      fields: [
+        { name: "label", type: "text", localized: true, required: true, defaultValue: "Serviceavtal" },
+        {
+          name: "description",
+          type: "textarea",
+          localized: true,
+          defaultValue: "Årlig kostnad. Faktureras separat.",
+        },
+        { name: "annualPrice", type: "number", required: true, min: 0, defaultValue: 2856 },
       ],
     },
   ],

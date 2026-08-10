@@ -11,12 +11,14 @@ function HiddenConfiguration({
   financingKey,
   locale,
   selections,
+  serviceAgreement = false,
   submissionKey,
 }: {
   familyKey: string;
   financingKey: string;
   locale: string;
   selections: SelectionState;
+  serviceAgreement?: boolean;
   submissionKey: string;
 }) {
   return (
@@ -25,6 +27,7 @@ function HiddenConfiguration({
       <input type="hidden" name="financingKey" value={financingKey} />
       <input type="hidden" name="locale" value={locale} />
       <input type="hidden" name="selections" value={JSON.stringify(selections)} />
+      <input type="hidden" name="serviceAgreement" value={serviceAgreement ? "1" : "0"} />
       <input type="hidden" name="submissionKey" value={submissionKey} />
       <input className="hidden" tabIndex={-1} autoComplete="off" name="website" aria-hidden />
     </>
@@ -49,11 +52,13 @@ export function CallRequestForm({
   financingKey,
   locale,
   selections,
+  serviceAgreement,
 }: {
   familyKey: string;
   financingKey: string;
   locale: string;
   selections: SelectionState;
+  serviceAgreement: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const [state, formAction, pending] = useActionState(submitCallRequest, initialActionState);
@@ -110,24 +115,50 @@ export function CallRequestForm({
           financingKey={financingKey}
           locale={locale}
           selections={selections}
+          serviceAgreement={serviceAgreement}
           submissionKey={submissionKey}
         />
         <label className={labelClassName}>
-          Namn *<input className={fieldClassName} name="name" autoComplete="name" required />
+          Namn *
+          <input
+            className={fieldClassName}
+            name="name"
+            autoComplete="name"
+            defaultValue={state.formValues?.name}
+            required
+          />
           <FieldError state={state} name="name" />
         </label>
         <label className={labelClassName}>
           Telefon *
-          <input className={fieldClassName} name="phone" type="tel" autoComplete="tel" required />
+          <input
+            className={fieldClassName}
+            name="phone"
+            type="tel"
+            autoComplete="tel"
+            defaultValue={state.formValues?.phone}
+            required
+          />
           <FieldError state={state} name="phone" />
         </label>
         <label className={labelClassName}>
           Företag
-          <input className={fieldClassName} name="company" autoComplete="organization" />
+          <input
+            className={fieldClassName}
+            name="company"
+            autoComplete="organization"
+            defaultValue={state.formValues?.company}
+          />
         </label>
         <label className={labelClassName}>
           E-post
-          <input className={fieldClassName} name="email" type="email" autoComplete="email" />
+          <input
+            className={fieldClassName}
+            name="email"
+            type="email"
+            autoComplete="email"
+            defaultValue={state.formValues?.email}
+          />
           <FieldError state={state} name="email" />
         </label>
         <fieldset className="space-y-2 border-y border-neutral-300 py-3">
@@ -138,7 +169,7 @@ export function CallRequestForm({
               type="radio"
               name="callPreference"
               value="asap"
-              defaultChecked
+              defaultChecked={(state.formValues?.callPreference ?? "asap") === "asap"}
             />
             Så snart som möjligt
           </label>
@@ -148,6 +179,7 @@ export function CallRequestForm({
               type="radio"
               name="callPreference"
               value="specific"
+              defaultChecked={state.formValues?.callPreference === "specific"}
             />
             Jag önskar en särskild tid
           </label>
@@ -158,12 +190,17 @@ export function CallRequestForm({
             className={fieldClassName}
             name="preferredTime"
             placeholder="Till exempel vardagar efter 14"
+            defaultValue={state.formValues?.preferredTime}
           />
           <FieldError state={state} name="preferredTime" />
         </label>
         <label className={labelClassName}>
           Meddelande
-          <textarea className={`${fieldClassName} min-h-24 resize-y`} name="message" />
+          <textarea
+            className={`${fieldClassName} min-h-24 resize-y`}
+            name="message"
+            defaultValue={state.formValues?.message}
+          />
         </label>
         {state.message ? (
           <p className="text-sm text-red-700" role="alert">
@@ -227,11 +264,18 @@ export function OrderRequestForm({ quote, locale }: { quote: ConfiguratorQuote; 
           financingKey={quote.financing.key}
           locale={locale}
           selections={quote.selections}
+          serviceAgreement={Boolean(quote.serviceAgreement)}
           submissionKey={submissionKey}
         />
         <label className={labelClassName}>
           Företagsnamn *
-          <input className={fieldClassName} name="company" autoComplete="organization" required />
+          <input
+            className={fieldClassName}
+            name="company"
+            autoComplete="organization"
+            defaultValue={state.formValues?.company}
+            required
+          />
           <FieldError state={state} name="company" />
         </label>
         <label className={labelClassName}>
@@ -240,13 +284,20 @@ export function OrderRequestForm({ quote, locale }: { quote: ConfiguratorQuote; 
             className={fieldClassName}
             name="organizationNumber"
             placeholder="556000-0000"
+            defaultValue={state.formValues?.organizationNumber}
             required
           />
           <FieldError state={state} name="organizationNumber" />
         </label>
         <label className={labelClassName}>
           Kontaktperson *
-          <input className={fieldClassName} name="name" autoComplete="name" required />
+          <input
+            className={fieldClassName}
+            name="name"
+            autoComplete="name"
+            defaultValue={state.formValues?.name}
+            required
+          />
           <FieldError state={state} name="name" />
         </label>
         <label className={labelClassName}>
@@ -256,18 +307,30 @@ export function OrderRequestForm({ quote, locale }: { quote: ConfiguratorQuote; 
             name="email"
             type="email"
             autoComplete="email"
+            defaultValue={state.formValues?.email}
             required
           />
           <FieldError state={state} name="email" />
         </label>
         <label className={labelClassName}>
           Telefon *
-          <input className={fieldClassName} name="phone" type="tel" autoComplete="tel" required />
+          <input
+            className={fieldClassName}
+            name="phone"
+            type="tel"
+            autoComplete="tel"
+            defaultValue={state.formValues?.phone}
+            required
+          />
           <FieldError state={state} name="phone" />
         </label>
         <label className={labelClassName}>
           Meddelande
-          <textarea className={`${fieldClassName} min-h-28 resize-y`} name="message" />
+          <textarea
+            className={`${fieldClassName} min-h-28 resize-y`}
+            name="message"
+            defaultValue={state.formValues?.message}
+          />
         </label>
         {state.message ? (
           <p className="text-sm text-red-700" role="alert">

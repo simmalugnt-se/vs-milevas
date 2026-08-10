@@ -3,7 +3,7 @@ import type { TypedLocale } from "payload";
 
 export const routing = defineRouting({
   locales: ["en", "sv"],
-  defaultLocale: "en",
+  defaultLocale: "sv",
   localePrefix: "as-needed",
   localeDetection: false,
 });

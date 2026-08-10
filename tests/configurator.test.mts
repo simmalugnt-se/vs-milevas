@@ -95,9 +95,19 @@ const family: ConfiguratorFamily = {
 const catalog: ConfiguratorCatalog = {
   families: [family],
   financingMethods: [
-    { key: "purchase", label: "Köp", kind: "purchase" },
-    { key: "leasing", label: "Leasing", kind: "monthly", monthlyFactor: 0.01875 },
+    { key: "purchase", label: "Köp", kind: "purchase", serviceAgreementEligible: true },
+    {
+      key: "leasing",
+      label: "Leasing",
+      kind: "monthly",
+      monthlyFactor: 0.01875,
+      serviceAgreementEligible: true,
+    },
   ],
+  serviceAgreement: {
+    label: "Serviceavtal",
+    annualPrice: 2856,
+  },
   quoteValidityDays: 14,
 };
 
@@ -131,12 +141,29 @@ test("financing rounds to whole SEK", () => {
   assert.equal(calculateFinancingPrice(173900, catalog.financingMethods[1]), 3261);
 });
 
+test("service agreement is separate from the financed truck price", () => {
+  const quote = buildQuote(catalog, family.key, { extras: ["alarm"] }, "leasing", true);
+  assert.ok(quote);
+  assert.equal(quote.totalPrice, 125000);
+  assert.equal(quote.financingPrice, 2344);
+  assert.deepEqual(quote.serviceAgreement, { label: "Serviceavtal", annualPrice: 2856 });
+  assert.deepEqual(
+    quote.lines.map(({ label, price, kind }) => ({ label, price, kind })),
+    [
+      { label: "Testtruck - bas (Liten)", price: 120000, kind: "base" },
+      { label: "Larm", price: 5000, kind: "option" },
+      { label: "Serviceavtal", price: 2856, kind: "service" },
+    ],
+  );
+});
+
 test("shareable URL state round-trips and drops malformed references", () => {
   const selections = { model: ["large"], extras: ["alarm", "camera"] };
   const params = buildConfiguratorSearchParams({
     family,
     selections,
     financingKey: "leasing",
+    serviceAgreement: true,
     step: 2,
   });
   params.append("selection", "invalid");
@@ -145,6 +172,7 @@ test("shareable URL state round-trips and drops malformed references", () => {
   const parsed = parseConfiguratorSearchParams(params);
   assert.equal(parsed.familyKey, family.key);
   assert.equal(parsed.financingKey, "leasing");
+  assert.equal(parsed.serviceAgreement, true);
   assert.equal(parsed.step, 2);
   assert.deepEqual(parsed.selections, selections);
   assert.deepEqual(parseSelectionReferences(["bad", ".bad", "bad."]), {});

@@ -30,6 +30,10 @@ function formatPrice(value: number) {
   }).format(value);
 }
 
+function linePrice(line: { kind: "base" | "option" | "service"; price: number }) {
+  return `${formatPrice(line.price)}${line.kind === "service" ? "/år" : ""}`;
+}
+
 export default async function QuotePage({ params, searchParams }: QuotePageProps) {
   const [{ locale: localeParam }, query] = await Promise.all([params, searchParams]);
   const locale = (localeParam === "sv" ? "sv" : "en") as TypedLocale;
@@ -37,7 +41,13 @@ export default async function QuotePage({ params, searchParams }: QuotePageProps
   const familyKey = typeof query.family === "string" ? query.family : "";
   const financingKey = typeof query.financing === "string" ? query.financing : "";
   const selections = parseSelectionReferences(values(query.selection));
-  const quote = buildQuote(catalog, familyKey, selections, financingKey);
+  const quote = buildQuote(
+    catalog,
+    familyKey,
+    selections,
+    financingKey,
+    query.serviceAgreement === "1",
+  );
   const configuratorHref = frontendPath("/configurator", locale);
 
   if (!quote) {
@@ -68,6 +78,7 @@ export default async function QuotePage({ params, searchParams }: QuotePageProps
     family,
     selections: quote.selections,
     financingKey: quote.financing.key,
+    serviceAgreement: Boolean(quote.serviceAgreement),
     step: family ? family.steps.length + 1 : undefined,
   });
 
@@ -109,7 +120,7 @@ export default async function QuotePage({ params, searchParams }: QuotePageProps
                   key={line.key}
                 >
                   <dt className="text-neutral-700">{line.label}</dt>
-                  <dd className="shrink-0 font-medium">{formatPrice(line.price)}</dd>
+                  <dd className="shrink-0 font-medium">{linePrice(line)}</dd>
                 </div>
               ))}
               <div className="flex items-end justify-between gap-5 py-5">
@@ -137,6 +148,16 @@ export default async function QuotePage({ params, searchParams }: QuotePageProps
               </dl>
             </div>
           ) : null}
+          {family?.brochure ? (
+            <a
+              className="inline-block text-sm font-medium underline underline-offset-4"
+              href={family.brochure.url}
+              target="_blank"
+              rel="noreferrer"
+            >
+              {family.brochure.title}
+            </a>
+          ) : null}
         </div>
 
         <aside className="space-y-5 lg:sticky lg:top-5">
@@ -162,7 +183,7 @@ export default async function QuotePage({ params, searchParams }: QuotePageProps
               </div>
             </dl>
             <p className="mt-4 text-xs leading-5 text-neutral-400">
-              Priset baseras på aktuellt lager och bekräftas av säljare.
+              Alla priser visas exkl. moms. Priset baseras på aktuellt lager och bekräftas av säljare.
             </p>
           </div>
           <OrderRequestForm quote={quote} locale={locale} />

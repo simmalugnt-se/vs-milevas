@@ -62,11 +62,19 @@ export type FinancingMethod = {
   kind: "purchase" | "monthly";
   months?: number;
   monthlyFactor?: number;
+  serviceAgreementEligible: boolean;
+};
+
+export type ServiceAgreement = {
+  label: string;
+  description?: string;
+  annualPrice: number;
 };
 
 export type ConfiguratorCatalog = {
   families: ConfiguratorFamily[];
   financingMethods: FinancingMethod[];
+  serviceAgreement?: ServiceAgreement;
   quoteValidityDays: number;
 };
 
@@ -74,7 +82,7 @@ export type QuoteLine = {
   key: string;
   label: string;
   price: number;
-  kind: "base" | "option";
+  kind: "base" | "option" | "service";
 };
 
 export type ConfiguratorQuote = {
@@ -94,6 +102,7 @@ export type ConfiguratorQuote = {
   totalPrice: number;
   financing: FinancingMethod;
   financingPrice: number;
+  serviceAgreement?: ServiceAgreement;
   deliveryTime: string;
   warranty: string;
   quoteValidityDays: number;
@@ -104,6 +113,16 @@ export type ConfiguratorActionState = {
   reference?: string;
   message?: string;
   fieldErrors?: Record<string, string>;
+  formValues?: {
+    company: string;
+    organizationNumber: string;
+    name: string;
+    email: string;
+    phone: string;
+    message: string;
+    callPreference: "asap" | "specific";
+    preferredTime: string;
+  };
 };
 
 export type ConfiguratorRequestSnapshot = {

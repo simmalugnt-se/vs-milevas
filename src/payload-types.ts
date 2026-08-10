@@ -468,6 +468,10 @@ export interface ConfiguratorRequest {
   callPreference?: ('asap' | 'specific') | null;
   preferredTime?: string | null;
   message?: string | null;
+  serviceAgreement?: {
+    selected?: boolean | null;
+    annualPrice?: number | null;
+  };
   snapshot:
     | {
         [k: string]: unknown;
@@ -1010,6 +1014,12 @@ export interface ConfiguratorRequestsSelect<T extends boolean = true> {
   callPreference?: T;
   preferredTime?: T;
   message?: T;
+  serviceAgreement?:
+    | T
+    | {
+        selected?: T;
+        annualPrice?: T;
+      };
   snapshot?: T;
   emailStatus?: T;
   salesEmailId?: T;
@@ -1205,8 +1215,17 @@ export interface ConfiguratorSetting {
      * Exempel: 0.01875 motsvarar 1,875 % av totalpriset.
      */
     monthlyFactor?: number | null;
+    /**
+     * Visar serviceavtal som ett val för denna finansieringsmetod.
+     */
+    serviceAgreementEligible?: boolean | null;
     id?: string | null;
   }[];
+  serviceAgreement: {
+    label: string;
+    description?: string | null;
+    annualPrice: number;
+  };
   _status?: ('draft' | 'published') | null;
   updatedAt?: string | null;
   createdAt?: string | null;
@@ -1277,7 +1296,15 @@ export interface ConfiguratorSettingsSelect<T extends boolean = true> {
         kind?: T;
         months?: T;
         monthlyFactor?: T;
+        serviceAgreementEligible?: T;
         id?: T;
+      };
+  serviceAgreement?:
+    | T
+    | {
+        label?: T;
+        description?: T;
+        annualPrice?: T;
       };
   _status?: T;
   updatedAt?: T;

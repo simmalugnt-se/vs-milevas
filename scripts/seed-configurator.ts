@@ -1,5 +1,7 @@
 import dotenv from "dotenv";
+import path from "node:path";
 import type { Payload, RequiredDataFromCollectionSlug } from "payload";
+import { fileURLToPath } from "node:url";
 
 dotenv.config({ path: ".env.local" });
 dotenv.config();
@@ -12,6 +14,15 @@ type FamilyInput = RequiredDataFromCollectionSlug<"truck-families">;
 type StepInput = NonNullable<FamilyInput["steps"]>[number];
 type GroupInput = StepInput["groups"][number];
 type OptionInput = GroupInput["options"][number];
+
+const assetDirectory = path.join(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "../src/payload/seed/assets",
+);
+const placeholderImagePath = path.join(assetDirectory, "truck-placeholder.webp");
+const placeholderBrochurePath = path.join(assetDirectory, "produktbroschyr-placeholder.pdf");
+const placeholderImageFilename = "truck-placeholder.webp";
+const placeholderBrochureFilename = "produktbroschyr-placeholder.pdf";
 
 const option = (
   key: string,
@@ -273,7 +284,54 @@ const families: FamilyInput[] = [
   },
 ];
 
-async function upsertFamily(payload: Payload, data: FamilyInput) {
+async function placeholderMedia(payload: Payload) {
+  const existing = await payload.find({
+    collection: "media",
+    overrideAccess: true,
+    limit: 1,
+    where: { filename: { equals: placeholderImageFilename } },
+  });
+  if (existing.docs[0]) return existing.docs[0];
+
+  return payload.create({
+    collection: "media",
+    locale: "sv",
+    data: { alt: "Placeholderbild för truck" },
+    filePath: placeholderImagePath,
+    overrideAccess: true,
+    context: { disableRevalidate: true },
+  });
+}
+
+async function placeholderBrochure(payload: Payload) {
+  const existing = await payload.find({
+    collection: "documents",
+    overrideAccess: true,
+    limit: 1,
+    where: { filename: { equals: placeholderBrochureFilename } },
+  });
+  if (existing.docs[0]) return existing.docs[0];
+
+  return payload.create({
+    collection: "documents",
+    locale: "sv",
+    data: {
+      title: "Produktbroschyr - placeholder",
+      description: "Tillfällig broschyr som ersätts av produktens riktiga datablad.",
+    },
+    filePath: placeholderBrochurePath,
+    overrideAccess: true,
+    context: { disableRevalidate: true },
+  });
+}
+
+async function upsertFamily(
+  payload: Payload,
+  data: FamilyInput,
+  imageID: string,
+  brochureID: string,
+) {
+  const { image: _image, brochure: _brochure, ...familyData } = data;
   const existing = await payload.find({
     collection: "truck-families",
     locale: "sv",
@@ -284,11 +342,16 @@ async function upsertFamily(payload: Payload, data: FamilyInput) {
   });
 
   if (existing.docs[0]) {
+    const existingFamily = existing.docs[0];
     await payload.update({
       collection: "truck-families",
-      id: existing.docs[0].id,
+      id: existingFamily.id,
       locale: "sv",
-      data,
+      data: {
+        ...familyData,
+        ...(existingFamily.image ? {} : { image: imageID }),
+        ...(existingFamily.brochure ? {} : { brochure: brochureID }),
+      },
       draft: false,
       overrideAccess: true,
       context: { disableRevalidate: true },
@@ -299,7 +362,7 @@ async function upsertFamily(payload: Payload, data: FamilyInput) {
   await payload.create({
     collection: "truck-families",
     locale: "sv",
-    data,
+    data: { ...familyData, image: imageID, brochure: brochureID },
     draft: false,
     overrideAccess: true,
     context: { disableRevalidate: true },
@@ -310,99 +373,116 @@ async function seed() {
   const { default: config } = await import("../src/payload.config.ts");
   const { getPayload } = await import("payload");
   const payload = await getPayload({ config });
+  try {
+    const [image, brochure] = await Promise.all([
+      placeholderMedia(payload),
+      placeholderBrochure(payload),
+    ]);
 
-  for (const family of families) {
-    await upsertFamily(payload, family);
-  }
+    for (const family of families) {
+      await upsertFamily(payload, family, image.id, brochure.id);
+    }
 
-  await payload.updateGlobal({
-    slug: "configurator-settings",
-    locale: "sv",
-    draft: false,
-    overrideAccess: true,
-    context: { disableRevalidate: true },
-    data: {
-      quoteValidityDays: 14,
-      financingMethods: [
-        {
-          key: "purchase",
-          label: "Köp",
-          description: "Betala hela beloppet och äg trucken.",
-          kind: "purchase",
-        },
-        {
-          key: "leasing",
-          label: "Leasing",
-          description: "Fast beräknad månadskostnad.",
-          kind: "monthly",
-          months: 48,
-          monthlyFactor: 0.01875,
-        },
-        {
-          key: "long-term-rental",
-          label: "Långtidshyra",
-          description: "Beräknad månadskostnad inklusive service enligt separat avtal.",
-          kind: "monthly",
-          months: 48,
-          monthlyFactor: 0.0191667,
-        },
-      ],
-      _status: "published",
-    },
-  });
-
-  const pages = await payload.find({
-    collection: "pages",
-    locale: "sv",
-    draft: true,
-    overrideAccess: true,
-    limit: 1,
-    where: { slug: { equals: "configurator" } },
-  });
-  const existingPage = pages.docs[0];
-
-  if (!existingPage) {
-    await payload.create({
-      collection: "pages",
+    await payload.updateGlobal({
+      slug: "configurator-settings",
       locale: "sv",
       draft: false,
       overrideAccess: true,
       context: { disableRevalidate: true },
       data: {
-        title: "Configurator",
-        slug: "configurator",
+        quoteValidityDays: 14,
+        serviceAgreement: {
+          label: "Serviceavtal",
+          description: "Årlig kostnad. Faktureras separat.",
+          annualPrice: 2856,
+        },
+        financingMethods: [
+          {
+            key: "purchase",
+            label: "Köp",
+            description: "Betala hela beloppet och äg trucken.",
+            kind: "purchase",
+            serviceAgreementEligible: true,
+          },
+          {
+            key: "leasing",
+            label: "Leasing",
+            description: "Fast beräknad månadskostnad.",
+            kind: "monthly",
+            months: 48,
+            monthlyFactor: 0.01875,
+            serviceAgreementEligible: true,
+          },
+          {
+            key: "long-term-rental",
+            label: "Långtidshyra",
+            description: "Beräknad månadskostnad inklusive service enligt separat avtal.",
+            kind: "monthly",
+            months: 48,
+            monthlyFactor: 0.0191667,
+            serviceAgreementEligible: false,
+          },
+        ],
         _status: "published",
-        layout: [
-          {
-            blockType: "configurator",
-            heading: "Bygg din truck",
-            intro: "Välj trucktyp och konfigurera ett utförande som passar verksamheten.",
-          },
-        ],
       },
     });
-  } else if (!existingPage.layout?.some((block) => block.blockType === "configurator")) {
-    await payload.update({
-      collection: "pages",
-      id: existingPage.id,
-      locale: "sv",
-      draft: false,
-      overrideAccess: true,
-      context: { disableRevalidate: true },
-      data: {
-        layout: [
-          ...(existingPage.layout ?? []),
-          {
-            blockType: "configurator",
-            heading: "Bygg din truck",
-            intro: "Välj trucktyp och konfigurera ett utförande som passar verksamheten.",
-          },
-        ],
-      },
-    });
-  }
 
-  payload.logger.info("Seeded configurator development catalog and page.");
+    const pages = await payload.find({
+      collection: "pages",
+      locale: "sv",
+      draft: true,
+      overrideAccess: true,
+      limit: 1,
+      where: { slug: { equals: "configurator" } },
+    });
+    const existingPage = pages.docs[0];
+
+    if (!existingPage) {
+      await payload.create({
+        collection: "pages",
+        locale: "sv",
+        draft: false,
+        overrideAccess: true,
+        context: { disableRevalidate: true },
+        data: {
+          title: "Configurator",
+          slug: "configurator",
+          _status: "published",
+          layout: [
+            {
+              blockType: "configurator",
+              heading: "Bygg din truck",
+              intro: "Välj trucktyp och konfigurera ett utförande som passar verksamheten.",
+            },
+          ],
+        },
+      });
+    } else if (!existingPage.layout?.some((block) => block.blockType === "configurator")) {
+      await payload.update({
+        collection: "pages",
+        id: existingPage.id,
+        locale: "sv",
+        draft: false,
+        overrideAccess: true,
+        context: { disableRevalidate: true },
+        data: {
+          layout: [
+            ...(existingPage.layout ?? []),
+            {
+              blockType: "configurator",
+              heading: "Bygg din truck",
+              intro: "Välj trucktyp och konfigurera ett utförande som passar verksamheten.",
+            },
+          ],
+        },
+      });
+    }
+
+    payload.logger.info("Seeded configurator development catalog and page.");
+  } finally {
+    await payload.destroy();
+  }
 }
 
 await seed();
+process.exit(0);

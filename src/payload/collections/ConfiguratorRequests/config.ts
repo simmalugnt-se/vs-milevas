@@ -71,6 +71,14 @@ export const ConfiguratorRequests: CollectionConfig = {
     },
     { name: "preferredTime", type: "text" },
     { name: "message", type: "textarea" },
+    {
+      name: "serviceAgreement",
+      type: "group",
+      fields: [
+        { name: "selected", type: "checkbox", defaultValue: false },
+        { name: "annualPrice", type: "number", min: 0 },
+      ],
+    },
     { name: "snapshot", type: "json", required: true },
     {
       name: "emailStatus",

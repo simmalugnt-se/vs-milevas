@@ -118,6 +118,7 @@ export function buildQuote(
   familyKey: string,
   inputSelections: SelectionState,
   financingKey: string,
+  includeServiceAgreement = false,
 ): ConfiguratorQuote | null {
   const family = catalog.families.find((candidate) => candidate.key === familyKey);
   const financing = catalog.financingMethods.find((candidate) => candidate.key === financingKey);
@@ -134,6 +135,7 @@ export function buildQuote(
   let baseLabel = family.name;
   let sku = family.sku;
   const additions: Array<{ key: string; label: string; price: number }> = [];
+  const optionLines: ConfiguratorQuote["lines"] = [];
   const selectedOptions: ConfiguratorQuote["selectedOptions"] = [];
   const specifications: ConfiguratorSpecification[] = [];
 
@@ -148,7 +150,17 @@ export function buildQuote(
         if (option.priceMode === "replaceBase") {
           basePrice = option.price;
           baseLabel = option.label;
-        } else if (option.priceMode === "add") {
+        } else {
+          const price = option.priceMode === "included" ? 0 : option.price;
+          optionLines.push({
+            key: selectionReference(group.key, option.key),
+            label: option.label,
+            price,
+            kind: "option",
+          });
+        }
+
+        if (option.priceMode === "add") {
           additions.push({
             key: selectionReference(group.key, option.key),
             label: option.label,
@@ -172,6 +184,10 @@ export function buildQuote(
   }
 
   const totalPrice = basePrice + additions.reduce((sum, addition) => sum + addition.price, 0);
+  const serviceAgreement =
+    includeServiceAgreement && financing.serviceAgreementEligible
+      ? catalog.serviceAgreement
+      : undefined;
 
   return {
     familyKey: family.key,
@@ -180,13 +196,24 @@ export function buildQuote(
     selections,
     selectedOptions,
     lines: [
-      { key: "base", label: baseLabel, price: basePrice, kind: "base" },
-      ...additions.map((addition) => ({ ...addition, kind: "option" as const })),
+      { key: "base", label: `${family.name} - bas (${baseLabel})`, price: basePrice, kind: "base" },
+      ...optionLines,
+      ...(serviceAgreement
+        ? [
+            {
+              key: "service-agreement",
+              label: serviceAgreement.label,
+              price: serviceAgreement.annualPrice,
+              kind: "service" as const,
+            },
+          ]
+        : []),
     ],
     specifications,
     totalPrice,
     financing,
     financingPrice: calculateFinancingPrice(totalPrice, financing),
+    serviceAgreement,
     deliveryTime: family.deliveryTime,
     warranty: family.warranty,
     quoteValidityDays: catalog.quoteValidityDays,

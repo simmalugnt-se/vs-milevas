@@ -3,6 +3,7 @@ import type { ConfiguratorFamily, SelectionState } from "./types";
 export type ParsedConfiguratorUrl = {
   familyKey?: string;
   financingKey?: string;
+  serviceAgreement: boolean;
   selections: SelectionState;
   step?: number;
 };
@@ -26,6 +27,7 @@ export function parseConfiguratorSearchParams(params: URLSearchParams): ParsedCo
   return {
     familyKey: params.get("family") || undefined,
     financingKey: params.get("financing") || undefined,
+    serviceAgreement: params.get("serviceAgreement") === "1",
     selections: parseSelectionReferences(params.getAll("selection")),
     step: Number.isFinite(rawStep) && rawStep >= 0 ? rawStep : undefined,
   };
@@ -35,11 +37,13 @@ export function buildConfiguratorSearchParams({
   family,
   selections,
   financingKey,
+  serviceAgreement = false,
   step,
 }: {
   family?: ConfiguratorFamily;
   selections: SelectionState;
   financingKey?: string;
+  serviceAgreement?: boolean;
   step?: number;
 }): URLSearchParams {
   const params = new URLSearchParams();
@@ -55,6 +59,9 @@ export function buildConfiguratorSearchParams({
   }
   if (financingKey) {
     params.set("financing", financingKey);
+  }
+  if (serviceAgreement) {
+    params.set("serviceAgreement", "1");
   }
   if (typeof step === "number") {
     params.set("step", String(step));

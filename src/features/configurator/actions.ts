@@ -17,6 +17,20 @@ function textValue(formData: FormData, key: string, maxLength = 500) {
   return typeof value === "string" ? value.trim().slice(0, maxLength) : "";
 }
 
+function submittedFormValues(formData: FormData) {
+  return {
+    company: textValue(formData, "company", 200),
+    organizationNumber: textValue(formData, "organizationNumber", 20),
+    name: textValue(formData, "name", 200),
+    email: textValue(formData, "email", 320),
+    phone: textValue(formData, "phone", 100),
+    message: textValue(formData, "message", 3000),
+    callPreference:
+      textValue(formData, "callPreference", 20) === "specific" ? ("specific" as const) : ("asap" as const),
+    preferredTime: textValue(formData, "preferredTime", 200),
+  };
+}
+
 function parseSelections(value: string): SelectionState | null {
   try {
     const parsed: unknown = JSON.parse(value);
@@ -50,11 +64,19 @@ function validateBaseForm(formData: FormData) {
   const financingKey = textValue(formData, "financingKey", 100);
   const selections = parseSelections(textValue(formData, "selections", 10000));
   const submissionKey = textValue(formData, "submissionKey", 100);
+  const serviceAgreement = textValue(formData, "serviceAgreement", 1) === "1";
 
   if (!familyKey || !financingKey || !selections || !submissionKey) {
     return null;
   }
-  return { locale: locale as TypedLocale, familyKey, financingKey, selections, submissionKey };
+  return {
+    locale: locale as TypedLocale,
+    familyKey,
+    financingKey,
+    selections,
+    serviceAgreement,
+    submissionKey,
+  };
 }
 
 async function existingRequest(idempotencyKey: string) {
@@ -76,9 +98,14 @@ async function submitRequest(
     return { ok: false, message: "Förfrågan kunde inte skickas." };
   }
 
+  const formValues = submittedFormValues(formData);
   const base = validateBaseForm(formData);
   if (!base) {
-    return { ok: false, message: "Konfigurationen är ofullständig eller inte längre giltig." };
+    return {
+      ok: false,
+      formValues,
+      message: "Konfigurationen är ofullständig eller inte längre giltig.",
+    };
   }
 
   const idempotencyKey = `${requestType}:${base.submissionKey}`;
@@ -88,16 +115,18 @@ async function submitRequest(
   }
 
   const catalog = await getConfiguratorCatalog(base.locale, false);
-  const quote = buildQuote(catalog, base.familyKey, base.selections, base.financingKey);
+  const quote = buildQuote(
+    catalog,
+    base.familyKey,
+    base.selections,
+    base.financingKey,
+    base.serviceAgreement,
+  );
   if (!quote) {
     return { ok: false, message: "Konfigurationen är ofullständig eller inte längre giltig." };
   }
 
-  const name = textValue(formData, "name", 200);
-  const phone = textValue(formData, "phone", 100);
-  const company = textValue(formData, "company", 200);
-  const organizationNumber = textValue(formData, "organizationNumber", 20);
-  const email = textValue(formData, "email", 320);
+  const { name, phone, company, organizationNumber, email, preferredTime } = formValues;
   const fieldErrors: Record<string, string> = {};
 
   if (!name) fieldErrors.name = "Ange kontaktperson.";
@@ -113,15 +142,18 @@ async function submitRequest(
     fieldErrors.email = "Ange en giltig e-postadress.";
   }
 
-  const callPreference =
-    textValue(formData, "callPreference", 20) === "specific" ? "specific" : "asap";
-  const preferredTime = textValue(formData, "preferredTime", 200);
+  const { callPreference } = formValues;
   if (requestType === "call" && callPreference === "specific" && !preferredTime) {
     fieldErrors.preferredTime = "Ange när du vill bli kontaktad.";
   }
 
   if (Object.keys(fieldErrors).length > 0) {
-    return { ok: false, fieldErrors, message: "Kontrollera de markerade fälten." };
+    return {
+      ok: false,
+      fieldErrors,
+      formValues,
+      message: "Kontrollera de markerade fälten.",
+    };
   }
 
   const snapshot: ConfiguratorRequestSnapshot = {
@@ -155,6 +187,10 @@ async function submitRequest(
         callPreference: requestType === "call" ? callPreference : undefined,
         preferredTime: requestType === "call" ? preferredTime || undefined : undefined,
         message: textValue(formData, "message", 3000) || undefined,
+        serviceAgreement: {
+          selected: Boolean(quote.serviceAgreement),
+          annualPrice: quote.serviceAgreement?.annualPrice,
+        },
         snapshot,
         emailStatus: "pending",
       },

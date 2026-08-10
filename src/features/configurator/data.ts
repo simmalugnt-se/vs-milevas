@@ -12,16 +12,30 @@ import type {
 } from "./types";
 
 const DEFAULT_FINANCING: ConfiguratorCatalog["financingMethods"] = [
-  { key: "purchase", label: "Köp", kind: "purchase" },
-  { key: "leasing", label: "Leasing", kind: "monthly", months: 48, monthlyFactor: 0.01875 },
+  { key: "purchase", label: "Köp", kind: "purchase", serviceAgreementEligible: true },
+  {
+    key: "leasing",
+    label: "Leasing",
+    kind: "monthly",
+    months: 48,
+    monthlyFactor: 0.01875,
+    serviceAgreementEligible: true,
+  },
   {
     key: "long-term-rental",
     label: "Långtidshyra",
     kind: "monthly",
     months: 48,
     monthlyFactor: 0.0191667,
+    serviceAgreementEligible: false,
   },
 ];
+
+const DEFAULT_SERVICE_AGREEMENT: NonNullable<ConfiguratorCatalog["serviceAgreement"]> = {
+  label: "Serviceavtal",
+  description: "Årlig kostnad. Faktureras separat.",
+  annualPrice: 2856,
+};
 
 function references(
   values: Array<{ reference: string; id?: string | null }> | null | undefined,
@@ -96,13 +110,24 @@ function mapFamily(family: TruckFamily): ConfiguratorFamily {
 
 function mapSettings(
   settings: ConfiguratorSetting | null,
-): Pick<ConfiguratorCatalog, "financingMethods" | "quoteValidityDays"> {
+): Pick<ConfiguratorCatalog, "financingMethods" | "quoteValidityDays" | "serviceAgreement"> {
   if (!settings?.financingMethods?.length) {
-    return { financingMethods: DEFAULT_FINANCING, quoteValidityDays: 14 };
+    return {
+      financingMethods: DEFAULT_FINANCING,
+      quoteValidityDays: 14,
+      serviceAgreement: DEFAULT_SERVICE_AGREEMENT,
+    };
   }
 
   return {
     quoteValidityDays: settings.quoteValidityDays || 14,
+    serviceAgreement: settings.serviceAgreement
+      ? {
+          label: settings.serviceAgreement.label,
+          description: settings.serviceAgreement.description || undefined,
+          annualPrice: settings.serviceAgreement.annualPrice,
+        }
+      : DEFAULT_SERVICE_AGREEMENT,
     financingMethods: settings.financingMethods.map((method) => ({
       key: method.key,
       label: method.label,
@@ -110,6 +135,7 @@ function mapSettings(
       kind: method.kind,
       months: method.months ?? undefined,
       monthlyFactor: method.monthlyFactor ?? undefined,
+      serviceAgreementEligible: method.serviceAgreementEligible === true,
     })),
   };
 }

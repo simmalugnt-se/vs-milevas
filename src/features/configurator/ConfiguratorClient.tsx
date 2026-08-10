@@ -1,6 +1,7 @@
 "use client";
 
 import type { TypedLocale } from "payload";
+import Image from "next/image";
 import { useEffect, useReducer } from "react";
 import { frontendPath } from "@/i18n/frontend-path";
 import {
@@ -24,6 +25,7 @@ type State = {
   familyKey?: string;
   selections: SelectionState;
   financingKey?: string;
+  serviceAgreement: boolean;
   step: number;
 };
 
@@ -31,10 +33,11 @@ type Action =
   | { type: "hydrate"; state: Omit<State, "hydrated"> }
   | { type: "selectFamily"; family: ConfiguratorFamily }
   | { type: "toggleOption"; family: ConfiguratorFamily; group: ConfiguratorGroup; key: string }
-  | { type: "selectFinancing"; key: string }
+  | { type: "selectFinancing"; key: string; serviceAgreementEligible: boolean }
+  | { type: "toggleServiceAgreement" }
   | { type: "setStep"; step: number };
 
-const initialState: State = { hydrated: false, selections: {}, step: 0 };
+const initialState: State = { hydrated: false, selections: {}, serviceAgreement: false, step: 0 };
 
 function reducer(state: State, action: Action): State {
   switch (action.type) {
@@ -46,6 +49,7 @@ function reducer(state: State, action: Action): State {
         familyKey: action.family.key,
         selections: sanitizeSelections(action.family, {}, true),
         financingKey: undefined,
+        serviceAgreement: false,
         step: 0,
       };
     case "toggleOption": {
@@ -66,7 +70,13 @@ function reducer(state: State, action: Action): State {
       };
     }
     case "selectFinancing":
-      return { ...state, financingKey: action.key };
+      return {
+        ...state,
+        financingKey: action.key,
+        serviceAgreement: action.serviceAgreementEligible ? state.serviceAgreement : false,
+      };
+    case "toggleServiceAgreement":
+      return { ...state, serviceAgreement: !state.serviceAgreement };
     case "setStep":
       return { ...state, step: action.step };
   }
@@ -112,7 +122,13 @@ export function ConfiguratorClient({
     if (!parsedFamily) {
       dispatch({
         type: "hydrate",
-        state: { familyKey: undefined, selections: {}, financingKey: undefined, step: 0 },
+        state: {
+          familyKey: undefined,
+          selections: {},
+          financingKey: undefined,
+          serviceAgreement: false,
+          step: 0,
+        },
       });
       return;
     }
@@ -132,6 +148,11 @@ export function ConfiguratorClient({
         financingKey: catalog.financingMethods.some((method) => method.key === parsed.financingKey)
           ? parsed.financingKey
           : undefined,
+        serviceAgreement:
+          parsed.serviceAgreement &&
+          catalog.financingMethods.some(
+            (method) => method.key === parsed.financingKey && method.serviceAgreementEligible,
+          ),
         step:
           earliestAffected !== null && desiredStep > earliestAffected + 1
             ? earliestAffected + 1
@@ -146,17 +167,21 @@ export function ConfiguratorClient({
       family,
       selections: state.selections,
       financingKey: state.financingKey,
+      serviceAgreement: state.serviceAgreement,
       step: state.step,
     });
     const query = params.toString();
     window.history.replaceState(null, "", `${window.location.pathname}${query ? `?${query}` : ""}`);
-  }, [family, state.financingKey, state.hydrated, state.selections, state.step]);
+  }, [family, state.financingKey, state.hydrated, state.selections, state.serviceAgreement, state.step]);
 
   const previewFinancing = state.financingKey ?? purchaseKey;
   const quote =
     family && previewFinancing
-      ? buildQuote(catalog, family.key, state.selections, previewFinancing)
+      ? buildQuote(catalog, family.key, state.selections, previewFinancing, state.serviceAgreement)
       : null;
+  const selectedFinancing = catalog.financingMethods.find(
+    (method) => method.key === state.financingKey,
+  );
 
   const currentComplete =
     state.step === 0
@@ -172,6 +197,7 @@ export function ConfiguratorClient({
         family,
         selections: state.selections,
         financingKey: state.financingKey,
+        serviceAgreement: state.serviceAgreement,
       })
     : null;
   const quoteHref = quoteParams
@@ -276,8 +302,20 @@ export function ConfiguratorClient({
                           checked={checked}
                           onChange={() => dispatch({ type: "selectFamily", family: candidate })}
                         />
-                        <span className="mb-4 grid aspect-[16/9] place-items-center border border-neutral-300 bg-neutral-100 text-xs uppercase tracking-[0.18em] text-neutral-500">
-                          Produktbild
+                        <span className="relative mb-4 grid aspect-[16/9] overflow-hidden border border-neutral-300 bg-neutral-100">
+                          {candidate.image ? (
+                            <Image
+                              src={candidate.image.url}
+                              alt={candidate.image.alt}
+                              fill
+                              sizes="(min-width: 1280px) 33vw, (min-width: 640px) 50vw, 100vw"
+                              className="object-contain p-3"
+                            />
+                          ) : (
+                            <span className="text-xs uppercase tracking-[0.18em] text-neutral-500">
+                              Produktbild
+                            </span>
+                          )}
                         </span>
                         <span className="flex items-start gap-3">
                           <span
@@ -424,7 +462,13 @@ export function ConfiguratorClient({
                           type="radio"
                           name="financing"
                           checked={checked}
-                          onChange={() => dispatch({ type: "selectFinancing", key: method.key })}
+                          onChange={() =>
+                            dispatch({
+                              type: "selectFinancing",
+                              key: method.key,
+                              serviceAgreementEligible: method.serviceAgreementEligible,
+                            })
+                          }
                         />
                         <span
                           className={`mt-0.5 grid size-5 shrink-0 place-items-center rounded-full border sm:mt-0 ${
@@ -456,6 +500,29 @@ export function ConfiguratorClient({
                     );
                   })}
                 </div>
+                {selectedFinancing?.serviceAgreementEligible && catalog.serviceAgreement ? (
+                  <label className="flex cursor-pointer items-start gap-3 border border-neutral-300 bg-neutral-50 p-4 transition-colors hover:border-neutral-600">
+                    <input
+                      className="mt-0.5 size-4 accent-neutral-950"
+                      type="checkbox"
+                      checked={state.serviceAgreement}
+                      onChange={() => dispatch({ type: "toggleServiceAgreement" })}
+                    />
+                    <span className="min-w-0 flex-1">
+                      <strong className="block">Lägg till {catalog.serviceAgreement.label}</strong>
+                      {catalog.serviceAgreement.description ? (
+                        <span className="mt-1 block text-sm text-neutral-600">
+                          {catalog.serviceAgreement.description}
+                        </span>
+                      ) : null}
+                    </span>
+                    <span className="shrink-0 text-right text-sm font-semibold">
+                      +{formatPrice(catalog.serviceAgreement.annualPrice)}/år
+                      <span className="mt-1 block text-xs font-normal text-neutral-500">exkl. moms</span>
+                    </span>
+                  </label>
+                ) : null}
+                <p className="text-xs leading-5 text-neutral-500">Alla priser visas exkl. moms.</p>
               </fieldset>
             ) : null}
           </div>
@@ -501,8 +568,20 @@ export function ConfiguratorClient({
           <div className="p-5">
             {family ? (
               <div className="space-y-5">
-                <div className="grid aspect-[16/8] place-items-center border border-neutral-300 bg-neutral-100 text-xs uppercase tracking-[0.18em] text-neutral-500">
-                  Produktbild
+                <div className="relative grid aspect-[16/8] overflow-hidden border border-neutral-300 bg-neutral-100">
+                  {family.image ? (
+                    <Image
+                      src={family.image.url}
+                      alt={family.image.alt}
+                      fill
+                      sizes="(min-width: 1024px) 340px, 100vw"
+                      className="object-contain p-4"
+                    />
+                  ) : (
+                    <span className="grid place-items-center text-xs uppercase tracking-[0.18em] text-neutral-500">
+                      Produktbild
+                    </span>
+                  )}
                 </div>
                 <div>
                   <h2 className="text-xl font-semibold tracking-tight">{family.name}</h2>
@@ -534,14 +613,25 @@ export function ConfiguratorClient({
                   </strong>
                 </div>
                 <p className="text-xs leading-5 text-neutral-500">
-                  Pris och tillgänglighet bekräftas i den slutliga offerten.
+                  Alla priser visas exkl. moms. Pris och tillgänglighet bekräftas i den slutliga offerten.
                 </p>
+                {family.brochure ? (
+                  <a
+                    className="inline-block text-sm font-medium underline underline-offset-4"
+                    href={family.brochure.url}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    {family.brochure.title}
+                  </a>
+                ) : null}
                 {quote ? (
                   <CallRequestForm
                     familyKey={family.key}
                     financingKey={previewFinancing ?? "purchase"}
                     locale={locale}
                     selections={state.selections}
+                    serviceAgreement={Boolean(quote.serviceAgreement)}
                   />
                 ) : null}
               </div>

@@ -37,10 +37,10 @@ function formatPrice(value: number) {
 }
 
 function quoteRows(quote: ConfiguratorQuote) {
-  return quote.selectedOptions
+  return quote.lines
     .map(
-      (option) =>
-        `<tr><td style="padding:4px 12px 4px 0">${escapeHtml(option.label)}</td><td style="padding:4px 0;text-align:right">${escapeHtml(option.priceMode === "add" ? formatPrice(option.price) : "Ingår")}</td></tr>`,
+      (line) =>
+        `<tr><td style="padding:4px 12px 4px 0">${escapeHtml(line.label)}</td><td style="padding:4px 0;text-align:right">${escapeHtml(`${formatPrice(line.price)}${line.kind === "service" ? "/år" : ""}`)}</td></tr>`,
     )
     .join("");
 }
@@ -53,7 +53,7 @@ function salesEmail(request: EmailRequest) {
   const typeLabel = request.requestType === "order" ? "Orderförfrågan" : "Kontaktförfrågan";
   return emailDocument(
     `${typeLabel} ${request.reference}`,
-    `<p><strong>${escapeHtml(request.contact.name)}</strong><br>${escapeHtml(request.contact.company)}<br>${escapeHtml(request.contact.organizationNumber)}<br><a href="mailto:${escapeHtml(request.contact.email)}">${escapeHtml(request.contact.email)}</a><br>${escapeHtml(request.contact.phone)}</p><h2>${escapeHtml(request.quote.familyName)}</h2><p>${escapeHtml(request.quote.sku)}</p><table style="border-collapse:collapse;width:100%">${quoteRows(request.quote)}<tr><td style="border-top:1px solid #ddd;padding:8px 12px 4px 0"><strong>Totalpris</strong></td><td style="border-top:1px solid #ddd;padding:8px 0 4px;text-align:right"><strong>${escapeHtml(formatPrice(request.quote.totalPrice))}</strong></td></tr></table><p><strong>Finansiering:</strong> ${escapeHtml(request.quote.financing.label)} – ${escapeHtml(formatPrice(request.quote.financingPrice))}${request.quote.financing.kind === "monthly" ? "/månad" : ""}</p>${request.preferredTime ? `<p><strong>Önskad tid:</strong> ${escapeHtml(request.preferredTime)}</p>` : ""}${request.message ? `<p><strong>Meddelande:</strong><br>${escapeHtml(request.message)}</p>` : ""}`,
+    `<p><strong>${escapeHtml(request.contact.name)}</strong><br>${escapeHtml(request.contact.company)}<br>${escapeHtml(request.contact.organizationNumber)}<br><a href="mailto:${escapeHtml(request.contact.email)}">${escapeHtml(request.contact.email)}</a><br>${escapeHtml(request.contact.phone)}</p><h2>${escapeHtml(request.quote.familyName)}</h2><p>${escapeHtml(request.quote.sku)}</p><table style="border-collapse:collapse;width:100%">${quoteRows(request.quote)}<tr><td style="border-top:1px solid #ddd;padding:8px 12px 4px 0"><strong>Totalpris</strong></td><td style="border-top:1px solid #ddd;padding:8px 0 4px;text-align:right"><strong>${escapeHtml(formatPrice(request.quote.totalPrice))}</strong></td></tr></table><p><strong>Finansiering:</strong> ${escapeHtml(request.quote.financing.label)} – ${escapeHtml(formatPrice(request.quote.financingPrice))}${request.quote.financing.kind === "monthly" ? "/månad" : ""}</p><p>Alla priser anges exkl. moms.</p>${request.preferredTime ? `<p><strong>Önskad tid:</strong> ${escapeHtml(request.preferredTime)}</p>` : ""}${request.message ? `<p><strong>Meddelande:</strong><br>${escapeHtml(request.message)}</p>` : ""}`,
   );
 }
 
@@ -64,7 +64,7 @@ function customerEmail(request: EmailRequest) {
       : "Vi har tagit emot din kontaktförfrågan";
   return emailDocument(
     heading,
-    `<p>Hej ${escapeHtml(request.contact.name)},</p><p>Tack för din förfrågan. Din referens är <strong>${escapeHtml(request.reference)}</strong>. En specialist återkommer till dig.</p><h2>${escapeHtml(request.quote.familyName)}</h2><p>Totalpris: <strong>${escapeHtml(formatPrice(request.quote.totalPrice))}</strong></p><p>Detta är en mottagningsbekräftelse, inte ett bindande avtal.</p>`,
+    `<p>Hej ${escapeHtml(request.contact.name)},</p><p>Tack för din förfrågan. Din referens är <strong>${escapeHtml(request.reference)}</strong>. En specialist återkommer till dig.</p><h2>${escapeHtml(request.quote.familyName)}</h2><table style="border-collapse:collapse;width:100%">${quoteRows(request.quote)}</table><p>Totalpris: <strong>${escapeHtml(formatPrice(request.quote.totalPrice))}</strong></p><p>Alla priser anges exkl. moms.</p><p>Detta är en mottagningsbekräftelse, inte ett bindande avtal.</p>`,
   );
 }
 
