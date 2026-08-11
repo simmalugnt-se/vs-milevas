@@ -154,6 +154,7 @@ export default buildConfig({
           generateFileURL: ({ filename, prefix }) => buildPublicMediaURL({ filename, prefix }),
         },
         documents: {
+          prefix: "documents",
           disablePayloadAccessControl: true,
           generateFileURL: ({ filename, prefix }) => buildPublicMediaURL({ filename, prefix }),
         },

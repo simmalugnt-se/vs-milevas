@@ -282,6 +282,7 @@ export interface Document {
   id: string;
   title: string;
   description?: string | null;
+  prefix?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -845,6 +846,7 @@ export interface MediaSelect<T extends boolean = true> {
 export interface DocumentsSelect<T extends boolean = true> {
   title?: T;
   description?: T;
+  prefix?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
