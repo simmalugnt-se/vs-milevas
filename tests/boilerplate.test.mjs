@@ -61,3 +61,12 @@ test("Payload media renders full-size images by default and labels videos", asyn
   const component = await read("src/components/cms/payload-media.tsx");
   assert.match(component, /aria-label=\{resolved\.alt \|\| undefined\}/);
 });
+
+test("R2 media storage uses the media object prefix", async () => {
+  const payloadConfig = await read("src/payload.config.ts");
+
+  assert.match(
+    payloadConfig,
+    /media:\s*\{\s*prefix:\s*"media",\s*disablePayloadAccessControl:\s*true/,
+  );
+});

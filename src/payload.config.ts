@@ -149,6 +149,7 @@ export default buildConfig({
       clientUploads: true,
       collections: {
         media: {
+          prefix: "media",
           disablePayloadAccessControl: true,
           generateFileURL: ({ filename, prefix }) => buildPublicMediaURL({ filename, prefix }),
         },
