@@ -46,10 +46,7 @@ export async function seedDefaultSiteIfEmpty(payload: Payload): Promise<void> {
         title: "Home",
         slug: "home",
         _status: "published",
-        layout: heroLayout(
-          "Welcome",
-          "Your Payload boilerplate is ready. Open the admin to add users and content.",
-        ),
+        layout: heroLayout("Welcome", "Milevas is ready. Open the admin to add users and content."),
       },
       draft: false,
       context: seedContext,

@@ -24,7 +24,7 @@ export async function up({ db }: MigrateUpArgs): Promise<void> {
   );
   
   CREATE TABLE "footer_locales" (
-  	"copyright" varchar DEFAULT 'Payload Boilerplate',
+  	"copyright" varchar DEFAULT 'Milevas',
   	"id" serial PRIMARY KEY NOT NULL,
   	"_locale" "_locales" NOT NULL,
   	"_parent_id" uuid NOT NULL
@@ -38,7 +38,7 @@ export async function up({ db }: MigrateUpArgs): Promise<void> {
   );
   
   CREATE TABLE "_footer_v_locales" (
-  	"version_copyright" varchar DEFAULT 'Payload Boilerplate',
+  	"version_copyright" varchar DEFAULT 'Milevas',
   	"id" serial PRIMARY KEY NOT NULL,
   	"_locale" "_locales" NOT NULL,
   	"_parent_id" uuid NOT NULL
@@ -100,9 +100,9 @@ export async function down({ db }: MigrateDownArgs): Promise<void> {
    ALTER TABLE "header_nav_items" ADD COLUMN "link_label" varchar;
   ALTER TABLE "_header_v_version_nav_items" ADD COLUMN "link_label" varchar;
   ALTER TABLE "footer_nav_items" ADD COLUMN "link_label" varchar;
-  ALTER TABLE "footer" ADD COLUMN "copyright" varchar DEFAULT 'Payload Boilerplate';
+  ALTER TABLE "footer" ADD COLUMN "copyright" varchar DEFAULT 'Milevas';
   ALTER TABLE "_footer_v_version_nav_items" ADD COLUMN "link_label" varchar;
-  ALTER TABLE "_footer_v" ADD COLUMN "version_copyright" varchar DEFAULT 'Payload Boilerplate';
+  ALTER TABLE "_footer_v" ADD COLUMN "version_copyright" varchar DEFAULT 'Milevas';
 
   UPDATE "header_nav_items" target
   SET "link_label" = source."link_label"

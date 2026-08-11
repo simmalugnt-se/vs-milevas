@@ -2890,7 +2890,7 @@
           "type": "varchar",
           "primaryKey": false,
           "notNull": false,
-          "default": "'Payload Boilerplate'"
+          "default": "'Milevas'"
         },
         "_status": {
           "name": "_status",
@@ -3336,7 +3336,7 @@
           "type": "varchar",
           "primaryKey": false,
           "notNull": false,
-          "default": "'Payload Boilerplate'"
+          "default": "'Milevas'"
         },
         "version__status": {
           "name": "version__status",
@@ -3953,7 +3953,7 @@
           "type": "varchar",
           "primaryKey": false,
           "notNull": false,
-          "default": "'Payload Boilerplate'"
+          "default": "'Milevas'"
         },
         "id": {
           "name": "id",
@@ -4521,7 +4521,7 @@
           "type": "varchar",
           "primaryKey": false,
           "notNull": false,
-          "default": "'Payload Boilerplate'"
+          "default": "'Milevas'"
         },
         "id": {
           "name": "id",

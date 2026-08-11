@@ -1,6 +1,6 @@
 {
   "common": {
-    "brand": "Payload Boilerplate",
+    "brand": "Milevas",
     "tagline": "Boilerplate for Payload CMS and Next.js.",
     "allRightsReserved": "All rights reserved."
   },
@@ -29,6 +29,6 @@
   },
   "seo": {
     "description": "Boilerplate for Payload CMS and Next.js.",
-    "titleTemplate": "%s | Payload Boilerplate"
+    "titleTemplate": "%s | Milevas"
   }
 }

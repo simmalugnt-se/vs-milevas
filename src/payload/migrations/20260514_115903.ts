@@ -253,7 +253,7 @@ export async function up({ db, payload: _payload, req: _req }: MigrateUpArgs): P
   
   CREATE TABLE "header" (
   	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-  	"site_name" varchar DEFAULT 'Payload Boilerplate',
+  	"site_name" varchar DEFAULT 'Milevas',
   	"_status" "enum_header_status" DEFAULT 'draft',
   	"updated_at" timestamp(3) with time zone,
   	"created_at" timestamp(3) with time zone
@@ -287,7 +287,7 @@ export async function up({ db, payload: _payload, req: _req }: MigrateUpArgs): P
   
   CREATE TABLE "_header_v" (
   	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-  	"version_site_name" varchar DEFAULT 'Payload Boilerplate',
+  	"version_site_name" varchar DEFAULT 'Milevas',
   	"version__status" "enum__header_v_version_status" DEFAULT 'draft',
   	"version_updated_at" timestamp(3) with time zone,
   	"version_created_at" timestamp(3) with time zone,
@@ -326,7 +326,7 @@ export async function up({ db, payload: _payload, req: _req }: MigrateUpArgs): P
   
   CREATE TABLE "footer" (
   	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-  	"copyright" varchar DEFAULT 'Payload Boilerplate',
+  	"copyright" varchar DEFAULT 'Milevas',
   	"_status" "enum_footer_status" DEFAULT 'draft',
   	"updated_at" timestamp(3) with time zone,
   	"created_at" timestamp(3) with time zone
@@ -353,7 +353,7 @@ export async function up({ db, payload: _payload, req: _req }: MigrateUpArgs): P
   
   CREATE TABLE "_footer_v" (
   	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-  	"version_copyright" varchar DEFAULT 'Payload Boilerplate',
+  	"version_copyright" varchar DEFAULT 'Milevas',
   	"version__status" "enum__footer_v_version_status" DEFAULT 'draft',
   	"version_updated_at" timestamp(3) with time zone,
   	"version_created_at" timestamp(3) with time zone,

@@ -12,7 +12,7 @@ export const Footer: GlobalConfig = {
       name: "copyright",
       type: "text",
       localized: true,
-      defaultValue: "Payload Boilerplate",
+      defaultValue: "Milevas",
     },
     {
       name: "navItems",

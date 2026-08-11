@@ -12,7 +12,7 @@ export const Header: GlobalConfig = {
       name: "siteName",
       type: "text",
       localized: false,
-      defaultValue: "Payload Boilerplate",
+      defaultValue: "Milevas",
     },
     {
       name: "siteTagline",

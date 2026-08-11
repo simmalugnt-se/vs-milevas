@@ -1,6 +1,6 @@
 {
   "common": {
-    "brand": "Payload Boilerplate",
+    "brand": "Milevas",
     "tagline": "Boilerplate för Payload CMS och Next.js.",
     "allRightsReserved": "Med ensamrätt."
   },
@@ -29,6 +29,6 @@
   },
   "seo": {
     "description": "Boilerplate för Payload CMS och Next.js.",
-    "titleTemplate": "%s | Payload Boilerplate"
+    "titleTemplate": "%s | Milevas"
   }
 }

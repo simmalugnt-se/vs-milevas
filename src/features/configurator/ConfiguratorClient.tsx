@@ -400,7 +400,11 @@ export function ConfiguratorClient({
                               } ${checked ? "border-neutral-950 bg-neutral-950 text-white" : "border-neutral-400"}`}
                               aria-hidden="true"
                             >
-                              {checked ? (group.selectionMode === "single" ? "●" : "✓") : null}
+                              {checked
+                                ? group.selectionMode === "single"
+                                  ? <span className="size-2.5 rounded-full bg-white" />
+                                  : "✓"
+                                : null}
                             </span>
                             <span className="min-w-0 flex-1">
                               <span className="flex flex-wrap items-start justify-between gap-2">

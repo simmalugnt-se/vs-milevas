@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Robust local setup script for Payload boilerplates.
+ * Robust local setup script for Milevass.
  *
  * Handles:
  *   - Docker installation detection
@@ -221,7 +221,7 @@ async function migrationStatus() {
 async function main() {
   console.log(`${C.bold}${C.cyan}
 ╔══════════════════════════════════════════════════════════════════╗
-║  Payload Boilerplate — Local Setup                               ║
+║  Milevas — Local Setup                               ║
 ╚══════════════════════════════════════════════════════════════════╝${C.reset}\n`);
 
   /* Step 1 — Docker install */
