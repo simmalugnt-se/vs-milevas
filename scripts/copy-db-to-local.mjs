@@ -6,6 +6,7 @@ import { createReadStream, createWriteStream } from "fs";
 import { mkdir } from "fs/promises";
 import path from "path";
 
+dotenv.config({ path: ".env.local" });
 dotenv.config();
 
 const validSources = new Set(["staging", "prod"]);
@@ -13,6 +14,7 @@ const sourceSuffix = {
   staging: "STAGING",
   prod: "PROD",
 };
+const remotePostgresImage = "postgres:18";
 
 const localHosts = new Set(["127.0.0.1", "localhost", "host.docker.internal"]);
 
@@ -194,12 +196,11 @@ const main = async () => {
   await runCapture(
     "docker",
     [
-      "compose",
-      "exec",
-      "-T",
+      "run",
+      "--rm",
       "-e",
       `DB_URL=${sourceDirectUrl}`,
-      "postgres",
+      remotePostgresImage,
       "sh",
       "-lc",
       'pg_dump --no-owner --no-privileges --format=custom --dbname "$DB_URL"',

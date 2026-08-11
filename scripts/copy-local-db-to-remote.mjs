@@ -16,6 +16,7 @@ const suffixByEnv = {
 };
 
 const localHosts = new Set(["127.0.0.1", "localhost", "host.docker.internal"]);
+const remotePostgresImage = "postgres:18";
 
 const parseArgs = () => {
   const args = process.argv.slice(2);
@@ -251,7 +252,7 @@ const main = async () => {
         "--rm",
         "-e",
         `DB_URL=${target.value}`,
-        "postgres:17",
+        remotePostgresImage,
         "sh",
         "-lc",
         'pg_dump --no-owner --no-privileges --format=custom --dbname "$DB_URL"',
@@ -276,7 +277,7 @@ const main = async () => {
     "--rm",
     "-e",
     `DB_URL=${target.value}`,
-    "postgres:17",
+    remotePostgresImage,
     "sh",
     "-lc",
     'psql --dbname "$DB_URL" -v ON_ERROR_STOP=1 -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"',
@@ -291,7 +292,7 @@ const main = async () => {
       "-i",
       "-e",
       `DB_URL=${target.value}`,
-      "postgres:17",
+      remotePostgresImage,
       "sh",
       "-lc",
       'pg_restore --no-owner --no-privileges --dbname "$DB_URL"',

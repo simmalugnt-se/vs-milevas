@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import { mkdir, rm } from "fs/promises";
 import path from "path";
 
+dotenv.config({ path: ".env.local" });
 dotenv.config();
 
 const validEnvs = new Set(["local", "staging", "prod"]);

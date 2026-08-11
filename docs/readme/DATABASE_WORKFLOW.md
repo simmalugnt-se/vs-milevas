@@ -228,7 +228,7 @@ Changing a field from non-localized to localized usually needs a manual data mig
 `pg_dump: server version mismatch`:
 
 - Local Postgres and remote Postgres major versions differ.
-- Keep local on Postgres 17 (this repo default) to match Neon.
+- The database-copy scripts use PostgreSQL 18 client tools for Neon. Keep the local Compose database on Postgres 17 unless you intentionally migrate it.
 
 Connection refused on `127.0.0.1:5432`:
 
