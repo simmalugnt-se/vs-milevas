@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
@@ -22,6 +22,10 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+export const viewport: Viewport = {
+  themeColor: "#E0FF3C",
+};
+
 /** Header/footer read Payload globals; avoid Postgres during `next build` prerender. */
 // export const dynamic = "force-dynamic";
 
@@ -36,11 +40,19 @@ export async function generateMetadata({
 
   return {
     metadataBase: getSiteUrl(),
+    applicationName: "Milevas",
     title: {
       default: tCommon("brand"),
       template: t("titleTemplate"),
     },
     description: t("description"),
+    openGraph: {
+      description: t("description"),
+      images: [{ alt: "Milevas", height: 630, url: "/milevas-og.png", width: 1200 }],
+      siteName: "Milevas",
+      title: tCommon("brand"),
+      type: "website",
+    },
     robots: getRobotsMetadata(),
   };
 }

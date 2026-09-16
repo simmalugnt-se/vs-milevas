@@ -28,7 +28,7 @@
     "goToAdmin": "Adminpanel"
   },
   "seo": {
-    "description": "Boilerplate för Payload CMS och Next.js.",
+    "description": "Milevas officiella webbplats.",
     "titleTemplate": "%s | Milevas"
   }
 }

@@ -28,7 +28,7 @@
     "goToAdmin": "View admin"
   },
   "seo": {
-    "description": "Boilerplate for Payload CMS and Next.js.",
+    "description": "The official Milevas website.",
     "titleTemplate": "%s | Milevas"
   }
 }
