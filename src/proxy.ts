@@ -13,7 +13,7 @@ export default function proxy(request: NextRequest) {
     }
 
     return new NextResponse(
-      '<!doctype html><html lang="sv"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Milevas</title><style>body{min-height:100vh;margin:0;display:grid;place-items:center;font-family:Arial,sans-serif}h1{font-size:clamp(3rem,10vw,7rem);font-weight:400}</style></head><body><h1>Milevas</h1></body></html>',
+      '<!doctype html><html lang="sv"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Milevas</title><style>body{min-height:100vh;margin:0;display:grid;place-items:center;background:#E0FF3C}img{display:block;width:min(80vw,720px);height:auto}</style></head><body><img src="/milevas-logo.svg" alt="Milevas"></body></html>',
       {
         headers: {
           "Cache-Control": "no-store",
@@ -29,6 +29,6 @@ export default function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!api|admin|_next/static|_next/image|favicon.ico|icon.svg|robots.txt|sitemap|.*\\.xml$|routes).*)",
+    "/((?!api|admin|_next/static|_next/image|favicon.ico|icon.svg|milevas-logo.svg|robots.txt|sitemap|.*\\.xml$|routes).*)",
   ],
 };
