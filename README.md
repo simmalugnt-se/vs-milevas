@@ -20,6 +20,8 @@ Next.js 16 + Payload 3 starter for a **content-managed marketing site** (localiz
 
 Until migrations have run, the site shows setup hints instead of raw database errors. Create a `pages` entry with slug `home` for the localized home route.
 
+To temporarily show only a plain "Milevas" landing page, set `MILEVAS_LANDING_ONLY=true` in the environment and restart or redeploy. Public page URLs redirect to `/`; `/admin` and API routes remain available. Set it to `false` or remove it to restore the site.
+
 ## Docs
 
 - [Payload setup](./docs/payload-setup.md)
