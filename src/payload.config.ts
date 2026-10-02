@@ -11,8 +11,8 @@ import { Users } from "./payload/collections/Users/config.ts";
 import { payloadGlobals } from "./payload/globals/registry.ts";
 import { cmsPlugins } from "./payload/plugins/index.ts";
 import { seedDefaultSiteIfEmpty } from "./payload/seed/defaultSite.ts";
-import { buildPublicMediaURL, isR2Configured } from "./payload/utilities/r2.ts";
-import { resolveEnv } from "./utilities/environment.ts";
+import { buildPublicMediaURL } from "./payload/utilities/public-file-url.ts";
+import { databaseUrls, describeServices, objectStorage } from "./utilities/services.mjs";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -27,24 +27,16 @@ const shouldSkipAdminImportMap = process.argv.some((arg) =>
 );
 
 const useDirectDB = process.env.PAYLOAD_USE_DIRECT_DB === "true";
-const pooledConnectionString = resolveEnv("DATABASE_URI") || process.env.DATABASE_URL || "";
-const directConnectionString = resolveEnv("DATABASE_URI_DIRECT") || pooledConnectionString;
-
-if (useDirectDB && !directConnectionString) {
-  throw new Error(
-    "PAYLOAD_USE_DIRECT_DB=true requires DATABASE_URI_DIRECT. Set a direct Neon/Postgres URL for migrations and admin DB operations.",
-  );
-}
-
-const connectionString = useDirectDB
-  ? directConnectionString
-  : pooledConnectionString || directConnectionString;
+// SERVICES=local or cloud in .env.local picks the database and file storage; see services.mjs.
+const database = databaseUrls();
+const connectionString = useDirectDB ? database.direct : database.runtime;
 
 if (!connectionString) {
   throw new Error(
-    "Missing database connection string. Set DATABASE_URI (or DATABASE_URI_<APP_ENV>), DATABASE_URL, and DATABASE_URI_DIRECT as needed.",
+    "No database is configured. Run pnpm setup, or set SERVICES=local (Docker) or SERVICES=cloud with DATABASE_URL in .env.local.",
   );
 }
+const storage = objectStorage();
 
 const localHosts = new Set(["localhost", "127.0.0.1", "postgres", "db", "host.docker.internal"]);
 const isLocalDatabase = (() => {
@@ -77,7 +69,7 @@ export default buildConfig({
   },
   admin: {
     components: {
-      beforeDashboard: ["/payload/components/BeforeDashboard#BeforeDashboard"],
+      afterDashboard: ["/payload/components/CacheTools#CacheTools"],
     },
     ...(shouldSkipAdminImportMap
       ? {}
@@ -137,7 +129,7 @@ export default buildConfig({
     migrationDir: path.resolve(dirname, "payload/migrations"),
     pool: {
       connectionString,
-      ssl: process.env.DATABASE_SSL === "true" ? { rejectUnauthorized: false } : undefined,
+      ssl: database.ssl ? { rejectUnauthorized: false } : undefined,
     },
     push,
   }),
@@ -145,10 +137,13 @@ export default buildConfig({
   plugins: [
     ...cmsPlugins,
     s3Storage({
-      bucket: process.env.R2_BUCKET || "payload-media",
-      clientUploads: true,
+      // Keep prefix/object-key columns even with local uploads, so storage choices share a schema.
+      alwaysInsertFields: true,
+      bucket: storage?.bucket ?? "payload-media",
+      // R2 takes uploads straight from the browser (it needs a CORS rule); Neon through the server.
+      clientUploads: storage?.kind !== "neon",
       collections: {
-        media: {
+        images: {
           prefix: "media",
           disablePayloadAccessControl: true,
           generateFileURL: ({ filename, prefix }) => buildPublicMediaURL({ filename, prefix }),
@@ -161,14 +156,19 @@ export default buildConfig({
       },
       config: {
         credentials: {
-          accessKeyId: process.env.R2_ACCESS_KEY_ID || "placeholder",
-          secretAccessKey: process.env.R2_SECRET_ACCESS_KEY || "placeholder",
+          accessKeyId: storage?.accessKeyId ?? "placeholder",
+          secretAccessKey: storage?.secretAccessKey ?? "placeholder",
         },
-        endpoint: process.env.R2_ENDPOINT || "https://example.invalid",
+        endpoint: storage?.endpoint ?? "https://example.invalid",
         forcePathStyle: true,
-        region: process.env.R2_REGION || "auto",
+        // Neon rejects the checksum newer AWS SDKs add to uploads by default.
+        ...(storage?.kind === "neon"
+          ? { requestChecksumCalculation: "WHEN_REQUIRED" as const }
+          : {}),
+        region: storage?.region ?? "auto",
       },
-      enabled: isR2Configured(),
+      // Off: uploads stay in the project folder. The plugin is still added so the schema is stable.
+      enabled: Boolean(storage),
     }),
   ],
   secret: payloadSecret,
@@ -177,6 +177,7 @@ export default buildConfig({
     outputFile: path.resolve(dirname, "payload-types.ts"),
   },
   onInit: async (payload) => {
+    payload.logger.info(`Using ${describeServices()}`);
     await seedDefaultSiteIfEmpty(payload);
   },
 });

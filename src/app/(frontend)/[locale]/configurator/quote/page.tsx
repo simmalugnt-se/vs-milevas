@@ -183,7 +183,8 @@ export default async function QuotePage({ params, searchParams }: QuotePageProps
               </div>
             </dl>
             <p className="mt-4 text-xs leading-5 text-neutral-400">
-              Alla priser visas exkl. moms. Priset baseras på aktuellt lager och bekräftas av säljare.
+              Alla priser visas exkl. moms. Priset baseras på aktuellt lager och bekräftas av
+              säljare.
             </p>
           </div>
           <OrderRequestForm quote={quote} locale={locale} />

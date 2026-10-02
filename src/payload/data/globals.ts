@@ -11,8 +11,11 @@ export type NavItem = {
 };
 
 export type HeaderData = {
+  announcement?: string | null;
+  announcementLink?: LinkFieldValue | null;
   navItems?: NavItem[] | null;
   siteName?: string | null;
+  showAnnouncement?: boolean | null;
   siteTagline?: string | null;
 };
 

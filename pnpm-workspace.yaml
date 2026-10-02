@@ -7,6 +7,10 @@ packages:
 # Malicious releases are usually discovered and removed within hours.
 minimumReleaseAge: 1440
 
+# Our own packages are published by us with 2FA; use new versions right away.
+minimumReleaseAgeExclude:
+  - '@simmalugnt-se/*'
+
 # Fail installation when unreviewed build scripts are present.
 strictDepBuilds: true
 
@@ -29,3 +33,16 @@ allowBuilds:
   esbuild: true
   sharp: true
   unrs-resolver: true
+
+# --- Overrides ---
+# Moved from package.json: pnpm 11 no longer reads the "pnpm" field there.
+overrides:
+  mcp-handler: 1.1.0
+  ws: 8.21.3
+
+# mcp-handler 1.1.0 (pinned above) asks for @modelcontextprotocol/sdk 1.26.0 exactly, while
+# @payloadcms/plugin-mcp ships 1.30.0. That pairing is Payload's own; accept it rather than warn on
+# every install and hide warnings that matter.
+peerDependencyRules:
+  allowedVersions:
+    mcp-handler>@modelcontextprotocol/sdk: 1.30.0

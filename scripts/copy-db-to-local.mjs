@@ -5,7 +5,10 @@ import dotenv from "dotenv";
 import { createReadStream, createWriteStream } from "fs";
 import { mkdir } from "fs/promises";
 import path from "path";
+import { localDatabaseUrl } from "../src/utilities/services.mjs";
+import { composeEnvArgs } from "./lib/local-env.mjs";
 
+// .env.local first, like Next and Payload; .env only fills in what it lacks.
 dotenv.config({ path: ".env.local" });
 dotenv.config();
 
@@ -14,7 +17,6 @@ const sourceSuffix = {
   staging: "STAGING",
   prod: "PROD",
 };
-const remotePostgresImage = "postgres:18";
 
 const localHosts = new Set(["127.0.0.1", "localhost", "host.docker.internal"]);
 
@@ -79,7 +81,9 @@ const runFromFile = (command, args, inputFile, env = process.env) =>
   });
 
 const ensureTools = () => {
-  const docker = spawnSync("docker", ["compose", "version"], { stdio: "ignore" });
+  const docker = spawnSync("docker", ["compose", ...composeEnvArgs(), "version"], {
+    stdio: "ignore",
+  });
   if (docker.status !== 0) {
     throw new Error(
       "Docker Compose is required. Install Docker Desktop / Docker Compose and run again.",
@@ -123,6 +127,7 @@ const parseLocalDirectUrl = (url) => {
 
 const localExecArgs = ({ username, password, database }, sqlCommand) => [
   "compose",
+  ...composeEnvArgs(),
   "exec",
   "-T",
   "-e",
@@ -150,7 +155,10 @@ const main = async () => {
 
   const suffix = sourceSuffix[from];
   const sourceDirectUrl = process.env[`DATABASE_URI_DIRECT_${suffix}`];
-  const localDirectUrl = process.env.DATABASE_URI_DIRECT;
+  // The local Docker database: an explicit DATABASE_URI_DIRECT, or the one SERVICES=local uses.
+  const localDirectUrl = process.env.SERVICES
+    ? localDatabaseUrl(process.env)
+    : process.env.DATABASE_URI_DIRECT;
 
   if (!localDirectUrl) {
     throw new Error("Missing DATABASE_URI_DIRECT for local target.");
@@ -180,7 +188,7 @@ const main = async () => {
   await mkdir(tmpDir, { recursive: true });
 
   console.log("[copy-db] Ensuring local postgres container is running...");
-  await run("docker", ["compose", "up", "-d", "postgres"]);
+  await run("docker", ["compose", ...composeEnvArgs(), "up", "-d", "postgres"]);
 
   console.log(`[copy-db] Backing up local DB -> ${backupPath}`);
   await runCapture(
@@ -196,11 +204,13 @@ const main = async () => {
   await runCapture(
     "docker",
     [
-      "run",
-      "--rm",
+      "compose",
+      ...composeEnvArgs(),
+      "exec",
+      "-T",
       "-e",
       `DB_URL=${sourceDirectUrl}`,
-      remotePostgresImage,
+      "postgres",
       "sh",
       "-lc",
       'pg_dump --no-owner --no-privileges --format=custom --dbname "$DB_URL"',

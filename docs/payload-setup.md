@@ -6,11 +6,11 @@ Payload CMS runs inside this Next.js app (not a separate deployable).
 
 - App Router split into `(frontend)` for the public site and `(payload)` for admin and APIs.
 - Payload routes: `/admin`, `/api`, `/graphql`, `/graphql-playground`.
-- Collections: `users`, `media`, `pages`.
+- Collections: `users`, `pages`, `images`, `videos`, `documents`.
 - Globals: `header`, `footer`.
 - Redirects: enabled through `@payloadcms/plugin-redirects`.
 - Database: `@payloadcms/db-postgres` (Neon or local Docker Postgres).
-- Media: `@payloadcms/storage-s3` targeting Cloudflare R2 when `R2_*` env vars are set; otherwise local uploads.
+- Uploads (`images`, `documents`): `@payloadcms/storage-s3` targeting Cloudflare R2 when `R2_*` env vars are set; otherwise local uploads. Videos are stored and streamed by Mux.
 
 ## Collections
 
@@ -18,9 +18,20 @@ Payload CMS runs inside this Next.js app (not a separate deployable).
 
 Auth-enabled admin users; first user can be created without an existing session.
 
-### `media`
+### `images`
 
-Uploads with public read access; files go to R2 when configured.
+Image uploads with public read access and a localized alt text; files go to R2 when configured.
+
+### `videos`
+
+Mux videos with public read access. Admin uploads the file straight to Mux and follows the encoding;
+the entry keeps the playback id, an MP4 rendition for every browser, a localized description for
+readers who cannot see the video, and an optional poster image. From
+`@simmalugnt-se/payload-mux`; the project adds its Admin group and cache tags in `plugins/index.ts`.
+
+### `documents`
+
+File uploads (PDF, Office, CSV, text) that rich text can link to.
 
 ### `pages`
 
@@ -28,11 +39,11 @@ Editorial pages with shared `title`, stable `slug`, shared block structure, loca
 
 ### `header` / `footer`
 
-Global layout content used by the storefront shell. Nav labels, tagline, and footer copy are localized; shared internal references keep navigation structure stable across languages.
+Global layout content used by the site shell. Nav labels, tagline, and footer copy are localized; shared internal references keep navigation structure stable across languages.
 
 ### redirects
 
-Managed through Payload's redirects plugin, cached through Next.js tags, and resolved server-side before storefront routes return `notFound`.
+Managed through Payload's redirects plugin, cached through Next.js tags, and resolved server-side before frontend routes return `notFound`. Publishing a page under a new slug adds a redirect from the old address to the page (a reference, so it follows later renames); none from the start page, and none over a redirect that already exists for that address.
 
 ## Environment variables
 
@@ -55,12 +66,12 @@ DATABASE_URI_DIRECT=postgresql://payload:payload@127.0.0.1:5434/payload_dev
 
 ## First run
 
-1. Copy `.env.example` → `.env.local` and set secrets / DB URL.
-2. `pnpm setup:local` (starts Docker Postgres and runs migrations), or `pnpm db:local:up` then `pnpm db:migrate` if Compose does not support `--wait`.
-3. `pnpm dev` → open [http://localhost:3000/admin](http://localhost:3000/admin) and create the first user.
-4. Add a `pages` document (e.g. slug `home`) for the localized home route.
-5. Create `header` / `footer` globals and verify draft preview behavior.
-6. Add a redirect in Payload and confirm it resolves on the frontend.
+1. `pnpm setup:local`: creates `.env.local` (with generated secrets) if it is missing, starts
+   Docker Postgres on a free port and runs the migrations.
+2. `pnpm dev` → open [http://localhost:3000/admin](http://localhost:3000/admin) and create the
+   first user. The first start seeds a published start page (slug `home`).
+3. Edit the `header` / `footer` globals and check draft preview.
+4. Add a redirect in Payload and confirm it resolves on the frontend.
 
 ## Vercel
 

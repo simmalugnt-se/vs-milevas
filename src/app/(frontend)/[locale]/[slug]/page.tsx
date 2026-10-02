@@ -1,12 +1,9 @@
 import { draftMode } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import type { TypedLocale } from "payload";
+import { DatabaseSetup } from "@/components/cms/database-setup";
 import { LivePreviewListener } from "@/components/cms/live-preview-listener";
 import { PageLayout } from "@/components/cms/page-layout";
-import {
-  PayloadDatabaseSetupMain,
-  PayloadSchemaMismatchMain,
-} from "@/components/cms/payload-database-setup";
 import { PayloadRedirects } from "@/components/cms/payload-redirects";
 import { frontendPath } from "@/i18n/frontend-path";
 import { getPayloadDbReady } from "@/payload/data/db-ready";
@@ -57,7 +54,7 @@ export default async function Page({ params }: PageProps) {
   if (!page) {
     const dbStatus = await getPayloadDbReady();
     if (!dbStatus.ready) {
-      return dbStatus.mismatch ? <PayloadSchemaMismatchMain /> : <PayloadDatabaseSetupMain />;
+      return <DatabaseSetup problem={dbStatus.problem} />;
     }
     return <PayloadRedirects locale={locale} url={frontendPath(`/${slug}`, locale)} />;
   }
@@ -65,7 +62,7 @@ export default async function Page({ params }: PageProps) {
   return (
     <>
       {draft ? <LivePreviewListener /> : null}
-      <PageLayout layout={page.layout} />
+      <PageLayout editable={draft} layout={page.layout} />
     </>
   );
 }

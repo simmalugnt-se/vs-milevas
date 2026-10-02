@@ -1,6 +1,19 @@
-import type { Media } from "@/payload-types";
+import { muxURLs } from "@simmalugnt-se/payload-mux/frontend";
+import type { Image, Video } from "@/payload-types";
 
-export type PayloadMediaValue = Media | number | string | null | undefined;
+/**
+ * An upload value as Payload returns it: an image or a video, populated or only an id. A field
+ * that takes both collections returns `{ relationTo, value }`.
+ */
+export type PayloadMediaValue =
+  | Image
+  | Video
+  | number
+  | string
+  | { relationTo: "images"; value: Image | number | string }
+  | { relationTo: "videos"; value: Video | number | string }
+  | null
+  | undefined;
 
 type ResolvedImageMedia = {
   alt: string;
@@ -23,193 +36,115 @@ type ResolvedVideoMedia = {
 
 export type ResolvedPayloadMedia = ResolvedImageMedia | ResolvedVideoMedia;
 
+type PreferredSize = "full" | "card" | "thumbnail";
+
 function asTrimmedString(value: unknown) {
   return typeof value === "string" ? value.trim() : "";
 }
 
-export function isMediaObject(value: PayloadMediaValue): value is Media {
-  return typeof value === "object" && value !== null && "id" in value;
+/** The populated document behind a value, or null when it is only an id. */
+function documentOf(value: PayloadMediaValue): Image | Video | null {
+  if (!value || typeof value !== "object") return null;
+  if ("relationTo" in value) {
+    return typeof value.value === "object" && value.value !== null ? value.value : null;
+  }
+  return "id" in value ? value : null;
 }
 
-export function getMediaObject(value: PayloadMediaValue) {
-  return isMediaObject(value) ? value : null;
+function isVideo(doc: Image | Video): doc is Video {
+  return "playbackId" in doc || "assetId" in doc;
 }
 
-export function getMediaAlt(value: PayloadMediaValue) {
-  const media = getMediaObject(value);
-  return media ? asTrimmedString(media.alt) : "";
-}
-
-export function getMediaImageURL(
-  value: PayloadMediaValue,
-  preferredSize: "full" | "card" | "thumbnail" = "full",
-) {
-  const media = getMediaObject(value);
-
-  if (!media) {
+export function getMediaImageURL(value: PayloadMediaValue, preferredSize: PreferredSize = "full") {
+  const image = documentOf(value);
+  if (!image || isVideo(image)) {
     return null;
   }
 
   if (preferredSize === "full") {
-    return asTrimmedString(media.url) || null;
+    return asTrimmedString(image.url) || null;
   }
 
   const sizeMap = {
-    card: media.sizes?.card?.url,
-    thumbnail: media.sizes?.thumbnail?.url,
+    card: image.sizes?.card?.url,
+    thumbnail: image.sizes?.thumbnail?.url,
   };
 
-  const preferredUrl = sizeMap[preferredSize];
-
-  return asTrimmedString(preferredUrl) || asTrimmedString(media.url) || null;
+  return asTrimmedString(sizeMap[preferredSize]) || asTrimmedString(image.url) || null;
 }
 
 export function getMediaImageDimensions(
   value: PayloadMediaValue,
-  preferredSize: "full" | "card" | "thumbnail" = "full",
+  preferredSize: PreferredSize = "full",
 ) {
-  const media = getMediaObject(value);
-
-  if (!media) {
+  const image = documentOf(value);
+  if (!image || isVideo(image)) {
     return null;
   }
 
+  const own = {
+    height: typeof image.height === "number" ? image.height : undefined,
+    width: typeof image.width === "number" ? image.width : undefined,
+  };
   if (preferredSize === "full") {
-    return {
-      height: typeof media.height === "number" ? media.height : undefined,
-      width: typeof media.width === "number" ? media.width : undefined,
-    };
+    return own;
   }
 
-  const sizeMap = {
-    card: media.sizes?.card,
-    thumbnail: media.sizes?.thumbnail,
-  };
-
-  const preferredSizeValue = sizeMap[preferredSize];
-  const preferredUrl = asTrimmedString(preferredSizeValue?.url);
-
-  if (preferredUrl) {
-    return {
-      height:
-        typeof preferredSizeValue?.height === "number" ? preferredSizeValue.height : undefined,
-      width: typeof preferredSizeValue?.width === "number" ? preferredSizeValue.width : undefined,
-    };
-  }
-
-  return {
-    height: typeof media.height === "number" ? media.height : undefined,
-    width: typeof media.width === "number" ? media.width : undefined,
-  };
+  const size = { card: image.sizes?.card, thumbnail: image.sizes?.thumbnail }[preferredSize];
+  return asTrimmedString(size?.url)
+    ? {
+        height: typeof size?.height === "number" ? size.height : undefined,
+        width: typeof size?.width === "number" ? size.width : undefined,
+      }
+    : own;
 }
 
-export function getMediaPlaybackId(value: PayloadMediaValue) {
-  const media = getMediaObject(value);
-  const playbackId = media?.muxVideo?.videoData?.playback_ids?.[0]?.id;
-
-  return asTrimmedString(playbackId) || null;
-}
-
-export function getMediaVideoURL(value: PayloadMediaValue) {
-  const playbackId = getMediaPlaybackId(value);
-  return playbackId
-    ? `https://stream.mux.com/${playbackId}.m3u8?min_resolution=720p&rendition_order=desc`
-    : null;
-}
-
-function getMuxStaticRenditionName(value: PayloadMediaValue) {
-  const media = getMediaObject(value);
-  const staticRenditions = media?.muxVideo?.videoData?.static_renditions;
-  const files = (() => {
-    if (Array.isArray(staticRenditions)) {
-      return staticRenditions;
-    }
-
-    if (
-      staticRenditions &&
-      typeof staticRenditions === "object" &&
-      "files" in staticRenditions &&
-      Array.isArray(staticRenditions.files)
-    ) {
-      return staticRenditions.files as Array<{ name?: string; status?: string }>;
-    }
-
-    return [];
-  })();
-  const preferredNames = ["highest.mp4", "high.mp4", "1080p.mp4", "720p.mp4", "medium.mp4"];
-
-  for (const preferredName of preferredNames) {
-    const rendition = files.find(
-      (file: { name?: string; status?: string }) =>
-        file?.name === preferredName && (!file.status || file.status === "ready"),
-    );
-
-    if (rendition?.name) {
-      return rendition.name;
-    }
-  }
-
-  return null;
-}
-
-export function getMediaVideoMP4URL(value: PayloadMediaValue) {
-  const playbackId = getMediaPlaybackId(value);
-
-  if (!playbackId) {
+/**
+ * A video plays as its MP4 where it has one, which every browser plays in a plain `<video>`, and
+ * as HLS otherwise (Safari). The poster is the chosen image, else a frame from Mux.
+ */
+function resolveVideo(video: Video): ResolvedVideoMedia | null {
+  const playbackId = asTrimmedString(video.playbackId);
+  if (!playbackId || video.status !== "ready") {
     return null;
   }
-
-  const staticRenditionName = getMuxStaticRenditionName(value);
-
-  if (staticRenditionName) {
-    return `https://stream.mux.com/${playbackId}/${staticRenditionName}`;
-  }
-
-  const media = getMediaObject(value);
-  const mp4Support = asTrimmedString(media?.muxVideo?.videoData?.mp4_support);
-
-  return mp4Support && mp4Support !== "none"
-    ? `https://stream.mux.com/${playbackId}/high.mp4`
-    : null;
-}
-
-export function getMediaPosterURL(value: PayloadMediaValue) {
-  const playbackId = getMediaPlaybackId(value);
-  return playbackId
-    ? `https://image.mux.com/${playbackId}/thumbnail.png?width=1600&fit_mode=preserve&time=1`
-    : null;
+  const hls = muxURLs.hls(playbackId);
+  const mp4 = asTrimmedString(video.mp4);
+  const poster =
+    getMediaImageURL(video.poster as PayloadMediaValue) ??
+    muxURLs.poster(playbackId, video.posterTime);
+  return {
+    alt: asTrimmedString(video.description),
+    kind: "video",
+    poster,
+    sources: [
+      ...(mp4 ? [{ src: muxURLs.mp4(playbackId, mp4), type: "video/mp4" }] : []),
+      { src: hls, type: "application/x-mpegURL" },
+    ],
+    src: hls,
+  };
 }
 
 export function resolvePayloadMedia(
   value: PayloadMediaValue,
-  preferredSize: "full" | "card" | "thumbnail" = "full",
+  preferredSize: PreferredSize = "full",
 ): ResolvedPayloadMedia | null {
-  const alt = getMediaAlt(value);
-  const videoURL = getMediaVideoURL(value);
-  const videoMP4URL = getMediaVideoMP4URL(value);
-
-  if (videoURL) {
-    return {
-      alt,
-      kind: "video",
-      poster: getMediaPosterURL(value) ?? undefined,
-      sources: [
-        ...(videoMP4URL ? [{ src: videoMP4URL, type: "video/mp4" }] : []),
-        { src: videoURL, type: "application/x-mpegURL" },
-      ],
-      src: videoURL,
-    };
+  const doc = documentOf(value);
+  if (!doc) {
+    return null;
+  }
+  if (isVideo(doc)) {
+    return resolveVideo(doc);
   }
 
-  const imageURL = getMediaImageURL(value, preferredSize);
-
+  const imageURL = getMediaImageURL(doc, preferredSize);
   if (!imageURL) {
     return null;
   }
 
   return {
-    alt,
-    ...getMediaImageDimensions(value, preferredSize),
+    alt: asTrimmedString(doc.alt),
+    ...getMediaImageDimensions(doc, preferredSize),
     kind: "image",
     src: imageURL,
   };

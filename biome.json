@@ -16,7 +16,7 @@
       "!!build",
       "!!coverage",
       "!!tmp",
-      "!!media",
+      "!!images",
       "!next-env.d.ts",
       "!src/app/(payload)/importMap.js",
       "!src/payload-types.ts",

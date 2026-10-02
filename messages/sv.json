@@ -17,12 +17,6 @@
     "unexpectedError": "Något gick fel",
     "unexpectedTitle": "Ett oväntat fel inträffade.",
     "unexpectedDescription": "Vi stötte på ett problem när sidan laddades. Försök igen eller gå till startsidan.",
-    "dbSetup": "Konfigurering",
-    "dbSetupTitle": "Initiera CMS-databasen",
-    "dbSetupDescription": "Postgres körs, men Payload-tabeller saknas. Kör migreringar från projektroten och klicka sedan på Försök igen.",
-    "schemaMismatch": "Schemafel",
-    "schemaMismatchTitle": "Databasschemat är inaktuellt",
-    "schemaMismatchDescription": "Databasen initierades med en äldre eller inkompatibel migrering. En kolumn eller tabell som koden förväntar sig saknas.",
     "tryAgain": "Försök igen",
     "goHome": "Gå till startsidan",
     "goToAdmin": "Adminpanel"
@@ -30,5 +24,9 @@
   "seo": {
     "description": "Milevas officiella webbplats.",
     "titleTemplate": "%s | Milevas"
+  },
+  "globalPreview": {
+    "title": "Sidhuvud och sidfot",
+    "description": "Klicka i sidhuvudet eller sidfoten för att redigera dem. Webbplatsens sidor visar dem runt sitt eget innehåll."
   }
 }

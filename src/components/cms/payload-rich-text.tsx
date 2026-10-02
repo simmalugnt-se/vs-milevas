@@ -3,6 +3,7 @@ import {
   LinkJSXConverter,
   RichText,
 } from "@payloadcms/richtext-lexical/react";
+import type { HTMLAttributes } from "react";
 import { resolveLinkReferenceHref } from "@/payload/utilities/link-field";
 
 const payloadRichTextConverters: JSXConvertersFunction = ({ defaultConverters }) => ({
@@ -16,10 +17,13 @@ const payloadRichTextConverters: JSXConvertersFunction = ({ defaultConverters })
 type PayloadRichTextProps = {
   className?: string;
   data: Record<string, unknown>;
-};
+} & Omit<HTMLAttributes<HTMLDivElement>, "children" | "className">;
 
-export function PayloadRichText({ className, data }: PayloadRichTextProps) {
+/** Renders the container itself so extra attributes (e.g. visual editing markers) land on it. */
+export function PayloadRichText({ className, data, ...attributes }: PayloadRichTextProps) {
   return (
-    <RichText className={className} converters={payloadRichTextConverters} data={data as never} />
+    <div className={className ?? "payload-richtext"} {...attributes}>
+      <RichText converters={payloadRichTextConverters} data={data as never} disableContainer />
+    </div>
   );
 }

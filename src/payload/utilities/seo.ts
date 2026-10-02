@@ -100,7 +100,12 @@ export const getDocumentImage = (doc: PageLike) => {
       continue;
     }
 
-    const upload = (block.image as UploadValue) ?? (block.media as UploadValue) ?? null;
+    // Hero and media blocks take an image or a video; only an image can be a share image.
+    const value = block.media as { relationTo?: unknown; value?: UploadValue } | null | undefined;
+    if (!value || value.relationTo !== "images") {
+      continue;
+    }
+    const upload = value.value;
 
     if (typeof upload === "number" || typeof upload === "string") {
       return upload;

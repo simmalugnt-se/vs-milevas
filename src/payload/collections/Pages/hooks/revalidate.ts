@@ -4,6 +4,7 @@ import { frontendPath } from "@/i18n/frontend-path";
 import { routing } from "@/i18n/routing";
 import type { Page } from "@/payload-types";
 import { notifyRemoteRevalidation } from "@/utilities/notify-remote-revalidation";
+import { publishedSlugBefore } from "./redirect-old-slug.ts";
 
 function pagePath(slug: string | null | undefined): string {
   if (!slug || slug === "home") {
@@ -22,8 +23,9 @@ function revalidateLocalizedPagePaths(slug: string | null | undefined) {
 export const revalidateCollection: CollectionAfterChangeHook<Page> = ({
   doc,
   previousDoc,
-  req: { context },
+  req,
 }) => {
+  const { context } = req;
   if (context?.disableRevalidate) {
     return doc;
   }
@@ -44,15 +46,13 @@ export const revalidateCollection: CollectionAfterChangeHook<Page> = ({
     revalidateTag(`page:${previousDoc.slug}`, "max");
   }
 
-  if (
-    doc._status === "published" &&
-    previousDoc?._status === "published" &&
-    previousDoc.slug &&
-    doc.slug &&
-    previousDoc.slug !== doc.slug
-  ) {
-    revalidateLocalizedPagePaths(previousDoc.slug);
-    revalidateTag(`page:${previousDoc.slug}`, "max");
+  // A new slug: the old address now redirects. `previousDoc` is the last draft, which may have the
+  // new slug already, so the published one comes from `rememberPublishedSlug`. Expire the old page at
+  // once, or its next visitor gets it from the cache instead of the redirect.
+  const publishedSlug = publishedSlugBefore(req, doc.id);
+  if (doc._status === "published" && publishedSlug && doc.slug && publishedSlug !== doc.slug) {
+    revalidateLocalizedPagePaths(publishedSlug);
+    revalidateTag(`page:${publishedSlug}`, { expire: 0 });
   }
 
   void notifyRemoteRevalidation();

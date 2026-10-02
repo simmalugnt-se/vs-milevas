@@ -31,7 +31,7 @@ const getCachedPageBySlug = (slug: string, locale: TypedLocale) =>
   });
 
 /**
- * Per-request dedupe (xo-foundation pattern). When `draft` is true, bypasses
+ * Deduplicated per request with React `cache`. When `draft` is true, bypasses
  * `unstable_cache` so preview always hits Payload.
  */
 export const getPageBySlug = cache(async (slug: string, draft: boolean, locale: TypedLocale) => {

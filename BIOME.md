@@ -1,6 +1,4 @@
-# Biome Workflow in harvest-moon
-
-> Last updated: 2026-05-14
+# Biome workflow
 
 This project uses [Biome](https://biomejs.dev/) as the primary local tool for
 formatting, import sorting, and day-to-day linting. ESLint is kept as a temporary

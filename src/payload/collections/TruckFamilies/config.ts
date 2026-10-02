@@ -54,7 +54,7 @@ export const TruckFamilies: CollectionConfig = {
     { name: "description", type: "textarea", localized: true },
     { name: "basePrice", type: "number", required: true, min: 0, localized: false },
     { name: "sku", type: "text", localized: false },
-    { name: "image", type: "upload", relationTo: "media", localized: false },
+    { name: "image", type: "upload", relationTo: "images", localized: false },
     { name: "brochure", type: "upload", relationTo: "documents", localized: false },
     { name: "deliveryTime", type: "text", localized: true, required: true },
     { name: "warranty", type: "textarea", localized: true, required: true },

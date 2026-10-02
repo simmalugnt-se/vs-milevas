@@ -68,12 +68,13 @@ export interface Config {
   };
   blocks: {};
   collections: {
-    users: User;
-    media: Media;
-    documents: Document;
     pages: Page;
+    images: Image;
+    documents: Document;
     'truck-families': TruckFamily;
     'configurator-requests': ConfiguratorRequest;
+    users: User;
+    videos: Video;
     redirects: Redirect;
     'payload-mcp-api-keys': PayloadMcpApiKey;
     'payload-kv': PayloadKv;
@@ -84,12 +85,13 @@ export interface Config {
   };
   collectionsJoins: {};
   collectionsSelect: {
-    users: UsersSelect<false> | UsersSelect<true>;
-    media: MediaSelect<false> | MediaSelect<true>;
-    documents: DocumentsSelect<false> | DocumentsSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
+    images: ImagesSelect<false> | ImagesSelect<true>;
+    documents: DocumentsSelect<false> | DocumentsSelect<true>;
     'truck-families': TruckFamiliesSelect<false> | TruckFamiliesSelect<true>;
     'configurator-requests': ConfiguratorRequestsSelect<false> | ConfiguratorRequestsSelect<true>;
+    users: UsersSelect<false> | UsersSelect<true>;
+    videos: VideosSelect<false> | VideosSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     'payload-mcp-api-keys': PayloadMcpApiKeysSelect<false> | PayloadMcpApiKeysSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
@@ -166,84 +168,206 @@ export interface PayloadMcpApiKeyAuthOperations {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "users".
+ * via the `definition` "pages".
  */
-export interface User {
+export interface Page {
   id: string;
-  name?: string | null;
+  title: string;
+  publishedAt?: string | null;
+  /**
+   * Auto-generated from the title on first save. Changing it on a published page adds a redirect from the old address when you publish.
+   */
+  slug: string;
+  layout?:
+    | (
+        | {
+            headline: string;
+            summary?: string | null;
+            media?:
+              | ({
+                  relationTo: 'images';
+                  value: string | Image;
+                } | null)
+              | ({
+                  relationTo: 'videos';
+                  value: string | Video;
+                } | null);
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'hero';
+          }
+        | {
+            content: {
+              root: {
+                type: string;
+                children: {
+                  type: any;
+                  version: number;
+                  [k: string]: unknown;
+                }[];
+                direction: ('ltr' | 'rtl') | null;
+                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                indent: number;
+                version: number;
+              };
+              [k: string]: unknown;
+            };
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'richText';
+          }
+        | {
+            media:
+              | {
+                  relationTo: 'images';
+                  value: string | Image;
+                }
+              | {
+                  relationTo: 'videos';
+                  value: string | Video;
+                };
+            caption?: string | null;
+            layout: 'full' | 'inset' | 'split';
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'media';
+          }
+        | {
+            images: (string | Image)[];
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'gallery';
+          }
+        | {
+            heading?: string | null;
+            items: {
+              title: string;
+              text?: string | null;
+              link: {
+                type?: ('internal' | 'external') | null;
+                reference?: {
+                  relationTo: 'pages';
+                  value: string | Page;
+                } | null;
+                url?: string | null;
+                label: string;
+                newTab?: boolean | null;
+              };
+              id?: string | null;
+            }[];
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'cards';
+          }
+        | {
+            heading?: string | null;
+            items: {
+              question: string;
+              answer: string;
+              id?: string | null;
+            }[];
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'faq';
+          }
+        | {
+            title: string;
+            text?: string | null;
+            button: {
+              link: {
+                type?: ('internal' | 'external') | null;
+                reference?: {
+                  relationTo: 'pages';
+                  value: string | Page;
+                } | null;
+                url?: string | null;
+                label: string;
+                newTab?: boolean | null;
+              };
+            };
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'callToAction';
+          }
+        | {
+            columns: {
+              content?:
+                | (
+                    | {
+                        content: {
+                          root: {
+                            type: string;
+                            children: {
+                              type: any;
+                              version: number;
+                              [k: string]: unknown;
+                            }[];
+                            direction: ('ltr' | 'rtl') | null;
+                            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                            indent: number;
+                            version: number;
+                          };
+                          [k: string]: unknown;
+                        };
+                        id?: string | null;
+                        blockName?: string | null;
+                        blockType: 'richText';
+                      }
+                    | {
+                        media:
+                          | {
+                              relationTo: 'images';
+                              value: string | Image;
+                            }
+                          | {
+                              relationTo: 'videos';
+                              value: string | Video;
+                            };
+                        caption?: string | null;
+                        layout: 'full' | 'inset' | 'split';
+                        id?: string | null;
+                        blockName?: string | null;
+                        blockType: 'media';
+                      }
+                  )[]
+                | null;
+              id?: string | null;
+            }[];
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'columns';
+          }
+        | {
+            heading?: string | null;
+            intro?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'configurator';
+          }
+      )[]
+    | null;
+  meta?: {
+    title?: string | null;
+    description?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (string | null) | Image;
+  };
   updatedAt: string;
   createdAt: string;
-  email: string;
-  resetPasswordToken?: string | null;
-  resetPasswordExpiration?: string | null;
-  salt?: string | null;
-  hash?: string | null;
-  loginAttempts?: number | null;
-  lockUntil?: string | null;
-  sessions?:
-    | {
-        id: string;
-        createdAt?: string | null;
-        expiresAt: string;
-      }[]
-    | null;
-  password?: string | null;
-  collection: 'users';
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "media".
+ * via the `definition` "images".
  */
-export interface Media {
+export interface Image {
   id: string;
   alt?: string | null;
   credit?: string | null;
-  muxVideo?: {
-    selectedVideoId: string | null;
-    videoData: {
-      id: string;
-      status: string;
-      duration?: number;
-      aspect_ratio?: string;
-      created_at: string;
-      video_quality?: string;
-      upload_id?: string;
-      tracks?: {
-        type: string;
-        max_width?: number;
-        max_height?: number;
-        max_frame_rate?: number;
-        id: string;
-        duration?: number;
-        [k: string]: unknown;
-      }[];
-      resolution_tier?: string;
-      progress?: {
-        state: string;
-        progress: number;
-        [k: string]: unknown;
-      };
-      playback_ids?: {
-        id: string;
-        policy: string;
-        [k: string]: unknown;
-      }[];
-      mp4_support?: string;
-      meta?: {
-        title?: string;
-        description?: string;
-        [k: string]: unknown;
-      };
-      max_stored_resolution?: string;
-      max_stored_frame_rate?: number;
-      max_resolution_tier?: string;
-      master_access?: string;
-      ingest_type?: string;
-      encoding_tier?: string;
-      [k: string]: unknown;
-    } | null;
-  };
   prefix?: string | null;
+  _objectKey?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -276,6 +400,40 @@ export interface Media {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "videos".
+ */
+export interface Video {
+  id: string;
+  /**
+   * A name for the video in Admin; readers do not see it.
+   */
+  title: string;
+  /**
+   * What the video shows, for readers who cannot see it. Screen readers read it out.
+   */
+  description?: string | null;
+  /**
+   * Shown before the video plays. Without one, a frame from the video.
+   */
+  poster?: (string | null) | Image;
+  /**
+   * Second of the video to show before it plays, when no poster image is chosen. Empty: the middle of the video.
+   */
+  posterTime?: number | null;
+  status?: ('waiting' | 'preparing' | 'ready' | 'errored' | 'deleted') | null;
+  uploadId?: string | null;
+  assetId?: string | null;
+  playbackId?: string | null;
+  mp4?: string | null;
+  duration?: number | null;
+  aspectRatio?: string | null;
+  width?: number | null;
+  height?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "documents".
  */
 export interface Document {
@@ -283,6 +441,7 @@ export interface Document {
   title: string;
   description?: string | null;
   prefix?: string | null;
+  _objectKey?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -297,77 +456,6 @@ export interface Document {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "pages".
- */
-export interface Page {
-  id: string;
-  title: string;
-  publishedAt?: string | null;
-  /**
-   * Auto-generated from the title on first save. Change it manually only when you intentionally want a new URL.
-   */
-  slug: string;
-  layout?:
-    | (
-        | {
-            headline: string;
-            summary?: string | null;
-            image?: (string | null) | Media;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'hero';
-          }
-        | {
-            content: {
-              root: {
-                type: string;
-                children: {
-                  type: any;
-                  version: number;
-                  [k: string]: unknown;
-                }[];
-                direction: ('ltr' | 'rtl') | null;
-                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-                indent: number;
-                version: number;
-              };
-              [k: string]: unknown;
-            };
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'richText';
-          }
-        | {
-            media: string | Media;
-            caption?: string | null;
-            layout: 'full' | 'inset' | 'split';
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'media';
-          }
-        | {
-            heading?: string | null;
-            intro?: string | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'configurator';
-          }
-      )[]
-    | null;
-  meta?: {
-    title?: string | null;
-    description?: string | null;
-    /**
-     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
-     */
-    image?: (string | null) | Media;
-  };
-  updatedAt: string;
-  createdAt: string;
-  _status?: ('draft' | 'published') | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "truck-families".
  */
 export interface TruckFamily {
@@ -378,7 +466,7 @@ export interface TruckFamily {
   description?: string | null;
   basePrice: number;
   sku?: string | null;
-  image?: (string | null) | Media;
+  image?: (string | null) | Image;
   brochure?: (string | null) | Document;
   deliveryTime: string;
   warranty: string;
@@ -492,6 +580,33 @@ export interface ConfiguratorRequest {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "users".
+ */
+export interface User {
+  id: string;
+  name?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  email: string;
+  resetPasswordToken?: string | null;
+  resetPasswordExpiration?: string | null;
+  salt?: string | null;
+  hash?: string | null;
+  resetPasswordRequestedAt?: string | null;
+  loginAttempts?: number | null;
+  lockUntil?: string | null;
+  sessions?:
+    | {
+        id: string;
+        createdAt?: string | null;
+        expiresAt: string;
+      }[]
+    | null;
+  password?: string | null;
+  collection: 'users';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects".
  */
 export interface Redirect {
@@ -546,21 +661,39 @@ export interface PayloadMcpApiKey {
      */
     delete?: boolean | null;
   };
-  media?: {
+  images?: {
     /**
-     * Allow clients to find media.
+     * Allow clients to find images.
      */
     find?: boolean | null;
     /**
-     * Allow clients to create media.
+     * Allow clients to create images.
      */
     create?: boolean | null;
     /**
-     * Allow clients to update media.
+     * Allow clients to update images.
      */
     update?: boolean | null;
     /**
-     * Allow clients to delete media.
+     * Allow clients to delete images.
+     */
+    delete?: boolean | null;
+  };
+  videos?: {
+    /**
+     * Allow clients to find videos.
+     */
+    find?: boolean | null;
+    /**
+     * Allow clients to create videos.
+     */
+    create?: boolean | null;
+    /**
+     * Allow clients to update videos.
+     */
+    update?: boolean | null;
+    /**
+     * Allow clients to delete videos.
      */
     delete?: boolean | null;
   };
@@ -569,6 +702,7 @@ export interface PayloadMcpApiKey {
   enableAPIKey?: boolean | null;
   apiKey?: string | null;
   apiKeyIndex?: string | null;
+  hasAPIKey?: boolean | null;
   collection: 'payload-mcp-api-keys';
 }
 /**
@@ -688,20 +822,16 @@ export interface PayloadLockedDocument {
   id: string;
   document?:
     | ({
-        relationTo: 'users';
-        value: string | User;
+        relationTo: 'pages';
+        value: string | Page;
       } | null)
     | ({
-        relationTo: 'media';
-        value: string | Media;
+        relationTo: 'images';
+        value: string | Image;
       } | null)
     | ({
         relationTo: 'documents';
         value: string | Document;
-      } | null)
-    | ({
-        relationTo: 'pages';
-        value: string | Page;
       } | null)
     | ({
         relationTo: 'truck-families';
@@ -710,6 +840,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'configurator-requests';
         value: string | ConfiguratorRequest;
+      } | null)
+    | ({
+        relationTo: 'users';
+        value: string | User;
+      } | null)
+    | ({
+        relationTo: 'videos';
+        value: string | Video;
       } | null)
     | ({
         relationTo: 'redirects';
@@ -773,36 +911,165 @@ export interface PayloadMigration {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "users_select".
+ * via the `definition` "pages_select".
  */
-export interface UsersSelect<T extends boolean = true> {
-  name?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  email?: T;
-  resetPasswordToken?: T;
-  resetPasswordExpiration?: T;
-  salt?: T;
-  hash?: T;
-  loginAttempts?: T;
-  lockUntil?: T;
-  sessions?:
+export interface PagesSelect<T extends boolean = true> {
+  title?: T;
+  publishedAt?: T;
+  slug?: T;
+  layout?:
     | T
     | {
-        id?: T;
-        createdAt?: T;
-        expiresAt?: T;
+        hero?:
+          | T
+          | {
+              headline?: T;
+              summary?: T;
+              media?: T;
+              id?: T;
+              blockName?: T;
+            };
+        richText?:
+          | T
+          | {
+              content?: T;
+              id?: T;
+              blockName?: T;
+            };
+        media?:
+          | T
+          | {
+              media?: T;
+              caption?: T;
+              layout?: T;
+              id?: T;
+              blockName?: T;
+            };
+        gallery?:
+          | T
+          | {
+              images?: T;
+              id?: T;
+              blockName?: T;
+            };
+        cards?:
+          | T
+          | {
+              heading?: T;
+              items?:
+                | T
+                | {
+                    title?: T;
+                    text?: T;
+                    link?:
+                      | T
+                      | {
+                          type?: T;
+                          reference?: T;
+                          url?: T;
+                          label?: T;
+                          newTab?: T;
+                        };
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        faq?:
+          | T
+          | {
+              heading?: T;
+              items?:
+                | T
+                | {
+                    question?: T;
+                    answer?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        callToAction?:
+          | T
+          | {
+              title?: T;
+              text?: T;
+              button?:
+                | T
+                | {
+                    link?:
+                      | T
+                      | {
+                          type?: T;
+                          reference?: T;
+                          url?: T;
+                          label?: T;
+                          newTab?: T;
+                        };
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        columns?:
+          | T
+          | {
+              columns?:
+                | T
+                | {
+                    content?:
+                      | T
+                      | {
+                          richText?:
+                            | T
+                            | {
+                                content?: T;
+                                id?: T;
+                                blockName?: T;
+                              };
+                          media?:
+                            | T
+                            | {
+                                media?: T;
+                                caption?: T;
+                                layout?: T;
+                                id?: T;
+                                blockName?: T;
+                              };
+                        };
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        configurator?:
+          | T
+          | {
+              heading?: T;
+              intro?: T;
+              id?: T;
+              blockName?: T;
+            };
       };
+  meta?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        image?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "media_select".
+ * via the `definition` "images_select".
  */
-export interface MediaSelect<T extends boolean = true> {
+export interface ImagesSelect<T extends boolean = true> {
   alt?: T;
   credit?: T;
-  muxVideo?: T;
   prefix?: T;
+  _objectKey?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -847,6 +1114,7 @@ export interface DocumentsSelect<T extends boolean = true> {
   title?: T;
   description?: T;
   prefix?: T;
+  _objectKey?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -858,62 +1126,6 @@ export interface DocumentsSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "pages_select".
- */
-export interface PagesSelect<T extends boolean = true> {
-  title?: T;
-  publishedAt?: T;
-  slug?: T;
-  layout?:
-    | T
-    | {
-        hero?:
-          | T
-          | {
-              headline?: T;
-              summary?: T;
-              image?: T;
-              id?: T;
-              blockName?: T;
-            };
-        richText?:
-          | T
-          | {
-              content?: T;
-              id?: T;
-              blockName?: T;
-            };
-        media?:
-          | T
-          | {
-              media?: T;
-              caption?: T;
-              layout?: T;
-              id?: T;
-              blockName?: T;
-            };
-        configurator?:
-          | T
-          | {
-              heading?: T;
-              intro?: T;
-              id?: T;
-              blockName?: T;
-            };
-      };
-  meta?:
-    | T
-    | {
-        title?: T;
-        description?: T;
-        image?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
-  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1034,6 +1246,51 @@ export interface ConfiguratorRequestsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "users_select".
+ */
+export interface UsersSelect<T extends boolean = true> {
+  name?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  email?: T;
+  resetPasswordToken?: T;
+  resetPasswordExpiration?: T;
+  salt?: T;
+  hash?: T;
+  resetPasswordRequestedAt?: T;
+  loginAttempts?: T;
+  lockUntil?: T;
+  sessions?:
+    | T
+    | {
+        id?: T;
+        createdAt?: T;
+        expiresAt?: T;
+      };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "videos_select".
+ */
+export interface VideosSelect<T extends boolean = true> {
+  title?: T;
+  description?: T;
+  poster?: T;
+  posterTime?: T;
+  status?: T;
+  uploadId?: T;
+  assetId?: T;
+  playbackId?: T;
+  mp4?: T;
+  duration?: T;
+  aspectRatio?: T;
+  width?: T;
+  height?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects_select".
  */
 export interface RedirectsSelect<T extends boolean = true> {
@@ -1064,7 +1321,15 @@ export interface PayloadMcpApiKeysSelect<T extends boolean = true> {
         update?: T;
         delete?: T;
       };
-  media?:
+  images?:
+    | T
+    | {
+        find?: T;
+        create?: T;
+        update?: T;
+        delete?: T;
+      };
+  videos?:
     | T
     | {
         find?: T;
@@ -1077,6 +1342,7 @@ export interface PayloadMcpApiKeysSelect<T extends boolean = true> {
   enableAPIKey?: T;
   apiKey?: T;
   apiKeyIndex?: T;
+  hasAPIKey?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1172,6 +1438,18 @@ export interface Header {
         id?: string | null;
       }[]
     | null;
+  showAnnouncement?: boolean | null;
+  announcement: string;
+  announcementLink: {
+    type?: ('internal' | 'external') | null;
+    reference?: {
+      relationTo: 'pages';
+      value: string | Page;
+    } | null;
+    url?: string | null;
+    label: string;
+    newTab?: boolean | null;
+  };
   _status?: ('draft' | 'published') | null;
   updatedAt?: string | null;
   createdAt?: string | null;
@@ -1254,6 +1532,17 @@ export interface HeaderSelect<T extends boolean = true> {
               newTab?: T;
             };
         id?: T;
+      };
+  showAnnouncement?: T;
+  announcement?: T;
+  announcementLink?:
+    | T
+    | {
+        type?: T;
+        reference?: T;
+        url?: T;
+        label?: T;
+        newTab?: T;
       };
   _status?: T;
   updatedAt?: T;
@@ -1343,7 +1632,15 @@ export interface TaskSchedulePublish {
           value: string | TruckFamily;
         } | null);
     global?: ('header' | 'footer' | 'configurator-settings') | null;
-    user?: (string | null) | User;
+    user?:
+      | ({
+          relationTo: 'users';
+          value: string | User;
+        } | null)
+      | ({
+          relationTo: 'payload-mcp-api-keys';
+          value: string | PayloadMcpApiKey;
+        } | null);
   };
   output?: unknown;
 }

@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 /**
- * Robust local setup script for Milevass.
+ * Robust local setup script for Payload boilerplates.
  *
  * Handles:
  *   - Docker installation detection
  *   - Docker daemon running check
+ *   - .env.local creation (with generated secrets) and a free host port for Postgres
  *   - Postgres container start + health wait
  *   - Baseline migration validation
  *   - Migration run with clear error messages
@@ -15,9 +16,22 @@
  */
 
 import { spawn, spawnSync } from "child_process";
+import { randomBytes } from "crypto";
 import path from "path";
+import {
+  composeEnvArgs,
+  DEFAULT_POSTGRES_PORT,
+  ensureEnvLocal,
+  findFreePort,
+  portInUse,
+  readEnv,
+  withLocalPort,
+  writeEnv,
+} from "./lib/local-env.mjs";
 
 const PLATFORM = process.platform; // 'darwin', 'linux', 'win32'
+/** Postgres major version in docker-compose.yml. */
+const POSTGRES_MAJOR = 18;
 
 /* ------------------------------------------------------------------ */
 /*  ANSI helpers                                                       */
@@ -52,8 +66,8 @@ function logStep(n, title) {
 /* ------------------------------------------------------------------ */
 /*  Docker helpers                                                     */
 /* ------------------------------------------------------------------ */
-function commandExists(cmd) {
-  const result = spawnSync(cmd, ["--version"], { stdio: "pipe", shell: true });
+function commandExists(command, args = ["--version"]) {
+  const result = spawnSync(command, args, { stdio: "pipe" });
   return result.status === 0;
 }
 
@@ -168,7 +182,13 @@ async function waitForPostgres(timeoutMs = 60000) {
 
   while (Date.now() - start < timeoutMs) {
     try {
-      const out = await runCapture("docker", ["compose", "ps", "--format", "json"]);
+      const out = await runCapture("docker", [
+        "compose",
+        ...composeEnvArgs(),
+        "ps",
+        "--format",
+        "json",
+      ]);
       const parsed = JSON.parse(out);
       // docker compose ps --format json returns a single object for one container,
       // or an array for multiple.
@@ -200,10 +220,12 @@ async function listMigrationFiles() {
   }
 }
 
-async function migrationStatus() {
+async function migrationStatus(port) {
   try {
-    const out = await runCapture("pnpm", ["exec", "payload", "migrate:status"], {
+    const out = await runCapture("pnpm", ["db:migrate:status"], {
       ...process.env,
+      SERVICES: "local",
+      POSTGRES_HOST_PORT: String(port),
       NODE_OPTIONS: "--no-deprecation",
     });
     const lines = out.split("\n");
@@ -216,12 +238,79 @@ async function migrationStatus() {
 }
 
 /* ------------------------------------------------------------------ */
+/*  .env.local and port                                                */
+/* ------------------------------------------------------------------ */
+const PLACEHOLDER_SECRETS = {
+  PAYLOAD_SECRET: "your-secret-here",
+  PREVIEW_SECRET: "your-preview-secret",
+};
+
+/** Placeholder secrets from .env.example become random ones, so a fresh clone runs as is. */
+function fillSecrets(env) {
+  const values = {};
+  for (const [key, placeholder] of Object.entries(PLACEHOLDER_SECRETS)) {
+    if (!env[key] || env[key] === placeholder) {
+      values[key] = randomBytes(32).toString("hex");
+    }
+  }
+  if (Object.keys(values).length > 0) {
+    writeEnv(values);
+    info(`Generated ${Object.keys(values).join(" and ")} in .env.local.`);
+  }
+}
+
+function isLocalUrl(url) {
+  return /@(127\.0\.0\.1|localhost):\d+\//.test(url ?? "");
+}
+
+function ourContainerRunning() {
+  const result = spawnSync(
+    "docker",
+    ["compose", ...composeEnvArgs(), "ps", "--status", "running", "-q", "postgres"],
+    {
+      stdio: "pipe",
+    },
+  );
+  return result.status === 0 && String(result.stdout).trim() !== "";
+}
+
+/**
+ * Keeps the configured port when it is free or already ours; otherwise moves this project to the
+ * next free port and points the local connection strings at it. Another project's Postgres on
+ * 5434 is the usual reason.
+ */
+async function choosePort(env) {
+  const configured = Number(env.POSTGRES_HOST_PORT) || DEFAULT_POSTGRES_PORT;
+  if (ourContainerRunning() || !(await portInUse(configured))) {
+    if (!env.POSTGRES_HOST_PORT) {
+      writeEnv({ POSTGRES_HOST_PORT: String(configured) });
+    }
+    return configured;
+  }
+  const port = await findFreePort(configured + 1);
+  writeEnv({
+    POSTGRES_HOST_PORT: String(port),
+    // Projects from before SERVICES keep their local connection strings in step with the port.
+    ...(isLocalUrl(env.DATABASE_URI)
+      ? { DATABASE_URI: withLocalPort(env.DATABASE_URI, port) }
+      : {}),
+    ...(isLocalUrl(env.DATABASE_URI_DIRECT)
+      ? { DATABASE_URI_DIRECT: withLocalPort(env.DATABASE_URI_DIRECT, port) }
+      : {}),
+  });
+  warn(
+    `Port ${configured} is taken by something else; this project now uses ${port} (saved in .env.local).`,
+  );
+  return port;
+}
+
+/* ------------------------------------------------------------------ */
 /*  Main                                                               */
 /* ------------------------------------------------------------------ */
 async function main() {
   console.log(`${C.bold}${C.cyan}
 ╔══════════════════════════════════════════════════════════════════╗
-║  Milevas — Local Setup                               ║
+║  Payload Boilerplate — Local Setup                               ║
 ╚══════════════════════════════════════════════════════════════════╝${C.reset}\n`);
 
   /* Step 1 — Docker install */
@@ -233,7 +322,7 @@ async function main() {
   }
   success("Docker CLI found.");
 
-  if (!commandExists("docker compose")) {
+  if (!commandExists("docker", ["compose", "version"])) {
     error("Docker Compose plugin is not available.");
     console.log(`
 Docker Compose is required. It is included with Docker Desktop (macOS/Windows)
@@ -276,45 +365,78 @@ Start Docker Desktop, then re-run:
   }
   success("Docker daemon is running.");
 
-  /* Step 3 — Start Postgres */
-  logStep(3, "Start Postgres container");
+  /* Step 3 — .env.local and port */
+  logStep(3, "Prepare .env.local");
+  if (ensureEnvLocal()) {
+    success("Created .env.local from .env.example.");
+  }
+  fillSecrets(readEnv());
+  const before = readEnv();
+  // A project without SERVICES starts out local. SERVICES=cloud is left as chosen: this script
+  // still only touches the Docker database (see step 7).
+  if (!before.SERVICES) {
+    writeEnv({ SERVICES: "local" });
+  }
+  const port = await choosePort(before);
+  success(`Postgres will listen on 127.0.0.1:${port}.`);
+
+  /* Step 4 — Start Postgres */
+  logStep(4, "Start Postgres container");
   try {
     info("Starting postgres with docker compose...");
-    await run("docker", ["compose", "up", "-d", "postgres"]);
+    await run("docker", ["compose", ...composeEnvArgs(), "up", "-d", "postgres"]);
   } catch (err) {
     error("Failed to start Postgres container.");
     console.log(`\nDocker Compose error: ${err.message}\n`);
     console.log(`Common fixes:
-  - Port conflict: make sure port ${process.env.POSTGRES_HOST_PORT || "5434/5435"} is not in use by another Postgres instance.
+  - Port conflict: port ${port} was free a moment ago; re-run pnpm setup:local to pick another.
   - Permission denied: ensure your user is in the 'docker' group or use sudo.
   - Corrupt volume: reset with 'pnpm db:local:reset' then try again.
 `);
     process.exit(1);
   }
 
-  /* Step 4 — Wait for health */
-  logStep(4, "Wait for Postgres to be healthy");
+  /* Step 5 — Wait for health */
+  logStep(5, "Wait for Postgres to be healthy");
   try {
     await waitForPostgres(60000);
     success("Postgres is healthy.");
   } catch (err) {
+    const logs = await runCapture("docker", [
+      "compose",
+      ...composeEnvArgs(),
+      "logs",
+      "postgres",
+    ]).catch(() => "");
+    if (logs.includes("there appears to be PostgreSQL data in")) {
+      error("The data volume holds a database from an older Postgres version.");
+      console.log(`
+This project's Docker volume was created with an older Postgres image, and Postgres ${POSTGRES_MAJOR}
+cannot open it. Either start over with an empty database (deletes the old local data):
+   pnpm db:local:reset && pnpm setup:local
+
+or keep the old data in its own project by naming another one in .env.local:
+   COMPOSE_PROJECT_NAME=<new-name>
+`);
+      process.exit(1);
+    }
     error(err.message);
     console.log(`
 The Postgres container started but did not pass its health check.
 
 Check the logs:
-   docker compose logs postgres
+   docker compose --env-file .env.local logs postgres
 
 Common fixes:
   - If the container keeps restarting, reset the volume:
       pnpm db:local:reset
-  - If the port is already in use, change POSTGRES_HOST_PORT in .env.local
+  - Another project's container may hold the data folder: check docker ps
 `);
     process.exit(1);
   }
 
-  /* Step 5 — Verify baseline migrations exist */
-  logStep(5, "Check baseline migrations");
+  /* Step 6 — Verify baseline migrations exist */
+  logStep(6, "Check baseline migrations");
   const migrationFiles = await listMigrationFiles();
   if (migrationFiles.length === 0) {
     warn("No baseline migration files found in src/payload/migrations/");
@@ -333,11 +455,17 @@ Then commit the generated files in src/payload/migrations/.
   }
   info(`Found ${migrationFiles.length} migration file(s): ${migrationFiles.join(", ")}`);
 
-  /* Step 6 — Run migrations */
-  logStep(6, "Run Payload migrations");
+  /* Step 7 — Run migrations */
+  logStep(7, "Run Payload migrations");
   info("Running: pnpm db:migrate");
   try {
-    await run("pnpm", ["db:migrate"], { ...process.env, NODE_OPTIONS: "--no-deprecation" });
+    // SERVICES=local points Payload at the Docker database, whatever .env.local says.
+    await run("pnpm", ["db:migrate"], {
+      ...process.env,
+      SERVICES: "local",
+      POSTGRES_HOST_PORT: String(port),
+      NODE_OPTIONS: "--no-deprecation",
+    });
   } catch (err) {
     error("Migration failed.");
     console.log(`\nError: ${err.message}\n`);
@@ -392,9 +520,9 @@ Fixes:
     process.exit(1);
   }
 
-  /* Step 7 — Verify */
-  logStep(7, "Verify migration status");
-  const status = await migrationStatus();
+  /* Step 8 — Verify */
+  logStep(8, "Verify migration status");
+  const status = await migrationStatus(port);
   if (status.error) {
     warn("Could not verify migration status, but migrations reported success.");
   } else if (status.pending) {
@@ -403,6 +531,10 @@ Fixes:
     process.exit(1);
   } else {
     success("All migrations applied successfully.");
+  }
+  if (readEnv().SERVICES === "cloud") {
+    warn("The local database is ready, but .env.local has SERVICES=cloud.");
+    console.log("Set SERVICES=local in .env.local to use it, then restart pnpm dev.\n");
   }
 
   /* Done */

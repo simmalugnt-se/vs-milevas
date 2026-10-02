@@ -1,11 +1,11 @@
-import { MigrateUpArgs, MigrateDownArgs, sql } from '@payloadcms/db-postgres'
+import { MigrateDownArgs, MigrateUpArgs, sql } from "@payloadcms/db-postgres";
 
 export async function up({ db, payload: _payload, req: _req }: MigrateUpArgs): Promise<void> {
   await db.execute(sql`
-   ALTER TABLE "documents" ADD COLUMN "prefix" varchar DEFAULT 'documents';`)
+   ALTER TABLE "documents" ADD COLUMN "prefix" varchar DEFAULT 'documents';`);
 }
 
 export async function down({ db, payload: _payload, req: _req }: MigrateDownArgs): Promise<void> {
   await db.execute(sql`
-   ALTER TABLE "documents" DROP COLUMN "prefix";`)
+   ALTER TABLE "documents" DROP COLUMN "prefix";`);
 }

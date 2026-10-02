@@ -1,3 +1,8 @@
+import {
+  editableBlock,
+  editableField,
+  editableGlobal,
+} from "@simmalugnt-se/payload-visual-editing/frontend";
 import { getTranslations } from "next-intl/server";
 import type { TypedLocale } from "payload";
 import { Link } from "@/i18n/navigation";
@@ -16,11 +21,15 @@ export async function FooterComponent({ draft = false, locale }: FooterComponent
   const navItems = footer.navItems ?? [];
   const year = new Date().getFullYear();
 
+  // Click-to-edit markers, only in Live Preview; they respond while the footer is edited.
+  const mark = (attributes: ReturnType<typeof editableField>) => (draft ? attributes : {});
+
   return (
-    <footer className="border-t border-neutral-200 bg-white">
+    <footer className="border-t border-neutral-200 bg-white" {...mark(editableGlobal("footer"))}>
       <div className="mx-auto flex w-full max-w-7xl flex-col items-center gap-4 px-5 py-6 sm:flex-row sm:justify-between sm:px-8 lg:px-10">
         <p className="text-xs text-neutral-500">
-          &copy; {year} {brand}. {t("allRightsReserved")}
+          &copy; {year} <span {...mark(editableField("copyright"))}>{brand}</span>.{" "}
+          {t("allRightsReserved")}
         </p>
         {navItems.length > 0 ? (
           <nav className="flex flex-wrap items-center gap-6">
@@ -38,8 +47,9 @@ export async function FooterComponent({ draft = false, locale }: FooterComponent
                   className="text-xs font-medium text-neutral-600 hover:text-neutral-950"
                   rel={resolvedLink.rel}
                   target={resolvedLink.target}
+                  {...mark(editableBlock(item))}
                 >
-                  {item.link.label}
+                  <span {...mark(editableField("link.label"))}>{item.link.label}</span>
                 </Link>
               );
             })}

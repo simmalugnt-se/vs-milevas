@@ -1,11 +1,19 @@
 import type { GlobalConfig } from "payload";
+import { ADMIN_GROUPS } from "@/payload/admin-groups.ts";
 import { link } from "@/payload/fields/link";
+import { generateGlobalPreviewPath } from "@/payload/utilities/preview.ts";
 import { revalidateFooter } from "./hooks/revalidate";
 
 export const Footer: GlobalConfig = {
   slug: "footer",
   access: {
     read: () => true,
+  },
+  admin: {
+    group: ADMIN_GROUPS.globals,
+    livePreview: {
+      url: ({ req }) => generateGlobalPreviewPath({ global: "footer", req }),
+    },
   },
   fields: [
     {

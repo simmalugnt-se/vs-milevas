@@ -1,4 +1,4 @@
-import { notFound, redirect } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import type { TypedLocale } from "payload";
 import { getRedirectDestination } from "@/payload/data/redirects";
 
@@ -12,7 +12,7 @@ export async function PayloadRedirects({ disableNotFound, locale, url }: Payload
   const destination = await getRedirectDestination(url, locale);
 
   if (destination) {
-    redirect(destination);
+    permanentRedirect(destination);
   }
 
   if (disableNotFound) {

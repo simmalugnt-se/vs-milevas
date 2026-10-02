@@ -1,6 +1,7 @@
 "use client";
 
 import { RefreshRouteOnSave as PayloadLivePreview } from "@payloadcms/live-preview-react";
+import { VisualEditingPreview } from "@simmalugnt-se/payload-visual-editing/frontend";
 import { useRouter } from "next/navigation";
 
 import { getClientSideURL } from "@/utilities/getURL";
@@ -8,5 +9,10 @@ import { getClientSideURL } from "@/utilities/getURL";
 export function LivePreviewListener() {
   const router = useRouter();
 
-  return <PayloadLivePreview refresh={router.refresh} serverURL={getClientSideURL()} />;
+  return (
+    <>
+      <PayloadLivePreview refresh={router.refresh} serverURL={getClientSideURL()} />
+      <VisualEditingPreview />
+    </>
+  );
 }

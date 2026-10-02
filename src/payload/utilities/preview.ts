@@ -1,4 +1,4 @@
-import type { CollectionSlug, PayloadRequest, TypedLocale } from "payload";
+import type { CollectionSlug, GlobalSlug, PayloadRequest, TypedLocale } from "payload";
 import { frontendPath } from "@/i18n/frontend-path";
 import { routing } from "@/i18n/routing";
 
@@ -81,6 +81,29 @@ export const generatePreviewPath = ({ collection, slug, req }: GeneratePreviewPa
     slug: encodedSlug,
     collection,
     path,
+    previewSecret: process.env.PREVIEW_SECRET || "",
+  });
+
+  return `/${locale}/next/preview?${encodedParams.toString()}`;
+};
+
+/** Globals previewed on `/global-preview`: the header and footer around neutral content. */
+export type PreviewGlobal = Extract<GlobalSlug, "header" | "footer">;
+
+export const GLOBAL_PREVIEW_PATH = "/global-preview";
+
+/** Preview entry URL for a global, through the same route as pages. */
+export const generateGlobalPreviewPath = ({
+  global,
+  req,
+}: {
+  global: PreviewGlobal;
+  req: PayloadRequest;
+}) => {
+  const locale = previewLocale(req);
+  const encodedParams = new URLSearchParams({
+    global,
+    path: frontendPath(GLOBAL_PREVIEW_PATH, locale),
     previewSecret: process.env.PREVIEW_SECRET || "",
   });
 

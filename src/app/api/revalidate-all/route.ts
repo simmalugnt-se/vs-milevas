@@ -1,12 +1,14 @@
 import { revalidatePath, revalidateTag } from "next/cache";
 import { NextResponse } from "next/server";
+import { REDIRECTS_CACHE_PROFILE, REDIRECTS_CACHE_TAG } from "@/payload/cache-tags";
 
 const ALL_CMS_TAGS = [
   "pages",
   "sitemap-pages",
   "documents",
-  "media",
-  "redirects",
+  "images",
+  "videos",
+  REDIRECTS_CACHE_TAG,
   "global:header",
   "global:footer",
 ];
@@ -41,7 +43,7 @@ export async function POST(request: Request) {
   }
 
   for (const tag of ALL_CMS_TAGS) {
-    revalidateTag(tag, "max");
+    revalidateTag(tag, tag === REDIRECTS_CACHE_TAG ? REDIRECTS_CACHE_PROFILE : "max");
   }
 
   revalidatePath("/", "layout");

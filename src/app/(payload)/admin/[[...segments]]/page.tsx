@@ -1,6 +1,6 @@
 import config from "@payload-config";
 import { generatePageMetadata, RootPage } from "@payloadcms/next/views";
-import { PayloadAdminDatabaseSetupContent } from "@/components/cms/payload-database-setup";
+import { DatabaseSetupPage } from "@/components/cms/database-setup";
 import { getPayloadDbReady } from "@/payload/data/db-ready";
 import { importMap } from "../../importMap";
 
@@ -14,7 +14,7 @@ export const generateMetadata = async ({
   searchParams,
 }: Pick<AdminPageProps, "params" | "searchParams">) => {
   if (!(await getPayloadDbReady()).ready) {
-    return { title: "Set up the database | Payload CMS" };
+    return { title: "Database setup | Payload CMS" };
   }
   return generatePageMetadata({
     config: Promise.resolve(config),
@@ -24,8 +24,9 @@ export const generateMetadata = async ({
 };
 
 export default async function AdminPage({ params, searchParams }: AdminPageProps) {
-  if (!(await getPayloadDbReady()).ready) {
-    return <PayloadAdminDatabaseSetupContent />;
+  const database = await getPayloadDbReady();
+  if (!database.ready) {
+    return <DatabaseSetupPage problem={database.problem} />;
   }
 
   return RootPage({

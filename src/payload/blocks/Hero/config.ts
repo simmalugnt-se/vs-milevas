@@ -15,9 +15,9 @@ export const HeroBlock: Block = {
       localized: true,
     },
     {
-      name: "image",
+      name: "media",
       type: "upload",
-      relationTo: "media",
+      relationTo: ["images", "videos"],
     },
   ],
 };

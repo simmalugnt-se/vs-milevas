@@ -1,7 +1,7 @@
-import dotenv from "dotenv";
 import path from "node:path";
-import type { Payload, RequiredDataFromCollectionSlug } from "payload";
 import { fileURLToPath } from "node:url";
+import dotenv from "dotenv";
+import type { Payload, RequiredDataFromCollectionSlug } from "payload";
 
 dotenv.config({ path: ".env.local" });
 dotenv.config();
@@ -284,9 +284,9 @@ const families: FamilyInput[] = [
   },
 ];
 
-async function placeholderMedia(payload: Payload) {
+async function placeholderImage(payload: Payload) {
   const existing = await payload.find({
-    collection: "media",
+    collection: "images",
     overrideAccess: true,
     limit: 1,
     where: { filename: { equals: placeholderImageFilename } },
@@ -294,7 +294,7 @@ async function placeholderMedia(payload: Payload) {
   if (existing.docs[0]) return existing.docs[0];
 
   return payload.create({
-    collection: "media",
+    collection: "images",
     locale: "sv",
     data: { alt: "Placeholderbild för truck" },
     filePath: placeholderImagePath,
@@ -375,7 +375,7 @@ async function seed() {
   const payload = await getPayload({ config });
   try {
     const [image, brochure] = await Promise.all([
-      placeholderMedia(payload),
+      placeholderImage(payload),
       placeholderBrochure(payload),
     ]);
 

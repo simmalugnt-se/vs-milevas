@@ -10,25 +10,15 @@ async function read(relativePath) {
   return readFile(join(root, relativePath), "utf8");
 }
 
-test("Mux routes require Payload auth and avoid wildcard upload CORS", async () => {
-  const routeFiles = [
-    "src/app/(payload)/api/mux/asset-status/route.ts",
-    "src/app/(payload)/api/mux/delete-asset/route.ts",
-    "src/app/(payload)/api/mux/get-assets/route.ts",
-    "src/app/(payload)/api/mux/upload-asset/route.ts",
-  ];
-
-  const shared = await read("src/app/(payload)/api/mux/shared.ts");
-  assert.match(shared, /payload\.auth/);
-
-  for (const routeFile of routeFiles) {
-    const source = await read(routeFile);
-    assert.match(source, /requireMuxAuth\(req\)/, `${routeFile} should enforce Payload auth`);
-  }
-
-  const uploadRoute = await read("src/app/(payload)/api/mux/upload-asset/route.ts");
-  assert.match(uploadRoute, /cors_origin:\s*getCorsOrigin\(\)/);
-  assert.doesNotMatch(uploadRoute, /cors_origin:\s*["']\*["']/);
+test("videos come from the Mux plugin, before MCP, with the site's cache tags", async () => {
+  const plugins = await read("src/payload/plugins/index.ts");
+  // The plugin's own tests cover its endpoints; here: the project's wiring.
+  assert.ok(plugins.indexOf("muxPlugin({") < plugins.indexOf("mcpPlugin({"));
+  assert.match(plugins, /posterCollection: "images"/);
+  assert.match(
+    plugins,
+    /afterChange: \[\.\.\.\(collection\.hooks\?\.afterChange \?\? \[\]\), revalidateVideos\]/,
+  );
 });
 
 test("Payload content defaults are localized where regular sites need them", async () => {
@@ -54,7 +44,7 @@ test("Payload media renders full-size images by default and labels videos", asyn
   const mediaUtility = await read("src/payload/utilities/media.ts");
   assert.match(
     mediaUtility,
-    /preferredSize:\s*"full"\s*\|\s*"card"\s*\|\s*"thumbnail"\s*=\s*"full"/,
+    /type PreferredSize = "full" \| "card" \| "thumbnail";[\s\S]*preferredSize: PreferredSize = "full"/,
   );
   assert.match(mediaUtility, /if \(preferredSize === "full"\)/);
 
@@ -67,7 +57,7 @@ test("R2 upload collections use their matching object prefixes", async () => {
 
   assert.match(
     payloadConfig,
-    /media:\s*\{\s*prefix:\s*"media",\s*disablePayloadAccessControl:\s*true/,
+    /images:\s*\{\s*prefix:\s*"media",\s*disablePayloadAccessControl:\s*true/,
   );
   assert.match(
     payloadConfig,

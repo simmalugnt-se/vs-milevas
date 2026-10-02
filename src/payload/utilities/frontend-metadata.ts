@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import type { TypedLocale } from "payload";
 import { frontendPath } from "@/i18n/frontend-path";
 import { getSiteUrl } from "@/lib/site";
-import type { Media, Page } from "@/payload-types";
+import type { Image, Page } from "@/payload-types";
 import { getDocumentDescription, getDocumentTitle } from "./seo";
 
 type PageMetadataDoc = Pick<Page, "layout" | "meta" | "slug" | "title">;
@@ -21,7 +21,7 @@ function toAbsoluteImageURL(url: string | null | undefined) {
   return new URL(source, getSiteUrl()).toString();
 }
 
-function resolvePayloadImage(image: string | Media | null | undefined) {
+function resolvePayloadImage(image: string | Image | null | undefined) {
   if (!image) {
     return null;
   }

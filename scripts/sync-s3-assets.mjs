@@ -5,7 +5,6 @@ import dotenv from "dotenv";
 import { mkdir, rm } from "fs/promises";
 import path from "path";
 
-dotenv.config({ path: ".env.local" });
 dotenv.config();
 
 const validEnvs = new Set(["local", "staging", "prod"]);
@@ -54,7 +53,7 @@ const run = (command, args, env = process.env) =>
 
 /**
  * Resolve S3-compatible credentials (Cloudflare R2, AWS S3, etc.).
- * Supports `S3_*_{SUFFIX}` (xo-foundation style) or `R2_*` / `R2_*_{SUFFIX}` for this repo.
+ * Reads `S3_*_{SUFFIX}` or `R2_*` / `R2_*_{SUFFIX}` variables.
  */
 const getProfile = (name) => {
   const suffix = suffixByEnv[name];

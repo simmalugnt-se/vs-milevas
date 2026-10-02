@@ -50,7 +50,13 @@ export const ConfiguratorSettings: GlobalConfig = {
       name: "serviceAgreement",
       type: "group",
       fields: [
-        { name: "label", type: "text", localized: true, required: true, defaultValue: "Serviceavtal" },
+        {
+          name: "label",
+          type: "text",
+          localized: true,
+          required: true,
+          defaultValue: "Serviceavtal",
+        },
         {
           name: "description",
           type: "textarea",

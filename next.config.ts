@@ -1,6 +1,7 @@
 import { withPayload } from "@payloadcms/next/withPayload";
 import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
+import { objectStorage } from "./src/utilities/services.mjs";
 
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 const searchIndexingEnabled =
@@ -25,9 +26,10 @@ function imageRemotePatternFromEnv(
   }
 }
 
+// Uploaded images are served from the bucket's public address (see src/utilities/services.mjs).
 const r2ImagePattern =
   imageRemotePatternFromEnv(process.env.NEXT_PUBLIC_R2_IMAGE_HOSTNAME) ??
-  imageRemotePatternFromEnv(process.env.R2_PUBLIC_URL);
+  imageRemotePatternFromEnv(objectStorage()?.publicUrl);
 
 const nextConfig: NextConfig = {
   env: {

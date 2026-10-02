@@ -26,7 +26,9 @@ function submittedFormValues(formData: FormData) {
     phone: textValue(formData, "phone", 100),
     message: textValue(formData, "message", 3000),
     callPreference:
-      textValue(formData, "callPreference", 20) === "specific" ? ("specific" as const) : ("asap" as const),
+      textValue(formData, "callPreference", 20) === "specific"
+        ? ("specific" as const)
+        : ("asap" as const),
     preferredTime: textValue(formData, "preferredTime", 200),
   };
 }

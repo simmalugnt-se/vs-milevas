@@ -1,4 +1,4 @@
-type LinkReferenceValue = Record<string, unknown> | string;
+type LinkReferenceValue = object | string;
 
 type LinkReference = {
   relationTo?: string | null;

@@ -15,7 +15,7 @@ export const slugField = ({
   localized,
   admin: {
     description:
-      "Auto-generated from the title on first save. Change it manually only when you intentionally want a new URL.",
+      "Auto-generated from the title on first save. Changing it on a published page adds a redirect from the old address when you publish.",
     position: "sidebar",
   },
   hooks: {

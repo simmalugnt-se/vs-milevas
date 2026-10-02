@@ -6,6 +6,7 @@ import { createReadStream, createWriteStream } from "fs";
 import { mkdir } from "fs/promises";
 import path from "path";
 
+// .env.local first, like Next and Payload; .env only fills in what it lacks.
 dotenv.config({ path: ".env.local" });
 dotenv.config();
 
@@ -14,7 +15,6 @@ const suffixByEnv = {
   staging: "STAGING",
   prod: "PROD",
 };
-const remotePostgresImage = "postgres:18";
 
 const parseArgs = () => {
   const args = process.argv.slice(2);
@@ -163,7 +163,7 @@ const main = async () => {
       "--rm",
       "-e",
       `DB_URL=${target.value}`,
-      remotePostgresImage,
+      "postgres:18",
       "sh",
       "-lc",
       'pg_dump --no-owner --no-privileges --format=custom --dbname "$DB_URL"',
@@ -179,7 +179,7 @@ const main = async () => {
       "--rm",
       "-e",
       `DB_URL=${source.value}`,
-      remotePostgresImage,
+      "postgres:18",
       "sh",
       "-lc",
       'pg_dump --no-owner --no-privileges --format=custom --dbname "$DB_URL"',
@@ -196,7 +196,7 @@ const main = async () => {
       "-i",
       "-e",
       `DB_URL=${target.value}`,
-      remotePostgresImage,
+      "postgres:18",
       "sh",
       "-lc",
       'pg_restore --clean --if-exists --no-owner --no-privileges --dbname "$DB_URL"',

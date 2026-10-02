@@ -1,10 +1,12 @@
 import type { CollectionConfig } from "payload";
+import { ADMIN_GROUPS } from "@/payload/admin-groups.ts";
 import { authenticatedOrPublished } from "../../access/authenticatedOrPublished.ts";
 import { isAuthenticated } from "../../access/isAuthenticated.ts";
 import { layoutBlocks } from "../../blocks/index.ts";
 import { slugField } from "../../fields/slug.ts";
 import { populatePublishedAt } from "../../hooks/populatePublishedAt.ts";
 import { generatePreviewPath } from "../../utilities/preview.ts";
+import { redirectOldSlug, rememberPublishedSlug } from "./hooks/redirect-old-slug.ts";
 import { revalidateCollection, revalidateCollectionDelete } from "./hooks/revalidate.ts";
 
 export const Pages: CollectionConfig = {
@@ -17,7 +19,7 @@ export const Pages: CollectionConfig = {
   },
   admin: {
     defaultColumns: ["title", "slug", "updatedAt"],
-    group: "Content",
+    group: ADMIN_GROUPS.content,
     livePreview: {
       url: ({ data, req }) =>
         generatePreviewPath({
@@ -58,9 +60,9 @@ export const Pages: CollectionConfig = {
     },
   ],
   hooks: {
-    afterChange: [revalidateCollection],
+    afterChange: [redirectOldSlug, revalidateCollection],
     afterDelete: [revalidateCollectionDelete],
-    beforeChange: [populatePublishedAt],
+    beforeChange: [populatePublishedAt, rememberPublishedSlug],
   },
   versions: {
     drafts: {

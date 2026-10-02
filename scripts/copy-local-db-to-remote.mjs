@@ -5,6 +5,8 @@ import dotenv from "dotenv";
 import { createReadStream, createWriteStream } from "fs";
 import { mkdir } from "fs/promises";
 import path from "path";
+import { localDatabaseUrl } from "../src/utilities/services.mjs";
+import { composeEnvArgs } from "./lib/local-env.mjs";
 
 dotenv.config({ path: ".env.local" });
 dotenv.config();
@@ -16,7 +18,6 @@ const suffixByEnv = {
 };
 
 const localHosts = new Set(["127.0.0.1", "localhost", "host.docker.internal"]);
-const remotePostgresImage = "postgres:18";
 
 const parseArgs = () => {
   const args = process.argv.slice(2);
@@ -103,7 +104,9 @@ const ensureDocker = () => {
     throw new Error("Docker is required. Install Docker Desktop and run again.");
   }
 
-  const compose = spawnSync("docker", ["compose", "version"], { stdio: "ignore" });
+  const compose = spawnSync("docker", ["compose", ...composeEnvArgs(), "version"], {
+    stdio: "ignore",
+  });
   if (compose.status !== 0) {
     throw new Error(
       "Docker Compose is required. Install Docker Desktop / Docker Compose and run again.",
@@ -147,6 +150,7 @@ const parseLocalDirectUrl = (url) => {
 
 const localExecArgs = ({ username, password, database }, sqlCommand) => [
   "compose",
+  ...composeEnvArgs(),
   "exec",
   "-T",
   "-e",
@@ -213,7 +217,10 @@ const main = async () => {
 
   assertOverwriteGuard({ confirm, force, to });
 
-  const localDirectUrl = process.env.DATABASE_URI_DIRECT;
+  // The local Docker database: an explicit DATABASE_URI_DIRECT, or the one SERVICES=local uses.
+  const localDirectUrl = process.env.SERVICES
+    ? localDatabaseUrl(process.env)
+    : process.env.DATABASE_URI_DIRECT;
   if (!localDirectUrl) {
     throw new Error("Missing DATABASE_URI_DIRECT for local source.");
   }
@@ -241,7 +248,7 @@ const main = async () => {
   await mkdir(tmpDir, { recursive: true });
 
   console.log("[copy-db:local-to-remote] Ensuring local postgres container is running...");
-  await run("docker", ["compose", "up", "-d", "postgres"]);
+  await run("docker", ["compose", ...composeEnvArgs(), "up", "-d", "postgres"]);
 
   if (!skipBackup) {
     console.log(`[copy-db:local-to-remote] Backing up target (${to}) -> ${targetBackupPath}`);
@@ -252,7 +259,7 @@ const main = async () => {
         "--rm",
         "-e",
         `DB_URL=${target.value}`,
-        remotePostgresImage,
+        "postgres:18",
         "sh",
         "-lc",
         'pg_dump --no-owner --no-privileges --format=custom --dbname "$DB_URL"',
@@ -277,7 +284,7 @@ const main = async () => {
     "--rm",
     "-e",
     `DB_URL=${target.value}`,
-    remotePostgresImage,
+    "postgres:18",
     "sh",
     "-lc",
     'psql --dbname "$DB_URL" -v ON_ERROR_STOP=1 -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"',
@@ -292,7 +299,7 @@ const main = async () => {
       "-i",
       "-e",
       `DB_URL=${target.value}`,
-      remotePostgresImage,
+      "postgres:18",
       "sh",
       "-lc",
       'pg_restore --no-owner --no-privileges --dbname "$DB_URL"',

@@ -6,7 +6,7 @@ export const MediaBlock: Block = {
     {
       name: "media",
       type: "upload",
-      relationTo: "media",
+      relationTo: ["images", "videos"],
       required: true,
     },
     {

@@ -1,7 +1,7 @@
 "use client";
 
-import type { TypedLocale } from "payload";
 import Image from "next/image";
+import type { TypedLocale } from "payload";
 import { useEffect, useReducer } from "react";
 import { frontendPath } from "@/i18n/frontend-path";
 import {
@@ -172,7 +172,14 @@ export function ConfiguratorClient({
     });
     const query = params.toString();
     window.history.replaceState(null, "", `${window.location.pathname}${query ? `?${query}` : ""}`);
-  }, [family, state.financingKey, state.hydrated, state.selections, state.serviceAgreement, state.step]);
+  }, [
+    family,
+    state.financingKey,
+    state.hydrated,
+    state.selections,
+    state.serviceAgreement,
+    state.step,
+  ]);
 
   const previewFinancing = state.financingKey ?? purchaseKey;
   const quote =
@@ -400,11 +407,13 @@ export function ConfiguratorClient({
                               } ${checked ? "border-neutral-950 bg-neutral-950 text-white" : "border-neutral-400"}`}
                               aria-hidden="true"
                             >
-                              {checked
-                                ? group.selectionMode === "single"
-                                  ? <span className="size-2.5 rounded-full bg-white" />
-                                  : "✓"
-                                : null}
+                              {checked ? (
+                                group.selectionMode === "single" ? (
+                                  <span className="size-2.5 rounded-full bg-white" />
+                                ) : (
+                                  "✓"
+                                )
+                              ) : null}
                             </span>
                             <span className="min-w-0 flex-1">
                               <span className="flex flex-wrap items-start justify-between gap-2">
@@ -522,7 +531,9 @@ export function ConfiguratorClient({
                     </span>
                     <span className="shrink-0 text-right text-sm font-semibold">
                       +{formatPrice(catalog.serviceAgreement.annualPrice)}/år
-                      <span className="mt-1 block text-xs font-normal text-neutral-500">exkl. moms</span>
+                      <span className="mt-1 block text-xs font-normal text-neutral-500">
+                        exkl. moms
+                      </span>
                     </span>
                   </label>
                 ) : null}
@@ -617,7 +628,8 @@ export function ConfiguratorClient({
                   </strong>
                 </div>
                 <p className="text-xs leading-5 text-neutral-500">
-                  Alla priser visas exkl. moms. Pris och tillgänglighet bekräftas i den slutliga offerten.
+                  Alla priser visas exkl. moms. Pris och tillgänglighet bekräftas i den slutliga
+                  offerten.
                 </p>
                 {family.brochure ? (
                   <a

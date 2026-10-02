@@ -1,11 +1,12 @@
 import { draftMode } from "next/headers";
 import { redirect } from "next/navigation";
 import type { NextRequest } from "next/server";
-import type { CollectionSlug, PayloadRequest } from "payload";
+import type { CollectionSlug, GlobalSlug, PayloadRequest } from "payload";
 
 import { getPayloadClient } from "@/payload/get-payload";
 
 const PREVIEW_COLLECTIONS = new Set<CollectionSlug>(["pages"]);
+const PREVIEW_GLOBALS = new Set<GlobalSlug>(["header", "footer"]);
 
 function normalizeRouteKey(value: string | null) {
   if (typeof value !== "string") {
@@ -23,6 +24,7 @@ export async function GET(req: NextRequest) {
 
   const path = searchParams.get("path");
   const collection = searchParams.get("collection") as CollectionSlug;
+  const global = searchParams.get("global") as GlobalSlug;
   const routeKey = normalizeRouteKey(searchParams.get("slug"));
   const previewSecret = searchParams.get("previewSecret");
 
@@ -32,7 +34,11 @@ export async function GET(req: NextRequest) {
     });
   }
 
-  if (!path || !routeKey || !PREVIEW_COLLECTIONS.has(collection)) {
+  // Either a page (collection and slug) or a global, never both.
+  const validCollection = Boolean(routeKey && PREVIEW_COLLECTIONS.has(collection));
+  const validGlobal = PREVIEW_GLOBALS.has(global);
+
+  if (!path || validCollection === validGlobal) {
     return new Response("Insufficient search params", { status: 404 });
   }
 

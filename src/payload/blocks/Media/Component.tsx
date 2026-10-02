@@ -1,3 +1,4 @@
+import { editableField } from "@simmalugnt-se/payload-visual-editing/frontend";
 import { PayloadMedia } from "@/components/cms/payload-media";
 import type { LayoutBlockComponentProps, MediaBlock } from "../types";
 
@@ -16,7 +17,7 @@ export function MediaBlockComponent({ block }: LayoutBlockComponentProps<MediaBl
 
   return (
     <figure className={layoutClasses[layout]}>
-      <div className="surface relative overflow-hidden">
+      <div {...editableField("media")} className="surface relative overflow-hidden">
         <PayloadMedia
           className="h-auto w-full object-cover"
           controls
@@ -26,7 +27,9 @@ export function MediaBlockComponent({ block }: LayoutBlockComponentProps<MediaBl
         />
       </div>
       {block.caption ? (
-        <figcaption className="mt-4 text-sm leading-6 text-stone-500">{block.caption}</figcaption>
+        <figcaption {...editableField("caption")} className="mt-4 text-sm leading-6 text-stone-500">
+          {block.caption}
+        </figcaption>
       ) : null}
     </figure>
   );

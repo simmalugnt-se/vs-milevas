@@ -1,6 +1,6 @@
 # Database Workflow (Payload + Neon + Local Postgres)
 
-This is the canonical database/storage workflow for this project (Payload + Next.js website). Local Docker Postgres uses host port **5434** so it does not collide with a typical local Postgres on **5432** or other projects on **5433**.
+This is the canonical database/storage workflow for this project (Payload + Next.js website). Local Docker Postgres runs Postgres 18 (the Neon default) on host port **5434**, or the next free port when another project uses it; `pnpm setup:local` picks the port and writes it to `.env.local`.
 
 ## 1) Standard Model
 
@@ -43,32 +43,21 @@ That command runs Payload migrations before `next build`, so Preview should use 
 
 ## 3) Local Setup (Runtime)
 
-1. Copy template:
+1. Create `.env.local`, start the local database and run the migrations in one step:
 
 ```bash
-cp .env.example .env.local
+pnpm setup:local
 ```
 
-2. Set active runtime keys to local DB. **Docker Compose maps host port `5434` → container `5432`**, so from your Mac use:
+It copies `.env.example` to `.env.local` when there is none (with generated secrets), picks a free
+host port for Postgres and points `DATABASE_URI` / `DATABASE_URI_DIRECT` at it.
 
-```bash
-DATABASE_URI=postgresql://payload:payload@127.0.0.1:5434/payload_dev
-DATABASE_URI_DIRECT=postgresql://payload:payload@127.0.0.1:5434/payload_dev
-```
-
-3. Choose active media target for local runtime:
+2. Choose active media target for local runtime:
 
 - safest: dedicated dev bucket
 - acceptable short-term: shared staging bucket
 
-4. Start local DB (Postgres 17) and run migrations:
-
-```bash
-pnpm db:local:up
-pnpm db:migrate
-```
-
-5. Start app:
+3. Start app:
 
 ```bash
 pnpm dev
@@ -153,7 +142,7 @@ Commands use Dockerized Postgres tools, so you do not need local `psql`/`pg_dump
 
 Assumes:
 
-- `DATABASE_URI_DIRECT` points to local DB (host port **5434**)
+- `DATABASE_URI_DIRECT` points to the local DB (`POSTGRES_HOST_PORT` in `.env.local`)
 - `DATABASE_URI_DIRECT_STAGING` points to Neon development branch direct URL
 
 Run (recommended):
@@ -228,8 +217,8 @@ Changing a field from non-localized to localized usually needs a manual data mig
 `pg_dump: server version mismatch`:
 
 - Local Postgres and remote Postgres major versions differ.
-- The database-copy scripts use PostgreSQL 18 client tools for Neon. Keep the local Compose database on Postgres 17 unless you intentionally migrate it.
+- Keep local on the same major version as Neon (Postgres 18 in `docker-compose.yml`). The copy scripts use Postgres 18 tools, which can also dump older servers.
 
 Connection refused on `127.0.0.1:5432`:
 
-- Local Docker Postgres is exposed on **5434** on the host; use `127.0.0.1:5434` in connection strings (container still listens on `5432` internally).
+- Local Docker Postgres is exposed on `POSTGRES_HOST_PORT` (5434 by default) on the host, not 5432; `pnpm setup:local` keeps the connection strings in step with it.

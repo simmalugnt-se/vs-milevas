@@ -1,91 +1,71 @@
 /**
- * Detects Postgres "schema not migrated yet" and "Postgres not reachable" errors.
- * Used to show setup instructions instead of a raw Next.js error overlay.
+ * Tells apart the three ways the CMS database can be unusable, so the setup screens can say what to
+ * do instead of showing a raw error:
+ *
+ * - `unreachable`: Postgres is not running, or the configured database URL points somewhere wrong.
+ * - `not-migrated`: Postgres answers but has no Payload tables yet.
+ * - `mismatch`: the tables are there but older than the code (a column or type is missing).
  */
-function errorChain(error: unknown): unknown[] {
-  const out: unknown[] = [];
-  const seen = new Set<unknown>();
-  let current: unknown = error;
-  while (current && typeof current === "object" && !seen.has(current)) {
-    seen.add(current);
-    out.push(current);
-    const next = (current as { cause?: unknown }).cause;
-    if (next === undefined) break;
-    current = next;
-  }
-  return out;
-}
+export type DatabaseProblem = "unreachable" | "not-migrated" | "mismatch";
 
-const CONNECTION_ERROR_CODES = new Set([
-  "ECONNREFUSED",
-  "ECONNRESET",
-  "ENOTFOUND",
-  "ETIMEDOUT",
-  "EPIPE",
-]);
+/** Postgres SQLSTATE codes and Node socket codes, by what they mean for setup. */
+const CODES: Record<string, DatabaseProblem> = {
+  ECONNREFUSED: "unreachable",
+  ECONNRESET: "unreachable",
+  ENOTFOUND: "unreachable",
+  ETIMEDOUT: "unreachable",
+  EPIPE: "unreachable",
+  EAI_AGAIN: "unreachable",
+  "3D000": "unreachable", // database does not exist
+  "28P01": "unreachable", // password authentication failed
+  "57P03": "unreachable", // cannot connect now (starting up)
+  "42P01": "not-migrated", // undefined table
+  "42703": "mismatch", // undefined column
+  "42704": "mismatch", // undefined object, e.g. an enum type
+};
 
-const SCHEMA_MISMATCH_MESSAGES = [
-  "column",
-  "does not exist",
-  "does not match",
-  "relation does not exist",
+/** For client error boundaries, where only `Error.message` survives. */
+const MESSAGES: Array<[RegExp, DatabaseProblem]> = [
+  [
+    /cannot connect to postgres|econnrefused|connection refused|getaddrinfo|connection terminated|timeout expired|password authentication failed|database "[^"]+" does not exist/i,
+    "unreachable",
+  ],
+  [/relation "[^"]+" does not exist/i, "not-migrated"],
+  [/column "[^"]+" (of relation "[^"]+" )?does not exist|type "[^"]+" does not exist/i, "mismatch"],
 ];
 
-/** For client `error.tsx` where only `Error.message` is available. */
-export function isUninitializedPayloadDatabaseErrorMessage(message: string): boolean {
-  const m = message.toLowerCase();
-  if (m.includes("cannot connect to postgres")) return true;
-  if (m.includes("connect econnrefused")) return true;
-  if (m.includes("connection refused")) return true;
-  if (!m.includes("does not exist")) return false;
-  if (m.includes("relation") || m.includes("table ")) return true;
-  return m.includes("failed query");
-}
-
-/** For client `error.tsx` to detect schema mismatch from `Error.message` alone. */
-export function isSchemaMismatchErrorMessage(message: string): boolean {
-  const m = message.toLowerCase();
-  return SCHEMA_MISMATCH_MESSAGES.every((phrase) => m.includes(phrase));
-}
-
-/**
- * Detects schema mismatch errors (e.g. column missing, type mismatch).
- * These mean the DB was initialized with an older or incompatible migration.
- */
-export function isSchemaMismatchError(error: unknown): boolean {
-  if (typeof error === "string") {
-    const m = error.toLowerCase();
-    return SCHEMA_MISMATCH_MESSAGES.every((phrase) => m.includes(phrase));
-  }
-
-  for (const item of errorChain(error)) {
-    if (item instanceof Error) {
-      const m = item.message.toLowerCase();
-      if (SCHEMA_MISMATCH_MESSAGES.every((phrase) => m.includes(phrase))) {
-        return true;
-      }
+export function classifyDatabaseErrorMessage(message: string): DatabaseProblem | null {
+  for (const [pattern, problem] of MESSAGES) {
+    if (pattern.test(message)) {
+      return problem;
     }
   }
-
-  return false;
+  return null;
 }
 
+/** Walks the error and its `cause` chain (drizzle wraps the Postgres error). */
+export function classifyDatabaseError(error: unknown): DatabaseProblem | null {
+  if (typeof error === "string") {
+    return classifyDatabaseErrorMessage(error);
+  }
+  const seen = new Set<unknown>();
+  let current: unknown = error;
+  let fromMessage: DatabaseProblem | null = null;
+  while (current && typeof current === "object" && !seen.has(current)) {
+    seen.add(current);
+    const code = (current as { code?: unknown }).code;
+    if (typeof code === "string" && CODES[code]) {
+      return CODES[code];
+    }
+    if (current instanceof Error) {
+      fromMessage ??= classifyDatabaseErrorMessage(current.message);
+    }
+    current = (current as { cause?: unknown }).cause;
+  }
+  return fromMessage;
+}
+
+/** True when the database cannot be used yet for any of the reasons above. */
 export function isUninitializedPayloadDatabaseError(error: unknown): boolean {
-  if (typeof error === "string") {
-    return isUninitializedPayloadDatabaseErrorMessage(error);
-  }
-
-  for (const item of errorChain(error)) {
-    if (item && typeof item === "object" && "code" in item) {
-      const code = (item as { code?: string }).code;
-      if (code === "42P01") return true;
-      if (code === "42703") return true; // undefined_column
-      if (typeof code === "string" && CONNECTION_ERROR_CODES.has(code)) return true;
-    }
-    if (item instanceof Error) {
-      if (isUninitializedPayloadDatabaseErrorMessage(item.message)) return true;
-    }
-  }
-
-  return false;
+  return classifyDatabaseError(error) !== null;
 }

@@ -1,8 +1,11 @@
-name: vs-milevas
-
+# Local Postgres for development. No fixed project name: Compose names the container and the data
+# volume after the project folder (or COMPOSE_PROJECT_NAME in .env.local), so projects started
+# from this boilerplate each get their own database. Run it through `pnpm db:local:up` or
+# `pnpm setup:local`, which pass .env.local to Compose.
 services:
   postgres:
-    image: postgres:17-alpine
+    # Same major version as new Neon projects.
+    image: postgres:18-alpine
     ports:
       - "${POSTGRES_HOST_PORT:-5431}:5432"
     environment:
@@ -10,7 +13,8 @@ services:
       POSTGRES_PASSWORD: payload
       POSTGRES_DB: payload_dev
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      # Postgres 18 images keep data in a versioned folder under /var/lib/postgresql.
+      - postgres_data:/var/lib/postgresql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U payload -d payload_dev"]
       interval: 5s

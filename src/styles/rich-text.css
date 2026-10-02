@@ -9,7 +9,6 @@
   max-width: 100%;
   overflow-wrap: break-word;
   line-height: 1.7;
-  color: var(--color-site-muted);
 }
 
 .cms-richtext :where(blockquote, h1, h2, h3, h4, h5, h6, p, ul, ol) {
@@ -27,7 +26,6 @@
 }
 
 .cms-richtext :where(h1, h2, h3, h4, h5, h6) {
-  color: var(--color-site-fg);
   font-weight: 600;
   line-height: 1.25;
 }
@@ -103,18 +101,16 @@
 }
 
 .cms-richtext a {
-  color: var(--color-site-accent);
+  color: inherit;
   text-decoration: underline;
   text-underline-offset: 0.15em;
 }
 
 .cms-richtext strong {
-  color: var(--color-site-fg);
   font-weight: 600;
 }
 
 .cms-richtext blockquote {
-  border-left: 3px solid var(--color-site-accent);
+  border-left: 3px solid currentColor;
   padding-left: 1em;
-  color: var(--color-site-muted);
 }

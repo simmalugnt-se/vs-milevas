@@ -1,4 +1,5 @@
 import type { CollectionConfig } from "payload";
+import { ADMIN_GROUPS } from "@/payload/admin-groups.ts";
 import { isAuthenticated } from "../../access/isAuthenticated.ts";
 import { revalidateDocuments, revalidateDocumentsDelete } from "./hooks/revalidate.ts";
 
@@ -12,7 +13,7 @@ export const Documents: CollectionConfig = {
   },
   admin: {
     defaultColumns: ["title", "filename", "updatedAt"],
-    group: "Content",
+    group: ADMIN_GROUPS.content,
     useAsTitle: "title",
   },
   fields: [

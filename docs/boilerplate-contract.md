@@ -15,7 +15,8 @@ This repo is meant to stay close to the shared Payload + Next baseline.
 - `src/proxy.ts` is the correct Next.js 16 file convention for locale routing.
 - Locale segments are generated at the layout level; child CMS routes only generate the params they own.
 - CMS routes keep `dynamicParams` behavior so new content can be rendered after deploys, while cache invalidation is handled through Payload hooks.
-- Storefront routes resolve Payload-managed redirects before returning `notFound`.
+- Frontend routes resolve Payload-managed redirects before returning `notFound`, as permanent (308)
+  redirects. A catch-all route answers paths deeper than a page's with a redirect or a 404.
 
 ## Localization
 
@@ -28,7 +29,11 @@ This repo is meant to stay close to the shared Payload + Next baseline.
 
 - Published page changes revalidate page routes plus the `pages` tag.
 - Header and footer changes revalidate their global tags.
-- Redirect changes revalidate the `redirects` tag.
+- Redirect changes expire the `redirects` tag at once (`{ expire: 0 }`), so the next visitor gets
+  the redirect, not a stale 404.
+- Publishing a page under a new slug adds a redirect from the old address to the page and expires
+  the old page at once. The old slug is read from the published version in `beforeChange`: Payload's
+  `previousDoc` is the latest draft, which already has the new slug.
 - Media and document changes revalidate their respective tags.
 - All revalidation hooks optionally notify a remote deployment via `PAYLOAD_REVALIDATE_REMOTE_URL`.
 - The admin dashboard includes a "Revalidate all cache" button for manual cache purging.

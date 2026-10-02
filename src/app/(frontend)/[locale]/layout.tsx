@@ -4,7 +4,6 @@ import { NextIntlClientProvider } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import type { TypedLocale } from "payload";
 import { AdminBarSlot } from "@/components/admin-bar/slot";
-import { PayloadDatabaseSetupBanner } from "@/components/cms/payload-database-setup";
 import { routing } from "@/i18n/routing";
 import { getRobotsMetadata } from "@/lib/seo/indexing";
 import { getSiteUrl } from "@/lib/site";
@@ -80,7 +79,6 @@ export default async function LocaleLayout({
         <NextIntlClientProvider locale={locale}>
           <AdminBarSlot />
           <div className="canvas min-h-screen">
-            <PayloadDatabaseSetupBanner />
             <SiteHeader locale={locale} />
             <main className="mx-auto flex min-h-[calc(100vh-88px)] w-full max-w-7xl flex-col px-4 pb-12 pt-6 sm:px-6 lg:px-8">
               {children}

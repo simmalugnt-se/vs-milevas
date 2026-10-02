@@ -1,4 +1,5 @@
 import type { CollectionConfig } from "payload";
+import { ADMIN_GROUPS } from "@/payload/admin-groups.ts";
 import { canCreateFirstUser } from "../../access/canCreateFirstUser.ts";
 import { isAuthenticated } from "../../access/isAuthenticated.ts";
 
@@ -11,7 +12,7 @@ export const Users: CollectionConfig = {
     update: isAuthenticated,
   },
   admin: {
-    group: "Admin",
+    group: ADMIN_GROUPS.settings,
     useAsTitle: "email",
   },
   auth: true,

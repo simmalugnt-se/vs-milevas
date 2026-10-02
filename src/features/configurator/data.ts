@@ -2,7 +2,7 @@ import { unstable_cache, unstable_noStore } from "next/cache";
 import type { TypedLocale } from "payload";
 import { getPayloadDbReady } from "@/payload/data/db-ready";
 import { getPayloadClient } from "@/payload/get-payload";
-import { getMediaImageURL, getMediaObject } from "@/payload/utilities/media";
+import { getMediaImageURL } from "@/payload/utilities/media";
 import type { ConfiguratorSetting, Document, TruckFamily } from "@/payload-types";
 import type {
   ConfiguratorCatalog,
@@ -78,7 +78,7 @@ function brochureData(document: TruckFamily["brochure"]): ConfiguratorFamily["br
 }
 
 function mapFamily(family: TruckFamily): ConfiguratorFamily {
-  const media = getMediaObject(family.image);
+  const image = family.image && typeof family.image === "object" ? family.image : null;
   const imageUrl = getMediaImageURL(family.image);
 
   return {
@@ -89,7 +89,7 @@ function mapFamily(family: TruckFamily): ConfiguratorFamily {
     sku: family.sku || undefined,
     deliveryTime: family.deliveryTime,
     warranty: family.warranty,
-    image: media && imageUrl ? { alt: media.alt || family.name, url: imageUrl } : undefined,
+    image: image && imageUrl ? { alt: image.alt || family.name, url: imageUrl } : undefined,
     brochure: brochureData(family.brochure),
     steps: family.steps.map((step) => ({
       key: step.key,

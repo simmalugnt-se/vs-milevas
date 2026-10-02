@@ -1,7 +1,7 @@
 import type { Field } from "payload";
 
-export const link = (): Field => ({
-  name: "link",
+export const link = ({ name = "link" }: { name?: string } = {}): Field => ({
+  name,
   type: "group",
   admin: {
     hideGutter: true,

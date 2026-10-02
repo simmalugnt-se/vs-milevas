@@ -17,12 +17,6 @@
     "unexpectedError": "Something went wrong",
     "unexpectedTitle": "An unexpected error occurred.",
     "unexpectedDescription": "We ran into a problem loading this page. Please try again or return to the homepage.",
-    "dbSetup": "Setup",
-    "dbSetupTitle": "Initialize the CMS database",
-    "dbSetupDescription": "Postgres is running, but Payload tables are missing. From the project root, run migrations, then click Try again below.",
-    "schemaMismatch": "Schema Mismatch",
-    "schemaMismatchTitle": "Database schema is out of date",
-    "schemaMismatchDescription": "The database was initialized with an older or incompatible migration. A column or table that the current code expects is missing.",
     "tryAgain": "Try again",
     "goHome": "Go home",
     "goToAdmin": "View admin"
@@ -30,5 +24,9 @@
   "seo": {
     "description": "The official Milevas website.",
     "titleTemplate": "%s | Milevas"
+  },
+  "globalPreview": {
+    "title": "Header and footer",
+    "description": "Click the header or footer to edit it. The site's pages show them around their own content."
   }
 }
