@@ -18,6 +18,7 @@ import { PriceBox } from "@/components/ui/price-box";
 import { ProductCard } from "@/components/ui/product-card";
 import { TextBox } from "@/components/ui/text-box";
 import { TruckColumn } from "@/components/ui/truck-column";
+import { Link } from "@/i18n/navigation";
 import { getAppEnv } from "@/utilities/environment";
 import truckCounterbalance from "./assets/truck-counterbalance.png";
 import truckPallet from "./assets/truck-pallet.png";
@@ -199,9 +200,19 @@ export default function KitchensinkPage() {
     <div className="w-full space-y-16 py-12">
       <header className="space-y-2">
         <p className="text-xs font-bold uppercase tracking-[0.18em] text-ui-secondary">
-          Milevas designsystem
+          Milevas designsystem ·{" "}
+          <Link href="/kitchensink/blocks" className="underline">
+            Block
+          </Link>
         </p>
         <h1 className="text-4xl font-bold tracking-tight text-ui-primary">Kitchensink</h1>
+        <div className="border-l-4 border-status-info bg-bg-fill px-4 py-3 text-sm text-ui-primary">
+          <strong>Fortsätta arbetet?</strong> Läs{" "}
+          <code className="font-mono text-xs">docs/design-system.md</code> i repot: var allt finns,
+          hur ett block byggs från Figma och vad som är nästa steg. Egna beslut står i{" "}
+          <code className="font-mono text-xs">docs/figma-deviations.md</code>, blocken i{" "}
+          <code className="font-mono text-xs">docs/blocks-backlog.md</code>.
+        </div>
       </header>
 
       <Section id="colors" title="Color styles">

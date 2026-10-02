@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 import { Footer, type FooterIconLink, type FooterLink } from "@/components/blocks/footer";
 import { Navigation, type NavigationLink } from "@/components/blocks/navigation";
+import { Link } from "@/i18n/navigation";
 import { getAppEnv } from "@/utilities/environment";
 
 /**
@@ -62,12 +63,24 @@ export default function KitchensinkBlocksPage() {
   return (
     <div className="w-full space-y-16 py-12">
       <header className="space-y-2">
-        <p className="text-label-s text-ui-secondary">Milevas designsystem</p>
+        <p className="text-label-s text-ui-secondary">
+          Milevas designsystem ·{" "}
+          <Link href="/kitchensink" className="underline">
+            Kitchensink
+          </Link>
+        </p>
         <h1 className="text-display-m text-ui-primary">Block</h1>
         <p className="max-w-prose text-text-m text-ui-secondary">
           Komponenter från Figma &quot;04 — Blocks&quot; med platshållarinnehåll. De blir
           Payload-block med riktiga fält senare.
         </p>
+        <div className="border-l-4 border-status-info bg-bg-fill px-4 py-3 text-sm text-ui-primary">
+          <strong>Fortsätta arbetet?</strong> Läs{" "}
+          <code className="font-mono text-xs">docs/design-system.md</code> i repot: var allt finns,
+          hur ett block byggs från Figma och vad som är nästa steg. Egna beslut står i{" "}
+          <code className="font-mono text-xs">docs/figma-deviations.md</code>, blocken i{" "}
+          <code className="font-mono text-xs">docs/blocks-backlog.md</code>.
+        </div>
       </header>
 
       {/* The mobile menu follows the viewport, not this box: try it at phone width. */}
