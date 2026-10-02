@@ -1,7 +1,5 @@
 import { unstable_cache, unstable_noStore } from "next/cache";
 import type { TypedLocale } from "payload";
-import { getPayloadDbReady } from "@/payload/data/db-ready";
-import { getPayloadClient } from "@/payload/get-payload";
 import { getMediaImageURL } from "@/payload/utilities/media";
 import type { ConfiguratorSetting, Document, TruckFamily } from "@/payload-types";
 import type {
@@ -144,6 +142,12 @@ async function fetchConfiguratorCatalog(
   locale: TypedLocale,
   draft: boolean,
 ): Promise<ConfiguratorCatalog> {
+  // Loaded here, not at the top: the configurator block imports this file, and a static import of the
+  // Payload config would close the cycle config → Pages → blocks → this file.
+  const [{ getPayloadDbReady }, { getPayloadClient }] = await Promise.all([
+    import("@/payload/data/db-ready"),
+    import("@/payload/get-payload"),
+  ]);
   if (!(await getPayloadDbReady()).ready) {
     return { families: [], ...mapSettings(null) };
   }
