@@ -6,10 +6,14 @@ import { Arrow } from "./arrow";
  * truck-column from Figma "02 — Components" → "blabla" (8539:7382): one column of a row laid over
  * an image, linking to a truck's configurator. Default is empty with a rule on the right; Active
  * fills with `bg-surface` and shows the small halfup arrow, a Display XS heading and the prices at
- * the bottom. Active here means hover or keyboard focus, or `data-state="active"`.
+ * the bottom. From Desktop S, active means hover or keyboard focus, or `data-state="active"`.
+ *
+ * Figma has no touch behaviour. Like product-card's "tablet" state, below Desktop S the content is
+ * always shown; unlike it the column also keeps `bg-surface`, since the dark text sits on a photo
+ * and is unreadable without it (decided 2026-10-02).
  *
  * Figma's rule uses `Color/BG/surface` (yellow), though it looks grey in the frame; the variable is
- * followed. Figma has no touch behaviour: without hover the content only shows on focus.
+ * followed.
  */
 
 type PriceRow = { label: ReactNode; value: ReactNode };
@@ -21,13 +25,14 @@ type TruckColumnProps = Omit<ComponentProps<typeof Link>, "children"> & {
   rows?: PriceRow[];
 };
 
+/** Always shown below Desktop S; from Desktop S only while the column is active. */
 const showWhenActive =
-  "invisible group-hover/column:visible group-focus-visible/column:visible group-data-[state=active]/column:visible";
+  "desktop-s:invisible desktop-s:group-hover/column:visible desktop-s:group-focus-visible/column:visible desktop-s:group-data-[state=active]/column:visible";
 
 export function TruckColumn({ heading, rows = [], className, ...props }: TruckColumnProps) {
   return (
     <Link
-      className={`group/column flex h-full flex-col justify-end border-r border-bg-surface p-(--spacing-sm) transition-colors hover:bg-bg-surface focus-visible:bg-bg-surface data-[state=active]:bg-bg-surface ${className ?? ""}`}
+      className={`group/column flex h-full flex-col justify-end border-r border-bg-surface bg-bg-surface p-(--spacing-sm) transition-colors desktop-s:bg-transparent desktop-s:hover:bg-bg-surface desktop-s:focus-visible:bg-bg-surface desktop-s:data-[state=active]:bg-bg-surface ${className ?? ""}`}
       {...props}
     >
       <span className={`flex flex-col gap-4 ${showWhenActive}`}>

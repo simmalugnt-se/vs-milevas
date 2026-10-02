@@ -708,8 +708,9 @@ export default function KitchensinkPage() {
           <TextBox heading="Heading" label="Label" text="Text" border={false} />
         </div>
         <p className="text-sm text-ui-secondary">
-          truck-column över en bild: håll pekaren över en kolumn, eller tabba till den. Den andra
-          visas med data-state=&quot;active&quot;.
+          truck-column över en bild: från Desktop S syns innehållet vid hover eller fokus (den andra
+          kolumnen visas med data-state=&quot;active&quot;). Under Desktop S är alla kolumner
+          aktiva, eftersom Figma saknar beteende utan hover (eget beslut, som product-card).
         </p>
         <div className="relative h-[28rem] overflow-hidden rounded-lg">
           <Image src={warehouse} alt="" fill sizes="100vw" className="object-cover" />
