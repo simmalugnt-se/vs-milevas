@@ -712,9 +712,9 @@ export default function KitchensinkPage() {
           kolumnen visas med data-state=&quot;active&quot;). Under Desktop S är alla kolumner
           aktiva, eftersom Figma saknar beteende utan hover (eget beslut, som product-card).
         </p>
-        <div className="relative h-[28rem] overflow-hidden rounded-lg">
+        <div className="relative overflow-hidden rounded-lg desktop-s:h-[28rem]">
           <Image src={warehouse} alt="" fill sizes="100vw" className="object-cover" />
-          <div className="relative grid h-full grid-cols-2 desktop-s:grid-cols-4">
+          <div className="relative grid h-full grid-cols-1 tablet:grid-cols-2 desktop-s:grid-cols-4">
             {["Motviktstruckar", "Ledstaplare", "Låglyftare", "Höglyftare"].map((name, index) => (
               <TruckColumn
                 key={name}
