@@ -13,6 +13,8 @@
   --color-ui-inv-primary: #f0f0f0;
   --color-ui-inv-secondary: #999999;
   --color-ui-inv-tertiary: #575757;
+  /* Color/UI/BRAND: not on the COLOR STYLES frame; the selected Choice. */
+  --color-ui-brand: #e0ff3c;
 
   --color-bg-fill: #f0f0f0;
   --color-bg-surface: #e0ff3c;

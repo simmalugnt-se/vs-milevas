@@ -56,6 +56,12 @@ export const colorGroups: ColorGroup[] = [
         className: "text-ui-inv-tertiary",
         value: "#575757",
       },
+      {
+        name: "UI Brand",
+        token: "--color-ui-brand",
+        className: "bg-ui-brand",
+        value: "#e0ff3c",
+      },
     ],
   },
   {

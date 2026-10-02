@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { Arrow, arrowNames } from "@/components/ui/arrow";
 import {
@@ -8,10 +9,17 @@ import {
   type ButtonSize,
   TextLink,
 } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Choice } from "@/components/ui/choice";
 import { Icon, iconNames } from "@/components/ui/icon";
 import { Logo } from "@/components/ui/logo";
+import { ProductCard } from "@/components/ui/product-card";
 import { getAppEnv } from "@/utilities/environment";
+import truckCounterbalance from "./assets/truck-counterbalance.png";
+import truckPallet from "./assets/truck-pallet.png";
+import warehouse from "./assets/warehouse.jpg";
 import { type Mode, modes } from "./breakpoints";
+import { ChoiceDemo } from "./choice-demo";
 import { type ColorToken, colorGroups, gradientStops } from "./colors";
 import { cardGrids, fromFigma, grid, radii } from "./grid";
 import { sizes, sizesForMode, type TextStyle, textStyles } from "./typography";
@@ -483,6 +491,121 @@ export default function KitchensinkPage() {
         </div>
         <p className="font-mono text-xs text-ui-secondary">
           {"<TextLink href>"} · Default, hover (data-state), utan ikon
+        </p>
+      </Section>
+
+      <Section id="choice" title="Choice">
+        <div className="overflow-x-auto">
+          <table className="min-w-[48rem] text-left">
+            <thead className="text-xs text-ui-tertiary">
+              <tr>
+                <th className="w-40 p-2 font-medium" />
+                <th className="p-2 font-medium">default</th>
+                <th className="p-2 font-medium">selected</th>
+              </tr>
+            </thead>
+            <tbody>
+              {(
+                [
+                  { label: "text S", textSize: "s", borderRight: false },
+                  { label: "text M", textSize: "m", borderRight: false },
+                  { label: "text S · border-right", textSize: "s", borderRight: true },
+                  { label: "text M · border-right", textSize: "m", borderRight: true },
+                  { label: "image · text S", textSize: "s", borderRight: false, image: true },
+                ] as const
+              ).map((variant) => (
+                <tr key={variant.label}>
+                  <th className="p-2 align-top font-mono text-xs font-normal text-ui-secondary">
+                    {variant.label}
+                  </th>
+                  {[false, true].map((selected) => (
+                    <td key={String(selected)} className="w-[368px] p-2 align-top">
+                      <Choice
+                        title="Title"
+                        price="€€€€"
+                        text="Text"
+                        textSize={variant.textSize}
+                        borderRight={variant.borderRight}
+                        selected={selected}
+                        image={
+                          "image" in variant ? (
+                            <Image
+                              src={truckPallet}
+                              alt=""
+                              fill
+                              sizes="16rem"
+                              className="object-contain"
+                            />
+                          ) : undefined
+                        }
+                      />
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <h3 className="font-bold uppercase text-ui-primary">Klickbar</h3>
+        <ChoiceDemo />
+        <p className="font-mono text-xs text-ui-secondary">
+          {"<Choice title price text textSize selected borderRight image>"} · en button med
+          aria-pressed
+        </p>
+      </Section>
+
+      <Section id="cards" title="Cards">
+        <p className="text-sm text-ui-secondary">
+          product-card: under Desktop S syns pilen och priserna alltid (Figmas läge
+          &quot;tablet&quot;), från Desktop S vid hover. Mittenkortet visas med
+          data-state=&quot;hover&quot;.
+        </p>
+        <div className="card-grid-3">
+          {(["default", "hover", "utan pris"] as const).map((variant) => (
+            <ProductCard
+              key={variant}
+              href="/kitchensink#cards"
+              brand="Baoli"
+              category="Modeller"
+              name="Elektriska motviktstruckar"
+              specs={["1.5 – 3.5 ton", "80 V 228 Ah"]}
+              price={variant === "utan pris" ? undefined : "169 000 kr"}
+              leasing={variant === "utan pris" ? undefined : "3 326 kr"}
+              data-state={variant === "hover" ? "hover" : undefined}
+              image={
+                <Image
+                  src={truckCounterbalance}
+                  alt="Elektrisk motviktstruck"
+                  fill
+                  sizes="(width >= 64rem) 25vw, 50vw"
+                  className="object-contain"
+                />
+              }
+            />
+          ))}
+        </div>
+        <div className="card-grid-3">
+          {["Service", "Uthyrning", "Begagnat"].map((label, index) => (
+            <Card
+              key={label}
+              number={String(index + 1).padStart(2, "0")}
+              label={label}
+              text="text"
+              image={
+                <Image
+                  src={warehouse}
+                  alt=""
+                  fill
+                  sizes="(width >= 64rem) 33vw, 100vw"
+                  className="object-cover"
+                />
+              }
+            />
+          ))}
+        </div>
+        <p className="font-mono text-xs text-ui-secondary">
+          {"<ProductCard href brand category name specs price leasing image>"} ·{" "}
+          {"<Card number label text image>"}
         </p>
       </Section>
     </div>
