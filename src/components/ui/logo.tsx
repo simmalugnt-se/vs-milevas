@@ -2,9 +2,9 @@ import type { ReactNode, SVGProps } from "react";
 
 /**
  * The Milevas logo from Figma "02 — Components" → "Logos" (node 6075:2513): the full wordmark
- * (`default`, 553.5 × 64) and the stripes on their own (`symbol`, 64 × 64). Generated from the Figma
- * SVGs with #121212 replaced by currentColor. The symbol's SVG holds the whole wordmark and relies
- * on the SVG clipping at its 64 × 64 view box.
+ * (`default`, 553.5 × 64) and the stripes on their own (`symbol`, 64 × 64). Generated with
+ * `scripts/figma-svgs/to-tsx.mjs` (#121212 becomes currentColor). The symbol's SVG holds the whole
+ * wordmark and relies on the SVG clipping at its 64 × 64 view box.
  */
 const logos = {
   default: {

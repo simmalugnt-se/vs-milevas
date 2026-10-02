@@ -2,7 +2,7 @@ import type { ReactNode, SVGProps } from "react";
 
 /**
  * Icons from Figma "02 — Components" → "Icons" (node 6075:2501), 16px except the 12px arrow-*.
- * Generated from the Figma SVGs with #121212 replaced by currentColor: colour them with `text-*`,
+ * Generated with `scripts/figma-svgs/to-tsx.mjs` (#121212 becomes currentColor): colour them with `text-*`,
  * size them with `size-*`. `icon-sound-off` appears twice in Figma with the same SVG.
  */
 const icons = {

@@ -3,7 +3,7 @@ import type { ReactNode, SVGProps } from "react";
 /**
  * Arrows from Figma "02 — Components" → "Arrows" (node 8389:5810), 64px (size=L, the only size), plus
  * `halfup-s` (24 × 32), a narrower halfup drawn separately for truck-column (8539:7382).
- * Generated from the Figma SVGs with #121212 replaced by currentColor. Names follow Figma
+ * Generated with `scripts/figma-svgs/to-tsx.mjs` (#121212 becomes currentColor). Names follow Figma
  * (`arrow-up&forward` → `up-forward`).
  */
 const arrows = {

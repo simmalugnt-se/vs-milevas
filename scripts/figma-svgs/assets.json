@@ -1,0 +1,45 @@
+{
+  "icon": {
+    "plus": "7cf1ed668062b481087fe7021d4adab6cc345501",
+    "minus": "5598e4ae7d9a309577f1f1ece26411b8a541c6bc",
+    "close": "70725dd33cb15628d2c22368648778f83e35ed6f",
+    "check": "cc28e938acf0ee53c11e480e934781f5275151bc",
+    "chevron-left": "e89cc2a679cd07bbd9c3f37404acc50c6634a3af",
+    "chevron-right": "e32e5f34272808cd7ff600810046ccfbe894d73e",
+    "chevron-up": "7f7ee4717cf9c342b7c8fad1742594a1d582952d",
+    "chevron-down": "015226927f9003411852357e84a0b9224cd210c9",
+    "arrow-left": "29eb78911cdcfc552643290850aefc6bafa199c1",
+    "arrow-right": "a3bdc5f99f4e157d50f0a240b5b28b18dffe41f3",
+    "arrow-up": "c0f86e7af0810be5a10aa0b6041d0fe4118ae86f",
+    "arrow-down": "8c3b21ea2970188e9971c4ca73c313fd5ae03fd7",
+    "external-link": "dba574fdcf4fba6991ddb73d18bffe4a5c7e785a",
+    "mail": "5bd51afd1208fb4b9b33489f7c9027c030d5d39f",
+    "upload": "77bb608d3aab091481a43ac82d6cde49fb5dd374",
+    "download": "717ab9afdb757597b6bda2e0d9c37f94bbd1d9ee",
+    "menu": "18dfa750c3f50e44beb1d6710fcf4b395666a22b",
+    "globe": "b499c4538622c4ad85fd0c484d48e0a06c974efc",
+    "alert": "3eb13129ecffde71d4aa17d342a904c80153c8ba",
+    "info": "e42b38035996ad6d16e108733839a613870928c4",
+    "pause": "b7a3583e5f3b7674b4b1953217f69aa923b6d258",
+    "play": "f4548096f2faa9083127c1a171b3ee71d1d5aa89",
+    "skip-back": "5ee46664518e8321dd1a2ea4ccfd634fe8d04719",
+    "skip-forward": "2e69d0806ca89852d8b878ff9a62555f0ba3c65b",
+    "maximize": "294cb0762e8881c6ab96a92b8f3f4411e37e2122",
+    "minimize": "7217891eb1ccf14c4c72ed9ee4cc6eb915d5fa53",
+    "sound-on": "66bffe2b491f5e0529476455c76fad5d3183d329",
+    "sound-off": "a73d8fe999952247bc7c43836eb011aaaca88ef0",
+    "help": "85aa0a01d9300c22002e465557e9f3ca34037007"
+  },
+  "arrow": {
+    "round": "2e746e40e672e7f20b5e46241decccf45e01729e",
+    "back": "4123461b7a586ad948040e2bb4f4b4717691b3c3",
+    "up-forward": "06e1c82566c4cadb9ea76c397a2012d3a48e110b",
+    "up-down": "fefe7cda11df8921c1e10b9a824a75b79d6a8557",
+    "halfup": "6711ff7dc05206ab12a0715171d31318de8a24f1",
+    "halfup-s": "17e11716af05c1b784c2af0bdfd171ef5520b20e"
+  },
+  "logo": {
+    "default": "697c18ddadb5226cf4e9d424fb4c618ca1e49076",
+    "symbol": "d2209514e4ee727782b9dfe970b72adbb0a3409d"
+  }
+}
