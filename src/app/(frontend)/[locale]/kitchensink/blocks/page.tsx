@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
+import { Footer, type FooterIconLink, type FooterLink } from "@/components/blocks/footer";
 import { Navigation, type NavigationLink } from "@/components/blocks/navigation";
 import { getAppEnv } from "@/utilities/environment";
 
@@ -20,6 +21,16 @@ const navigationLinks: NavigationLink[] = [
   { label: "Om Baoli", href: "/kitchensink/blocks#om-baoli" },
 ];
 const navigationCta = { label: "Bygg din truck", href: "/kitchensink/blocks#configurator" };
+
+const footerLinks: FooterLink[] = [
+  { label: "Modeller", href: "/kitchensink/blocks#footer" },
+  { label: "Finansiering", href: "/kitchensink/blocks#footer-finansiering" },
+  { label: "Kontakt", href: "/kitchensink/blocks#footer-kontakt" },
+];
+const footerIconLinks: FooterIconLink[] = [
+  { icon: "mail", label: "E-post", href: "mailto:hej@example.com" },
+  { icon: "globe", label: "Språk", href: "/kitchensink/blocks#footer-sprak" },
+];
 
 /** One block: a label on the page's grid margin, then the block across the full width. */
 function Block({
@@ -62,6 +73,10 @@ export default function KitchensinkBlocksPage() {
       {/* The mobile menu follows the viewport, not this box: try it at phone width. */}
       <Block id="navigation" title="Navigation" figma="8309:4506">
         <Navigation links={navigationLinks} cta={navigationCta} />
+      </Block>
+
+      <Block id="footer" title="Footer" figma="6076:622">
+        <Footer links={footerLinks} iconLinks={footerIconLinks} />
       </Block>
     </div>
   );

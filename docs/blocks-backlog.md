@@ -26,7 +26,7 @@ Beslutat 2026-10-02: full bredd med `grid/margin` för allt innehåll, även hea
 | # | Block | Figma | Innehåll | Bygger på | Payload | Storlek |
 |---|---|---|---|---|---|---|
 | 1 | Navigation ✓ komponent | `8309:4506` | Rundad "pill" med logosymbol, länkar och knappen "Bygg din truck"; Mobile har en öppen meny (`State=Open`) | Logo, Button | Header-global (finns) | M |
-| 2 | Footer | `6076:622` | Länkar, ordmärket i full bredd, ikoner (mail, globe) | Logo, Icon, TextLink | Footer-global (finns) | S |
+| 2 | Footer ✓ komponent | `6076:622` | Länkar, ordmärket i full bredd, ikoner (mail, globe) | Logo, Icon, TextLink | Footer-global (finns) | S |
 | 3 | Product-Grid | `8365:8988` | Product-cards, 3 per rad på desktop | ProductCard | Nytt block, data från `TruckFamilies` | M |
 | 4 | Text+Grid | `8389:4705` | Rubrik med pil ("Så enkelt fungerar det") och cards i en ljus panel | Arrow, Card, card grid | Nytt block, eller Cards med nytt utseende | M |
 | 5 | Grid | `8389:4440` | Grid med 2, 3 eller 4 platser (`count`); platserna är tomma i Figma | Card grid | Avgörs med 4: samma block utan rubrik? | S |

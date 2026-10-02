@@ -61,6 +61,9 @@ på kitchensink-sidan (`/kitchensink`) ska också stå här.
 | Navigation, mobilmenyn | Knappen heter "MENY" stängd och "Close" öppen | "Meny" och "Stäng" (props) | Svenska i båda lägena | Antagande |
 | Navigation, position | Okänt om den ska följa med vid scroll | Ligger kvar överst (inte sticky) | Inget ritat | Antagande |
 | Navigation, färg | `Color/BG/active` (`#ffffff`), inte på färgframen | Token `bg-bg-active` | Variabeln gäller | Beslut (2026-10-02) |
+| Footer, avstånd | Primitiva `scale/xs` (8) och `scale/md-root` (16), inte `spacing/*` | `spacing/2xs` och `spacing/sm`, samma värden | Endast `layout`-variablerna finns som tokens | Antagande |
+| Footer, marginal | Indrag 16px från länkarnas och logotypens padding, inte `grid/margin` (8) | Som Figma: 16px | Figma ritar så i alla fyra lägen; avviker från beslutet om `grid/margin` för allt innehåll | Antagande |
+| Footer, hover | Inget hover-läge för länkarna | Inget | Inget ritat | Antagande |
 
 ## Frågor till designen
 
