@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { Arrow, arrowNames } from "@/components/ui/arrow";
+import { Icon, iconNames } from "@/components/ui/icon";
+import { Logo } from "@/components/ui/logo";
 import { getAppEnv } from "@/utilities/environment";
 import { type Mode, modes } from "./breakpoints";
 import { type ColorToken, colorGroups, gradientStops } from "./colors";
@@ -343,6 +346,57 @@ export default function KitchensinkPage() {
             </div>
           ))}
         </div>
+      </Section>
+
+      <Section id="logos" title="Logos">
+        <div className="grid gap-2 tablet:grid-cols-2">
+          <div className="flex flex-wrap items-center gap-8 bg-bg-surface p-8 text-ui-primary">
+            <Logo className="h-10 w-auto" />
+            <Logo variant="symbol" className="size-10" title="" />
+          </div>
+          <div className="flex flex-wrap items-center gap-8 bg-bg-inv-fill p-8 text-ui-inv-primary">
+            <Logo className="h-10 w-auto" />
+            <Logo variant="symbol" className="size-10" title="" />
+          </div>
+        </div>
+        <p className="font-mono text-xs text-ui-secondary">
+          {"<Logo />"} · {'<Logo variant="symbol" />'} · färg från text-*, storlek med h-*/w-auto
+        </p>
+      </Section>
+
+      <Section id="icons" title="Icons">
+        <ul className="grid grid-cols-2 gap-2 tablet:grid-cols-4 desktop-s:grid-cols-6">
+          {iconNames.map((name) => (
+            <li key={name} className="flex items-center gap-3 bg-bg-fill p-3">
+              <span className="flex size-12 items-center justify-center bg-bg-surface text-ui-primary">
+                <Icon name={name} />
+              </span>
+              <code className="font-mono text-xs text-ui-secondary">{name}</code>
+            </li>
+          ))}
+        </ul>
+        <div className="flex flex-wrap items-center gap-4 bg-bg-inv-fill p-4 text-ui-inv-primary">
+          {iconNames.map((name) => (
+            <Icon key={name} name={name} />
+          ))}
+        </div>
+        <p className="font-mono text-xs text-ui-secondary">
+          {'<Icon name="plus" />'} · 16px (arrow-* 12px) · {'title="…"'} ger ett tillgängligt namn
+        </p>
+      </Section>
+
+      <Section id="arrows" title="Arrows">
+        <ul className="flex flex-wrap gap-4">
+          {arrowNames.map((name) => (
+            <li key={name} className="space-y-2">
+              <span className="flex size-28 items-center justify-center bg-bg-surface text-ui-primary">
+                <Arrow name={name} />
+              </span>
+              <code className="block font-mono text-xs text-ui-secondary">{name}</code>
+            </li>
+          ))}
+        </ul>
+        <p className="font-mono text-xs text-ui-secondary">{'<Arrow name="round" />'} · 64px</p>
       </Section>
     </div>
   );
