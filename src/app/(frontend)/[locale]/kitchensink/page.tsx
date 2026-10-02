@@ -196,7 +196,7 @@ export default function KitchensinkPage() {
   if (getAppEnv() === "prod") notFound();
 
   return (
-    <div className="mx-auto w-full max-w-6xl space-y-16 px-4 py-12 sm:px-8">
+    <div className="w-full space-y-16 py-12">
       <header className="space-y-2">
         <p className="text-xs font-bold uppercase tracking-[0.18em] text-ui-secondary">
           Milevas designsystem

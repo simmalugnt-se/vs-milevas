@@ -86,6 +86,12 @@ export const colorGroups: ColorGroup[] = [
         className: "bg-bg-inv-surface",
         value: "#0b0b0b",
       },
+      {
+        name: "BG Active",
+        token: "--color-bg-active",
+        className: "bg-bg-active",
+        value: "#ffffff",
+      },
     ],
   },
   {

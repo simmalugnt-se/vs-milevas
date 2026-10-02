@@ -34,7 +34,7 @@ export async function HeaderComponent({ draft = false, locale }: HeaderComponent
     >
       {header.showAnnouncement && header.announcement ? (
         <div className="bg-neutral-950 text-sm text-white">
-          <div className="mx-auto flex w-full max-w-7xl flex-wrap items-center gap-x-4 gap-y-1 px-4 py-2 sm:px-6 lg:px-8">
+          <div className="flex w-full flex-wrap items-center gap-x-4 gap-y-1 px-(--grid-margin) py-2">
             <p {...mark(editableField("announcement"))}>{header.announcement}</p>
             {announcementLink ? (
               <Link
@@ -50,7 +50,7 @@ export async function HeaderComponent({ draft = false, locale }: HeaderComponent
           </div>
         </div>
       ) : null}
-      <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
+      <div className="flex w-full items-center justify-between px-(--grid-margin) py-3">
         <div className="space-y-1">
           <Link
             href="/"

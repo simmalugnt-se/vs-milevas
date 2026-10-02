@@ -20,6 +20,8 @@
   --color-bg-surface: #e0ff3c;
   --color-bg-inv-fill: #121212;
   --color-bg-inv-surface: #0b0b0b;
+  /* Color/BG/active: not on the COLOR STYLES frame; the navigation bar. */
+  --color-bg-active: #ffffff;
 
   --color-gradient-inv-start: #12121299;
   --color-gradient-inv-end: #12121200;

@@ -26,7 +26,7 @@ export async function FooterComponent({ draft = false, locale }: FooterComponent
 
   return (
     <footer className="border-t border-neutral-200 bg-white" {...mark(editableGlobal("footer"))}>
-      <div className="mx-auto flex w-full max-w-7xl flex-col items-center gap-4 px-5 py-6 sm:flex-row sm:justify-between sm:px-8 lg:px-10">
+      <div className="flex w-full flex-col items-center gap-4 px-(--grid-margin) py-6 sm:flex-row sm:justify-between">
         <p className="text-xs text-neutral-500">
           &copy; {year} <span {...mark(editableField("copyright"))}>{brand}</span>.{" "}
           {t("allRightsReserved")}

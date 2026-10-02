@@ -52,6 +52,16 @@ på kitchensink-sidan (`/kitchensink`) ska också stå här.
 | truck-column i en rad | Inget ritat | En kolumn per rad på Mobile, två på Tablet, fyra från Desktop S (kitchensink-exemplet) | Fyra gula kolumner täcker bilden och priserna bryts på mobil | Beslut (2026-10-02) |
 | Pil i truck-column | Egen smal SVG, 24 × 32, kallad `arrow-halfup` | `<Arrow name="halfup-s">` | Ingen egen komponent i "Arrows" | Beslut (teknisk) |
 
+## Blocks
+
+| Block | Figma | Koden | Varför | Status |
+|---|---|---|---|---|
+| Sidbredd | Blocken är ritade i full bredd med `grid/margin` | `main`, header och footer har full bredd och `px-(--grid-margin)`; boilerplatens `max-w-7xl` är borttagen | Samma marginal för allt innehåll | Beslut (2026-10-02) |
+| Navigation, hover | Inget hover-läge för länkarna | Länken blir `ui-primary` vid hover, som den aktiva | Inget ritat | Antagande |
+| Navigation, mobilmenyn | Knappen heter "MENY" stängd och "Close" öppen | "Meny" och "Stäng" (props) | Svenska i båda lägena | Antagande |
+| Navigation, position | Okänt om den ska följa med vid scroll | Ligger kvar överst (inte sticky) | Inget ritat | Antagande |
+| Navigation, färg | `Color/BG/active` (`#ffffff`), inte på färgframen | Token `bg-bg-active` | Variabeln gäller | Beslut (2026-10-02) |
+
 ## Frågor till designen
 
 Ingen avvikelse i koden, men värt att rätta eller förklara i Figma:
