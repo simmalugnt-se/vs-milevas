@@ -57,3 +57,4 @@ next-env.d.ts
 
 # Local assistant traces and exported Vercel logs
 .assistant-debug/
+.env*
