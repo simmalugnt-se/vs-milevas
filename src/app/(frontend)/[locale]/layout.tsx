@@ -11,6 +11,9 @@ import { FooterSlot as SiteFooter } from "@/payload/globals/Footer/Slot";
 import { HeaderSlot as SiteHeader } from "@/payload/globals/Header/Slot";
 import "../globals.css";
 
+// TODO(clash-grotesk): add Clash Grotesk Variable here with `next/font/local` (woff2 files not yet
+// in the repo), `variable: "--font-clash-grotesk"`, and put it on <body>. `site-theme.css` falls back
+// to Geist until then.
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],

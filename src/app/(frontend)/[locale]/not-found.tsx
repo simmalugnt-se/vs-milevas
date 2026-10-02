@@ -7,7 +7,7 @@ export default async function NotFound() {
 
   return (
     <section className="surface flex flex-1 flex-col items-start justify-center gap-5 px-6 py-10 sm:px-10">
-      <p className="text-[0.72rem] font-bold uppercase tracking-[0.18em] text-site-accent">
+      <p className="text-[0.72rem] font-bold uppercase tracking-[0.18em] text-ui-secondary">
         {t("notFound")}
       </p>
       <div className="max-w-2xl space-y-4">
