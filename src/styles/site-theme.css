@@ -29,6 +29,28 @@
   --color-status-warning: #f4a900;
   --color-status-error: #e44737;
   --color-status-info: #3478f6;
+
+  /* Color/BTN/<color>/*: hover is the fill at 85%, disabled fill and text at 60%. */
+  --color-btn-primary-fill: #121212;
+  --color-btn-primary-text: #f0f0f0;
+  --color-btn-primary-fill-hover: #121212d9;
+  --color-btn-primary-fill-disabled: #12121299;
+  --color-btn-primary-text-disabled: #f0f0f099;
+  --color-btn-tejp-fill: #e0ff3c;
+  --color-btn-tejp-text: #121212;
+  --color-btn-tejp-fill-hover: #e0ff3cd9;
+  --color-btn-tejp-fill-disabled: #e0ff3c99;
+  --color-btn-tejp-text-disabled: #12121299;
+  --color-btn-inverted-fill: #f0f0f0;
+  --color-btn-inverted-text: #121212;
+  --color-btn-inverted-fill-hover: #f0f0f0d9;
+  --color-btn-inverted-fill-disabled: #f0f0f099;
+  --color-btn-inverted-text-disabled: #12121299;
+  --color-btn-gray-fill: #575757;
+  --color-btn-gray-text: #f0f0f0;
+  --color-btn-gray-fill-hover: #575757d9;
+  --color-btn-gray-fill-disabled: #2b2b2b99;
+  --color-btn-gray-text-disabled: #f0f0f099;
 }
 
 /**
@@ -62,8 +84,10 @@
 }
 
 /**
- * Figma `layout/sizes/*` and `layout/grid/*`, one value per variable mode, mobile first.
- * `grid/margin` and `grid/gap` are 8px in every mode; `grid/columns` is 6 below Desktop S.
+ * Figma `layout/sizes/*`, `layout/spacing/*` and `layout/grid/*`, one value per variable mode, mobile
+ * first. `grid/margin` and `grid/gap` are 8px in every mode; `grid/columns` is 6 below Desktop S.
+ * `--spacing-*` is used as `p-(--spacing-xs)`: in @theme it would also feed `w-*`/`max-w-*` (Tailwind
+ * looks there before `--container-*`) and change `max-w-2xl` across the boilerplate.
  */
 :root {
   --grid-columns: 6;
@@ -82,6 +106,18 @@
   --sizes-3xs: 0.25rem;
   --sizes-4xs: 0.125rem;
 
+  --spacing-4xl: 4rem;
+  --spacing-3xl: 3.5rem;
+  --spacing-2xl: 3rem;
+  --spacing-xl: 2.5rem;
+  --spacing-lg: 1.5rem;
+  --spacing-md: 1.5rem;
+  --spacing-sm: 1rem;
+  --spacing-xs: 0.75rem;
+  --spacing-2xs: 0.5rem;
+  --spacing-3xs: 0.25rem;
+  --spacing-4xs: 0.125rem;
+
   @variant tablet {
     --sizes-4xl: 5rem;
     --sizes-3xl: 4rem;
@@ -89,6 +125,11 @@
     --sizes-xl: 2rem;
     --sizes-lg: 1.75rem;
     --sizes-md: 1.5rem;
+    --spacing-4xl: 5rem;
+    --spacing-3xl: 4rem;
+    --spacing-2xl: 3.5rem;
+    --spacing-xl: 3rem;
+    --spacing-lg: 2rem;
   }
 
   @variant desktop-s {
@@ -98,11 +139,16 @@
     --sizes-2xl: 4rem;
     --sizes-xl: 2.25rem;
     --sizes-lg: 2rem;
+    --spacing-4xl: 6rem;
+    --spacing-3xl: 5rem;
+    --spacing-2xl: 4rem;
   }
 
   @variant desktop-l {
     --sizes-4xl: 8rem;
     --sizes-3xl: 6rem;
+    --spacing-4xl: 8rem;
+    --spacing-3xl: 6rem;
   }
 }
 

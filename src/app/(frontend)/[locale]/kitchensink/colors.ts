@@ -128,6 +128,132 @@ export const colorGroups: ColorGroup[] = [
       },
     ],
   },
+  {
+    /** Color/BTN/*: not on the COLOR STYLES frame, used by the buttons on "02 — Components". */
+    title: "Button",
+    colors: [
+      {
+        name: "BTN Primary Fill",
+        token: "--color-btn-primary-fill",
+        className: "bg-btn-primary-fill",
+        value: "#121212",
+      },
+      {
+        name: "BTN Primary Text",
+        token: "--color-btn-primary-text",
+        className: "text-btn-primary-text",
+        value: "#f0f0f0",
+      },
+      {
+        name: "BTN Primary Fill Hover",
+        token: "--color-btn-primary-fill-hover",
+        className: "bg-btn-primary-fill-hover",
+        value: "#121212d9",
+      },
+      {
+        name: "BTN Primary Fill Disabled",
+        token: "--color-btn-primary-fill-disabled",
+        className: "bg-btn-primary-fill-disabled",
+        value: "#12121299",
+      },
+      {
+        name: "BTN Primary Text Disabled",
+        token: "--color-btn-primary-text-disabled",
+        className: "text-btn-primary-text-disabled",
+        value: "#f0f0f099",
+      },
+      {
+        name: "BTN Tejp Fill",
+        token: "--color-btn-tejp-fill",
+        className: "bg-btn-tejp-fill",
+        value: "#e0ff3c",
+      },
+      {
+        name: "BTN Tejp Text",
+        token: "--color-btn-tejp-text",
+        className: "text-btn-tejp-text",
+        value: "#121212",
+      },
+      {
+        name: "BTN Tejp Fill Hover",
+        token: "--color-btn-tejp-fill-hover",
+        className: "bg-btn-tejp-fill-hover",
+        value: "#e0ff3cd9",
+      },
+      {
+        name: "BTN Tejp Fill Disabled",
+        token: "--color-btn-tejp-fill-disabled",
+        className: "bg-btn-tejp-fill-disabled",
+        value: "#e0ff3c99",
+      },
+      {
+        name: "BTN Tejp Text Disabled",
+        token: "--color-btn-tejp-text-disabled",
+        className: "text-btn-tejp-text-disabled",
+        value: "#12121299",
+      },
+      {
+        name: "BTN Inverted Fill",
+        token: "--color-btn-inverted-fill",
+        className: "bg-btn-inverted-fill",
+        value: "#f0f0f0",
+      },
+      {
+        name: "BTN Inverted Text",
+        token: "--color-btn-inverted-text",
+        className: "text-btn-inverted-text",
+        value: "#121212",
+      },
+      {
+        name: "BTN Inverted Fill Hover",
+        token: "--color-btn-inverted-fill-hover",
+        className: "bg-btn-inverted-fill-hover",
+        value: "#f0f0f0d9",
+      },
+      {
+        name: "BTN Inverted Fill Disabled",
+        token: "--color-btn-inverted-fill-disabled",
+        className: "bg-btn-inverted-fill-disabled",
+        value: "#f0f0f099",
+      },
+      {
+        name: "BTN Inverted Text Disabled",
+        token: "--color-btn-inverted-text-disabled",
+        className: "text-btn-inverted-text-disabled",
+        value: "#12121299",
+      },
+      {
+        name: "BTN Gray Fill",
+        token: "--color-btn-gray-fill",
+        className: "bg-btn-gray-fill",
+        value: "#575757",
+      },
+      {
+        name: "BTN Gray Text",
+        token: "--color-btn-gray-text",
+        className: "text-btn-gray-text",
+        value: "#f0f0f0",
+      },
+      {
+        name: "BTN Gray Fill Hover",
+        token: "--color-btn-gray-fill-hover",
+        className: "bg-btn-gray-fill-hover",
+        value: "#575757d9",
+      },
+      {
+        name: "BTN Gray Fill Disabled",
+        token: "--color-btn-gray-fill-disabled",
+        className: "bg-btn-gray-fill-disabled",
+        value: "#2b2b2b99",
+      },
+      {
+        name: "BTN Gray Text Disabled",
+        token: "--color-btn-gray-text-disabled",
+        className: "text-btn-gray-text-disabled",
+        value: "#f0f0f099",
+      },
+    ],
+  },
 ];
 
 /** The two stops behind `bg-gradient-inv`; shown as one swatch under Background. */

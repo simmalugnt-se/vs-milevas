@@ -4,6 +4,7 @@ import { test } from "node:test";
 import { modes } from "../src/app/(frontend)/[locale]/kitchensink/breakpoints.ts";
 import { allColorTokens } from "../src/app/(frontend)/[locale]/kitchensink/colors.ts";
 import { cardGrids, grid, radii } from "../src/app/(frontend)/[locale]/kitchensink/grid.ts";
+import { spacing } from "../src/app/(frontend)/[locale]/kitchensink/spacing.ts";
 import { sizes, textStyles } from "../src/app/(frontend)/[locale]/kitchensink/typography.ts";
 
 const themeCss = await readFile(new URL("../src/styles/site-theme.css", import.meta.url), "utf8");
@@ -76,15 +77,20 @@ const layoutRoot = themeCss.match(/:root \{\n([\s\S]*?)\n\}\n/)?.[1] ?? "";
 const withPrefix = (values: Map<string, string>, prefix: string) =>
   new Map([...values].filter(([property]) => property.startsWith(prefix)));
 
-test("--sizes-* in site-theme.css match the Figma sizes for every mode", () => {
-  for (const mode of modes) {
-    const css = withPrefix(resolveForWidth(layoutRoot, mode.minWidth), "--sizes-");
-    const expected = new Map(
-      Object.entries(sizes).map(([key, values]) => [`--sizes-${key}`, values[mode.name]]),
-    );
-    assert.deepEqual(new Map([...css].map(([k, v]) => [k, toPx(v)])), expected, mode.name);
-  }
-});
+for (const [prefix, table] of [
+  ["--sizes-", sizes],
+  ["--spacing-", spacing],
+] as const) {
+  test(`${prefix}* in site-theme.css match Figma layout for every mode`, () => {
+    for (const mode of modes) {
+      const css = withPrefix(resolveForWidth(layoutRoot, mode.minWidth), prefix);
+      const expected = new Map(
+        Object.entries(table).map(([key, values]) => [`${prefix}${key}`, values[mode.name]]),
+      );
+      assert.deepEqual(new Map([...css].map(([k, v]) => [k, toPx(v)])), expected, mode.name);
+    }
+  });
+}
 
 test("--grid-* in site-theme.css match Figma layout/grid for every mode", () => {
   for (const mode of modes) {

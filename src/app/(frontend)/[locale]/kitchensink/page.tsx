@@ -1,6 +1,13 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Arrow, arrowNames } from "@/components/ui/arrow";
+import {
+  Button,
+  type ButtonColor,
+  ButtonLink,
+  type ButtonSize,
+  TextLink,
+} from "@/components/ui/button";
 import { Icon, iconNames } from "@/components/ui/icon";
 import { Logo } from "@/components/ui/logo";
 import { getAppEnv } from "@/utilities/environment";
@@ -123,6 +130,10 @@ function TextStyleSpec({ style }: { style: TextStyle }) {
     </li>
   );
 }
+
+const buttonColors: ButtonColor[] = ["primary", "inverted", "tejp", "gray"];
+const buttonSizes: ButtonSize[] = ["s", "m"];
+const buttonStates = ["default", "hover", "disabled"] as const;
 
 const widest = modes[0].maxWidth;
 
@@ -397,6 +408,82 @@ export default function KitchensinkPage() {
           ))}
         </ul>
         <p className="font-mono text-xs text-ui-secondary">{'<Arrow name="round" />'} · 64px</p>
+      </Section>
+
+      <Section id="buttons" title="Buttons">
+        <p className="text-sm text-ui-secondary">
+          Hover-kolumnen visas med{" "}
+          <code className="font-mono text-xs">data-state=&quot;hover&quot;</code>; håll pekaren över
+          en knapp i Default-kolumnen för den riktiga övergången. Den grå bakgrunden finns bara här
+          så att alla fyra färgerna syns (Figma visar dem på lila).
+        </p>
+        <div className="overflow-x-auto">
+          <table className="min-w-[36rem] bg-ui-tertiary text-left">
+            <thead className="text-xs text-ui-primary">
+              <tr>
+                <th className="p-4 font-medium" />
+                {buttonStates.map((state) => (
+                  <th key={state} className="p-4 font-medium">
+                    {state}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {buttonSizes.flatMap((size) =>
+                buttonColors.map((color) => (
+                  <tr key={`${size}-${color}`}>
+                    <th className="p-4 text-left font-mono text-xs font-normal text-ui-primary">
+                      {color} · {size.toUpperCase()}
+                    </th>
+                    {buttonStates.map((state) => (
+                      <td key={state} className="p-4">
+                        <Button
+                          color={color}
+                          size={size}
+                          disabled={state === "disabled"}
+                          data-state={state === "hover" ? "hover" : undefined}
+                        >
+                          Label
+                        </Button>
+                      </td>
+                    ))}
+                  </tr>
+                )),
+              )}
+            </tbody>
+          </table>
+        </div>
+        <div className="flex flex-wrap items-center gap-4">
+          <Button iconLeft="arrow-left" iconRight={null}>
+            Tillbaka
+          </Button>
+          <Button color="tejp" size="m" iconRight="download">
+            Ladda ner
+          </Button>
+          <ButtonLink href="/kitchensink#buttons" color="gray">
+            Länk som knapp
+          </ButtonLink>
+        </div>
+        <p className="font-mono text-xs text-ui-secondary">
+          {'<Button color="primary|inverted|tejp|gray" size="s|m" iconLeft iconRight>'} ·{" "}
+          {"<ButtonLink href>"} · iconRight är arrow-right som standard
+        </p>
+      </Section>
+
+      <Section id="links" title="Link">
+        <div className="flex flex-wrap items-center gap-8">
+          <TextLink href="/kitchensink#links">Label</TextLink>
+          <TextLink href="/kitchensink#links" data-state="hover">
+            Label
+          </TextLink>
+          <TextLink href="/kitchensink#links" icon={null}>
+            Utan ikon
+          </TextLink>
+        </div>
+        <p className="font-mono text-xs text-ui-secondary">
+          {"<TextLink href>"} · Default, hover (data-state), utan ikon
+        </p>
       </Section>
     </div>
   );
