@@ -50,9 +50,12 @@ S3_BUCKET="…"
 ```
 
 The guide checks the values and creates the tables. Files are served from the endpoint followed by
-the bucket name, and uploads go through the server, so no CORS setup is needed. See
-[Neon storage](https://neon.com/docs/storage/get-started) and
-[bucket access](https://neon.com/docs/storage/buckets).
+the bucket name. Uploads go straight from the browser to the bucket, past Vercel's ~4.5 MB request
+limit, so the bucket needs a CORS rule for each address Admin runs on (`PutBucketCors` through any S3
+tool; the rule is the same as R2's below, with `https://*.vercel.app` for preview deployments). See
+[Neon storage](https://neon.com/docs/storage/get-started),
+[bucket access](https://neon.com/docs/storage/buckets) and
+[S3 compatibility](https://neon.com/docs/storage/s3-compatibility).
 
 ### Neon and Cloudflare R2
 
@@ -100,6 +103,13 @@ On Vercel, add `SERVICES=cloud` and the cloud values as environment variables, p
 Production gets the production database, Preview a development branch. Local development uses
 Docker or a Neon branch of its own, never the production branch: migrations and test edits would
 land on the live site.
+
+To copy databases and files between environments from this computer (`pnpm db:copy*`,
+`pnpm assets:sync*`), keep each environment's values in a file of its own, with the same names as on
+Vercel: `.env.remote.prod` and `.env.remote.staging`. Paste Neon's block for that branch, plus
+`SERVICES=cloud` and `S3_BUCKET`, and paste the whole file into Vercel for that environment. The app never reads these files, and Next does not load them (unlike
+`.env.production`, which `next build` would use). See
+[the database workflow](./readme/DATABASE_WORKFLOW.md).
 
 ### Projects from before SERVICES
 

@@ -22,5 +22,9 @@ a plugin.
   out in `src/payload/plugins/index.ts`; the assistant needs a migration for its tables when it is
   turned on.
 - `pnpm typecheck`, `pnpm lint` and `pnpm test` pass before a commit.
-- Production data is in the hosted database and R2, and migrations run on deploy (`ci:build`). Test a new migration
-  against a database at the current production state, never against production itself.
+- Production and staging each have a Neon branch with its own database and bucket; Vercel's
+  Production and Preview use them through `SERVICES=cloud`. Migrations run on deploy (`ci:build`).
+  Test a new migration against a database at the current production state, never against
+  production itself.
+- Local development uses `SERVICES=local` (Docker, files in `images/` and `documents/`). The copy
+  scripts read production and staging from `.env.remote.prod` and `.env.remote.staging`.

@@ -140,8 +140,9 @@ export default buildConfig({
       // Keep prefix/object-key columns even with local uploads, so storage choices share a schema.
       alwaysInsertFields: true,
       bucket: storage?.bucket ?? "payload-media",
-      // R2 takes uploads straight from the browser (it needs a CORS rule); Neon through the server.
-      clientUploads: storage?.kind !== "neon",
+      // Uploads go straight from the browser to the bucket, past Vercel's ~4.5 MB request limit. The
+      // bucket needs a CORS rule for the site's addresses; Neon and R2 both take one.
+      clientUploads: true,
       collections: {
         images: {
           prefix: "media",

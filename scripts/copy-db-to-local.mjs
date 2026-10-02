@@ -7,16 +7,13 @@ import { mkdir } from "fs/promises";
 import path from "path";
 import { localDatabaseUrl } from "../src/utilities/services.mjs";
 import { composeEnvArgs } from "./lib/local-env.mjs";
+import { remoteDatabase } from "./lib/remote-env.mjs";
 
 // .env.local first, like Next and Payload; .env only fills in what it lacks.
 dotenv.config({ path: ".env.local" });
 dotenv.config();
 
 const validSources = new Set(["staging", "prod"]);
-const sourceSuffix = {
-  staging: "STAGING",
-  prod: "PROD",
-};
 
 const localHosts = new Set(["127.0.0.1", "localhost", "host.docker.internal"]);
 
@@ -153,8 +150,8 @@ const main = async () => {
     throw new Error("Usage: node scripts/copy-db-to-local.mjs --from <staging|prod> [--dry-run]");
   }
 
-  const suffix = sourceSuffix[from];
-  const sourceDirectUrl = process.env[`DATABASE_URI_DIRECT_${suffix}`];
+  const source = remoteDatabase(from);
+  const sourceDirectUrl = source.value;
   // The local Docker database: an explicit DATABASE_URI_DIRECT, or the one SERVICES=local uses.
   const localDirectUrl = process.env.SERVICES
     ? localDatabaseUrl(process.env)
@@ -162,10 +159,6 @@ const main = async () => {
 
   if (!localDirectUrl) {
     throw new Error("Missing DATABASE_URI_DIRECT for local target.");
-  }
-
-  if (!sourceDirectUrl) {
-    throw new Error(`Missing DATABASE_URI_DIRECT_${suffix} for source environment.`);
   }
 
   const local = parseLocalDirectUrl(localDirectUrl);
@@ -176,7 +169,7 @@ const main = async () => {
 
   if (dryRun) {
     console.log(`[copy-db] dry-run`);
-    console.log(`[copy-db] source: DATABASE_URI_DIRECT_${suffix}`);
+    console.log(`[copy-db] source: ${source.key}`);
     console.log(`[copy-db] target: DATABASE_URI_DIRECT (local)`);
     console.log(`[copy-db] backup file: ${backupPath}`);
     console.log(`[copy-db] dump file: ${sourcePath}`);

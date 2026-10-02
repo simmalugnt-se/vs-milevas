@@ -1,189 +1,175 @@
 #!/usr/bin/env node
+/**
+ * Copies uploaded files between environments: the project folders (local, as SERVICES=local keeps
+ * them) and the buckets in `.env.remote.staging` and `.env.remote.prod`.
+ *
+ *   node scripts/sync-s3-assets.mjs --from <local|staging|prod> --to <local|staging|prod> [--force]
+ *
+ * Files are added or replaced, never deleted. A file already at the target with the same size is
+ * skipped. Between buckets the keys stay as they are; into the project folders, files land by name
+ * (see localPath). Writing to prod needs --force.
+ */
+import { existsSync } from "node:fs";
+import { mkdir, readdir, readFile, stat, writeFile } from "node:fs/promises";
+import path from "node:path";
+import {
+  GetObjectCommand,
+  HeadObjectCommand,
+  ListObjectsV2Command,
+  PutObjectCommand,
+  S3Client,
+} from "@aws-sdk/client-s3";
+import { REMOTE_ENVS, remoteStorage } from "./lib/remote-env.mjs";
 
-import { spawn, spawnSync } from "child_process";
-import dotenv from "dotenv";
-import { mkdir, rm } from "fs/promises";
-import path from "path";
+/** Each upload collection: its folder with local uploads, and its prefix in the bucket. Keep the
+ * prefixes in step with the storage plugin in src/payload.config.ts. */
+const uploads = [
+  { folder: "images", prefix: "media" },
+  { folder: "documents", prefix: "documents" },
+];
 
-dotenv.config();
-
-const validEnvs = new Set(["local", "staging", "prod"]);
-const suffixByEnv = {
-  local: "LOCAL",
-  staging: "STAGING",
-  prod: "PROD",
+const contentTypes = {
+  ".avif": "image/avif",
+  ".gif": "image/gif",
+  ".jpeg": "image/jpeg",
+  ".jpg": "image/jpeg",
+  ".pdf": "application/pdf",
+  ".png": "image/png",
+  ".svg": "image/svg+xml",
+  ".webp": "image/webp",
 };
 
 const parseArgs = () => {
   const args = process.argv.slice(2);
-  let from = "";
-  let to = "";
-  let deleteTarget = false;
-
-  for (let i = 0; i < args.length; i++) {
-    const arg = args[i];
-    if (arg === "--from") {
-      from = (args[i + 1] || "").toLowerCase();
-      i++;
-      continue;
-    }
-    if (arg === "--to") {
-      to = (args[i + 1] || "").toLowerCase();
-      i++;
-      continue;
-    }
-    if (arg === "--delete") {
-      deleteTarget = true;
-      continue;
-    }
-  }
-
-  return { from, to, deleteTarget };
+  const valueOf = (flag) => {
+    const index = args.indexOf(flag);
+    return index === -1 ? "" : (args[index + 1] || "").toLowerCase();
+  };
+  return { from: valueOf("--from"), to: valueOf("--to"), force: args.includes("--force") };
 };
 
-const run = (command, args, env = process.env) =>
-  new Promise((resolve, reject) => {
-    const child = spawn(command, args, { env, stdio: "inherit" });
-    child.on("exit", (code) => {
-      if (code === 0) resolve();
-      else reject(new Error(`${command} ${args.join(" ")} failed with code ${code ?? "unknown"}`));
-    });
-    child.on("error", reject);
+/** A side of the copy: list, read and write files by bucket key (`prefix/filename`). */
+const localSide = () => ({
+  label: "the project folders",
+  async list() {
+    const files = [];
+    for (const { folder, prefix } of uploads) {
+      if (!existsSync(folder)) continue;
+      for (const entry of await readdir(folder, { withFileTypes: true })) {
+        if (!entry.isFile() || entry.name.startsWith(".")) continue;
+        const { size } = await stat(path.join(folder, entry.name));
+        files.push({ key: `${prefix}/${entry.name}`, size });
+      }
+    }
+    return files;
+  },
+  async size(key) {
+    const file = localPath(key);
+    if (!existsSync(file)) return null;
+    return (await stat(file)).size;
+  },
+  async read(key) {
+    const body = await readFile(localPath(key));
+    return { body, contentType: contentTypeOf(key) };
+  },
+  async write(key, { body }) {
+    const file = localPath(key);
+    await mkdir(path.dirname(file), { recursive: true });
+    await writeFile(file, body);
+  },
+});
+
+const bucketSide = (name) => {
+  const storage = remoteStorage(name);
+  const client = new S3Client({
+    credentials: { accessKeyId: storage.accessKeyId, secretAccessKey: storage.secretAccessKey },
+    endpoint: storage.endpoint,
+    forcePathStyle: true,
+    region: storage.region,
+    // Neon rejects the checksum newer AWS SDKs add by default.
+    requestChecksumCalculation: "WHEN_REQUIRED",
+    responseChecksumValidation: "WHEN_REQUIRED",
   });
-
-/**
- * Resolve S3-compatible credentials (Cloudflare R2, AWS S3, etc.).
- * Reads `S3_*_{SUFFIX}` or `R2_*` / `R2_*_{SUFFIX}` variables.
- */
-const getProfile = (name) => {
-  const suffix = suffixByEnv[name];
-
-  if (name === "local") {
-    return {
-      endpoint: process.env.S3_ENDPOINT_LOCAL || process.env.R2_ENDPOINT || process.env.S3_ENDPOINT,
-      bucket: process.env.S3_BUCKET_LOCAL || process.env.R2_BUCKET || process.env.S3_BUCKET,
-      accessKeyId:
-        process.env.S3_ACCESS_KEY_ID_LOCAL ||
-        process.env.R2_ACCESS_KEY_ID ||
-        process.env.S3_ACCESS_KEY_ID,
-      secretAccessKey:
-        process.env.S3_SECRET_ACCESS_KEY_LOCAL ||
-        process.env.R2_SECRET_ACCESS_KEY ||
-        process.env.S3_SECRET_ACCESS_KEY,
-      region:
-        process.env.S3_REGION_LOCAL || process.env.R2_REGION || process.env.S3_REGION || "auto",
-    };
-  }
-
+  const Bucket = storage.bucket;
   return {
-    endpoint: process.env[`S3_ENDPOINT_${suffix}`] || process.env[`R2_ENDPOINT_${suffix}`],
-    bucket: process.env[`S3_BUCKET_${suffix}`] || process.env[`R2_BUCKET_${suffix}`],
-    accessKeyId:
-      process.env[`S3_ACCESS_KEY_ID_${suffix}`] || process.env[`R2_ACCESS_KEY_ID_${suffix}`],
-    secretAccessKey:
-      process.env[`S3_SECRET_ACCESS_KEY_${suffix}`] ||
-      process.env[`R2_SECRET_ACCESS_KEY_${suffix}`],
-    region: process.env[`S3_REGION_${suffix}`] || process.env[`R2_REGION_${suffix}`] || "auto",
+    label: `${name} (${Bucket})`,
+    async list() {
+      const files = [];
+      for (const { prefix } of uploads) {
+        let ContinuationToken;
+        do {
+          const page = await client.send(
+            new ListObjectsV2Command({ Bucket, Prefix: `${prefix}/`, ContinuationToken }),
+          );
+          for (const item of page.Contents ?? []) {
+            files.push({ key: item.Key, size: item.Size });
+          }
+          ContinuationToken = page.NextContinuationToken;
+        } while (ContinuationToken);
+      }
+      return files;
+    },
+    async size(key) {
+      try {
+        return (await client.send(new HeadObjectCommand({ Bucket, Key: key }))).ContentLength;
+      } catch (error) {
+        if (error?.$metadata?.httpStatusCode === 404) return null;
+        throw error;
+      }
+    },
+    async read(key) {
+      const object = await client.send(new GetObjectCommand({ Bucket, Key: key }));
+      return {
+        body: Buffer.from(await object.Body.transformToByteArray()),
+        contentType: object.ContentType || contentTypeOf(key),
+      };
+    },
+    async write(key, { body, contentType }) {
+      await client.send(
+        new PutObjectCommand({ Body: body, Bucket, ContentType: contentType, Key: key }),
+      );
+    },
   };
 };
 
-const validateProfile = (name, profile) => {
-  const missing = [];
-  if (!profile.endpoint) missing.push(`endpoint (${name})`);
-  if (!profile.bucket) missing.push(`bucket (${name})`);
-  if (!profile.accessKeyId) missing.push(`access key (${name})`);
-  if (!profile.secretAccessKey) missing.push(`secret key (${name})`);
-
-  if (missing.length > 0) {
-    throw new Error(
-      `Missing required storage config for "${name}": ${missing.join(", ")}. Set S3_*_${suffixByEnv[name].toUpperCase()} or R2_*_${suffixByEnv[name].toUpperCase()} (local also accepts unsuffixed R2_*).`,
-    );
-  }
+/** Where a bucket file goes in the project folders. Uploads from the browser sit one level deeper
+ * in the bucket (`prefix/<object key>/filename`); local uploads sit in the folder itself. */
+const localPath = (key) => {
+  const upload = uploads.find(({ prefix }) => key.startsWith(`${prefix}/`));
+  return path.join(upload.folder, path.posix.basename(key));
 };
 
-const ensureAwsCli = () => {
-  const check = spawnSync("aws", ["--version"], { stdio: "ignore" });
-  if (check.status !== 0) {
-    throw new Error("AWS CLI is required. Install it and run again.");
-  }
-};
+const contentTypeOf = (key) =>
+  contentTypes[path.extname(key).toLowerCase()] ?? "application/octet-stream";
+
+const side = (name) => (name === "local" ? localSide() : bucketSide(name));
 
 const main = async () => {
-  const { from, to, deleteTarget } = parseArgs();
+  const { from, to, force } = parseArgs();
+  const valid = ["local", ...REMOTE_ENVS];
 
-  if (!validEnvs.has(from) || !validEnvs.has(to)) {
+  if (!valid.includes(from) || !valid.includes(to) || from === to) {
     throw new Error(
-      "Usage: node scripts/sync-s3-assets.mjs --from <local|staging|prod> --to <local|staging|prod> [--delete]",
+      "Usage: node scripts/sync-s3-assets.mjs --from <local|staging|prod> --to <local|staging|prod> [--force]",
     );
   }
-
-  if (from === to) {
-    throw new Error("Source and destination must be different.");
+  if (to === "prod" && !force) {
+    throw new Error("Refusing to write to prod. Re-run with --force.");
   }
 
-  ensureAwsCli();
+  const source = side(from);
+  const target = side(to);
+  const files = await source.list();
+  let copied = 0;
 
-  const source = getProfile(from);
-  const destination = getProfile(to);
-  validateProfile(from, source);
-  validateProfile(to, destination);
-
-  const prefix = process.env.SYNC_S3_PREFIX || "media";
-  const tempDir = path.resolve(
-    process.cwd(),
-    process.env.SYNC_S3_TMP_DIR || `tmp/s3-sync-${Date.now()}`,
-  );
-
-  await rm(tempDir, { recursive: true, force: true });
-  await mkdir(tempDir, { recursive: true });
-
-  const sourceEnv = {
-    ...process.env,
-    AWS_ACCESS_KEY_ID: source.accessKeyId,
-    AWS_SECRET_ACCESS_KEY: source.secretAccessKey,
-    AWS_DEFAULT_REGION: source.region,
-  };
-
-  const destinationEnv = {
-    ...process.env,
-    AWS_ACCESS_KEY_ID: destination.accessKeyId,
-    AWS_SECRET_ACCESS_KEY: destination.secretAccessKey,
-    AWS_DEFAULT_REGION: destination.region,
-  };
-
-  console.log(`[sync] Downloading s3://${source.bucket}/${prefix}/ from ${from}...`);
-  await run(
-    "aws",
-    [
-      "--endpoint-url",
-      source.endpoint,
-      "s3",
-      "sync",
-      `s3://${source.bucket}/${prefix}/`,
-      `${tempDir}/`,
-      "--only-show-errors",
-    ],
-    sourceEnv,
-  );
-
-  const uploadArgs = [
-    "--endpoint-url",
-    destination.endpoint,
-    "s3",
-    "sync",
-    `${tempDir}/`,
-    `s3://${destination.bucket}/${prefix}/`,
-    "--only-show-errors",
-  ];
-
-  if (deleteTarget) {
-    uploadArgs.push("--delete");
+  console.log(`[sync] ${files.length} files in ${source.label}, copying to ${target.label}...`);
+  for (const file of files) {
+    if ((await target.size(file.key)) === file.size) continue;
+    await target.write(file.key, await source.read(file.key));
+    copied++;
+    console.log(`[sync] ${file.key}`);
   }
-
-  console.log(`[sync] Uploading to s3://${destination.bucket}/${prefix}/ in ${to}...`);
-  await run("aws", uploadArgs, destinationEnv);
-
-  console.log("[sync] Completed successfully.");
+  console.log(`[sync] Done: ${copied} copied, ${files.length - copied} already there.`);
 };
 
 main().catch((error) => {

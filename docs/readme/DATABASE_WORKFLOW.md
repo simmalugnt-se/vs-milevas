@@ -9,20 +9,17 @@ Use one active runtime target at a time via generic keys:
 - `DATABASE_URI`
 - `DATABASE_URI_DIRECT`
 
-For S3-compatible object storage (Cloudflare R2, AWS S3, etc.), this repo’s Payload config primarily uses **`R2_*`** at runtime. For **multi-environment sync scripts**, you can use either:
+The scripts that copy between environments (`pnpm db:copy*`, `pnpm assets:sync*`) read production
+and staging from files of their own, with the names Neon and Vercel use:
 
-- `S3_BUCKET`, `S3_ENDPOINT`, `S3_REGION`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`, or
-- the same values as `R2_*` / `R2_*_{PROFILE}` — see [`scripts/sync-s3-assets.mjs`](../../scripts/sync-s3-assets.mjs).
+- `.env.remote.prod`: Neon's block for the production branch
+- `.env.remote.staging`: Neon's block for the staging branch
 
-Use profile keys only when a command needs two environments at once (sync/copy):
-
-- `*_LOCAL`
-- `*_STAGING`
-- `*_PROD`
-
-Important naming note:
-
-- In teams using Neon, `STAGING` profile keys often represent your Neon `development` branch.
+Each holds `SERVICES=cloud`, `DATABASE_URL` (direct), `DATABASE_URL_POOLED`, `AWS_ENDPOINT_URL_S3`,
+`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_REGION` and `S3_BUCKET`: the same values as
+Vercel's Production and Preview. The app never reads them; `.env.local` stays on `SERVICES=local`.
+Older `DATABASE_URI_DIRECT_PROD` / `DATABASE_URI_DIRECT_STAGING` in `.env.local` still work for the
+database scripts. See [`scripts/lib/remote-env.mjs`](../../scripts/lib/remote-env.mjs).
 
 ## 2) Vercel Setup
 
@@ -142,8 +139,8 @@ Commands use Dockerized Postgres tools, so you do not need local `psql`/`pg_dump
 
 Assumes:
 
-- `DATABASE_URI_DIRECT` points to the local DB (`POSTGRES_HOST_PORT` in `.env.local`)
-- `DATABASE_URI_DIRECT_STAGING` points to Neon development branch direct URL
+- `SERVICES=local` and `POSTGRES_HOST_PORT` in `.env.local` (the local Docker database)
+- `DATABASE_URL` in `.env.remote.staging` (Neon's direct connection for the staging branch)
 
 Run (recommended):
 
@@ -178,26 +175,29 @@ pnpm db:copy:remote -- --from prod --to staging --dry-run
 pnpm db:copy:remote -- --from staging --to prod --dry-run --force --confirm OVERWRITE_PROD
 ```
 
-## 6) Asset Sync Runbooks (S3/R2)
+## 6) Asset Sync Runbooks
 
-[`scripts/sync-s3-assets.mjs`](../../scripts/sync-s3-assets.mjs) accepts **`S3_*_{PROFILE}`** or **`R2_*_{PROFILE}`**. For local, unsuffixed **`R2_*`** (as used by [`src/payload.config.ts`](../../src/payload.config.ts)) also work.
+[`scripts/sync-s3-assets.mjs`](../../scripts/sync-s3-assets.mjs) copies uploads between `local` (the
+`images/` and `documents/` folders) and the buckets in `.env.remote.staging` and `.env.remote.prod`.
+Files are added or replaced, never deleted, and files already at the target are skipped.
 
 ```bash
 pnpm assets:sync:staging-to-local
 pnpm assets:sync:prod-to-local
+pnpm assets:sync:prod-to-staging
+pnpm assets:sync -- --from local --to staging
+pnpm assets:sync -- --from local --to prod --force   # writing to prod needs --force
 ```
 
-Optional flags:
+Copy the files along with a database copy: `db:copy:prod-to-staging` with
+`assets:sync:prod-to-staging`, `db:copy:staging-to-local` with `assets:sync:staging-to-local`.
 
-```bash
-pnpm assets:sync -- --from staging --to local --delete
-```
+## 7) Media storage
 
-Do not use `--delete` unless you want destination cleanup.
-
-## 7) Media storage (R2)
-
-Payload uses `@payloadcms/storage-s3` with Cloudflare R2 when `R2_*` env vars are set. See [`src/payload/utilities/r2.ts`](../../src/payload/utilities/r2.ts) and [`src/payload/collections/Media/config.ts`](../../src/payload/collections/Media/config.ts).
+Payload uses `@payloadcms/storage-s3` with the bucket `SERVICES=cloud` points at (Neon or R2; see
+[`src/utilities/services.mjs`](../../src/utilities/services.mjs)). With `SERVICES=local` uploads stay
+in the project folders. Uploads go straight from the browser to the bucket, which needs a CORS rule
+for each address Admin runs on.
 
 ## 8) Localizing Existing Fields
 

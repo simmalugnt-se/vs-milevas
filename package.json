@@ -6,9 +6,10 @@
   "scripts": {
     "assistant:logs": "node ./scripts/assistant-logs.mjs",
     "assets:sync": "node ./scripts/sync-s3-assets.mjs",
-    "assets:upload": "node ./scripts/upload-media.mjs",
     "assets:sync:prod-to-local": "node ./scripts/sync-s3-assets.mjs --from prod --to local",
     "assets:sync:staging-to-local": "node ./scripts/sync-s3-assets.mjs --from staging --to local",
+    "assets:sync:prod-to-staging": "node ./scripts/sync-s3-assets.mjs --from prod --to staging",
+    "assets:cors": "node ./scripts/set-bucket-cors.mjs",
     "build": "next build",
     "check": "biome check .",
     "check:write": "biome check . --write",
@@ -88,6 +89,7 @@
     "sonner": "^2.0.7"
   },
   "devDependencies": {
+    "@aws-sdk/client-s3": "^3.1014.0",
     "@biomejs/biome": "2.4.15",
     "@clack/prompts": "^1.8.1",
     "@tailwindcss/postcss": "^4",

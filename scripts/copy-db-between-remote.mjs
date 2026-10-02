@@ -5,16 +5,13 @@ import dotenv from "dotenv";
 import { createReadStream, createWriteStream } from "fs";
 import { mkdir } from "fs/promises";
 import path from "path";
+import { remoteDatabase } from "./lib/remote-env.mjs";
 
 // .env.local first, like Next and Payload; .env only fills in what it lacks.
 dotenv.config({ path: ".env.local" });
 dotenv.config();
 
 const validEnvs = new Set(["staging", "prod"]);
-const suffixByEnv = {
-  staging: "STAGING",
-  prod: "PROD",
-};
 
 const parseArgs = () => {
   const args = process.argv.slice(2);
@@ -93,17 +90,7 @@ const ensureDocker = () => {
   }
 };
 
-const getDirectUrl = (envName) => {
-  const suffix = suffixByEnv[envName];
-  const key = `DATABASE_URI_DIRECT_${suffix}`;
-  const value = process.env[key];
-
-  if (!value) {
-    throw new Error(`Missing ${key}.`);
-  }
-
-  return { key, value };
-};
+const getDirectUrl = (envName) => remoteDatabase(envName);
 
 const getHost = (urlString) => {
   try {

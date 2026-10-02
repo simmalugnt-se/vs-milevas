@@ -141,14 +141,15 @@ Content health needs no variables of its own.
 
 ### Moving local content to the cloud
 
-Upload the local `media/` folder to the bucket, using the cloud storage values in `.env.local`. This
-needs the AWS CLI. Payload keeps the files in the bucket's root.
+Copy the uploads in the project folders (`images/`, `documents/`) to a bucket, using the values in
+`.env.remote.staging` or `.env.remote.prod`. Files already there are skipped.
 
 ```bash
-pnpm assets:upload
+pnpm assets:sync -- --from local --to staging
 ```
 
-`pnpm assets:sync` only copies between buckets.
+`pnpm assets:sync` copies between any two of `local`, `staging` and `prod`; writing to prod needs
+`--force`.
 
 ## Debugging the editor assistant
 

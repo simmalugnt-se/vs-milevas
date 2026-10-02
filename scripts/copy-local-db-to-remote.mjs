@@ -7,15 +7,12 @@ import { mkdir } from "fs/promises";
 import path from "path";
 import { localDatabaseUrl } from "../src/utilities/services.mjs";
 import { composeEnvArgs } from "./lib/local-env.mjs";
+import { remoteDatabase } from "./lib/remote-env.mjs";
 
 dotenv.config({ path: ".env.local" });
 dotenv.config();
 
 const validTargets = new Set(["staging", "prod"]);
-const suffixByEnv = {
-  staging: "STAGING",
-  prod: "PROD",
-};
 
 const localHosts = new Set(["127.0.0.1", "localhost", "host.docker.internal"]);
 
@@ -169,17 +166,7 @@ const localExecArgs = ({ username, password, database }, sqlCommand) => [
   sqlCommand,
 ];
 
-const getDirectUrl = (envName) => {
-  const suffix = suffixByEnv[envName];
-  const key = `DATABASE_URI_DIRECT_${suffix}`;
-  const value = process.env[key];
-
-  if (!value) {
-    throw new Error(`Missing ${key}.`);
-  }
-
-  return { key, value };
-};
+const getDirectUrl = (envName) => remoteDatabase(envName);
 
 const getHost = (urlString) => {
   try {
