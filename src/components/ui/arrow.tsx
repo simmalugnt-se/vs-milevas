@@ -1,7 +1,8 @@
 import type { ReactNode, SVGProps } from "react";
 
 /**
- * Arrows from Figma "02 — Components" → "Arrows" (node 8389:5810), 64px (size=L, the only size).
+ * Arrows from Figma "02 — Components" → "Arrows" (node 8389:5810), 64px (size=L, the only size), plus
+ * `halfup-s` (24 × 32), a narrower halfup drawn separately for truck-column (8539:7382).
  * Generated from the Figma SVGs with #121212 replaced by currentColor. Names follow Figma
  * (`arrow-up&forward` → `up-forward`).
  */
@@ -63,6 +64,17 @@ const arrows = {
       </>
     ),
   },
+  "halfup-s": {
+    viewBox: "0 0 24 32",
+    body: (
+      <>
+        <path
+          d="M24 2.90732C22.4626 6.36878 21.9736 10.5921 22.5326 15.5766L17.9204 20.1459L15.8236 13.0841L11.6311 17.238L11.6306 17.2374L9.03807 19.8062C7.60059 21.2303 7.11561 22.5266 7.11557 23.776V32H-4.76837e-07V23.776C4.08593e-05 20.3261 1.49162 17.3143 4.00714 14.8223L10.7921 8.09953L3.66433 6.02287L8.2766 1.45366C13.308 2.00748 17.5707 1.52297 21.0647 0L24 2.90732Z"
+          fill="currentColor"
+        />
+      </>
+    ),
+  },
 } satisfies Record<string, { viewBox: string; body: ReactNode }>;
 
 export type ArrowName = keyof typeof arrows;
@@ -76,11 +88,12 @@ type ArrowProps = Omit<SVGProps<SVGSVGElement>, "children"> & {
 
 export function Arrow({ name, title, className, ...props }: ArrowProps) {
   const { viewBox, body } = arrows[name];
+  const [, , width, height] = viewBox.split(" ");
   return (
     <svg
       viewBox={viewBox}
-      width={64}
-      height={64}
+      width={width}
+      height={height}
       fill="none"
       aria-hidden={title ? undefined : true}
       role={title ? "img" : undefined}

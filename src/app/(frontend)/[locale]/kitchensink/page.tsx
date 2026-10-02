@@ -11,9 +11,13 @@ import {
 } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Choice } from "@/components/ui/choice";
+import { ConfiguratorBox } from "@/components/ui/configurator-box";
 import { Icon, iconNames } from "@/components/ui/icon";
 import { Logo } from "@/components/ui/logo";
+import { PriceBox } from "@/components/ui/price-box";
 import { ProductCard } from "@/components/ui/product-card";
+import { TextBox } from "@/components/ui/text-box";
+import { TruckColumn } from "@/components/ui/truck-column";
 import { getAppEnv } from "@/utilities/environment";
 import truckCounterbalance from "./assets/truck-counterbalance.png";
 import truckPallet from "./assets/truck-pallet.png";
@@ -142,6 +146,23 @@ function TextStyleSpec({ style }: { style: TextStyle }) {
 const buttonColors: ButtonColor[] = ["primary", "inverted", "tejp", "gray"];
 const buttonSizes: ButtonSize[] = ["s", "m"];
 const buttonStates = ["default", "hover", "disabled"] as const;
+
+/** configurator-box variants shown, in Figma frame 9's order. */
+const configuratorBoxes = [
+  { choices: 2, layout: "grid", textSize: "s" },
+  { choices: 2, layout: "grid", textSize: "m" },
+  { choices: 6, layout: "grid", textSize: "s" },
+  { choices: 4, layout: "grid", textSize: "s" },
+  { choices: 2, layout: "stack", textSize: "s" },
+  { choices: 4, layout: "stack", textSize: "m" },
+  { choices: 2, layout: "stack", textSize: "s", image: true },
+  { choices: 4, layout: "grid", textSize: "s", image: true },
+] as const;
+
+const priceRows = [
+  { label: "Leasing (48 mån)", value: "3 261 kr/mån" },
+  { label: "Långtidshyra (48 mån)", value: "3 261 kr/mån" },
+];
 
 const widest = modes[0].maxWidth;
 
@@ -606,6 +627,110 @@ export default function KitchensinkPage() {
         <p className="font-mono text-xs text-ui-secondary">
           {"<ProductCard href brand category name specs price leasing image>"} ·{" "}
           {"<Card number label text image>"}
+        </p>
+      </Section>
+
+      <Section id="configurator" title="Configurator">
+        <p className="text-sm text-ui-secondary">
+          configurator-box från frame 9 (frame 6 är den gamla, urblekta versionen) och price-box
+          från frame 6, som är den enda som har den. Det andra valet i varje box visas som valt.
+        </p>
+        <div className="grid items-start gap-4 tablet:grid-cols-2">
+          {configuratorBoxes.map((box, index) => (
+            <div
+              key={`${box.layout}-${box.choices}-${box.textSize}-${"image" in box}`}
+              className="space-y-2"
+            >
+              <p className="font-mono text-xs text-ui-secondary">
+                {box.choices} val · {box.layout} · text {box.textSize.toUpperCase()}
+                {"image" in box ? " · bild" : ""}
+              </p>
+              <ConfiguratorBox
+                number={String(index + 1).padStart(2, "0")}
+                label="Label"
+                layout={box.layout}
+              >
+                {Array.from({ length: box.choices }, (_, choice) => (
+                  <Choice
+                    key={choice}
+                    title="Title"
+                    price="€€€€"
+                    text="Text"
+                    textSize={box.textSize}
+                    selected={choice === 1}
+                    image={
+                      "image" in box ? (
+                        <Image
+                          src={truckPallet}
+                          alt=""
+                          fill
+                          sizes="12rem"
+                          className="object-contain"
+                        />
+                      ) : undefined
+                    }
+                  />
+                ))}
+              </ConfiguratorBox>
+            </div>
+          ))}
+        </div>
+        <div className="grid items-start gap-4 tablet:grid-cols-2">
+          <PriceBox
+            price="173 900 kr"
+            rows={priceRows}
+            action={
+              <Button size="m" className="w-full">
+                Label
+              </Button>
+            }
+          />
+          <PriceBox
+            price="173 900 kr"
+            rows={priceRows}
+            delivery={{ label: "Uppskattad leverans", value: "4–6 veckor" }}
+            action={
+              <Button size="m" className="w-full">
+                Label
+              </Button>
+            }
+          />
+        </div>
+        <p className="font-mono text-xs text-ui-secondary">
+          {"<ConfiguratorBox number label layout>{<Choice>…}</ConfiguratorBox>"} ·{" "}
+          {"<PriceBox price rows delivery action>"}
+        </p>
+      </Section>
+
+      <Section id="blabla" title="Text box & truck column">
+        <div className="grid gap-4 tablet:grid-cols-2">
+          <TextBox heading="Heading" label="Label" text="Text" />
+          <TextBox heading="Heading" label="Label" text="Text" border={false} />
+        </div>
+        <p className="text-sm text-ui-secondary">
+          truck-column över en bild: håll pekaren över en kolumn, eller tabba till den. Den andra
+          visas med data-state=&quot;active&quot;.
+        </p>
+        <div className="relative h-[28rem] overflow-hidden rounded-lg">
+          <Image src={warehouse} alt="" fill sizes="100vw" className="object-cover" />
+          <div className="relative grid h-full grid-cols-2 desktop-s:grid-cols-4">
+            {["Motviktstruckar", "Ledstaplare", "Låglyftare", "Höglyftare"].map((name, index) => (
+              <TruckColumn
+                key={name}
+                href="/kitchensink#blabla"
+                aria-label={`Bygg din truck: ${name}`}
+                heading="Bygg din truck:"
+                rows={[
+                  { label: "Från", value: "169 000 kr" },
+                  { label: "Leasing från:", value: "3 326 kr/mån" },
+                ]}
+                data-state={index === 1 ? "active" : undefined}
+              />
+            ))}
+          </div>
+        </div>
+        <p className="font-mono text-xs text-ui-secondary">
+          {"<TextBox heading label text border>"} · {"<TruckColumn href heading rows>"}
         </p>
       </Section>
     </div>
