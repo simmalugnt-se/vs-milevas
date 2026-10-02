@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getAppEnv } from "@/utilities/environment";
 import { type Mode, modes } from "./breakpoints";
 import { type ColorToken, colorGroups, gradientStops } from "./colors";
+import { cardGrids, fromFigma, grid, radii } from "./grid";
 import { sizes, sizesForMode, type TextStyle, textStyles } from "./typography";
 
 /** Design-system reference built from Figma "01 — Foundations". Static, unlinked, not in production. */
@@ -243,6 +244,103 @@ export default function KitchensinkPage() {
         <div className="space-y-4">
           {modes.map((mode) => (
             <BreakpointBar key={mode.name} mode={mode} />
+          ))}
+        </div>
+      </Section>
+
+      <Section id="grids" title="Grids">
+        {/*
+          Own decision, not in Figma (2026-10-02): the Grids frame only shows Desktop L. Desktop S has
+          the same 12 columns, so it follows the frame; Tablet (2 per row) and Mobile (1 per row) were
+          decided by us. Update `card-grid-*` in site-theme.css and `cardGrids` in grid.ts if Figma
+          gets frames for them.
+        */}
+        <p className="border-l-4 border-status-info bg-bg-fill px-4 py-3 text-sm text-ui-primary">
+          <strong>Eget beslut, framgår inte i Figma (2026-10-02):</strong> Figma visar card grid
+          bara för Desktop L. Desktop S har också 12 kolumner och följer samma uppdelning. På Tablet
+          visas 2 kort per rad och på Mobile 1, för alla tre varianterna.
+        </p>
+
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[44rem] text-left text-sm">
+            <thead className="text-ui-tertiary">
+              <tr>
+                <th className="py-2 pr-4 font-medium" />
+                {modes.map((mode) => (
+                  <th key={mode.name} className="py-2 pr-4 font-medium">
+                    {mode.name}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="font-mono text-xs text-ui-secondary">
+              {(["columns", "margin", "gap"] as const).map((key) => (
+                <tr key={key} className="border-t border-border-primary">
+                  <td className="py-2 pr-4">--grid-{key}</td>
+                  {modes.map((mode) => (
+                    <td key={mode.name} className="py-2 pr-4">
+                      {grid[key][mode.name]}
+                      {key === "columns" ? "" : "px"}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+              {cardGrids.map((cardGrid) => (
+                <tr key={cardGrid.className} className="border-t border-border-primary">
+                  <td className="py-2 pr-4">{cardGrid.className}</td>
+                  {modes.map((mode) => (
+                    <td key={mode.name} className="py-2 pr-4">
+                      {cardGrid.perRow[mode.name]} per rad
+                      {fromFigma[mode.name] ? "" : " (eget beslut)"}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+              <tr className="border-t border-border-primary">
+                <td className="py-2 pr-4">rounded-sm / rounded-lg</td>
+                <td className="py-2 pr-4" colSpan={modes.length}>
+                  {radii.sm}px / {radii.lg}px
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div className="space-y-2">
+          <h3 className="font-bold uppercase text-ui-primary">
+            grid-layout <span className="text-ui-tertiary">(aktuellt antal kolumner)</span>
+          </h3>
+          <div className="grid-layout bg-bg-inv-fill py-2">
+            {Array.from({ length: grid.columns["Desktop L"] }, (_, index) => (
+              <div
+                key={index}
+                className={`rounded-sm bg-bg-surface py-3 text-center text-text-s text-ui-primary ${
+                  index >= grid.columns.Mobile ? "max-desktop-s:hidden" : ""
+                }`}
+              >
+                {index + 1}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="space-y-2 bg-bg-inv-fill px-(--grid-margin) py-2">
+          {cardGrids.map((cardGrid) => (
+            <div key={cardGrid.className} className="space-y-2">
+              <p className="flex gap-8 text-display-s">
+                <span className="text-ui-inv-primary">Card grid</span>
+                <span className="text-ui-tertiary">{cardGrid.name}</span>
+              </p>
+              <div className={cardGrid.className}>
+                {Array.from({ length: cardGrid.perRow["Desktop L"] }, (_, index) => (
+                  <div
+                    key={index}
+                    className="rounded-lg bg-bg-surface"
+                    style={{ height: cardGrid.slotHeight }}
+                  />
+                ))}
+              </div>
+            </div>
           ))}
         </div>
       </Section>

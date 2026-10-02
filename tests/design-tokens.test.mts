@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises";
 import { test } from "node:test";
 import { modes } from "../src/app/(frontend)/[locale]/kitchensink/breakpoints.ts";
 import { allColorTokens } from "../src/app/(frontend)/[locale]/kitchensink/colors.ts";
+import { cardGrids, grid, radii } from "../src/app/(frontend)/[locale]/kitchensink/grid.ts";
 import { sizes, textStyles } from "../src/app/(frontend)/[locale]/kitchensink/typography.ts";
 
 const themeCss = await readFile(new URL("../src/styles/site-theme.css", import.meta.url), "utf8");
@@ -53,38 +54,89 @@ test("breakpoints in site-theme.css match Figma breakpoints/width-min", () => {
   assert.deepEqual(breakpoints, expected);
 });
 
-const sizesInPx = (block: string) =>
-  new Map(
-    [...declarations(block)]
-      .filter(([property]) => property.startsWith("--sizes-"))
-      .map(([property, value]) => [property, toPx(value)]),
-  );
-
-/** The `:root` block with `--sizes-*`: base declarations plus one `@variant <breakpoint>` per mode. */
-const sizesRoot = themeCss.match(/:root \{\n([\s\S]*?)\n\}\n/)?.[1] ?? "";
 const variantPattern = /@variant ([a-z0-9-]+) \{([^}]*)\}/g;
-const baseSizes = sizesInPx(sizesRoot.replace(variantPattern, ""));
-const variantSizes = new Map(
-  [...sizesRoot.matchAll(variantPattern)].map(([, variant, block]) => [variant, sizesInPx(block)]),
-);
 
-/** `--sizes-*` in px as a viewport of `width` sees them. */
-const cssSizesForWidth = (width: number) => {
-  const resolved = new Map(baseSizes);
-  for (const [variant, values] of variantSizes) {
+/** Declarations in a mobile-first block as a viewport of `width` sees them: base plus matching variants. */
+const resolveForWidth = (block: string, width: number) => {
+  const resolved = declarations(block.replace(variantPattern, ""));
+  for (const [, variant, variantBlock] of block.matchAll(variantPattern)) {
     const minWidth = breakpoints.get(variant);
     assert.ok(minWidth, `@variant ${variant} is not a breakpoint`);
-    if (minWidth <= width) for (const [property, px] of values) resolved.set(property, px);
+    if (minWidth <= width)
+      for (const [property, value] of declarations(variantBlock)) {
+        resolved.set(property, value);
+      }
   }
   return resolved;
 };
 
+/** The `:root` block with the per-mode layout variables (`--sizes-*`, `--grid-*`). */
+const layoutRoot = themeCss.match(/:root \{\n([\s\S]*?)\n\}\n/)?.[1] ?? "";
+
+const withPrefix = (values: Map<string, string>, prefix: string) =>
+  new Map([...values].filter(([property]) => property.startsWith(prefix)));
+
 test("--sizes-* in site-theme.css match the Figma sizes for every mode", () => {
   for (const mode of modes) {
+    const css = withPrefix(resolveForWidth(layoutRoot, mode.minWidth), "--sizes-");
     const expected = new Map(
       Object.entries(sizes).map(([key, values]) => [`--sizes-${key}`, values[mode.name]]),
     );
-    assert.deepEqual(cssSizesForWidth(mode.minWidth), expected, mode.name);
+    assert.deepEqual(new Map([...css].map(([k, v]) => [k, toPx(v)])), expected, mode.name);
+  }
+});
+
+test("--grid-* in site-theme.css match Figma layout/grid for every mode", () => {
+  for (const mode of modes) {
+    const css = withPrefix(resolveForWidth(layoutRoot, mode.minWidth), "--grid-");
+    assert.deepEqual(
+      new Map([
+        ["--grid-columns", Number(css.get("--grid-columns"))],
+        ["--grid-margin", toPx(css.get("--grid-margin") ?? "")],
+        ["--grid-gap", toPx(css.get("--grid-gap") ?? "")],
+      ]),
+      new Map([
+        ["--grid-columns", grid.columns[mode.name]],
+        ["--grid-margin", grid.margin[mode.name]],
+        ["--grid-gap", grid.gap[mode.name]],
+      ]),
+      mode.name,
+    );
+    assert.equal(css.size, 3, `${mode.name}: unexpected --grid-* variables`);
+  }
+});
+
+test("radii in site-theme.css match Figma layout/shape", () => {
+  const css = new Map(
+    [...themeCss.matchAll(/--radius-([a-z0-9-]+)\s*:\s*([^;]+);/g)].map(([, name, value]) => [
+      name,
+      toPx(value.trim()),
+    ]),
+  );
+  assert.deepEqual(css, new Map(Object.entries(radii)));
+});
+
+const cardGridUtilities = new Map(
+  [...themeCss.matchAll(/@utility (card-grid-[a-z0-9-]+) \{\n([\s\S]*?)\n\}/g)].map(
+    ([, name, block]) => [name, block],
+  ),
+);
+
+test("card grids in site-theme.css match the kitchensink list for every mode", () => {
+  assert.deepEqual(
+    cardGrids.map((cardGrid) => cardGrid.className).sort(),
+    [...cardGridUtilities.keys()].sort(),
+  );
+  for (const cardGrid of cardGrids) {
+    const block = cardGridUtilities.get(cardGrid.className) ?? "";
+    for (const mode of modes) {
+      const columns = resolveForWidth(block, mode.minWidth).get("grid-template-columns");
+      assert.equal(
+        columns,
+        `repeat(${cardGrid.perRow[mode.name]}, minmax(0, 1fr))`,
+        `${cardGrid.className} ${mode.name}`,
+      );
+    }
   }
 });
 

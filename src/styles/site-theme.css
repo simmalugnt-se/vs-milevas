@@ -55,8 +55,21 @@
   --breakpoint-desktop-l: 90rem;
 }
 
-/** Figma `layout/sizes/*`, one value per variable mode, mobile first. */
+/** Figma `shape/radius-*`: `rounded-sm` and `rounded-lg` (Tailwind's defaults are 4 and 8px). */
+@theme {
+  --radius-sm: 0.5rem;
+  --radius-lg: 1rem;
+}
+
+/**
+ * Figma `layout/sizes/*` and `layout/grid/*`, one value per variable mode, mobile first.
+ * `grid/margin` and `grid/gap` are 8px in every mode; `grid/columns` is 6 below Desktop S.
+ */
 :root {
+  --grid-columns: 6;
+  --grid-margin: 0.5rem;
+  --grid-gap: 0.5rem;
+
   --sizes-4xl: 4rem;
   --sizes-3xl: 3rem;
   --sizes-2xl: 2rem;
@@ -79,6 +92,7 @@
   }
 
   @variant desktop-s {
+    --grid-columns: 12;
     --sizes-4xl: 6rem;
     --sizes-3xl: 5rem;
     --sizes-2xl: 4rem;
@@ -175,6 +189,57 @@
   font-weight: 800;
   line-height: 1;
   text-transform: uppercase;
+}
+
+/** The page grid (Figma "Grid"): `--grid-columns` columns, `grid/gap` between, `grid/margin` at the sides. */
+@utility grid-layout {
+  display: grid;
+  grid-template-columns: repeat(var(--grid-columns), minmax(0, 1fr));
+  gap: var(--grid-gap);
+  padding-inline: var(--grid-margin);
+}
+
+/**
+ * Card grids (Figma "Card grid", 4/3/2 columns). On Desktop the cards span 3, 4 or 6 of the 12 grid
+ * columns, which equals 4, 3 or 2 equal columns with the same gap. Below Desktop S Figma has no frame:
+ * 2 per row on Tablet and 1 on Mobile, as decided on 2026-10-02.
+ */
+@utility card-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: var(--grid-gap);
+
+  @variant tablet {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @variant desktop-s {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@utility card-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: var(--grid-gap);
+
+  @variant tablet {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @variant desktop-s {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@utility card-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: var(--grid-gap);
+
+  @variant tablet {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 /** Dark at the bottom, transparent at the top (Figma "Gradient"). */
