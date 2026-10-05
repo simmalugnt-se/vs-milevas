@@ -6,7 +6,8 @@ import type { ButtonHTMLAttributes, ReactNode } from "react";
  * `ui-brand` when selected. Text S uses Text XS, text M uses Text M; both grey (`ui-tertiary`) until
  * selected (`ui-secondary`). With an image the gaps shrink from `spacing/md` to `spacing/2xs`.
  * Figma has no hover or disabled state; disabled (an option that needs another choice first) is
- * dimmed to half opacity.
+ * dimmed to half opacity. When the title and price do not fit side by side, the price moves to a
+ * line under the title, and a word longer than the choice is hyphenated or broken.
  */
 
 type ChoiceProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, "title"> & {
@@ -41,8 +42,10 @@ export function Choice({
       } ${borderRight ? "border-r" : ""} ${selected ? "bg-ui-brand" : ""} ${className ?? ""}`}
       {...props}
     >
-      <span className="flex w-full items-start justify-between gap-(--spacing-xs)">
-        <span className="min-w-0 flex-1 text-text-l text-ui-primary">{title}</span>
+      <span className="flex w-full flex-wrap items-start justify-between gap-x-(--spacing-xs) gap-y-(--spacing-3xs)">
+        <span className="min-w-0 grow hyphens-auto text-text-l text-ui-primary [overflow-wrap:break-word]">
+          {title}
+        </span>
         {price ? (
           <span className="shrink-0 whitespace-nowrap text-label-s text-ui-secondary">{price}</span>
         ) : null}
