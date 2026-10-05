@@ -1,10 +1,15 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 import { Footer, type FooterLink } from "@/components/blocks/footer";
 import { Navigation, type NavigationLink } from "@/components/blocks/navigation";
+import { ProductGrid } from "@/components/blocks/product-grid";
+import type { ProductCardProps } from "@/components/ui/product-card";
 import { Link } from "@/i18n/navigation";
 import { getAppEnv } from "@/utilities/environment";
+import truckCounterbalance from "../assets/truck-counterbalance.png";
+import truckPallet from "../assets/truck-pallet.png";
 
 /**
  * Blocks from Figma "04 — Blocks" as components with placeholder content, before they become
@@ -28,6 +33,33 @@ const footerLinks: FooterLink[] = [
   { label: "Finansiering", href: "/kitchensink/blocks#footer-finansiering" },
   { label: "Kontakt", href: "/kitchensink/blocks#footer-kontakt" },
 ];
+
+/** The six truck types in Figma's product-grid; two placeholder images take turns. */
+const products: ProductCardProps[] = [
+  { name: "Elektriska motviktstruckar", specs: ["1.5 – 3.5 ton", "80 V 228 Ah"] },
+  { name: "Skjutstativtruckar", specs: ["1.4 – 2.0 ton", "80 V 228 Ah"] },
+  { name: "Låglyftare", specs: ["1.5 – 2.5 ton", "80 V 228 Ah"] },
+  { name: "Ledstaplare", specs: ["1.2 – 2.0 ton", "80 V 228 Ah"] },
+  { name: "Elektriska pallyftare", specs: ["1.4 – 2.0 ton", "80 V 228 Ah"] },
+  { name: "Plocktruckar", specs: ["1.4 – 2.0 ton", "80 V 228 Ah"] },
+].map(({ name, specs }, index) => ({
+  href: `/kitchensink/blocks#product-grid-${index + 1}`,
+  brand: "Baoli",
+  category: "Modeller",
+  name,
+  specs,
+  price: "169 000 kr",
+  leasing: "3 326 kr",
+  image: (
+    <Image
+      src={index % 2 === 0 ? truckCounterbalance : truckPallet}
+      alt=""
+      fill
+      sizes="(width >= 64rem) 33vw, (width >= 48rem) 50vw, 90vw"
+      className="object-contain"
+    />
+  ),
+}));
 
 /** One block: a label on the page's grid margin, then the block across the full width. */
 function Block({
@@ -82,6 +114,11 @@ export default function KitchensinkBlocksPage() {
       {/* The mobile menu follows the viewport, not this box: try it at phone width. */}
       <Block id="navigation" title="Navigation" figma="8309:4506">
         <Navigation links={navigationLinks} cta={navigationCta} />
+      </Block>
+
+      {/* Hover a card for the Desktop look; below Desktop S the arrow and prices always show. */}
+      <Block id="product-grid" title="Product-Grid" figma="8365:8988">
+        <ProductGrid products={products} label="Modeller" />
       </Block>
 
       <Block id="footer" title="Footer" figma="6076:622">

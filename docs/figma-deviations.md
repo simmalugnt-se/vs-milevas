@@ -42,6 +42,7 @@ på kitchensink-sidan (`/kitchensink`) ska också stå här.
 | Choice med bild | Fast höjd 262px | Bilden tar två tredjedelar av bredden | Fungerar i alla bredder; ungefär samma proportion | Antagande |
 | Choice, fokus | Inget hover- eller fokusläge | Webbläsarens fokusram | Inget ritat | Antagande |
 | product-card "tablet" | Läget visar pil och priser utan hover | Under Desktop S syns pil och priser alltid; från Desktop S vid hover | "tablet" läses som "ingen hover"; markerat på kitchensink | Beslut (2026-10-02) |
+| product-card, höjd | 430 × 507 i komponenten; 507px hög i varje instans i product-grid, oavsett bredd | Fast höjd 507px, bredden från behållaren (tidigare proportionen 430:507) | Figma håller höjden, inte proportionen | Beslut (2026-10-05) |
 | card, färger | Text `#f5f5f5`, gradient `rgba(0,0,0,.4)` → `.2`; inga variabler | Text `ui-inv-primary` (`#f0f0f0`), gradient svart 40 % → 20 % | Närmaste token | Antagande |
 | configurator-box, version | Frame 9 (nyare, `Text size=S/M`) och frame 6 (urblekt) | Frame 9; price-box från frame 6, där den enda finns | Frame 6 är den gamla versionen | Beslut (2026-10-02) |
 | configurator-box, variant | `choises=2, image=true, Variant=Grid` finns bara i frame 6 | Utelämnad | Saknas i frame 9; borttagen eller bortglömd | Beslut (2026-10-02) |
@@ -70,6 +71,9 @@ på kitchensink-sidan (`/kitchensink`) ska också stå här.
 | Announcement bar | Finns inte i Figma | Boilerplatens fält är kvar och visas, när det är påslaget, ovanför navigationen i `bg-inv-fill` | Valfritt för redaktörerna; utseendet är vårt eget | Antagande |
 | Footer, globe | Ikonen utan förklaring | Byter till samma sida på det andra språket (sv ↔ en); tillgängligt namn "In English" eller "På svenska" | Plats för språkbytet utan att ändra navigationen | Beslut (2026-10-05) |
 | Footer, data | Länkar och mail-ikonen | Footer-globalens `navItems` och det nya fältet `email` (`mailto:`); `copyright` finns kvar men visas inte | Figmas footer har ingen copyright-rad | Beslut (2026-10-05) |
+| Product-Grid, mobil | En "product-slider" med alla sex kort; kortet är 339px, ur sliderns fasta bredd | Horisontell slider med snap; kortet är bredden minus `spacing/md` (335px vid 375) | Närmaste token; nästa kort syns vid kanten som i Figma | Antagande |
+| Product-Grid, mobilkortet | Det första kortet är gult med pil och priser (hover), de andra i Default utan priser | Alla kort i product-cards "tablet"-läge: grå, med pil och priser | Samma regel som under Desktop S i övrigt; frågan står i blocks-backlog.md | Antagande |
+| Product-Grid, namn | "Elektriska Palllyftare" (tre l) | "Elektriska pallyftare" på kitchensink | Stavfel i Figma | Beslut (teknisk) |
 
 ## Frågor till designen
 

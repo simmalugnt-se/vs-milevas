@@ -9,11 +9,12 @@ import { Icon } from "./icon";
  * Figma has three states. Default: `bg-fill`, name and specs. Hover: `bg-surface`, plus the
  * `halfup` arrow and the prices. Tablet: Default's colours with the arrow and prices always shown.
  * We read "tablet" as "no hover": below Desktop S the arrow and prices are always there, from
- * Desktop S they appear on hover. The image shrinks to make room, as in Figma (fixed 430:507 card).
+ * Desktop S they appear on hover. The card is 507px high at every width, as in Figma (the component
+ * and every instance in product-grid); the image shrinks to make room.
  * Pass `data-state="hover"` to show the hover look without a pointer.
  */
 
-type ProductCardProps = Omit<ComponentProps<typeof Link>, "children"> & {
+export type ProductCardProps = Omit<ComponentProps<typeof Link>, "children"> & {
   /** Grey label, top left (Figma: "Baoli"). */
   brand: ReactNode;
   /** Dark label next to it (Figma: "Modeller"). */
@@ -51,7 +52,7 @@ export function ProductCard({
 }: ProductCardProps) {
   return (
     <Link
-      className={`group/card flex aspect-[430/507] flex-col rounded-lg bg-bg-fill p-(--spacing-sm) transition-colors hover:bg-bg-surface data-[state=hover]:bg-bg-surface ${className ?? ""}`}
+      className={`group/card flex h-[507px] flex-col rounded-lg bg-bg-fill p-(--spacing-sm) transition-colors hover:bg-bg-surface data-[state=hover]:bg-bg-surface ${className ?? ""}`}
       {...props}
     >
       <span className="flex w-full items-start justify-between">

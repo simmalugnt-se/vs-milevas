@@ -9,7 +9,7 @@ omgångar: "01 — Foundations" och "02 — Components" är klara, och "04 — B
 |---|---|
 | Tokens (färger, textstilar, brytpunkter, storlekar, spacing, grid, radier) | `src/styles/site-theme.css` |
 | Komponenter (Icon, Arrow, Logo, Button, Choice, ProductCard, Card, ConfiguratorBox, PriceBox, TextBox, TruckColumn) | `src/components/ui/` |
-| Block som komponenter (Navigation, Footer) | `src/components/blocks/`; Navigation och Footer matas av Header- och Footer-globalerna i `src/payload/globals/*/Component.tsx` |
+| Block som komponenter (Navigation, Footer, Product-Grid) | `src/components/blocks/`; Navigation och Footer matas av Header- och Footer-globalerna i `src/payload/globals/*/Component.tsx` |
 | Referenssidor, noindex och 404 i produktion | `/kitchensink` (foundations och komponenter, en sektion per komponent med Figma-id och props), `/kitchensink/blocks` |
 | Listorna kitchensink visar, som testet jämför med CSS:en | `src/app/(frontend)/[locale]/kitchensink/*.ts` |
 | Test för tokens | `tests/design-tokens.test.mts` |
@@ -66,8 +66,9 @@ Figma, och säg vilket nummer i backloggen det är.
 
 ## Nästa steg
 
-1. **Block 3, Product-Grid** (`8365:8988`), sedan resten i ordningen i
-   [`blocks-backlog.md`](./blocks-backlog.md).
+1. **Block 4, Text+Grid** (`8389:4705`), sedan Text & boxinfo och Configurator i
+   [`blocks-backlog.md`](./blocks-backlog.md). Hero, Grid och Image & Text väntar på designen, och
+   text-box och truck-column är utkast tills ramen "blabla" är klar.
 2. **Väntar på designen eller på dig:**
    - woff2-filerna för Clash Grotesk Variable (`TODO(clash-grotesk)`)
    - värdena i Figmas `motion`-samling (`TODO(motion)`)

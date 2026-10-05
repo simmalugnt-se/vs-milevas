@@ -94,31 +94,43 @@ function Group({ id, children }: { id: GroupId; children: React.ReactNode }) {
 
 /**
  * One token group or component. `figma` is the node it is built from and `api` the component's
- * props, both shown under the title.
+ * props, both shown under the title. `draft` marks a component whose Figma frame is not finished.
  */
 function Section({
   id,
   figma,
   api,
   description,
+  draft,
   children,
 }: {
   id: SectionId;
   figma?: string;
   api?: string;
   description?: React.ReactNode;
+  /** Why the component is a draft; shown as a notice under the title. */
+  draft?: string;
   children: React.ReactNode;
 }) {
   return (
     <section aria-labelledby={id} className="scroll-mt-8 space-y-6">
       <div className="space-y-2">
-        <h3 id={id} className="text-display-s text-ui-primary">
+        <h3
+          id={id}
+          className="flex flex-wrap items-baseline gap-x-4 text-display-s text-ui-primary"
+        >
           {sectionTitle(id)}
+          {draft ? <span className="text-label-s text-status-warning">Utkast</span> : null}
         </h3>
         {figma || api ? (
           <p className="flex flex-wrap gap-x-4 gap-y-1 font-mono text-xs text-ui-tertiary">
             {figma ? <span>Figma {figma}</span> : null}
             {api ? <code className="text-ui-secondary">{api}</code> : null}
+          </p>
+        ) : null}
+        {draft ? (
+          <p className="max-w-prose border-l-4 border-status-warning bg-bg-fill px-4 py-3 text-sm text-ui-primary">
+            {draft}
           </p>
         ) : null}
         {description ? (
@@ -258,6 +270,9 @@ const priceRows = [
   { label: "Leasing (48 mån)", value: "3 261 kr/mån" },
   { label: "Långtidshyra (48 mån)", value: "3 261 kr/mån" },
 ];
+
+const draftBlabla =
+  'Figma-ramen "blabla" på "02 — Components" är inte klar, så komponenten kan ändras.';
 
 const widest = modes[0].maxWidth;
 
@@ -886,7 +901,12 @@ export default function KitchensinkPage() {
           </div>
         </Section>
 
-        <Section id="text-box" figma="8502:6114" api="<TextBox heading label text border?>">
+        <Section
+          id="text-box"
+          figma="8502:6114"
+          api="<TextBox heading label text border?>"
+          draft={draftBlabla}
+        >
           <div className="grid gap-6 tablet:grid-cols-2">
             <Example label="Med linje (standard)">
               <TextBox heading="Heading" label="Label" text="Text" />
@@ -900,12 +920,13 @@ export default function KitchensinkPage() {
         <Section
           id="truck-column"
           figma="8539:7382"
+          draft={draftBlabla}
           api="<TruckColumn href heading rows>"
           description={
             <>
               Kolumner över en bild. Från Desktop S syns innehållet vid hover eller fokus; under
               Desktop S är alla kolumner aktiva, eftersom Figma saknar beteende utan hover (eget
-              beslut, som product-card). Hero-blocket (backlog 7) bygger på dem.
+              beslut, som product-card). Hero-blocket (backlog 7, väntar på designen) bygger på dem.
             </>
           }
         >
