@@ -78,11 +78,16 @@ på kitchensink-sidan (`/kitchensink`) ska också stå här.
 | Text+Grid, pilens storlek | 64px (Desktop), 48px (Tablet), 32px (Mobile); ingen variabel | Samma storlekar per läge | Inget att ta från tokens | Beslut (teknisk) |
 | Text+Grid, höjder | Panelen 800px hög (Desktop), blocket 1000px (Tablet), korten 405px (Desktop) och 840px tillsammans (Mobile) | Inga fasta höjder: panelen är så hög som innehållet, korten har Figmas proportion per läge (327:275, 752:242, 1:1, 459:405), och avståndet under rubriken är `spacing/4xl` på Desktop, `spacing/lg` under | Samma mått som Figma vid 375, 800 och 1440; vid 1280 blir panelen 757px i stället för 800 | Beslut (2026-10-05) |
 | Text+Grid, korten | Tre instanser med olika toning: komponentens gradient, svart 20 % och ingen | Alla med `card`s gradient | Ser ut som rester; komponenten gäller | Antagande |
+| Text & boxinfo, höjd | Desktop-ramarna är 800px höga, med texten upptill och boxen nedtill | Ingen fast höjd: boxen ligger minst `spacing/4xl` lägre än texten och slutar i jämnhöjd med den eller längre ned | Inga fasta höjder; Figmas luft mellan text och box blir mindre (blocket 631px vid 1440) | Antagande |
+| Text & boxinfo, färger | Rubrikens andra del `#e0ff3c` och brödtexten `#f5f5f5`, utan variabler | `ui-brand` och `ui-inv-primary` | Närmaste token, som för card | Antagande |
+| Text & boxinfo, text-box | Använder text-box från ramen "blabla", som inte är klar | `TextBox` som den är | Blocket är färdigritat; ändras text-box ändras blocket med den | Antagande |
 
 ## Frågor till designen
 
 Ingen avvikelse i koden, men värt att rätta eller förklara i Figma:
 
+- Text & boxinfo på Tablet och Mobile: "390kr/mån" i rubriken har storleken 96px, resten 64 och
+  48px. Det syns inte i skärmdumpen; koden använder rubrikens storlek för hela raden.
 - `arrow-up&forward` är en rak högerpil, och den svängda pilen heter `arrow-halfup`. Koden följer
   Figmas namn.
 - Link (`8309:3919`) har hover-texten `black`, inte en färgvariabel. Koden följer Figma.

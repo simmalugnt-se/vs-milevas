@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import { Footer, type FooterLink } from "@/components/blocks/footer";
 import { Navigation, type NavigationLink } from "@/components/blocks/navigation";
 import { ProductGrid } from "@/components/blocks/product-grid";
+import { TextBoxinfo } from "@/components/blocks/text-boxinfo";
 import { TextGrid, type TextGridCard } from "@/components/blocks/text-grid";
 import type { ProductCardProps } from "@/components/ui/product-card";
 import { Link } from "@/i18n/navigation";
@@ -143,6 +144,32 @@ export default function KitchensinkBlocksPage() {
 
       <Block id="text-grid" title="Text+Grid" figma="8389:4705">
         <TextGrid heading={"Så enkelt\nfungerar det"} cards={textGridCards} />
+      </Block>
+
+      <Block id="text-boxinfo" title="Text & boxinfo" figma="8389:8524">
+        <TextBoxinfo
+          heading="Truck från 390 kr/mån"
+          highlight="Easy peasy lemon squeezy."
+          text="Vi erbjuder enkel finansiering så du kan fokusera på verksamheten."
+          items={[
+            {
+              heading: "Leasing",
+              label: "Fast kostnad",
+              text: "Förmånliga leasingavtal med fasta månadskostnader.",
+            },
+            {
+              heading: "Insats",
+              label: "0 kr",
+              text: "Kom igång utan stora initiala investeringar.",
+            },
+            {
+              heading: "Besked",
+              label: "-24h",
+              text: "Enkel ansökningsprocess med svar inom 24h.",
+            },
+          ]}
+          cta={{ label: "Läs mer", href: "/kitchensink/blocks#text-boxinfo" }}
+        />
       </Block>
 
       <Block id="footer" title="Footer" figma="6076:622">
