@@ -47,7 +47,7 @@ export async function FooterComponent({ draft = false, locale }: FooterComponent
           : undefined
       }
       languageLabel={t("otherLanguage")}
-      attributes={mark(editableGlobal("footer"))}
+      attributes={{ "data-layout-block": "footer", ...mark(editableGlobal("footer")) }}
     />
   );
 }

@@ -29,17 +29,15 @@ export function RenderBlocks({
           return null;
         }
 
-        const key = block.id || `${block.blockType}-${index}`;
-
-        if (editable) {
-          return (
-            <div key={key} {...editableBlock(block)}>
-              <BlockComponent block={block} />
-            </div>
-          );
-        }
-
-        return <BlockComponent block={block} key={key} />;
+        return (
+          <div
+            data-layout-block={block.blockType}
+            key={block.id || `${block.blockType}-${index}`}
+            {...(editable ? editableBlock(block) : {})}
+          >
+            <BlockComponent block={block} />
+          </div>
+        );
       })}
     </div>
   );

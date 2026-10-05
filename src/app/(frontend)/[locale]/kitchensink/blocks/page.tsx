@@ -139,7 +139,9 @@ function Block({
         <span className="text-ui-tertiary">Figma {figma}</span>
       </h2>
       {/* The layout pads <main> with the grid margin; blocks bring their own, so cancel it. */}
-      <div className="-mx-(--grid-margin) bg-bg-fill">{children}</div>
+      <div data-layout-block={id} className="-mx-(--grid-margin) bg-bg-fill">
+        {children}
+      </div>
     </section>
   );
 }

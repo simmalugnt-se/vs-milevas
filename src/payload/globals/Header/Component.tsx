@@ -45,7 +45,7 @@ export async function HeaderComponent({ draft = false, locale }: HeaderComponent
   });
 
   return (
-    <header {...mark(editableGlobal("header"))}>
+    <header data-layout-block="header" {...mark(editableGlobal("header"))}>
       {header.showAnnouncement && header.announcement ? (
         <div className="bg-bg-inv-fill text-text-s text-ui-inv-primary">
           <div className="flex w-full flex-wrap items-center gap-x-4 gap-y-1 px-(--grid-margin) py-2">

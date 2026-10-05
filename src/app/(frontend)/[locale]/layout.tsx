@@ -4,6 +4,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import type { TypedLocale } from "payload";
 import { AdminBarSlot } from "@/components/admin-bar/slot";
+import { GridOverlay } from "@/components/grid-overlay";
 import { routing } from "@/i18n/routing";
 import { getRobotsMetadata } from "@/lib/seo/indexing";
 import { getSiteUrl } from "@/lib/site";
@@ -88,6 +89,7 @@ export default async function LocaleLayout({
             </main>
             <SiteFooter locale={locale} />
           </div>
+          <GridOverlay />
         </NextIntlClientProvider>
       </body>
     </html>

@@ -56,6 +56,10 @@ Figma, och säg vilket nummer i backloggen det är.
 - **Brytpunkter:** `tablet:`, `desktop-s:` och `desktop-l:`. Mobile är utan prefix. Tailwinds
   `sm`–`2xl` är kvar för boilerplate-blocken.
 - **En ny token** i `site-theme.css` ska också in i kitchensinks lista, annars fallerar testet.
+- **Gridet över sidan:** Ctrl+Shift+G visar sidans grid (`GridOverlay`, bara i utveckling), med
+  samma `grid-layout` som blocken: 12 kolumner från Desktop S och 6 under, och en streckad kontur runt
+  varje block (`data-layout-block`, satt i `RenderBlocks`, på header, footer och kitchensinks block).
+  Valet sparas i webbläsaren.
 - **Synlighet på `ButtonLink`/`Button`:** `hidden` förlorar mot komponentens `inline-flex`. Lägg
   synligheten på ett omslutande element.
 - **Hover och aktivt läge på kitchensink** visas med `data-state="hover"` eller
