@@ -2,11 +2,15 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
+import { ConfiguratorScreen } from "@/components/blocks/configurator-screen";
 import { Footer, type FooterLink } from "@/components/blocks/footer";
 import { Navigation, type NavigationLink } from "@/components/blocks/navigation";
 import { ProductGrid } from "@/components/blocks/product-grid";
 import { TextBoxinfo } from "@/components/blocks/text-boxinfo";
 import { TextGrid, type TextGridCard } from "@/components/blocks/text-grid";
+import { Button } from "@/components/ui/button";
+import { Choice } from "@/components/ui/choice";
+import { ConfiguratorBox, choiceLayout } from "@/components/ui/configurator-box";
 import type { ProductCardProps } from "@/components/ui/product-card";
 import { Link } from "@/i18n/navigation";
 import { getAppEnv } from "@/utilities/environment";
@@ -81,6 +85,40 @@ const textGridCards: TextGridCard[] = ["Bygg din truck", "Få offert", "Leverans
     ),
   }),
 );
+
+/** The configurator's two steps in Figma: lift capacity (six, in a grid) and battery (two, stacked). */
+const configuratorSteps = [
+  {
+    number: "01",
+    label: "Lyftkapacitet",
+    choices: [
+      ["1.5 ton", "Från 169 tkr", "KBE 15 Li G1"],
+      ["1.8 ton", "Från 184 tkr", "KBE 18 Li G1"],
+      ["2.0 ton", "Från 196 tkr", "KBE 20 Li G1"],
+      ["2.5 ton", "Från 211 tkr", "KBE 25 Li G1"],
+      ["3.0 ton", "Från 246 tkr", "KBE 30 Li G1"],
+      ["3.5 ton", "Från 276 tkr", "KBE 35 Li G1"],
+    ],
+  },
+  {
+    number: "02",
+    label: "Batteri",
+    choices: [
+      ["Standard", "Ingår", "150 Ah — räcker gott för normal drift, upp till ett skift per dag."],
+      [
+        "Stort batteri",
+        "+8 000 kr",
+        "228 Ah — längre räckvidd utan laddning. Perfekt om ni kör flera skift eller vill undvika mellanladdning.",
+      ],
+    ],
+    help: (
+      <>
+        Behöver du hjälp med andra batterier?{" "}
+        <span className="text-ui-primary underline">Kontakta oss</span> så löser vi det.
+      </>
+    ),
+  },
+] as const;
 
 /** One block: a label on the page's grid margin, then the block across the full width. */
 function Block({
@@ -171,6 +209,67 @@ export default function KitchensinkBlocksPage() {
           cta={{ label: "Läs mer", href: "/kitchensink/blocks#text-boxinfo" }}
         />
       </Block>
+
+      {configuratorSteps.map((step, index) => (
+        <Block
+          key={step.number}
+          id={`configurator-${step.number}`}
+          title={`Configurator, steg ${step.number}`}
+          figma="8721:16450"
+        >
+          <ConfiguratorScreen
+            total="Totalt: 173 900 kr"
+            prices={[
+              { label: "Leasing (48 mån)", value: "3 261 kr/mån" },
+              { label: "Långtidshyra (48 mån)", value: "3 261 kr/mån" },
+            ]}
+            image={
+              <Image
+                src={truckCounterbalance}
+                alt="Elektrisk motviktstruck"
+                fill
+                sizes="(width >= 64rem) 66vw, 100vw"
+                className="object-contain"
+              />
+            }
+            step={
+              <ConfiguratorBox
+                number={step.number}
+                label={step.label}
+                {...choiceLayout(step.choices.map(([, price]) => price))}
+              >
+                {step.choices.map(([title, price, text], choice) => (
+                  <Choice
+                    key={title}
+                    title={title}
+                    price={price}
+                    text={text}
+                    textSize={step.choices.length > 2 ? "m" : "s"}
+                    selected={choice === 1}
+                  />
+                ))}
+              </ConfiguratorBox>
+            }
+            help={"help" in step ? step.help : undefined}
+            actions={
+              <>
+                {index > 0 ? (
+                  <Button color="gray" size="m" iconLeft="arrow-left" iconRight={null}>
+                    Föregående
+                  </Button>
+                ) : null}
+                <Button size="m">Nästa</Button>
+              </>
+            }
+            contactText="Har du frågor eller önskar något annat av din konfiguration?"
+            contact={
+              <Button color="tejp" size="m" iconRight="phone" className="w-full">
+                Boka samtal
+              </Button>
+            }
+          />
+        </Block>
+      ))}
 
       <Block id="footer" title="Footer" figma="6076:622">
         <Footer

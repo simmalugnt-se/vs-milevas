@@ -1,7 +1,8 @@
 import type { ReactNode, SVGProps } from "react";
 
 /**
- * Icons from Figma "02 — Components" → "Icons" (node 6075:2501), 16px except the 12px arrow-*.
+ * Icons from Figma "02 — Components" → "Icons" (node 6075:2501), 16px except the 12px arrow-*, plus
+ * the 12px `phone` from the configurator's "Boka samtal" button, which "Icons" lacks.
  * Generated with `scripts/figma-svgs/to-tsx.mjs` (#121212 becomes currentColor): colour them with `text-*`,
  * size them with `size-*`. `icon-sound-off` appears twice in Figma with the same SVG.
  */
@@ -295,6 +296,19 @@ const icons = {
           fill="currentColor"
           stroke="currentColor"
           strokeWidth="0.5"
+        />
+      </>
+    ),
+  },
+  phone: {
+    viewBox: "0 0 12 12",
+    body: (
+      <>
+        <path
+          d="M7.70578 6.81281C7.75772 6.77826 7.81745 6.7572 7.87957 6.75155C7.9417 6.7459 8.00425 6.75584 8.06156 6.78047L10.2722 7.77094C10.3467 7.80278 10.4089 7.85789 10.4494 7.92803C10.49 7.99816 10.5067 8.07955 10.4972 8.16C10.4244 8.70424 10.1564 9.20351 9.743 9.56496C9.32965 9.9264 8.79909 10.1254 8.25 10.125C6.55925 10.125 4.93774 9.45335 3.74219 8.25781C2.54665 7.06226 1.875 5.44076 1.875 3.75C1.87458 3.20091 2.0736 2.67035 2.43504 2.257C2.79649 1.84365 3.29576 1.57564 3.84 1.50281C3.92045 1.49325 4.00184 1.51001 4.07197 1.55057C4.14211 1.59113 4.19722 1.65331 4.22906 1.72781L5.21953 3.94031C5.24387 3.99714 5.25378 4.0591 5.24838 4.12068C5.24298 4.18226 5.22244 4.24156 5.18859 4.29328L4.18688 5.48438C4.15134 5.53799 4.13033 5.59991 4.12589 5.66408C4.12146 5.72825 4.13375 5.79247 4.16156 5.85047C4.54922 6.64406 5.36953 7.45453 6.16547 7.83844C6.22377 7.86613 6.28829 7.87815 6.35265 7.8733C6.41702 7.86845 6.47901 7.8469 6.5325 7.81078L7.70578 6.81281Z"
+          stroke="currentColor"
+          strokeLinecap="round"
+          strokeLinejoin="round"
         />
       </>
     ),

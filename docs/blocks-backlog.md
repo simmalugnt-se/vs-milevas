@@ -33,7 +33,7 @@ Genomgånget i Figma 2026-10-05: bara blocken i den första tabellen har innehå
 | 3 | Product-Grid ✓ komponent | `8365:8988` | Product-cards, 3 per rad på desktop, 2 på Tablet, en slider på Mobile | ProductCard | Nytt block, data från `TruckFamilies` | M |
 | 4 | Text+Grid ✓ komponent | `8389:4705` | Rubrik med pil ("Så enkelt fungerar det") och cards i en ljus panel | Arrow, Card, card grid | Nytt block, eller Cards med nytt utseende | M |
 | 5 | Text & boxinfo ✓ komponent | `8389:8524` | Mörk sektion: Display-rubrik i två färger, brödtext, en box med tre rader (rubrik, text, etikett) och en tejp-knapp | Choice-liknande rader, Button | Nytt block | M |
-| 6 | Configurator | `8721:16450` | Totalpris, configurator-box med "Nästa", truckbild, "Boka samtal" | ConfiguratorBox, Button | Configurator-blocket (finns) | L |
+| 6 | Configurator ✓ skärm (fas 1) | `8721:16450` | Totalpris, configurator-box med "Nästa", truckbild, "Boka samtal" | ConfiguratorBox, Button | Configurator-blocket (finns) | L |
 
 ### Väntar på designen
 
@@ -56,13 +56,14 @@ de finns på kitchensink men ändras när ramen är klar.
 - **Hero, antal kolumner.** Desktop L har fem kolumner, kitchensinks exempel fyra. Ett per
   trucktyp i `TruckFamilies`?
 - **Ramen "blabla"** (text-box, truck-column): när är den klar, och vad ska den heta?
-- **Configurator, två versioner.** Frame 15 (`8721:16448`, nyare) och frame 12 (`8389:6542`,
-  urblekt), samma mönster som på "02 — Components". Frame 15 visar "Totalt: $$$ kr" i stället för
-  price-box. Om 15 gäller används inte price-box (byggd från frame 6) längre.
-- **Två varianter per Configurator.** Båda frames har åtta varianter (`Device`, `Device5`–`Device8`):
-  troligen två steg eller lägen per enhet. Kontrollera innan bygget.
-- **Ikon som saknas.** "Boka samtal" har en telefonikon som inte finns bland ikonerna på
-  "02 — Components".
+- **Configurator** (besvarat 2026-10-05): ram 15 gäller och price-box utgår; den nedre raden är ett
+  annat steg; telefonikonen är tillagd. Kvar till fas 2: skärmarna som inte är ritade (val av
+  truckfamilj, finansiering, offert- och samtalsformulären). Beslutat: blockets `heading` och
+  `intro` tas bort, en bild per familj räcker, en valfri hjälptext per steg i `TruckFamilies`, och
+  "Boka samtal" öppnar samtalsformuläret.
+- **Configurator, bilden (kolla igen).** Figma beskär och förstorar trucken olika i varje läge, och
+  i mobilskisserna ligger steget över bildens nederkant. Tills vidare får trucken alltid plats med
+  marginal och bara kontaktrutan ligger över den (beslut 2026-10-05). Stäm av med designen.
 - **Image & Text.** Skärmdumpen av Desktop L är en grå yta: platshållare eller en bild som inte
   exporteras?
 - **Variantnamn.** Flera varianter heter `Device4`–`Device8` och `Variant2` i stället för Mobile och

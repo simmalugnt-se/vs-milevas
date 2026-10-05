@@ -92,6 +92,12 @@ export const colorGroups: ColorGroup[] = [
         className: "bg-bg-active",
         value: "#ffffff",
       },
+      {
+        name: "BG Fill Secondary",
+        token: "--color-bg-fill-secondary",
+        className: "bg-bg-fill-secondary",
+        value: "#d9d9d9",
+      },
     ],
   },
   {

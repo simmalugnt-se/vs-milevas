@@ -81,6 +81,15 @@ på kitchensink-sidan (`/kitchensink`) ska också stå här.
 | Text & boxinfo, höjd | Desktop-ramarna är 800px höga, med texten upptill och boxen nedtill | Ingen fast höjd: boxen ligger minst `spacing/4xl` lägre än texten och slutar i jämnhöjd med den eller längre ned | Inga fasta höjder; Figmas luft mellan text och box blir mindre (blocket 631px vid 1440) | Antagande |
 | Text & boxinfo, färger | Rubrikens andra del `#e0ff3c` och brödtexten `#f5f5f5`, utan variabler | `ui-brand` och `ui-inv-primary` | Närmaste token, som för card | Antagande |
 | Text & boxinfo, text-box | Använder text-box från ramen "blabla", som inte är klar | `TextBox` som den är | Blocket är färdigritat; ändras text-box ändras blocket med den | Antagande |
+| Configurator, version | Ram 15 (`8721:16450`) och den urblekta ram 12 (`8389:6544`) | Ram 15; price-box används inte längre i konfiguratorn | Ram 12 är den gamla designen | Beslut (2026-10-05) |
+| Configurator, nedre raden | Ram 15:s Device5–8 visar ett steg med två staplade val och en hjälptext | Samma skärm i ett annat steg, inte ett eget läge | Innehållet skiljer sig, inte layouten | Beslut (2026-10-05) |
+| Configurator, Föregående | Inte i ram 15; ett exempel ("bababa") har en grå "Föregående" bredvid "Nästa", lika breda | `Button color="gray"` med pil vänster, från andra steget; första steget har bara "Nästa" | Följer exemplet | Beslut (2026-10-05) |
+| Configurator, stegindikator | Bara `[02]` i rutan | Ingen annan indikator | Användarens beslut | Beslut (2026-10-05) |
+| Configurator, proportioner | Ramarna 800px (Desktop), 1000px (Tablet), 800px (Mobile) | Truckytan har Figmas proportion (893:704, 787:704) på Desktop och ungefär 704:480 och 359:340 under, uppmätta i skärmdumparna; skärmen är så hög som den och steget | Inga fasta höjder | Antagande |
+| Configurator, bilden | Trucken beskuren och förstorad, olika per läge; i mobilskisserna ligger rutan över bildens nederkant | Trucken får alltid plats med `spacing/md` marginal i sin yta; bara kontaktrutan ligger över den, totalpriset ovanför och steget under | Oklart i Figma vad som ska gälla; **kolla igen med designen** | Antagande |
+| Configurator, val | Rutnät med textstorlek M (6 val), staplade med S (2 val); på Mobile två per rad även med "FRÅN 169TKR" | Rutnät när en grupp har fler än två val, annars staplade; under Tablet staplade när något pris är längre än "+3500 kr" (`choiceLayout`) | Långa priser tryckte ihop titlarna ("1.5 / ton") i halva bredden | Beslut (2026-10-05) |
+| Configurator, telefonikon | `Phone` (12px) i "Boka samtal", saknas på "Icons" | Ikonen `phone` från samma SVG | Lucka i ikonerna | Beslut (teknisk) |
+| Configurator, bakgrund | `Color/BG/fill-secondary` (`#d9d9d9`), inte på färgframen | Ny token `bg-fill-secondary` | Variabeln gäller | Beslut (2026-10-05) |
 
 ## Frågor till designen
 

@@ -22,6 +22,8 @@
   --color-bg-inv-surface: #0b0b0b;
   /* Color/BG/active: not on the COLOR STYLES frame; the navigation bar. */
   --color-bg-active: #ffffff;
+  /* Color/BG/fill-secondary: not on the COLOR STYLES frame; the configurator's background. */
+  --color-bg-fill-secondary: #d9d9d9;
 
   --color-gradient-inv-start: #12121299;
   --color-gradient-inv-end: #12121200;

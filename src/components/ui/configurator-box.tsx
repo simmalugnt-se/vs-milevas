@@ -16,6 +16,8 @@ type ConfiguratorBoxProps = Omit<HTMLAttributes<HTMLDivElement>, "children"> & {
   /** Step name; also the group's accessible name. */
   label: string;
   layout?: "grid" | "stack";
+  /** Below Tablet; `stack` when two choices per row would be too narrow, e.g. for long prices. */
+  mobileLayout?: "grid" | "stack";
   /** The step's <Choice> elements. */
   children: ReactNode;
 };
@@ -25,10 +27,26 @@ const layoutClasses = {
   stack: "flex flex-col",
 } as const;
 
+/** A grid from Tablet up, stacked below it. */
+const stackOnMobile =
+  "flex flex-col tablet:grid tablet:grid-cols-2 tablet:[&>*:nth-child(odd)]:border-r";
+
+/**
+ * The layout for a step's choices: two per row when there are more than two (Figma's lift
+ * capacity), stacked otherwise (battery, mast). Below Tablet a grid stacks too when a price is
+ * longer than "+3500 kr", which would squeeze the titles in half the width.
+ */
+export function choiceLayout(prices: string[]) {
+  const layout = prices.length > 2 ? "grid" : "stack";
+  const mobileLayout = prices.some((price) => price.length > 8) ? "stack" : layout;
+  return { layout, mobileLayout } as const;
+}
+
 export function ConfiguratorBox({
   number,
   label,
   layout = "grid",
+  mobileLayout = layout,
   children,
   className,
   ...props
@@ -44,7 +62,13 @@ export function ConfiguratorBox({
         <span className="text-ui-tertiary">[{number}]</span>
         <span className="text-ui-primary">{label}</span>
       </p>
-      <div className={`w-full *:border-b-0 ${layoutClasses[layout]}`}>{children}</div>
+      <div
+        className={`w-full *:border-b-0 ${
+          layout === "grid" && mobileLayout === "stack" ? stackOnMobile : layoutClasses[layout]
+        }`}
+      >
+        {children}
+      </div>
     </div>
   );
 }
