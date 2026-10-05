@@ -17,6 +17,8 @@ import { getAppEnv } from "@/utilities/environment";
 import truckCounterbalance from "../assets/truck-counterbalance.png";
 import truckPallet from "../assets/truck-pallet.png";
 import warehouse from "../assets/warehouse.jpg";
+import type { BlockTarget } from "../figma-notes";
+import { FigmaNotes } from "../figma-notes-list";
 
 /**
  * Blocks from Figma "04 — Blocks" as components with placeholder content, before they become
@@ -120,16 +122,21 @@ const configuratorSteps = [
   },
 ] as const;
 
-/** One block: a label on the page's grid margin, then the block across the full width. */
+/**
+ * One block: a label on the page's grid margin, its questions and deviations from `figma-notes.ts`
+ * (`notes`), then the block across the full width.
+ */
 function Block({
   id,
   title,
   figma,
+  notes,
   children,
 }: {
   id: string;
   title: string;
   figma: string;
+  notes?: BlockTarget;
   children: ReactNode;
 }) {
   return (
@@ -138,6 +145,7 @@ function Block({
         <span className="text-ui-primary">{title}</span>
         <span className="text-ui-tertiary">Figma {figma}</span>
       </h2>
+      {notes ? <FigmaNotes target={notes} /> : null}
       {/* The layout pads <main> with the grid margin; blocks bring their own, so cancel it. */}
       <div data-layout-block={id} className="-mx-(--grid-margin) bg-bg-fill">
         {children}
@@ -166,27 +174,31 @@ export default function KitchensinkBlocksPage() {
         <div className="border-l-4 border-status-info bg-bg-fill px-4 py-3 text-sm text-ui-primary">
           <strong>Fortsätta arbetet?</strong> Läs{" "}
           <code className="font-mono text-xs">docs/design-system.md</code> i repot: var allt finns,
-          hur ett block byggs från Figma och vad som är nästa steg. Egna beslut står i{" "}
-          <code className="font-mono text-xs">docs/figma-deviations.md</code>, blocken i{" "}
-          <code className="font-mono text-xs">docs/blocks-backlog.md</code>.
+          hur ett block byggs från Figma och vad som är nästa steg. Blocken står i{" "}
+          <code className="font-mono text-xs">docs/blocks-backlog.md</code>. Frågor och avvikelser
+          står vid varje block, och det som gäller hela sajten överst på{" "}
+          <Link href="/kitchensink" className="underline">
+            Kitchensink
+          </Link>
+          .
         </div>
       </header>
 
       {/* The mobile menu follows the viewport, not this box: try it at phone width. */}
-      <Block id="navigation" title="Navigation" figma="8309:4506">
+      <Block id="navigation" notes="navigation" title="Navigation" figma="8309:4506">
         <Navigation links={navigationLinks} cta={navigationCta} />
       </Block>
 
       {/* Hover a card for the Desktop look; below Desktop S the arrow and prices always show. */}
-      <Block id="product-grid" title="Product-Grid" figma="8365:8988">
+      <Block id="product-grid" notes="product-grid" title="Product-Grid" figma="8365:8988">
         <ProductGrid products={products} label="Modeller" />
       </Block>
 
-      <Block id="text-grid" title="Text+Grid" figma="8389:4705">
+      <Block id="text-grid" notes="text-grid" title="Text+Grid" figma="8389:4705">
         <TextGrid heading={"Så enkelt\nfungerar det"} cards={textGridCards} />
       </Block>
 
-      <Block id="text-boxinfo" title="Text & boxinfo" figma="8389:8524">
+      <Block id="text-boxinfo" notes="text-boxinfo" title="Text & boxinfo" figma="8389:8524">
         <TextBoxinfo
           heading="Truck från 390 kr/mån"
           highlight="Easy peasy lemon squeezy."
@@ -218,6 +230,7 @@ export default function KitchensinkBlocksPage() {
           id={`configurator-${step.number}`}
           title={`Configurator, steg ${step.number}`}
           figma="8721:16450"
+          notes={index === 0 ? "configurator" : undefined}
         >
           <ConfiguratorScreen
             total="Totalt: 173 900 kr"
@@ -273,7 +286,7 @@ export default function KitchensinkBlocksPage() {
         </Block>
       ))}
 
-      <Block id="footer" title="Footer" figma="6076:622">
+      <Block id="footer" notes="footer" title="Footer" figma="6076:622">
         <Footer
           links={footerLinks}
           email={{ address: "hej@example.com", label: "E-post" }}

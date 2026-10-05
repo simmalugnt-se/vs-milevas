@@ -3,7 +3,7 @@
 Från Figma "Milevas — Website", sidan "04 — Blocks" (yttre frame `6075:2761`), genomgången 2026-10-02
 från struktur och skärmdumpar. Varje block har varianter för Desktop L, Desktop S, Tablet och Mobile,
 så beteendet på mindre skärmar är ritat. Hämta designkontexten per variant när blocket byggs.
-Avvikelser från Figma antecknas i [`figma-deviations.md`](./figma-deviations.md).
+Avvikelser från Figma och frågor till designen står i `src/app/(frontend)/[locale]/kitchensink/figma-notes.ts` och visas på kitchensink.
 
 Storlek: **S** (ett par timmar), **M** (en dag), **L** (flera dagar).
 
@@ -50,21 +50,5 @@ de finns på kitchensink men ändras när ramen är klar.
 
 ## Frågor att lösa med designen
 
-- **Product-Grid på mobil.** Mobile (`8389:569`) är en slider där det första kortet är gult med
-  pil och priser och de andra grå utan priser. Ska kortet som syns bli gult, eller är det bara ett
-  exempel på hover? Koden visar alla kort grå med pil och priser, som på Tablet.
-- **Hero, antal kolumner.** Desktop L har fem kolumner, kitchensinks exempel fyra. Ett per
-  trucktyp i `TruckFamilies`?
-- **Ramen "blabla"** (text-box, truck-column): när är den klar, och vad ska den heta?
-- **Configurator** (besvarat 2026-10-05): ram 15 gäller och price-box utgår; den nedre raden är ett
-  annat steg; telefonikonen är tillagd. Fas 2 är gjord: blockets `heading` och `intro`
-  är borttagna, stegen har en valfri hjälptext, "Boka samtal" öppnar samtalsformuläret och skickar
-  konfigurationen som den är. Kvar: offertsidan (`/configurator/quote`) har den gamla stilen, och
-  i Figmas helsidesskisser ligger navigationen över konfiguratorn.
-- **Configurator, bilden (kolla igen).** Figma beskär och förstorar trucken olika i varje läge, och
-  i mobilskisserna ligger steget över bildens nederkant. Tills vidare får trucken alltid plats med
-  marginal och bara kontaktrutan ligger över den (beslut 2026-10-05). Stäm av med designen.
-- **Image & Text.** Skärmdumpen av Desktop L är en grå yta: platshållare eller en bild som inte
-  exporteras?
-- **Variantnamn.** Flera varianter heter `Device4`–`Device8` och `Variant2` i stället för Mobile och
-  Desktop S. Det påverkar inte bygget, men namnen i Figma är otydliga.
+Står vid respektive block på `/kitchensink/blocks`, och de allmänna överst på `/kitchensink`
+(`figma-notes.ts`).

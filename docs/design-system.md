@@ -15,7 +15,7 @@ omgångar: "01 — Foundations" och "02 — Components" är klara, och "04 — B
 | Test för tokens | `tests/design-tokens.test.mts` |
 | Ikoner, pilar och logotyp från Figmas SVG:er | `scripts/figma-svgs/` |
 | Backlog för blocken | [`blocks-backlog.md`](./blocks-backlog.md) |
-| Avvikelser från Figma och egna beslut | [`figma-deviations.md`](./figma-deviations.md) |
+| Avvikelser från Figma, egna beslut och frågor till designen | `src/app/(frontend)/[locale]/kitchensink/figma-notes.ts`; visas vid varje komponent på `/kitchensink` och block på `/kitchensink/blocks`, det som gäller hela sajten överst på `/kitchensink` |
 
 ## Kom igång på en annan dator
 
@@ -37,8 +37,9 @@ Figma, och säg vilket nummer i backloggen det är.
    `figma`, `api` och en `Example` med etikett per variant.
 3. Jämför i webbläsaren mot Figma vid 1440, 1100, 800 och 375 px (Desktop L, Desktop S, Tablet,
    Mobile). Mät höjder och bredder och kontrollera att sidan inte scrollar i sidled.
-4. Skriv in varje avvikelse och varje lucka du fyller i `figma-deviations.md`, och bocka av blocket
-   i `blocks-backlog.md`.
+4. Skriv in varje avvikelse, varje lucka du fyller och varje fråga till designern i `figma-notes.ts`
+   med komponenten eller blocket som `target` (`general` för hela sajten), och bocka av blocket i
+   `blocks-backlog.md`.
 5. `pnpm check`, `pnpm typecheck`, `pnpm lint` och `pnpm test` ska gå igenom. Committa när
    användaren ber om det, och aldrig till `main`.
 
@@ -80,5 +81,4 @@ Figma, och säg vilket nummer i backloggen det är.
 2. **Väntar på designen eller på dig:**
    - woff2-filerna för Clash Grotesk Variable (`TODO(clash-grotesk)`)
    - värdena i Figmas `motion`-samling (`TODO(motion)`)
-   - en genomgång av posterna med status Antagande i `figma-deviations.md`
-   - frågorna till designen i backloggen och i `figma-deviations.md`
+   - en genomgång av posterna med status Antagande och frågorna till designen, på `/kitchensink`

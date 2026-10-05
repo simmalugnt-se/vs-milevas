@@ -19,8 +19,9 @@ a plugin.
   page (`MILEVAS_LANDING_ONLY` in `src/proxy.ts`) and Swedish as the default locale. Everything else
   follows the boilerplate; keep it close so later updates merge cleanly.
 - Design system from Figma "Milevas — Website": start from `docs/design-system.md` (where things
-  are, how a block is built, what is next). Record every deviation from Figma, and every gap in
-  Figma the code fills, in `docs/figma-deviations.md`.
+  are, how a block is built, what is next). Record every deviation from Figma, every gap in Figma
+  the code fills, and every question for the designer in `src/app/(frontend)/[locale]/kitchensink/figma-notes.ts`, tied to the
+  component or block it concerns; /kitchensink shows them there, and general ones at the top.
 - Plugins: visual editing is on. Content health and the editor assistant are installed but commented
   out in `src/payload/plugins/index.ts`; the assistant needs a migration for its tables when it is
   turned on.

@@ -26,6 +26,7 @@ import warehouse from "./assets/warehouse.jpg";
 import { type Mode, modes } from "./breakpoints";
 import { ChoiceDemo } from "./choice-demo";
 import { type ColorToken, colorGroups, gradientStops } from "./colors";
+import { FigmaNotes, GeneralFigmaNotes } from "./figma-notes-list";
 import { cardGrids, fromFigma, grid, radii } from "./grid";
 import { sizes, sizesForMode, type TextStyle, textStyles } from "./typography";
 
@@ -95,6 +96,7 @@ function Group({ id, children }: { id: GroupId; children: React.ReactNode }) {
 /**
  * One token group or component. `figma` is the node it is built from and `api` the component's
  * props, both shown under the title. `draft` marks a component whose Figma frame is not finished.
+ * The section's questions and deviations from `figma-notes.ts` follow.
  */
 function Section({
   id,
@@ -136,6 +138,7 @@ function Section({
         {description ? (
           <div className="max-w-prose text-sm text-ui-secondary">{description}</div>
         ) : null}
+        <FigmaNotes target={id} />
       </div>
       {children}
     </section>
@@ -346,10 +349,10 @@ export default function KitchensinkPage() {
         <div className="border-l-4 border-status-info bg-bg-fill px-4 py-3 text-sm text-ui-primary">
           <strong>Fortsätta arbetet?</strong> Läs{" "}
           <code className="font-mono text-xs">docs/design-system.md</code> i repot: var allt finns,
-          hur ett block byggs från Figma och vad som är nästa steg. Egna beslut står i{" "}
-          <code className="font-mono text-xs">docs/figma-deviations.md</code>, blocken i{" "}
+          hur ett block byggs från Figma och vad som är nästa steg. Blocken står i{" "}
           <code className="font-mono text-xs">docs/blocks-backlog.md</code>.
         </div>
+        <GeneralFigmaNotes sectionTitle={(id) => sectionTitle(id as SectionId)} />
       </header>
 
       <Group id="foundations">
@@ -872,7 +875,7 @@ export default function KitchensinkPage() {
           id="price-box"
           figma="8389:7276"
           api="<PriceBox price rows delivery? action>"
-          description="Från frame 6, den enda som har den. Den nyare Configurator-designen (frame 15) visar ett totalpris i stället; se frågorna i blocks-backlog.md."
+          description="Från frame 6, den enda som har den. Den nyare Configurator-designen (frame 15) visar ett totalpris i stället; se Configurator på /kitchensink/blocks."
         >
           <div className="grid items-start gap-6 tablet:grid-cols-2">
             <Example label="Utan delivery">
