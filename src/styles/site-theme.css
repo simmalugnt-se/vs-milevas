@@ -316,3 +316,19 @@
   background-color: var(--color-white);
   color: var(--color-neutral-950);
 }
+
+/**
+ * Tailwind 4 gives buttons the default cursor; everything that reacts to a click gets the pointer
+ * again, as in Tailwind's upgrade guide. Disabled controls keep the default (Button and Choice set
+ * `not-allowed` themselves).
+ */
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  summary,
+  select:not(:disabled),
+  input:is([type="radio"], [type="checkbox"]):not(:disabled),
+  label:has(> input:is([type="radio"], [type="checkbox"]):not(:disabled)) {
+    cursor: pointer;
+  }
+}
