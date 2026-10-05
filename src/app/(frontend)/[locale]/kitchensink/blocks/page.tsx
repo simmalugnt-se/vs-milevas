@@ -5,11 +5,13 @@ import type { ReactNode } from "react";
 import { Footer, type FooterLink } from "@/components/blocks/footer";
 import { Navigation, type NavigationLink } from "@/components/blocks/navigation";
 import { ProductGrid } from "@/components/blocks/product-grid";
+import { TextGrid, type TextGridCard } from "@/components/blocks/text-grid";
 import type { ProductCardProps } from "@/components/ui/product-card";
 import { Link } from "@/i18n/navigation";
 import { getAppEnv } from "@/utilities/environment";
 import truckCounterbalance from "../assets/truck-counterbalance.png";
 import truckPallet from "../assets/truck-pallet.png";
+import warehouse from "../assets/warehouse.jpg";
 
 /**
  * Blocks from Figma "04 — Blocks" as components with placeholder content, before they become
@@ -60,6 +62,24 @@ const products: ProductCardProps[] = [
     />
   ),
 }));
+
+/** Text+Grid's three cards; Figma has placeholder text and three photos, here one photo. */
+const textGridCards: TextGridCard[] = ["Bygg din truck", "Få offert", "Leverans"].map(
+  (label, index) => ({
+    number: String(index + 1).padStart(2, "0"),
+    label,
+    text: "text",
+    image: (
+      <Image
+        src={warehouse}
+        alt=""
+        fill
+        sizes="(width >= 64rem) 33vw, 100vw"
+        className="object-cover"
+      />
+    ),
+  }),
+);
 
 /** One block: a label on the page's grid margin, then the block across the full width. */
 function Block({
@@ -119,6 +139,10 @@ export default function KitchensinkBlocksPage() {
       {/* Hover a card for the Desktop look; below Desktop S the arrow and prices always show. */}
       <Block id="product-grid" title="Product-Grid" figma="8365:8988">
         <ProductGrid products={products} label="Modeller" />
+      </Block>
+
+      <Block id="text-grid" title="Text+Grid" figma="8389:4705">
+        <TextGrid heading={"Så enkelt\nfungerar det"} cards={textGridCards} />
       </Block>
 
       <Block id="footer" title="Footer" figma="6076:622">

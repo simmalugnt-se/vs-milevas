@@ -9,8 +9,9 @@ import { Icon } from "./icon";
  * Figma has three states. Default: `bg-fill`, name and specs. Hover: `bg-surface`, plus the
  * `halfup` arrow and the prices. Tablet: Default's colours with the arrow and prices always shown.
  * We read "tablet" as "no hover": below Desktop S the arrow and prices are always there, from
- * Desktop S they appear on hover. The card is 507px high at every width, as in Figma (the component
- * and every instance in product-grid); the image shrinks to make room.
+ * Desktop S they appear on hover. Its proportions are those of product-grid's instances at each
+ * mode's design width (339, 388, 416 and 469 wide, all 507 high), so it keeps Figma's shape as the
+ * width grows; the image shrinks to make room.
  * Pass `data-state="hover"` to show the hover look without a pointer.
  */
 
@@ -52,7 +53,7 @@ export function ProductCard({
 }: ProductCardProps) {
   return (
     <Link
-      className={`group/card flex h-[507px] flex-col rounded-lg bg-bg-fill p-(--spacing-sm) transition-colors hover:bg-bg-surface data-[state=hover]:bg-bg-surface ${className ?? ""}`}
+      className={`group/card flex aspect-[339/507] flex-col tablet:aspect-[388/507] desktop-s:aspect-[416/507] desktop-l:aspect-[469/507] rounded-lg bg-bg-fill p-(--spacing-sm) transition-colors hover:bg-bg-surface data-[state=hover]:bg-bg-surface ${className ?? ""}`}
       {...props}
     >
       <span className="flex w-full items-start justify-between">

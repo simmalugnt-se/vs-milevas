@@ -7,7 +7,7 @@ import { ProductCard, type ProductCardProps } from "@/components/ui/product-card
  * - Tablet: two per row.
  * - Mobile: a horizontal slider (Figma "product-slider"); a card is the width less
  *   `spacing/md`, so the next one shows at the edge.
- * Cards are 507px high everywhere (see ProductCard).
+ * The cards keep Figma's proportions per mode (see ProductCard).
  *
  * A component with props for now; `TruckFamilies` will feed it as a Payload block.
  */

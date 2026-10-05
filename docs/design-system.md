@@ -9,7 +9,7 @@ omgångar: "01 — Foundations" och "02 — Components" är klara, och "04 — B
 |---|---|
 | Tokens (färger, textstilar, brytpunkter, storlekar, spacing, grid, radier) | `src/styles/site-theme.css` |
 | Komponenter (Icon, Arrow, Logo, Button, Choice, ProductCard, Card, ConfiguratorBox, PriceBox, TextBox, TruckColumn) | `src/components/ui/` |
-| Block som komponenter (Navigation, Footer, Product-Grid) | `src/components/blocks/`; Navigation och Footer matas av Header- och Footer-globalerna i `src/payload/globals/*/Component.tsx` |
+| Block som komponenter (Navigation, Footer, Product-Grid, Text+Grid) | `src/components/blocks/`; Navigation och Footer matas av Header- och Footer-globalerna i `src/payload/globals/*/Component.tsx` |
 | Referenssidor, noindex och 404 i produktion | `/kitchensink` (foundations och komponenter, en sektion per komponent med Figma-id och props), `/kitchensink/blocks` |
 | Listorna kitchensink visar, som testet jämför med CSS:en | `src/app/(frontend)/[locale]/kitchensink/*.ts` |
 | Test för tokens | `tests/design-tokens.test.mts` |
@@ -46,6 +46,10 @@ Figma, och säg vilket nummer i backloggen det är.
 
 - **Klasser följer Figmas variabler**, även när det blir dubbelt: `text-ui-primary`,
   `bg-bg-surface`, `border-border-primary`, `text-text-m`.
+- **Inga fasta höjder i px**, även när Figma har dem. Figma ritar bara varje läge vid en bredd
+  (375, 800, 1280, 1440); en fast höjd ger andra proportioner så fort skärmen är bredare. Ta i
+  stället proportionen från Figmas instans vid lägets designbredd (`aspect-[469/507]` per läge),
+  och låt behållare vara så höga som sitt innehåll, med spacing-tokens mellan delarna.
 - **Spacing och storlekar** ändras per läge och är vanliga CSS-variabler: `p-(--spacing-xs)`,
   `gap-(--grid-gap)`. Spacing ligger inte i Tailwinds tema, eftersom `--spacing-*` där också
   skulle styra `w-*` och `max-w-*` i boilerplaten.
@@ -66,7 +70,7 @@ Figma, och säg vilket nummer i backloggen det är.
 
 ## Nästa steg
 
-1. **Block 4, Text+Grid** (`8389:4705`), sedan Text & boxinfo och Configurator i
+1. **Block 5, Text & boxinfo** (`8389:8524`), sedan Configurator i
    [`blocks-backlog.md`](./blocks-backlog.md). Hero, Grid och Image & Text väntar på designen, och
    text-box och truck-column är utkast tills ramen "blabla" är klar.
 2. **Väntar på designen eller på dig:**

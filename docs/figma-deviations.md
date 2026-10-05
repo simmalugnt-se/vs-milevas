@@ -42,7 +42,7 @@ på kitchensink-sidan (`/kitchensink`) ska också stå här.
 | Choice med bild | Fast höjd 262px | Bilden tar två tredjedelar av bredden | Fungerar i alla bredder; ungefär samma proportion | Antagande |
 | Choice, fokus | Inget hover- eller fokusläge | Webbläsarens fokusram | Inget ritat | Antagande |
 | product-card "tablet" | Läget visar pil och priser utan hover | Under Desktop S syns pil och priser alltid; från Desktop S vid hover | "tablet" läses som "ingen hover"; markerat på kitchensink | Beslut (2026-10-02) |
-| product-card, höjd | 430 × 507 i komponenten; 507px hög i varje instans i product-grid, oavsett bredd | Fast höjd 507px, bredden från behållaren (tidigare proportionen 430:507) | Figma håller höjden, inte proportionen | Beslut (2026-10-05) |
+| product-card, storlek | 430 × 507 i komponenten; 507px hög i varje instans i product-grid, oavsett bredd | Proportionen från product-grids instanser per läge: 339:507, 388:507, 416:507 och 469:507 | Inga fasta höjder; samma mått som Figma vid varje lägens designbredd, och samma form när skärmen är bredare | Beslut (2026-10-05) |
 | card, färger | Text `#f5f5f5`, gradient `rgba(0,0,0,.4)` → `.2`; inga variabler | Text `ui-inv-primary` (`#f0f0f0`), gradient svart 40 % → 20 % | Närmaste token | Antagande |
 | configurator-box, version | Frame 9 (nyare, `Text size=S/M`) och frame 6 (urblekt) | Frame 9; price-box från frame 6, där den enda finns | Frame 6 är den gamla versionen | Beslut (2026-10-02) |
 | configurator-box, variant | `choises=2, image=true, Variant=Grid` finns bara i frame 6 | Utelämnad | Saknas i frame 9; borttagen eller bortglömd | Beslut (2026-10-02) |
@@ -74,6 +74,10 @@ på kitchensink-sidan (`/kitchensink`) ska också stå här.
 | Product-Grid, mobil | En "product-slider" med alla sex kort; kortet är 339px, ur sliderns fasta bredd | Horisontell slider med snap; kortet är bredden minus `spacing/md` (335px vid 375) | Närmaste token; nästa kort syns vid kanten som i Figma | Antagande |
 | Product-Grid, mobilkortet | Det första kortet är gult med pil och priser (hover), de andra i Default utan priser | Alla kort i product-cards "tablet"-läge: grå, med pil och priser | Samma regel som under Desktop S i övrigt; frågan står i blocks-backlog.md | Antagande |
 | Product-Grid, namn | "Elektriska Palllyftare" (tre l) | "Elektriska pallyftare" på kitchensink | Stavfel i Figma | Beslut (teknisk) |
+| Text+Grid, rubrik | Två textrader ("Så enkelt" / "fungerar det") och pilen bredvid den första | En `h2` där en radbrytning i texten behålls; pilen står inline före texten | En rubrik för skärmläsare, och redaktören väljer radbrytningen | Antagande |
+| Text+Grid, pilens storlek | 64px (Desktop), 48px (Tablet), 32px (Mobile); ingen variabel | Samma storlekar per läge | Inget att ta från tokens | Beslut (teknisk) |
+| Text+Grid, höjder | Panelen 800px hög (Desktop), blocket 1000px (Tablet), korten 405px (Desktop) och 840px tillsammans (Mobile) | Inga fasta höjder: panelen är så hög som innehållet, korten har Figmas proportion per läge (327:275, 752:242, 1:1, 459:405), och avståndet under rubriken är `spacing/4xl` på Desktop, `spacing/lg` under | Samma mått som Figma vid 375, 800 och 1440; vid 1280 blir panelen 757px i stället för 800 | Beslut (2026-10-05) |
+| Text+Grid, korten | Tre instanser med olika toning: komponentens gradient, svart 20 % och ingen | Alla med `card`s gradient | Ser ut som rester; komponenten gäller | Antagande |
 
 ## Frågor till designen
 
