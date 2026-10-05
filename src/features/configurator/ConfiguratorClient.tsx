@@ -2,10 +2,15 @@
 
 import Image from "next/image";
 import type { TypedLocale } from "payload";
-import { useEffect, useReducer } from "react";
+import { type ReactNode, useEffect, useReducer, useRef, useState } from "react";
+import { ConfiguratorScreen } from "@/components/blocks/configurator-screen";
+import { Button, ButtonLink } from "@/components/ui/button";
+import { Choice } from "@/components/ui/choice";
+import { ConfiguratorBox, choiceLayout } from "@/components/ui/configurator-box";
 import { frontendPath } from "@/i18n/frontend-path";
 import {
-  buildQuote,
+  calculateFinancingPrice,
+  estimateTotal,
   firstIncompleteStep,
   firstInvalidSelectionStep,
   isOptionAvailable,
@@ -100,6 +105,55 @@ function priceLabel(priceMode: "included" | "add" | "replaceBase", price: number
   return formatPrice(price);
 }
 
+const stepNumber = (index: number) => String(index + 1).padStart(2, "0");
+
+/** One step's choices in a <ConfiguratorBox>, laid out by `choiceLayout`. */
+function StepBox({
+  number,
+  label,
+  choices,
+}: {
+  number: string;
+  label: string;
+  choices: Array<{
+    key: string;
+    title: string;
+    price: string;
+    text?: ReactNode;
+    selected: boolean;
+    disabled?: boolean;
+    image?: ReactNode;
+    onSelect: () => void;
+  }>;
+}) {
+  return (
+    <ConfiguratorBox
+      number={number}
+      label={label}
+      {...choiceLayout(choices.map((choice) => choice.price))}
+    >
+      {choices.map((choice) => (
+        <Choice
+          key={choice.key}
+          title={choice.title}
+          price={choice.price}
+          text={choice.text}
+          textSize={choices.length > 2 ? "m" : "s"}
+          selected={choice.selected}
+          disabled={choice.disabled}
+          image={choice.image}
+          onClick={choice.onSelect}
+        />
+      ))}
+    </ConfiguratorBox>
+  );
+}
+
+/**
+ * The truck configurator on Figma's step screen (`ConfiguratorScreen`): truck type, the family's
+ * steps, then financing, one screen each, numbered `[01]`, `[02]` and so on. "Boka samtal" opens the
+ * call request in a dialog from the first configuration step; "Visa offert" leads to the quote page.
+ */
 export function ConfiguratorClient({
   catalog,
   locale,
@@ -108,6 +162,8 @@ export function ConfiguratorClient({
   locale: string;
 }) {
   const [state, dispatch] = useReducer(reducer, initialState);
+  const [callOpen, setCallOpen] = useState(false);
+  const dialog = useRef<HTMLDialogElement>(null);
   const family = catalog.families.find((candidate) => candidate.key === state.familyKey);
   const maxStep = family ? family.steps.length + 1 : 0;
   const currentConfigStep = family && state.step > 0 ? family.steps[state.step - 1] : undefined;
@@ -115,7 +171,6 @@ export function ConfiguratorClient({
   const purchaseKey =
     catalog.financingMethods.find((method) => method.kind === "purchase")?.key ??
     catalog.financingMethods[0]?.key;
-
   useEffect(() => {
     const parsed = parseConfiguratorSearchParams(new URLSearchParams(window.location.search));
     const parsedFamily = catalog.families.find((candidate) => candidate.key === parsed.familyKey);
@@ -182,10 +237,7 @@ export function ConfiguratorClient({
   ]);
 
   const previewFinancing = state.financingKey ?? purchaseKey;
-  const quote =
-    family && previewFinancing
-      ? buildQuote(catalog, family.key, state.selections, previewFinancing, state.serviceAgreement)
-      : null;
+  const total = family ? estimateTotal(family, state.selections) : null;
   const selectedFinancing = catalog.financingMethods.find(
     (method) => method.key === state.financingKey,
   );
@@ -211,459 +263,237 @@ export function ConfiguratorClient({
     ? `${frontendPath("/configurator/quote", locale as TypedLocale)}?${quoteParams.toString()}`
     : "#";
 
+  useEffect(() => {
+    const element = dialog.current;
+    if (!element) return;
+    if (callOpen && !element.open) element.showModal();
+    if (!callOpen && element.open) element.close();
+  }, [callOpen]);
+
   if (!state.hydrated) {
     return (
-      <div className="min-h-64 border border-neutral-300 bg-neutral-50 p-6" aria-live="polite">
+      <p
+        className="bg-bg-fill-secondary p-(--spacing-xl) text-text-m text-ui-secondary"
+        aria-live="polite"
+      >
         Laddar konfiguratorn…
-      </div>
+      </p>
     );
   }
 
   if (catalog.families.length === 0) {
-    return <p>Det finns inga publicerade truckfamiljer ännu.</p>;
+    return <p className="text-text-m">Det finns inga publicerade truckfamiljer ännu.</p>;
   }
 
-  const steps = [
-    "Trucktyp",
-    ...(family?.steps.map((step) => step.label) ?? []),
-    ...(family ? ["Finansiering"] : []),
-  ];
-  const incompleteStep = family ? firstIncompleteStep(family, state.selections) : null;
-  const highestReachableStep = family
-    ? incompleteStep === null
-      ? maxStep
-      : incompleteStep + 1
-    : 0;
+  const lowestPrice = Math.min(...catalog.families.map((candidate) => candidate.basePrice));
+  const monthlyMethods = catalog.financingMethods.filter((method) => method.kind === "monthly");
+  const totalPrice = total ?? lowestPrice;
+  const number = stepNumber(state.step);
+
+  let step: ReactNode;
+  if (state.step === 0 || !family) {
+    step = (
+      <StepBox
+        number={number}
+        label="Trucktyp"
+        choices={catalog.families.map((candidate) => ({
+          key: candidate.key,
+          title: candidate.name,
+          price: `Från ${formatPrice(candidate.basePrice)}`,
+          text: candidate.description,
+          selected: family?.key === candidate.key,
+          image: candidate.image ? (
+            <Image
+              src={candidate.image.url}
+              alt=""
+              fill
+              sizes="(width >= 64rem) 15vw, 40vw"
+              className="object-contain"
+            />
+          ) : undefined,
+          onSelect: () => dispatch({ type: "selectFamily", family: candidate }),
+        }))}
+      />
+    );
+  } else if (currentConfigStep) {
+    step = currentConfigStep.groups.map((group) => (
+      <StepBox
+        key={group.key}
+        number={number}
+        label={currentConfigStep.groups.length === 1 ? currentConfigStep.heading : group.label}
+        choices={group.options.map((option) => {
+          const available = isOptionAvailable(option, state.selections);
+          return {
+            key: option.key,
+            title: option.label,
+            price: priceLabel(option.priceMode, option.price),
+            text: available
+              ? option.description
+              : `${option.description ? `${option.description} ` : ""}Kräver ett annat tidigare val.`,
+            selected: (state.selections[group.key] ?? []).includes(option.key),
+            disabled: !available,
+            onSelect: () => dispatch({ type: "toggleOption", family, group, key: option.key }),
+          };
+        })}
+      />
+    ));
+  } else {
+    const agreement = catalog.serviceAgreement;
+    step = (
+      <>
+        <StepBox
+          number={number}
+          label="Finansiering"
+          choices={catalog.financingMethods.map((method) => ({
+            key: method.key,
+            title: method.months ? `${method.label} (${method.months} mån)` : method.label,
+            price: `${formatPrice(calculateFinancingPrice(totalPrice, method))}${
+              method.kind === "monthly" ? "/mån" : ""
+            }`,
+            text: method.description,
+            selected: state.financingKey === method.key,
+            onSelect: () =>
+              dispatch({
+                type: "selectFinancing",
+                key: method.key,
+                serviceAgreementEligible: method.serviceAgreementEligible,
+              }),
+          }))}
+        />
+        {selectedFinancing?.serviceAgreementEligible && agreement ? (
+          <StepBox
+            number={number}
+            label="Serviceavtal"
+            choices={[
+              {
+                key: "service-agreement",
+                title: `Lägg till ${agreement.label.toLowerCase()}`,
+                price: `+${formatPrice(agreement.annualPrice)}/år`,
+                text: agreement.description,
+                selected: state.serviceAgreement,
+                onSelect: () => dispatch({ type: "toggleServiceAgreement" }),
+              },
+            ]}
+          />
+        ) : null}
+      </>
+    );
+  }
+
+  const help = currentConfigStep?.help ? (
+    <>
+      {currentConfigStep.help}{" "}
+      <button
+        type="button"
+        className="text-ui-primary underline underline-offset-2"
+        onClick={() => setCallOpen(true)}
+      >
+        Kontakta oss
+      </button>
+    </>
+  ) : financingStep ? (
+    "Alla priser visas exkl. moms. Slutliga villkor bekräftas av säljare."
+  ) : undefined;
+
+  const next = financingStep ? (
+    currentComplete ? (
+      <ButtonLink href={quoteHref} size="m">
+        Visa offert
+      </ButtonLink>
+    ) : (
+      <Button size="m" disabled>
+        Visa offert
+      </Button>
+    )
+  ) : (
+    <Button
+      size="m"
+      disabled={!currentComplete}
+      onClick={() => dispatch({ type: "setStep", step: Math.min(maxStep, state.step + 1) })}
+    >
+      Nästa
+    </Button>
+  );
 
   return (
-    <div className="space-y-5">
-      <nav className="overflow-x-auto border-y border-neutral-300" aria-label="Konfiguratorsteg">
-        <ol className="flex min-w-max">
-          {steps.map((label, index) => {
-            const current = state.step === index;
-            const complete = index < state.step && index <= highestReachableStep;
-            return (
-              <li className="flex" key={`${index}-${label}`}>
-                <button
-                  type="button"
-                  aria-current={current ? "step" : undefined}
-                  className={`flex min-w-36 items-center gap-3 border-r border-neutral-300 px-4 py-3 text-left text-sm transition-colors disabled:cursor-not-allowed disabled:text-neutral-400 ${
-                    current ? "bg-neutral-950 text-white" : "bg-white hover:bg-neutral-50"
-                  }`}
-                  disabled={index > highestReachableStep}
-                  onClick={() => dispatch({ type: "setStep", step: index })}
-                >
-                  <span
-                    className={`grid size-6 shrink-0 place-items-center border text-xs ${
-                      current
-                        ? "border-white"
-                        : complete
-                          ? "border-neutral-950 bg-neutral-950 text-white"
-                          : "border-neutral-400"
-                    }`}
-                    aria-hidden="true"
-                  >
-                    {complete ? "✓" : index + 1}
-                  </span>
-                  <span>{label}</span>
-                </button>
-              </li>
-            );
-          })}
-        </ol>
-      </nav>
-
-      <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_340px]">
-        <div className="border border-neutral-300 bg-white">
-          <div className="flex items-center justify-between border-b border-neutral-300 bg-neutral-50 px-5 py-3 text-xs uppercase tracking-[0.16em] text-neutral-600">
-            <span>Konfigurera truck</span>
-            <span>
-              Steg {state.step + 1} av {steps.length}
-            </span>
-          </div>
-
-          <div className="min-h-[440px] p-5 sm:p-7">
-            {state.step === 0 ? (
-              <fieldset className="space-y-5">
-                <legend className="text-2xl font-semibold tracking-tight">Välj trucktyp</legend>
-                <p className="max-w-2xl text-sm leading-6 text-neutral-600">
-                  Välj den truckfamilj som bäst passar verksamheten. Du kan ändra ditt val senare.
-                </p>
-                <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-                  {catalog.families.map((candidate) => {
-                    const checked = family?.key === candidate.key;
-                    return (
-                      <label
-                        className={`group relative cursor-pointer border p-3 transition-colors focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-neutral-950 ${
-                          checked
-                            ? "border-neutral-950 bg-neutral-50"
-                            : "border-neutral-300 hover:border-neutral-600"
-                        }`}
-                        key={candidate.key}
-                      >
-                        <input
-                          className="sr-only"
-                          type="radio"
-                          name="truck-family"
-                          value={candidate.key}
-                          checked={checked}
-                          onChange={() => dispatch({ type: "selectFamily", family: candidate })}
-                        />
-                        <span className="relative mb-4 grid aspect-[16/9] overflow-hidden border border-neutral-300 bg-neutral-100">
-                          {candidate.image ? (
-                            <Image
-                              src={candidate.image.url}
-                              alt={candidate.image.alt}
-                              fill
-                              sizes="(min-width: 1280px) 33vw, (min-width: 640px) 50vw, 100vw"
-                              className="object-contain p-3"
-                            />
-                          ) : (
-                            <span className="text-xs uppercase tracking-[0.18em] text-neutral-500">
-                              Produktbild
-                            </span>
-                          )}
-                        </span>
-                        <span className="flex items-start gap-3">
-                          <span
-                            className={`mt-0.5 grid size-5 shrink-0 place-items-center rounded-full border ${
-                              checked ? "border-neutral-950" : "border-neutral-400"
-                            }`}
-                            aria-hidden="true"
-                          >
-                            {checked ? (
-                              <span className="size-2.5 rounded-full bg-neutral-950" />
-                            ) : null}
-                          </span>
-                          <span className="min-w-0">
-                            <strong className="block leading-5">{candidate.name}</strong>
-                            <span className="mt-1 block text-sm text-neutral-600">
-                              Från {formatPrice(candidate.basePrice)}
-                            </span>
-                          </span>
-                        </span>
-                        {candidate.description ? (
-                          <span className="mt-3 block border-t border-neutral-200 pt-3 text-sm leading-5 text-neutral-600">
-                            {candidate.description}
-                          </span>
-                        ) : null}
-                      </label>
-                    );
-                  })}
-                </div>
-              </fieldset>
-            ) : null}
-
-            {currentConfigStep && family ? (
-              <div className="space-y-8">
-                <div className="max-w-2xl">
-                  <h2 className="text-2xl font-semibold tracking-tight">
-                    {currentConfigStep.heading}
-                  </h2>
-                  {currentConfigStep.description ? (
-                    <p className="mt-2 text-sm leading-6 text-neutral-600">
-                      {currentConfigStep.description}
-                    </p>
-                  ) : null}
-                </div>
-                {currentConfigStep.groups.map((group) => (
-                  <fieldset className="space-y-3" key={group.key}>
-                    <legend className="font-semibold">{group.label}</legend>
-                    <p className="text-xs uppercase tracking-wider text-neutral-500">
-                      {group.selectionMode === "multiple" ? "Flera val möjliga" : "Välj ett"}
-                      {group.required ? " · Obligatoriskt" : " · Valfritt"}
-                    </p>
-                    {group.description ? (
-                      <p className="text-sm leading-6 text-neutral-600">{group.description}</p>
-                    ) : null}
-                    <div className="grid gap-3 sm:grid-cols-2">
-                      {group.options.map((option) => {
-                        const checked = (state.selections[group.key] ?? []).includes(option.key);
-                        const available = isOptionAvailable(option, state.selections);
-                        return (
-                          <label
-                            className={`relative flex min-h-28 gap-3 border p-4 transition-colors focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-neutral-950 ${
-                              available
-                                ? checked
-                                  ? "cursor-pointer border-neutral-950 bg-neutral-50"
-                                  : "cursor-pointer border-neutral-300 hover:border-neutral-600"
-                                : "cursor-not-allowed border-neutral-200 bg-neutral-50 text-neutral-400"
-                            }`}
-                            key={option.key}
-                          >
-                            <input
-                              className="sr-only"
-                              type={group.selectionMode === "single" ? "radio" : "checkbox"}
-                              name={group.key}
-                              checked={checked}
-                              disabled={!available}
-                              onChange={() =>
-                                dispatch({ type: "toggleOption", family, group, key: option.key })
-                              }
-                            />
-                            <span
-                              className={`mt-0.5 grid size-5 shrink-0 place-items-center border ${
-                                group.selectionMode === "single" ? "rounded-full" : ""
-                              } ${checked ? "border-neutral-950 bg-neutral-950 text-white" : "border-neutral-400"}`}
-                              aria-hidden="true"
-                            >
-                              {checked ? (
-                                group.selectionMode === "single" ? (
-                                  <span className="size-2.5 rounded-full bg-white" />
-                                ) : (
-                                  "✓"
-                                )
-                              ) : null}
-                            </span>
-                            <span className="min-w-0 flex-1">
-                              <span className="flex flex-wrap items-start justify-between gap-2">
-                                <strong className="leading-5">{option.label}</strong>
-                                <span className="whitespace-nowrap text-sm font-medium">
-                                  {priceLabel(option.priceMode, option.price)}
-                                </span>
-                              </span>
-                              {option.description ? (
-                                <span className="mt-2 block text-sm leading-5 text-neutral-600">
-                                  {option.description}
-                                </span>
-                              ) : null}
-                              {!available ? (
-                                <span className="mt-2 block text-xs uppercase tracking-wider">
-                                  Kräver ett annat tidigare val
-                                </span>
-                              ) : null}
-                            </span>
-                            {option.defaultSelected ? (
-                              <span className="absolute bottom-3 right-3 border border-neutral-300 bg-white px-2 py-1 text-[10px] uppercase tracking-wider text-neutral-600">
-                                Förvalt
-                              </span>
-                            ) : null}
-                          </label>
-                        );
-                      })}
-                    </div>
-                  </fieldset>
-                ))}
-              </div>
-            ) : null}
-
-            {financingStep ? (
-              <fieldset className="space-y-5">
-                <legend className="text-2xl font-semibold tracking-tight">Välj finansiering</legend>
-                <p className="max-w-2xl text-sm leading-6 text-neutral-600">
-                  Jämför köp med månadskostnad. Slutliga villkor bekräftas av säljare.
-                </p>
-                <div className="grid gap-3">
-                  {catalog.financingMethods.map((method) => {
-                    const amount = quote
-                      ? method.kind === "purchase"
-                        ? quote.totalPrice
-                        : Math.round(quote.totalPrice * (method.monthlyFactor ?? 0))
-                      : 0;
-                    const checked = state.financingKey === method.key;
-                    return (
-                      <label
-                        className={`flex cursor-pointer items-start gap-4 border p-4 transition-colors focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-neutral-950 sm:items-center ${
-                          checked
-                            ? "border-neutral-950 bg-neutral-50"
-                            : "border-neutral-300 hover:border-neutral-600"
-                        }`}
-                        key={method.key}
-                      >
-                        <input
-                          className="sr-only"
-                          type="radio"
-                          name="financing"
-                          checked={checked}
-                          onChange={() =>
-                            dispatch({
-                              type: "selectFinancing",
-                              key: method.key,
-                              serviceAgreementEligible: method.serviceAgreementEligible,
-                            })
-                          }
-                        />
-                        <span
-                          className={`mt-0.5 grid size-5 shrink-0 place-items-center rounded-full border sm:mt-0 ${
-                            checked ? "border-neutral-950" : "border-neutral-400"
-                          }`}
-                          aria-hidden="true"
-                        >
-                          {checked ? (
-                            <span className="size-2.5 rounded-full bg-neutral-950" />
-                          ) : null}
-                        </span>
-                        <span className="min-w-0 flex-1">
-                          <strong className="block">{method.label}</strong>
-                          {method.description ? (
-                            <span className="mt-1 block text-sm text-neutral-600">
-                              {method.description}
-                            </span>
-                          ) : null}
-                        </span>
-                        <span className="text-right font-semibold sm:text-lg">
-                          {formatPrice(amount)}
-                          {method.kind === "monthly" ? (
-                            <span className="block text-xs font-normal text-neutral-500">
-                              per månad
-                            </span>
-                          ) : null}
-                        </span>
-                      </label>
-                    );
-                  })}
-                </div>
-                {selectedFinancing?.serviceAgreementEligible && catalog.serviceAgreement ? (
-                  <label className="flex cursor-pointer items-start gap-3 border border-neutral-300 bg-neutral-50 p-4 transition-colors hover:border-neutral-600">
-                    <input
-                      className="mt-0.5 size-4 accent-neutral-950"
-                      type="checkbox"
-                      checked={state.serviceAgreement}
-                      onChange={() => dispatch({ type: "toggleServiceAgreement" })}
-                    />
-                    <span className="min-w-0 flex-1">
-                      <strong className="block">Lägg till {catalog.serviceAgreement.label}</strong>
-                      {catalog.serviceAgreement.description ? (
-                        <span className="mt-1 block text-sm text-neutral-600">
-                          {catalog.serviceAgreement.description}
-                        </span>
-                      ) : null}
-                    </span>
-                    <span className="shrink-0 text-right text-sm font-semibold">
-                      +{formatPrice(catalog.serviceAgreement.annualPrice)}/år
-                      <span className="mt-1 block text-xs font-normal text-neutral-500">
-                        exkl. moms
-                      </span>
-                    </span>
-                  </label>
-                ) : null}
-                <p className="text-xs leading-5 text-neutral-500">Alla priser visas exkl. moms.</p>
-              </fieldset>
-            ) : null}
-          </div>
-
-          <div className="flex items-center justify-between gap-3 border-t border-neutral-300 bg-neutral-50 px-5 py-4 sm:px-7">
-            <button
-              type="button"
-              className="border border-neutral-400 bg-white px-4 py-2.5 text-sm font-medium hover:border-neutral-950 disabled:cursor-not-allowed disabled:opacity-40"
-              disabled={state.step === 0}
-              onClick={() => dispatch({ type: "setStep", step: Math.max(0, state.step - 1) })}
-            >
-              ← Tillbaka
-            </button>
-            {financingStep ? (
-              <a
-                aria-disabled={!currentComplete}
-                className={`border border-neutral-950 bg-neutral-950 px-5 py-2.5 text-sm font-medium text-white ${
-                  currentComplete ? "hover:bg-neutral-800" : "pointer-events-none opacity-40"
-                }`}
-                href={currentComplete ? quoteHref : undefined}
+    <>
+      <ConfiguratorScreen
+        total={family ? `Totalt: ${formatPrice(totalPrice)}` : `Från ${formatPrice(totalPrice)}`}
+        prices={monthlyMethods.map((method) => ({
+          label: method.months ? `${method.label} (${method.months} mån)` : method.label,
+          value: `${formatPrice(calculateFinancingPrice(totalPrice, method))}/mån`,
+        }))}
+        image={
+          family?.image ? (
+            <Image
+              src={family.image.url}
+              alt={family.image.alt}
+              fill
+              priority
+              sizes="(width >= 64rem) 60vw, 100vw"
+              className="object-contain"
+            />
+          ) : null
+        }
+        step={step}
+        help={help}
+        actions={
+          <>
+            {state.step > 0 ? (
+              <Button
+                color="gray"
+                size="m"
+                iconLeft="arrow-left"
+                iconRight={null}
+                onClick={() => dispatch({ type: "setStep", step: state.step - 1 })}
               >
-                Visa offert →
-              </a>
-            ) : (
-              <button
-                type="button"
-                className="border border-neutral-950 bg-neutral-950 px-5 py-2.5 text-sm font-medium text-white hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-40"
-                disabled={!currentComplete}
-                onClick={() =>
-                  dispatch({ type: "setStep", step: Math.min(maxStep, state.step + 1) })
-                }
-              >
-                Nästa steg →
-              </button>
-            )}
+                Föregående
+              </Button>
+            ) : null}
+            {next}
+          </>
+        }
+        contactText="Har du frågor eller önskar något annat av din konfiguration?"
+        contact={
+          <Button
+            color="tejp"
+            size="m"
+            iconRight="phone"
+            className="w-full"
+            disabled={!family}
+            onClick={() => setCallOpen(true)}
+          >
+            Boka samtal
+          </Button>
+        }
+      />
+      <dialog
+        ref={dialog}
+        aria-labelledby="call-request-heading"
+        onClose={() => setCallOpen(false)}
+        className="m-auto w-[min(100%-2*var(--grid-margin),32rem)] rounded-lg bg-bg-fill p-(--spacing-md) backdrop:bg-bg-inv-fill/60"
+      >
+        <div className="mb-(--spacing-md) flex items-start justify-between gap-(--spacing-sm)">
+          <div className="flex flex-col gap-(--spacing-2xs)">
+            <h2 id="call-request-heading" className="text-text-xl text-ui-primary">
+              Boka samtal
+            </h2>
+            <p className="text-text-xs text-ui-secondary">
+              Vi ringer upp om din konfiguration{family ? `, ${family.name}` : ""}.
+            </p>
           </div>
         </div>
-
-        <aside className="border border-neutral-300 bg-white lg:sticky lg:top-5" aria-live="polite">
-          <div className="border-b border-neutral-300 bg-neutral-50 px-5 py-3 text-xs uppercase tracking-[0.16em] text-neutral-600">
-            Din konfiguration
-          </div>
-          <div className="p-5">
-            {family ? (
-              <div className="space-y-5">
-                <div className="relative grid aspect-[16/8] overflow-hidden border border-neutral-300 bg-neutral-100">
-                  {family.image ? (
-                    <Image
-                      src={family.image.url}
-                      alt={family.image.alt}
-                      fill
-                      sizes="(min-width: 1024px) 340px, 100vw"
-                      className="object-contain p-4"
-                    />
-                  ) : (
-                    <span className="grid place-items-center text-xs uppercase tracking-[0.18em] text-neutral-500">
-                      Produktbild
-                    </span>
-                  )}
-                </div>
-                <div>
-                  <h2 className="text-xl font-semibold tracking-tight">{family.name}</h2>
-                  {quote?.sku ? (
-                    <p className="mt-1 font-mono text-xs text-neutral-500">Art.nr {quote.sku}</p>
-                  ) : null}
-                </div>
-                {quote && quote.selectedOptions.length > 0 ? (
-                  <dl className="space-y-2 border-y border-neutral-200 py-4 text-sm">
-                    {quote.selectedOptions.map((option) => (
-                      <div
-                        className="flex justify-between gap-4"
-                        key={`${option.groupKey}.${option.optionKey}`}
-                      >
-                        <dt className="text-neutral-600">{option.label}</dt>
-                        <dd className="shrink-0">{priceLabel(option.priceMode, option.price)}</dd>
-                      </div>
-                    ))}
-                  </dl>
-                ) : (
-                  <p className="border-y border-neutral-200 py-4 text-sm text-neutral-500">
-                    Dina val visas här efter hand.
-                  </p>
-                )}
-                <div className="flex items-end justify-between gap-4">
-                  <span className="text-sm text-neutral-600">Estimerat totalpris</span>
-                  <strong className="text-xl">
-                    {formatPrice(quote?.totalPrice ?? family.basePrice)}
-                  </strong>
-                </div>
-                <p className="text-xs leading-5 text-neutral-500">
-                  Alla priser visas exkl. moms. Pris och tillgänglighet bekräftas i den slutliga
-                  offerten.
-                </p>
-                {family.brochure ? (
-                  <a
-                    className="inline-block text-sm font-medium underline underline-offset-4"
-                    href={family.brochure.url}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    {family.brochure.title}
-                  </a>
-                ) : null}
-                {quote ? (
-                  <CallRequestForm
-                    familyKey={family.key}
-                    financingKey={previewFinancing ?? "purchase"}
-                    locale={locale}
-                    selections={state.selections}
-                    serviceAgreement={Boolean(quote.serviceAgreement)}
-                  />
-                ) : null}
-              </div>
-            ) : (
-              <div className="space-y-4">
-                <div className="grid aspect-[16/8] place-items-center border border-dashed border-neutral-300 bg-neutral-50 text-xs uppercase tracking-[0.18em] text-neutral-400">
-                  Produktbild
-                </div>
-                <p className="text-sm leading-6 text-neutral-600">
-                  Välj en trucktyp för att börja bygga din konfiguration.
-                </p>
-              </div>
-            )}
-          </div>
-        </aside>
-      </div>
-    </div>
+        {callOpen && family ? (
+          <CallRequestForm
+            familyKey={family.key}
+            financingKey={previewFinancing ?? "purchase"}
+            locale={locale}
+            selections={state.selections}
+            serviceAgreement={state.serviceAgreement}
+            onClose={() => setCallOpen(false)}
+          />
+        ) : null}
+      </dialog>
+    </>
   );
 }

@@ -123,6 +123,8 @@ async function submitRequest(
     base.selections,
     base.financingKey,
     base.serviceAgreement,
+    // "Boka samtal" is on every step, so a call carries what is chosen so far.
+    { allowIncomplete: requestType === "call" },
   );
   if (!quote) {
     return { ok: false, message: "Konfigurationen är ofullständig eller inte längre giltig." };

@@ -90,11 +90,21 @@ på kitchensink-sidan (`/kitchensink`) ska också stå här.
 | Configurator, val | Rutnät med textstorlek M (6 val), staplade med S (2 val); på Mobile två per rad även med "FRÅN 169TKR" | Rutnät när en grupp har fler än två val, annars staplade; under Tablet staplade när något pris är längre än "+3500 kr" (`choiceLayout`) | Långa priser tryckte ihop titlarna ("1.5 / ton") i halva bredden | Beslut (2026-10-05) |
 | Configurator, telefonikon | `Phone` (12px) i "Boka samtal", saknas på "Icons" | Ikonen `phone` från samma SVG | Lucka i ikonerna | Beslut (teknisk) |
 | Configurator, bakgrund | `Color/BG/fill-secondary` (`#d9d9d9`), inte på färgframen | Ny token `bg-fill-secondary` | Variabeln gäller | Beslut (2026-10-05) |
+| Configurator, trucktyp | Inte ritat; ram 15 börjar med lyftkapaciteten som `[01]` | Valet av truckfamilj är första steget, `[01]`, med familjerna som `Choice` med bild och "Från"-pris; familjens steg följer som `[02]` och framåt | Konfiguratorn behöver familjen; ingen ingång väljer den åt besökaren än | Antagande |
+| Configurator, före familjen | Inte ritat | Totalpriset visar "Från" och familjernas lägsta pris; ingen truckbild, så ytan krymper till kontaktrutan; "Boka samtal" inaktiv tills en familj är vald | Samtalet behöver en familj | Antagande |
+| Configurator, rubriker | Rutan heter som steget ("Välj lyfthöjd") | Stegets rubrik när steget har en grupp, annars gruppens namn i varje ruta | Steg med flera grupper (gaffellängd och sidoförskjutning) | Antagande |
+| Configurator, finansiering | Inte ritat | Ett eget steg: finansieringssätten som val med pris (kr eller kr/mån), serviceavtalet som en egen ruta när det går att välja, "Alla priser visas exkl. moms" som hjälptext och "Visa offert" i stället för "Nästa" | Samma delar som stegen | Antagande |
+| Configurator, val som kräver annat val | Inget läge | `Choice` inaktiv och halvt genomskinlig, texten säger "Kräver ett annat tidigare val" | Lucka i Figma | Antagande |
+| Configurator, Boka samtal | Knappen syns i varje steg; inget formulär ritat | Öppnar samtalsformuläret i en dialog (`<dialog>`), också från "Kontakta oss" i stegets hjälptext; konfigurationen följer med som den är, markerad som ofullständig om steg återstår | Användarens beslut | Beslut (2026-10-05) |
+| Configurator, sammanfattning | Ingen | Den gamla sidopanelen (valda tillval, artikelnummer, broschyr) är borttagen; valen syns i offerten | Figma har bara totalpriset | Antagande |
 
 ## Frågor till designen
 
 Ingen avvikelse i koden, men värt att rätta eller förklara i Figma:
 
+- `choice` (`8268:3371`) har bara `Default` och `active`, inget hover-läge. Koden ger bara
+  pekhanden. Förslag att ta upp: vit bakgrund (`bg-active`) vid hover, som inte förväxlas med det
+  gula valda läget.
 - Text & boxinfo på Tablet och Mobile: "390kr/mån" i rubriken har storleken 96px, resten 64 och
   48px. Det syns inte i skärmdumpen; koden använder rubrikens storlek för hela raden.
 - `arrow-up&forward` är en rak högerpil, och den svängda pilen heter `arrow-halfup`. Koden följer

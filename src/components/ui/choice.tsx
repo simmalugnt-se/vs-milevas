@@ -5,7 +5,8 @@ import type { ButtonHTMLAttributes, ReactNode } from "react";
  * configurator step. Rules above and below (`border-primary`), optionally on the right, and
  * `ui-brand` when selected. Text S uses Text XS, text M uses Text M; both grey (`ui-tertiary`) until
  * selected (`ui-secondary`). With an image the gaps shrink from `spacing/md` to `spacing/2xs`.
- * Figma has no hover state.
+ * Figma has no hover or disabled state; disabled (an option that needs another choice first) is
+ * dimmed to half opacity.
  */
 
 type ChoiceProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, "title"> & {
@@ -35,7 +36,7 @@ export function Choice({
     <button
       type={type}
       aria-pressed={selected}
-      className={`flex w-full flex-col items-start border-y border-border-primary p-(--spacing-sm) text-left transition-colors ${
+      className={`flex w-full flex-col items-start border-y border-border-primary p-(--spacing-sm) text-left transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
         image ? "gap-(--spacing-2xs)" : "gap-(--spacing-md)"
       } ${borderRight ? "border-r" : ""} ${selected ? "bg-ui-brand" : ""} ${className ?? ""}`}
       {...props}

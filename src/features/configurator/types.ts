@@ -39,6 +39,8 @@ export type ConfiguratorStep = {
   label: string;
   heading: string;
   description?: string;
+  /** Note under the step, followed by a "Kontakta oss" link. */
+  help?: string;
   groups: ConfiguratorGroup[];
 };
 
@@ -86,6 +88,8 @@ export type QuoteLine = {
 };
 
 export type ConfiguratorQuote = {
+  /** False for a call request sent before every step was chosen. */
+  complete: boolean;
   familyKey: string;
   familyName: string;
   sku?: string;

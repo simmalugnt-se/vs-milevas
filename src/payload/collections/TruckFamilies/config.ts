@@ -71,6 +71,15 @@ export const TruckFamilies: CollectionConfig = {
         { name: "heading", type: "text", localized: true, required: true },
         { name: "description", type: "textarea", localized: true },
         {
+          name: "help",
+          type: "textarea",
+          localized: true,
+          admin: {
+            description:
+              'Optional note under the step, e.g. "Behöver du hjälp med andra mastalternativ?". A "Kontakta oss" link follows it.',
+          },
+        },
+        {
           name: "groups",
           dbName: "truck_cfg_groups",
           type: "array",

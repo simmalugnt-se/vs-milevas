@@ -3,6 +3,7 @@ import { test } from "node:test";
 import {
   buildQuote,
   calculateFinancingPrice,
+  estimateTotal,
   firstIncompleteStep,
   firstInvalidSelectionStep,
   sanitizeSelections,
@@ -120,6 +121,41 @@ test("defaults, replacement price and additions produce a deterministic quote", 
   assert.equal(quote.totalPrice, 125000);
   assert.equal(quote.financingPrice, 2344);
   assert.equal(quote.sku, "SMALL");
+});
+
+test("the running total counts what is chosen so far, before every step is complete", () => {
+  assert.equal(estimateTotal(family, {}), 100000);
+  assert.equal(estimateTotal(family, { model: ["large"] }), 150000);
+  assert.equal(estimateTotal(family, { model: ["large"], extras: ["alarm", "camera"] }), 165000);
+  // An option whose condition is not met does not count, as in the quote.
+  assert.equal(estimateTotal(family, { model: ["small"], extras: ["camera"] }), 120000);
+});
+
+test("a call can carry an incomplete configuration, marked as such; an order cannot", () => {
+  // Without the model's default, the required model step stays open.
+  const open: ConfiguratorFamily = {
+    ...family,
+    steps: family.steps.map((step) => ({
+      ...step,
+      groups: step.groups.map((group) => ({
+        ...group,
+        options: group.options.map((option) => ({ ...option, defaultSelected: false })),
+      })),
+    })),
+  };
+  const openCatalog = { ...catalog, families: [open] };
+  const partial = { extras: ["alarm"] };
+  assert.equal(buildQuote(openCatalog, open.key, partial, "purchase"), null);
+
+  const quote = buildQuote(openCatalog, open.key, partial, "purchase", false, {
+    allowIncomplete: true,
+  });
+  assert.ok(quote);
+  assert.equal(quote.complete, false);
+  assert.equal(quote.totalPrice, 105000);
+
+  const complete = buildQuote(openCatalog, open.key, { model: ["small"] }, "purchase");
+  assert.equal(complete?.complete, true);
 });
 
 test("changing an upstream option removes incompatible downstream selections", () => {

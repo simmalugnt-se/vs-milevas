@@ -106,6 +106,27 @@ export function firstInvalidSelectionStep(
   return firstInvalid;
 }
 
+/**
+ * The price of what is chosen so far, for the total shown while configuring: the base (or the
+ * option that replaces it) plus the added options. Unlike `buildQuote` it does not need every step
+ * complete; an option whose condition is not met does not count.
+ */
+export function estimateTotal(family: ConfiguratorFamily, selections: SelectionState): number {
+  let basePrice = family.basePrice;
+  let additions = 0;
+  for (const step of family.steps) {
+    for (const group of step.groups) {
+      for (const optionKey of selections[group.key] ?? []) {
+        const option = group.options.find((candidate) => candidate.key === optionKey);
+        if (!option || !isOptionAvailable(option, selections)) continue;
+        if (option.priceMode === "replaceBase") basePrice = option.price;
+        if (option.priceMode === "add") additions += option.price;
+      }
+    }
+  }
+  return basePrice + additions;
+}
+
 export function calculateFinancingPrice(total: number, financing: FinancingMethod): number {
   if (financing.kind === "purchase") {
     return total;
@@ -119,6 +140,8 @@ export function buildQuote(
   inputSelections: SelectionState,
   financingKey: string,
   includeServiceAgreement = false,
+  /** A call request may carry what is chosen so far; an order needs every step. */
+  { allowIncomplete = false }: { allowIncomplete?: boolean } = {},
 ): ConfiguratorQuote | null {
   const family = catalog.families.find((candidate) => candidate.key === familyKey);
   const financing = catalog.financingMethods.find((candidate) => candidate.key === financingKey);
@@ -127,7 +150,8 @@ export function buildQuote(
   }
 
   const selections = sanitizeSelections(family, inputSelections, true);
-  if (firstIncompleteStep(family, selections) !== null) {
+  const complete = firstIncompleteStep(family, selections) === null;
+  if (!complete && !allowIncomplete) {
     return null;
   }
 
@@ -190,6 +214,7 @@ export function buildQuote(
       : undefined;
 
   return {
+    complete,
     familyKey: family.key,
     familyName: family.name,
     sku,

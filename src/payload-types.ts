@@ -338,8 +338,6 @@ export interface Page {
             blockType: 'columns';
           }
         | {
-            heading?: string | null;
-            intro?: string | null;
             id?: string | null;
             blockName?: string | null;
             blockType: 'configurator';
@@ -475,6 +473,10 @@ export interface TruckFamily {
     label: string;
     heading: string;
     description?: string | null;
+    /**
+     * Optional note under the step, e.g. "Behöver du hjälp med andra mastalternativ?". A "Kontakta oss" link follows it.
+     */
+    help?: string | null;
     groups: {
       key: string;
       label: string;
@@ -1044,8 +1046,6 @@ export interface PagesSelect<T extends boolean = true> {
         configurator?:
           | T
           | {
-              heading?: T;
-              intro?: T;
               id?: T;
               blockName?: T;
             };
@@ -1149,6 +1149,7 @@ export interface TruckFamiliesSelect<T extends boolean = true> {
         label?: T;
         heading?: T;
         description?: T;
+        help?: T;
         groups?:
           | T
           | {

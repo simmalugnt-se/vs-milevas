@@ -70,11 +70,9 @@ Figma, och säg vilket nummer i backloggen det är.
 
 ## Nästa steg
 
-1. **Configurator, fas 2:** koppla `ConfiguratorScreen` till `ConfiguratorClient`, ta bort
-   blockets `heading`/`intro` och lägg till hjälptext per steg i `TruckFamilies` (migrationer), och
-   bygg de skärmar Figma inte ritar. Se [`blocks-backlog.md`](./blocks-backlog.md). Hero, Grid och
-   Image & Text väntar på designen, och text-box och truck-column är utkast tills ramen "blabla" är
-   klar.
+1. **Offertsidan** (`/configurator/quote`, orderformuläret) i designsystemets stil; Figma har ingen
+   skiss. Hero, Grid och Image & Text väntar på designen, och text-box och truck-column är utkast
+   tills ramen "blabla" är klar.
 2. **Väntar på designen eller på dig:**
    - woff2-filerna för Clash Grotesk Variable (`TODO(clash-grotesk)`)
    - värdena i Figmas `motion`-samling (`TODO(motion)`)

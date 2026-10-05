@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useId, useState } from "react";
+import { Button } from "@/components/ui/button";
 import { submitCallRequest, submitOrderRequest } from "./actions";
 import type { ConfiguratorActionState, ConfiguratorQuote, SelectionState } from "./types";
 
@@ -37,155 +38,128 @@ function HiddenConfiguration({
 function FieldError({ state, name }: { state: ConfiguratorActionState; name: string }) {
   const error = state.fieldErrors?.[name];
   return error ? (
-    <span className="mt-1 block text-sm text-red-700" role="alert">
+    <span className="mt-(--spacing-3xs) block text-text-xs text-status-error" role="alert">
       {error}
     </span>
   ) : null;
 }
 
 const fieldClassName =
-  "mt-1.5 block min-h-11 w-full border border-neutral-400 bg-white px-3 py-2 text-neutral-950 outline-none focus:border-neutral-950 focus:ring-1 focus:ring-neutral-950";
-const labelClassName = "block text-sm font-medium text-neutral-800";
+  "mt-(--spacing-2xs) block min-h-11 w-full rounded-sm border border-border-primary bg-bg-active px-(--spacing-xs) py-(--spacing-2xs) text-text-m text-ui-primary outline-none focus:border-border-secondary focus:ring-1 focus:ring-border-secondary";
+const labelClassName = "block text-label-s text-ui-primary";
 
+/**
+ * The call request ("Boka samtal"), shown in the configurator's dialog. It sends the configuration
+ * as it is; the server marks it incomplete when steps remain.
+ */
 export function CallRequestForm({
   familyKey,
   financingKey,
   locale,
   selections,
   serviceAgreement,
+  onClose,
 }: {
   familyKey: string;
   financingKey: string;
   locale: string;
   selections: SelectionState;
   serviceAgreement: boolean;
+  onClose: () => void;
 }) {
-  const [open, setOpen] = useState(false);
   const [state, formAction, pending] = useActionState(submitCallRequest, initialActionState);
   const submissionKey = useId();
-
-  if (!open) {
-    return (
-      <button
-        type="button"
-        className="w-full border border-neutral-950 bg-white px-4 py-2.5 text-sm font-medium hover:bg-neutral-50"
-        aria-expanded="false"
-        onClick={() => setOpen(true)}
-      >
-        Boka ett samtal
-      </button>
-    );
-  }
+  const [preference, setPreference] = useState(state.formValues?.callPreference ?? "asap");
 
   if (state.ok) {
     return (
-      <div role="status" className="border border-neutral-950 bg-neutral-50 p-4 text-sm">
-        <p className="font-semibold">Förfrågan är mottagen.</p>
-        <p className="mt-1">Referens: {state.reference}</p>
+      <div role="status" className="flex flex-col gap-(--spacing-sm)">
+        <p className="text-text-xl text-ui-primary">Tack, vi ringer upp.</p>
+        <p className="text-text-m text-ui-secondary">Referens: {state.reference}</p>
+        <Button size="m" iconRight={null} onClick={onClose}>
+          Stäng
+        </Button>
       </div>
     );
   }
 
   return (
-    <section
-      aria-labelledby="call-request-heading"
-      className="border border-neutral-400 bg-neutral-50 p-4"
-    >
-      <div className="mb-4 flex items-start justify-between gap-3">
-        <div>
-          <h3 id="call-request-heading" className="font-semibold">
-            Boka ett samtal
-          </h3>
-          <p className="mt-1 text-xs leading-5 text-neutral-600">
-            Vi kontaktar dig om konfigurationen.
-          </p>
-        </div>
-        <button
-          type="button"
-          className="size-8 border border-neutral-300 bg-white text-lg leading-none hover:border-neutral-950"
-          onClick={() => setOpen(false)}
-          aria-label="Stäng formuläret"
-        >
-          ×
-        </button>
-      </div>
-      <form action={formAction} className="space-y-3.5">
-        <HiddenConfiguration
-          familyKey={familyKey}
-          financingKey={financingKey}
-          locale={locale}
-          selections={selections}
-          serviceAgreement={serviceAgreement}
-          submissionKey={submissionKey}
+    <form action={formAction} className="flex flex-col gap-(--spacing-sm)">
+      <HiddenConfiguration
+        familyKey={familyKey}
+        financingKey={financingKey}
+        locale={locale}
+        selections={selections}
+        serviceAgreement={serviceAgreement}
+        submissionKey={submissionKey}
+      />
+      <label className={labelClassName}>
+        Namn *
+        <input
+          className={fieldClassName}
+          name="name"
+          autoComplete="name"
+          defaultValue={state.formValues?.name}
+          required
         />
-        <label className={labelClassName}>
-          Namn *
-          <input
-            className={fieldClassName}
-            name="name"
-            autoComplete="name"
-            defaultValue={state.formValues?.name}
-            required
-          />
-          <FieldError state={state} name="name" />
-        </label>
-        <label className={labelClassName}>
-          Telefon *
-          <input
-            className={fieldClassName}
-            name="phone"
-            type="tel"
-            autoComplete="tel"
-            defaultValue={state.formValues?.phone}
-            required
-          />
-          <FieldError state={state} name="phone" />
-        </label>
-        <label className={labelClassName}>
-          Företag
-          <input
-            className={fieldClassName}
-            name="company"
-            autoComplete="organization"
-            defaultValue={state.formValues?.company}
-          />
-        </label>
-        <label className={labelClassName}>
-          E-post
-          <input
-            className={fieldClassName}
-            name="email"
-            type="email"
-            autoComplete="email"
-            defaultValue={state.formValues?.email}
-          />
-          <FieldError state={state} name="email" />
-        </label>
-        <fieldset className="space-y-2 border-y border-neutral-300 py-3">
-          <legend className="px-1 text-sm font-medium">När ska vi ringa?</legend>
-          <label className="flex items-center gap-2 text-sm">
+        <FieldError state={state} name="name" />
+      </label>
+      <label className={labelClassName}>
+        Telefon *
+        <input
+          className={fieldClassName}
+          name="phone"
+          type="tel"
+          autoComplete="tel"
+          defaultValue={state.formValues?.phone}
+          required
+        />
+        <FieldError state={state} name="phone" />
+      </label>
+      <label className={labelClassName}>
+        Företag
+        <input
+          className={fieldClassName}
+          name="company"
+          autoComplete="organization"
+          defaultValue={state.formValues?.company}
+        />
+      </label>
+      <label className={labelClassName}>
+        E-post
+        <input
+          className={fieldClassName}
+          name="email"
+          type="email"
+          autoComplete="email"
+          defaultValue={state.formValues?.email}
+        />
+        <FieldError state={state} name="email" />
+      </label>
+      <fieldset className="flex flex-col gap-(--spacing-2xs)">
+        <legend className={`${labelClassName} mb-(--spacing-2xs)`}>När ska vi ringa?</legend>
+        {(
+          [
+            ["asap", "Så snart som möjligt"],
+            ["specific", "Jag önskar en särskild tid"],
+          ] as const
+        ).map(([value, label]) => (
+          <label key={value} className="flex items-center gap-(--spacing-2xs) text-text-m">
             <input
-              className="size-4 accent-neutral-950"
+              className="size-4 accent-ui-primary"
               type="radio"
               name="callPreference"
-              value="asap"
-              defaultChecked={(state.formValues?.callPreference ?? "asap") === "asap"}
+              value={value}
+              checked={preference === value}
+              onChange={() => setPreference(value)}
             />
-            Så snart som möjligt
+            {label}
           </label>
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              className="size-4 accent-neutral-950"
-              type="radio"
-              name="callPreference"
-              value="specific"
-              defaultChecked={state.formValues?.callPreference === "specific"}
-            />
-            Jag önskar en särskild tid
-          </label>
-        </fieldset>
+        ))}
+      </fieldset>
+      {preference === "specific" ? (
         <label className={labelClassName}>
-          Önskad tid
+          Önskad tid *
           <input
             className={fieldClassName}
             name="preferredTime"
@@ -194,37 +168,29 @@ export function CallRequestForm({
           />
           <FieldError state={state} name="preferredTime" />
         </label>
-        <label className={labelClassName}>
-          Meddelande
-          <textarea
-            className={`${fieldClassName} min-h-24 resize-y`}
-            name="message"
-            defaultValue={state.formValues?.message}
-          />
-        </label>
-        {state.message ? (
-          <p className="text-sm text-red-700" role="alert">
-            {state.message}
-          </p>
-        ) : null}
-        <div className="grid grid-cols-2 gap-2">
-          <button
-            type="button"
-            className="border border-neutral-400 bg-white px-3 py-2.5 text-sm"
-            onClick={() => setOpen(false)}
-          >
-            Avbryt
-          </button>
-          <button
-            type="submit"
-            className="border border-neutral-950 bg-neutral-950 px-3 py-2.5 text-sm text-white disabled:opacity-50"
-            disabled={pending}
-          >
-            {pending ? "Skickar…" : "Skicka"}
-          </button>
-        </div>
-      </form>
-    </section>
+      ) : null}
+      <label className={labelClassName}>
+        Meddelande
+        <textarea
+          className={`${fieldClassName} min-h-24 resize-y`}
+          name="message"
+          defaultValue={state.formValues?.message}
+        />
+      </label>
+      {state.message ? (
+        <p className="text-text-m text-status-error" role="alert">
+          {state.message}
+        </p>
+      ) : null}
+      <div className="flex gap-(--grid-gap) *:flex-1">
+        <Button color="gray" size="m" iconRight={null} onClick={onClose}>
+          Avbryt
+        </Button>
+        <Button type="submit" size="m" disabled={pending}>
+          {pending ? "Skickar…" : "Skicka"}
+        </Button>
+      </div>
+    </form>
   );
 }
 

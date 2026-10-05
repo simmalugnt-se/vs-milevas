@@ -25,8 +25,9 @@ type ConfiguratorScreenProps = {
   total: ReactNode;
   /** Monthly prices under the total, e.g. Leasing (48 mån) 3 261 kr/mån. */
   prices?: ConfiguratorScreenPrice[];
-  /** The truck, e.g. a `next/image` with `fill` and `object-contain`. */
-  image: ReactNode;
+  /** The truck, e.g. a `next/image` with `fill` and `object-contain`; without it (no truck chosen
+   * yet) the area shrinks to the contact panel. */
+  image?: ReactNode;
   /** The current step: a <ConfiguratorBox> with its choices. */
   step: ReactNode;
   /** Optional note under the step (Figma: "Behöver du hjälp med andra mastalternativ?"). */
@@ -52,8 +53,14 @@ export function ConfiguratorScreen({
   return (
     <section className="grid grid-cols-[repeat(var(--grid-columns),minmax(0,1fr))] gap-(--grid-gap) bg-bg-fill-secondary px-(--grid-margin) py-(--spacing-xl) tablet:px-(--spacing-xl)">
       {/* The truck: row 2 below Desktop, columns 5–12 from Desktop S. */}
-      <div className="relative col-span-full row-start-2 flex aspect-[359/340] flex-col items-start justify-end tablet:aspect-[704/480] tablet:items-end desktop-s:col-span-8 desktop-s:col-start-5 desktop-s:row-start-1 desktop-s:aspect-[787/704] desktop-l:aspect-[893/704]">
-        <div className="absolute inset-(--spacing-md)">{image}</div>
+      <div
+        className={`relative col-span-full row-start-2 flex flex-col items-start justify-end tablet:items-end desktop-s:col-span-8 desktop-s:col-start-5 desktop-s:row-start-1 ${
+          image
+            ? "aspect-[359/340] tablet:aspect-[704/480] desktop-s:aspect-[787/704] desktop-l:aspect-[893/704]"
+            : ""
+        }`}
+      >
+        {image ? <div className="absolute inset-(--spacing-md)">{image}</div> : null}
         {contact ? (
           <div className="relative flex w-full max-w-60 flex-col gap-(--grid-gap)">
             {contactText ? (

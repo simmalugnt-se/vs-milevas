@@ -448,13 +448,7 @@ async function seed() {
           title: "Configurator",
           slug: "configurator",
           _status: "published",
-          layout: [
-            {
-              blockType: "configurator",
-              heading: "Bygg din truck",
-              intro: "Välj trucktyp och konfigurera ett utförande som passar verksamheten.",
-            },
-          ],
+          layout: [{ blockType: "configurator" }],
         },
       });
     } else if (!existingPage.layout?.some((block) => block.blockType === "configurator")) {
@@ -466,14 +460,7 @@ async function seed() {
         overrideAccess: true,
         context: { disableRevalidate: true },
         data: {
-          layout: [
-            ...(existingPage.layout ?? []),
-            {
-              blockType: "configurator",
-              heading: "Bygg din truck",
-              intro: "Välj trucktyp och konfigurera ett utförande som passar verksamheten.",
-            },
-          ],
+          layout: [...(existingPage.layout ?? []), { blockType: "configurator" }],
         },
       });
     }

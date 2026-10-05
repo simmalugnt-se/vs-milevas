@@ -33,7 +33,7 @@ Genomgånget i Figma 2026-10-05: bara blocken i den första tabellen har innehå
 | 3 | Product-Grid ✓ komponent | `8365:8988` | Product-cards, 3 per rad på desktop, 2 på Tablet, en slider på Mobile | ProductCard | Nytt block, data från `TruckFamilies` | M |
 | 4 | Text+Grid ✓ komponent | `8389:4705` | Rubrik med pil ("Så enkelt fungerar det") och cards i en ljus panel | Arrow, Card, card grid | Nytt block, eller Cards med nytt utseende | M |
 | 5 | Text & boxinfo ✓ komponent | `8389:8524` | Mörk sektion: Display-rubrik i två färger, brödtext, en box med tre rader (rubrik, text, etikett) och en tejp-knapp | Choice-liknande rader, Button | Nytt block | M |
-| 6 | Configurator ✓ skärm (fas 1) | `8721:16450` | Totalpris, configurator-box med "Nästa", truckbild, "Boka samtal" | ConfiguratorBox, Button | Configurator-blocket (finns) | L |
+| 6 | Configurator ✓ skärm, ✓ kopplad (fas 2) | `8721:16450` | Totalpris, configurator-box med "Nästa", truckbild, "Boka samtal" | ConfiguratorBox, Button | Configurator-blocket (finns) | L |
 
 ### Väntar på designen
 
@@ -57,10 +57,10 @@ de finns på kitchensink men ändras när ramen är klar.
   trucktyp i `TruckFamilies`?
 - **Ramen "blabla"** (text-box, truck-column): när är den klar, och vad ska den heta?
 - **Configurator** (besvarat 2026-10-05): ram 15 gäller och price-box utgår; den nedre raden är ett
-  annat steg; telefonikonen är tillagd. Kvar till fas 2: skärmarna som inte är ritade (val av
-  truckfamilj, finansiering, offert- och samtalsformulären). Beslutat: blockets `heading` och
-  `intro` tas bort, en bild per familj räcker, en valfri hjälptext per steg i `TruckFamilies`, och
-  "Boka samtal" öppnar samtalsformuläret.
+  annat steg; telefonikonen är tillagd. Fas 2 är gjord: blockets `heading` och `intro`
+  är borttagna, stegen har en valfri hjälptext, "Boka samtal" öppnar samtalsformuläret och skickar
+  konfigurationen som den är. Kvar: offertsidan (`/configurator/quote`) har den gamla stilen, och
+  i Figmas helsidesskisser ligger navigationen över konfiguratorn.
 - **Configurator, bilden (kolla igen).** Figma beskär och förstorar trucken olika i varje läge, och
   i mobilskisserna ligger steget över bildens nederkant. Tills vidare får trucken alltid plats med
   marginal och bara kontaktrutan ligger över den (beslut 2026-10-05). Stäm av med designen.

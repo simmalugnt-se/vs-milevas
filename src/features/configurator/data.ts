@@ -94,6 +94,7 @@ function mapFamily(family: TruckFamily): ConfiguratorFamily {
       label: step.label,
       heading: step.heading,
       description: step.description || undefined,
+      help: step.help || undefined,
       groups: step.groups.map((group) => ({
         key: group.key,
         label: group.label,
