@@ -32,6 +32,13 @@ export const Footer: GlobalConfig = {
         initCollapsed: true,
       },
     },
+    {
+      name: "email",
+      type: "email",
+      admin: {
+        description: "The mail icon links to this address.",
+      },
+    },
   ],
   hooks: {
     afterChange: [revalidateFooter],

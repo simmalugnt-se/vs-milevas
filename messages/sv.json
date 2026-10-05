@@ -5,7 +5,13 @@
     "allRightsReserved": "Med ensamrätt."
   },
   "nav": {
-    "home": "Hem"
+    "home": "Hem",
+    "menu": "Meny",
+    "close": "Stäng"
+  },
+  "footer": {
+    "email": "E-post",
+    "otherLanguage": "In English"
   },
   "locale": {
     "selectLanguage": "Språk"

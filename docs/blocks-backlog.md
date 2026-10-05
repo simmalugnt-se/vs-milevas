@@ -15,8 +15,9 @@ Beslutat 2026-10-02: full bredd med `grid/margin` för allt innehåll, även hea
 
 - **Sidans layout.** Beslutat 2026-10-02: vit sidbakgrund tills vidare, och Hero går ut över
   marginalen (kant i kant). Kvar: nya namn för `surface`/`canvas` i `site-theme.css`.
-- **Navigation och Footer** är egna komponenter, fristående från Header- och Footer-globalerna
-  (beslutat 2026-10-02). Kopplingen till globalerna görs senare.
+- **Navigation och Footer** är egna komponenter som Header- och Footer-globalerna matar sedan
+  2026-10-05 (`src/payload/globals/*/Component.tsx`). Header fick länkfältet `cta` för knappen och
+  Footer fältet `email`; språkbytet sitter på footerns globe-ikon.
 - **Nya block eller boilerplatens** (när komponenterna blir Payload-block). Boilerplaten har Hero,
   Cards, CallToAction, FAQ, Columns, Gallery, Media och RichText. Att byta deras utseende ger
   konflikter vid nästa boilerplate-uppdatering; egna Milevas-block gör inte det men dubblerar.
@@ -25,8 +26,8 @@ Beslutat 2026-10-02: full bredd med `grid/margin` för allt innehåll, även hea
 
 | # | Block | Figma | Innehåll | Bygger på | Payload | Storlek |
 |---|---|---|---|---|---|---|
-| 1 | Navigation ✓ komponent | `8309:4506` | Rundad "pill" med logosymbol, länkar och knappen "Bygg din truck"; Mobile har en öppen meny (`State=Open`) | Logo, Button | Header-global (finns) | M |
-| 2 | Footer ✓ komponent | `6076:622` | Länkar, ordmärket i full bredd, ikoner (mail, globe) | Logo, Icon, TextLink | Footer-global (finns) | S |
+| 1 | Navigation ✓ komponent, ✓ Header-global | `8309:4506` | Rundad "pill" med logosymbol, länkar och knappen "Bygg din truck"; Mobile har en öppen meny (`State=Open`) | Logo, Button | Header-global (finns) | M |
+| 2 | Footer ✓ komponent, ✓ Footer-global | `6076:622` | Länkar, ordmärket i full bredd, ikoner (mail, globe) | Logo, Icon, TextLink | Footer-global (finns) | S |
 | 3 | Product-Grid | `8365:8988` | Product-cards, 3 per rad på desktop | ProductCard | Nytt block, data från `TruckFamilies` | M |
 | 4 | Text+Grid | `8389:4705` | Rubrik med pil ("Så enkelt fungerar det") och cards i en ljus panel | Arrow, Card, card grid | Nytt block, eller Cards med nytt utseende | M |
 | 5 | Grid | `8389:4440` | Grid med 2, 3 eller 4 platser (`count`); platserna är tomma i Figma | Card grid | Avgörs med 4: samma block utan rubrik? | S |

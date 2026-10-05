@@ -13,6 +13,7 @@ export type NavItem = {
 export type HeaderData = {
   announcement?: string | null;
   announcementLink?: LinkFieldValue | null;
+  cta?: LinkFieldValue | null;
   navItems?: NavItem[] | null;
   siteName?: string | null;
   showAnnouncement?: boolean | null;
@@ -21,6 +22,7 @@ export type HeaderData = {
 
 export type FooterData = {
   copyright?: string | null;
+  email?: string | null;
   navItems?: NavItem[] | null;
 };
 

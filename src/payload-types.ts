@@ -1438,6 +1438,19 @@ export interface Header {
         id?: string | null;
       }[]
     | null;
+  /**
+   * The button at the end of the navigation, e.g. "Bygg din truck".
+   */
+  cta: {
+    type?: ('internal' | 'external') | null;
+    reference?: {
+      relationTo: 'pages';
+      value: string | Page;
+    } | null;
+    url?: string | null;
+    label: string;
+    newTab?: boolean | null;
+  };
   showAnnouncement?: boolean | null;
   announcement: string;
   announcementLink: {
@@ -1476,6 +1489,10 @@ export interface Footer {
         id?: string | null;
       }[]
     | null;
+  /**
+   * The mail icon links to this address.
+   */
+  email?: string | null;
   _status?: ('draft' | 'published') | null;
   updatedAt?: string | null;
   createdAt?: string | null;
@@ -1533,6 +1550,15 @@ export interface HeaderSelect<T extends boolean = true> {
             };
         id?: T;
       };
+  cta?:
+    | T
+    | {
+        type?: T;
+        reference?: T;
+        url?: T;
+        label?: T;
+        newTab?: T;
+      };
   showAnnouncement?: T;
   announcement?: T;
   announcementLink?:
@@ -1569,6 +1595,7 @@ export interface FooterSelect<T extends boolean = true> {
             };
         id?: T;
       };
+  email?: T;
   _status?: T;
   updatedAt?: T;
   createdAt?: T;

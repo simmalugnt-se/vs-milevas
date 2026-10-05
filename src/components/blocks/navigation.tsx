@@ -1,9 +1,9 @@
 "use client";
 
-import { useId, useState } from "react";
+import { type ReactNode, useId, useState } from "react";
 import { ButtonLink } from "@/components/ui/button";
 import { Logo } from "@/components/ui/logo";
-import { Link } from "@/i18n/navigation";
+import { Link, usePathname } from "@/i18n/navigation";
 
 /**
  * Navigation from Figma "04 — Blocks" (8309:4506). A white bar (`bg-active`) with the logo symbol,
@@ -14,19 +14,49 @@ import { Link } from "@/i18n/navigation";
  * - Desktop L: as Desktop S, the button next to the links (`spacing/md`).
  * Around the bar: `spacing/sm` below Desktop S, `grid/margin` sideways from Desktop S.
  *
- * A component with props for now; the Header global will feed it later.
+ * The Header global feeds it on the site (`src/payload/globals/Header/Component.tsx`).
  */
 
-export type NavigationLink = { label: string; href: string; current?: boolean };
+/** Data attributes spread on an element, e.g. visual editing's click-to-edit markers. */
+type Attributes = Partial<Record<string, string>>;
+
+export type NavigationLink = {
+  label: ReactNode;
+  href: string;
+  /** Marks the link as the current page; without it the link is current when its path is. */
+  current?: boolean;
+  rel?: string;
+  target?: "_blank";
+  attributes?: Attributes;
+};
 
 type NavigationProps = {
   links: NavigationLink[];
-  cta: { label: string; href: string };
+  /** The button ("Bygg din truck"); left out when the Header global has none. */
+  cta?: NavigationLink;
   menuLabel?: string;
   closeLabel?: string;
   /** Start with the mobile menu open (the kitchensink uses it). */
   defaultOpen?: boolean;
+  attributes?: Attributes;
 };
+
+const isCurrentPath = (href: string, pathname: string) =>
+  href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`);
+
+function CtaLink({ cta, className }: { cta: NavigationLink; className?: string }) {
+  return (
+    <ButtonLink
+      href={cta.href}
+      rel={cta.rel}
+      target={cta.target}
+      className={className}
+      {...cta.attributes}
+    >
+      {cta.label}
+    </ButtonLink>
+  );
+}
 
 export function Navigation({
   links,
@@ -34,12 +64,18 @@ export function Navigation({
   menuLabel = "Meny",
   closeLabel = "Stäng",
   defaultOpen = false,
+  attributes,
 }: NavigationProps) {
   const [open, setOpen] = useState(defaultOpen);
   const menuId = useId();
+  const pathname = usePathname();
+  const isCurrent = (link: NavigationLink) => link.current ?? isCurrentPath(link.href, pathname);
 
   return (
-    <nav className="flex justify-center p-(--spacing-sm) desktop-s:px-(--grid-margin)">
+    <nav
+      className="flex justify-center p-(--spacing-sm) desktop-s:px-(--grid-margin)"
+      {...attributes}
+    >
       <div className="flex w-full flex-col items-start gap-(--spacing-3xl) rounded-sm border border-border-primary bg-bg-active px-(--spacing-sm) py-(--spacing-xs) tablet:flex-row tablet:items-center tablet:justify-between tablet:p-(--spacing-2xs) desktop-s:w-auto desktop-s:justify-start desktop-s:gap-(--spacing-2xl)">
         <div className="flex w-full items-center justify-between gap-(--spacing-md) tablet:w-auto">
           <Link href="/" aria-label="Milevas" className="text-ui-primary">
@@ -59,10 +95,13 @@ export function Navigation({
               <li key={link.href}>
                 <Link
                   href={link.href}
-                  aria-current={link.current ? "page" : undefined}
+                  rel={link.rel}
+                  target={link.target}
+                  aria-current={isCurrent(link) ? "page" : undefined}
                   className={`block whitespace-nowrap py-(--spacing-2xs) text-label-s transition-colors hover:text-ui-primary ${
-                    link.current ? "text-ui-primary" : "text-ui-tertiary"
+                    isCurrent(link) ? "text-ui-primary" : "text-ui-tertiary"
                   }`}
+                  {...link.attributes}
                 >
                   {link.label}
                 </Link>
@@ -70,14 +109,18 @@ export function Navigation({
             ))}
           </ul>
           {/* Visibility sits on a wrapper: ButtonLink's own inline-flex would beat a `hidden` on it. */}
-          <span className="hidden desktop-l:flex">
-            <ButtonLink href={cta.href}>{cta.label}</ButtonLink>
-          </span>
+          {cta ? (
+            <span className="hidden desktop-l:flex">
+              <CtaLink cta={cta} />
+            </span>
+          ) : null}
         </div>
 
-        <span className="hidden tablet:flex desktop-l:hidden">
-          <ButtonLink href={cta.href}>{cta.label}</ButtonLink>
-        </span>
+        {cta ? (
+          <span className="hidden tablet:flex desktop-l:hidden">
+            <CtaLink cta={cta} />
+          </span>
+        ) : null}
 
         <div
           id={menuId}
@@ -88,17 +131,19 @@ export function Navigation({
               <li key={link.href}>
                 <Link
                   href={link.href}
-                  aria-current={link.current ? "page" : undefined}
+                  rel={link.rel}
+                  target={link.target}
+                  aria-current={isCurrent(link) ? "page" : undefined}
+                  onClick={() => setOpen(false)}
                   className="block py-(--spacing-xs) text-label-l text-ui-primary"
+                  {...link.attributes}
                 >
                   {link.label}
                 </Link>
               </li>
             ))}
           </ul>
-          <ButtonLink href={cta.href} className="self-start">
-            {cta.label}
-          </ButtonLink>
+          {cta ? <CtaLink cta={cta} className="self-start" /> : null}
         </div>
       </div>
     </nav>

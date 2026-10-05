@@ -6,6 +6,7 @@ import * as migration_20260810_150422_configurator_service_agreement from "./202
 import * as migration_20260811_120812_r2_media_prefix from "./20260811_120812_r2_media_prefix";
 import * as migration_20260811_122754_r2_documents_prefix from "./20260811_122754_r2_documents_prefix";
 import * as migration_20261002_065231_boilerplate_sync from "./20261002_065231_boilerplate_sync";
+import * as migration_20261005_081141_header_cta_footer_email from "./20261005_081141_header_cta_footer_email";
 
 export const migrations = [
   {
@@ -47,5 +48,10 @@ export const migrations = [
     up: migration_20261002_065231_boilerplate_sync.up,
     down: migration_20261002_065231_boilerplate_sync.down,
     name: "20261002_065231_boilerplate_sync",
+  },
+  {
+    up: migration_20261005_081141_header_cta_footer_email.up,
+    down: migration_20261005_081141_header_cta_footer_email.down,
+    name: "20261005_081141_header_cta_footer_email",
   },
 ];

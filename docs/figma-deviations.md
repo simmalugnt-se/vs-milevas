@@ -62,8 +62,14 @@ på kitchensink-sidan (`/kitchensink`) ska också stå här.
 | Navigation, position | Okänt om den ska följa med vid scroll | Ligger kvar överst (inte sticky) | Inget ritat | Antagande |
 | Navigation, färg | `Color/BG/active` (`#ffffff`), inte på färgframen | Token `bg-bg-active` | Variabeln gäller | Beslut (2026-10-02) |
 | Footer, avstånd | Primitiva `scale/xs` (8) och `scale/md-root` (16), inte `spacing/*` | `spacing/2xs` och `spacing/sm`, samma värden | Endast `layout`-variablerna finns som tokens | Antagande |
-| Footer, marginal | Indrag 16px från länkarnas och logotypens padding, inte `grid/margin` (8) | Som Figma: 16px | Figma ritar så i alla fyra lägen; avviker från beslutet om `grid/margin` för allt innehåll | Antagande |
+| Footer, marginal | Indrag 16px från länkarnas och logotypens padding, inte `grid/margin` (8) | Som Figma: 16px | Figma ritar så i alla fyra lägen; avviker från beslutet om `grid/margin` för allt innehåll, men får göra det | Beslut (2026-10-05) |
 | Footer, hover | Inget hover-läge för länkarna | Inget | Inget ritat | Antagande |
+| Navigation, språkväljare | Ingen i navigationen | Boilerplatens språkväljare är borttagen ur headern; språket byts med globe-ikonen i footern | Navigationen följer Figma | Beslut (2026-10-05) |
+| Navigation, data | Länkar och knappen "Bygg din truck" | Header-globalens `navItems` och det nya länkfältet `cta`; `siteName` och `siteTagline` finns kvar i globalen men visas inte | Figmas navigation har bara logosymbolen | Beslut (2026-10-05) |
+| Navigation, aktiv länk | Den aktiva länken är mörk | Aktiv när sidans sökväg är länkens (eller under den) | Figma visar läget men inte regeln | Antagande |
+| Announcement bar | Finns inte i Figma | Boilerplatens fält är kvar och visas, när det är påslaget, ovanför navigationen i `bg-inv-fill` | Valfritt för redaktörerna; utseendet är vårt eget | Antagande |
+| Footer, globe | Ikonen utan förklaring | Byter till samma sida på det andra språket (sv ↔ en); tillgängligt namn "In English" eller "På svenska" | Plats för språkbytet utan att ändra navigationen | Beslut (2026-10-05) |
+| Footer, data | Länkar och mail-ikonen | Footer-globalens `navItems` och det nya fältet `email` (`mailto:`); `copyright` finns kvar men visas inte | Figmas footer har ingen copyright-rad | Beslut (2026-10-05) |
 
 ## Frågor till designen
 

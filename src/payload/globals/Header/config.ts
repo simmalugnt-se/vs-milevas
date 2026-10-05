@@ -1,4 +1,4 @@
-import type { GlobalConfig } from "payload";
+import type { GlobalConfig, GroupField } from "payload";
 import { ADMIN_GROUPS } from "@/payload/admin-groups.ts";
 import { link } from "@/payload/fields/link";
 import { generateGlobalPreviewPath } from "@/payload/utilities/preview.ts";
@@ -36,6 +36,14 @@ export const Header: GlobalConfig = {
       maxRows: 8,
       admin: {
         initCollapsed: true,
+      },
+    },
+    {
+      ...(link({ name: "cta" }) as GroupField),
+      label: "Button",
+      admin: {
+        hideGutter: true,
+        description: 'The button at the end of the navigation, e.g. "Bygg din truck".',
       },
     },
     {

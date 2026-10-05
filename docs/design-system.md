@@ -1,6 +1,6 @@
 # Designsystemet: läge och hur du fortsätter
 
-Läget 2026-10-02, branch `develop`. Designsystemet byggs från Figma-filen "Milevas — Website" i
+Läget 2026-10-05, branch `develop`. Designsystemet byggs från Figma-filen "Milevas — Website" i
 omgångar: "01 — Foundations" och "02 — Components" är klara, och "04 — Blocks" pågår.
 
 ## Var allt finns
@@ -9,8 +9,8 @@ omgångar: "01 — Foundations" och "02 — Components" är klara, och "04 — B
 |---|---|
 | Tokens (färger, textstilar, brytpunkter, storlekar, spacing, grid, radier) | `src/styles/site-theme.css` |
 | Komponenter (Icon, Arrow, Logo, Button, Choice, ProductCard, Card, ConfiguratorBox, PriceBox, TextBox, TruckColumn) | `src/components/ui/` |
-| Block som komponenter med platshållarinnehåll (Navigation, Footer) | `src/components/blocks/` |
-| Referenssidor, noindex och 404 i produktion | `/kitchensink` (foundations och komponenter), `/kitchensink/blocks` |
+| Block som komponenter (Navigation, Footer) | `src/components/blocks/`; Navigation och Footer matas av Header- och Footer-globalerna i `src/payload/globals/*/Component.tsx` |
+| Referenssidor, noindex och 404 i produktion | `/kitchensink` (foundations och komponenter, en sektion per komponent med Figma-id och props), `/kitchensink/blocks` |
 | Listorna kitchensink visar, som testet jämför med CSS:en | `src/app/(frontend)/[locale]/kitchensink/*.ts` |
 | Test för tokens | `tests/design-tokens.test.mts` |
 | Ikoner, pilar och logotyp från Figmas SVG:er | `scripts/figma-svgs/` |
@@ -32,7 +32,9 @@ Figma, och säg vilket nummer i backloggen det är.
 1. Markera blocket i Figma. Hämta `get_metadata` för strukturen, sedan `get_design_context` och
    `get_variable_defs` för blocket. Variablernas namn och värden gäller, inte skärmdumpen.
 2. Bygg komponenten i `src/components/blocks/` med innehåll som props och återanvänd
-   `src/components/ui/`. Lägg den på `/kitchensink/blocks` med platshållarinnehåll.
+   `src/components/ui/`. Lägg den på `/kitchensink/blocks` med platshållarinnehåll. En ny
+   UI-komponent får en egen sektion på `/kitchensink` (i `contents` överst i sidan), med
+   `figma`, `api` och en `Example` med etikett per variant.
 3. Jämför i webbläsaren mot Figma vid 1440, 1100, 800 och 375 px (Desktop L, Desktop S, Tablet,
    Mobile). Mät höjder och bredder och kontrollera att sidan inte scrollar i sidled.
 4. Skriv in varje avvikelse och varje lucka du fyller i `figma-deviations.md`, och bocka av blocket

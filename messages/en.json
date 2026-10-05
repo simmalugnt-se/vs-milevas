@@ -5,7 +5,13 @@
     "allRightsReserved": "All rights reserved."
   },
   "nav": {
-    "home": "Home"
+    "home": "Home",
+    "menu": "Menu",
+    "close": "Close"
+  },
+  "footer": {
+    "email": "Email",
+    "otherLanguage": "På svenska"
   },
   "locale": {
     "selectLanguage": "Language"
