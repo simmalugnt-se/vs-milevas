@@ -133,13 +133,8 @@ export const designQuestions: DesignQuestion[] = [
   {
     target: "configurator",
     question:
-      "Bilden: Figma beskär och förstorar trucken olika i varje läge, och i mobilskisserna ligger steget över bildens nederkant. Tills vidare får trucken alltid plats med marginal och bara kontaktrutan ligger över den (beslut 2026-10-05). Vad ska gälla?",
+      "Figma visar olika förstoring och beskärning per breakpoint för samma truck. Ska varje truckfamilj ha egna bildutsnitt per breakpoint, eller ska alla följa en gemensam regel? Koden använder tills vidare object-contain med marginal (beslut 2026-10-05).",
     figma: "8721:16450",
-  },
-  {
-    target: "configurator",
-    question:
-      "I helsidesskisserna ligger navigationen över konfiguratorn. Ska den sväva över konfiguratorns yta, eller vara sticky på hela sajten?",
   },
 ];
 
@@ -782,10 +777,31 @@ export const figmaNotes: FigmaNote[] = [
   {
     target: "configurator",
     topic: "Proportioner",
-    figma: "Ramarna 800px (Desktop), 1000px (Tablet), 800px (Mobile)",
-    code: "Truckytan har Figmas proportion (893:704, 787:704) på Desktop och ungefär 704:480 och 359:340 under, uppmätta i skärmdumparna; skärmen är så hög som den och steget",
-    why: "Inga fasta höjder",
+    figma:
+      "Verifierat i ram 15: Desktop L 1440×800 med bildyta 893.33×704; Desktop S 1280×800 med bildyta 687.33×704; Tablet 800×1000 med gemensam pris-/bildyta 704×478; Mobile 375×800 med gemensam pris-/bildyta 359×315",
+    code: "Minhöjd 50rem på Mobile och Desktop, 62.5rem på Tablet. Bildytan får återstående utrymme efter valpanelen; under Desktop delar pris och truck samma yta. Bildytan har minhöjd 19.6875rem på Mobile och 29.875rem på Tablet så längre val kan öka blockets höjd.",
+    why: "Figmas grid ändrar bildytans höjd mellan stegen för att hålla samma ramhöjd. Minhöjd och innehållsstyrd grid behåller detta, samtidigt som längre texter och staplade mobilval kan växa utan att klippas.",
     status: "Antagande",
+    date: "2026-10-07",
+  },
+  {
+    target: "configurator",
+    topic: "Navigation och totalpris",
+    figma:
+      "Den markerade blockramen innehåller ingen navigation. Den globala överlagrade navigationen är beslutad separat.",
+    code: "Payload-blocket reserverar 6rem i samma grå bakgrund ovanför ConfiguratorScreen för sajtens överlagrade navigation. Kitchensinks fristående skärm behåller Figmas egna mått.",
+    why: "Den fristående blockramen visar ingen header. Den reserverade ytan hindrar sajtens navigation från att täcka totalpriset och skalar med samma rem-regel som resten av sidan.",
+    status: "Beslut (teknisk)",
+    date: "2026-10-07",
+  },
+  {
+    target: "configurator",
+    topic: "Testinnehåll jämfört med designexemplet",
+    figma: "Ram 15 visar en Baoli-truck och val med både Title och Text.",
+    code: "Kontrollerad truckfamilj använder truck-placeholder.webp (annan truck), och lyftkapacitetsvalen saknar beskrivningstext. Valpanelen var därför 229.39px hög vid 1280px, mot Figmas 362px.",
+    why: "Bilden kommer från TruckFamilies i Payload, och valens text från katalogen. Skillnaden i panelhöjd beror delvis på innehållet och ska inte kompenseras med manuella mått.",
+    status: "Platshållare",
+    date: "2026-10-07",
   },
   {
     target: "configurator",
@@ -800,9 +816,9 @@ export const figmaNotes: FigmaNote[] = [
     target: "configurator",
     topic: "Bilden",
     figma:
-      "Trucken beskuren och förstorad, olika per läge; i mobilskisserna ligger rutan över bildens nederkant",
-    code: "Trucken får alltid plats med `spacing/md` marginal i sin yta; bara kontaktrutan ligger över den, totalpriset ovanför och steget under",
-    why: "Oklart i Figma vad som ska gälla; se frågan ovan",
+      "Trucken förstorad och beskuren olika per läge, med kontaktrutan över bilden. Valpanelen ligger efter img&btn-ytan med 8px gap, även på Mobile.",
+    code: "Trucken får plats med object-contain och spacing/md marginal. Kontaktrutan ligger över bilden; under Desktop ligger även priset i samma yta och steget under.",
+    why: "Utsnittet skiljer sig från designexemplet. Frågan gäller hur Figmas utsnitt ska tillämpas på olika truckfamiljers dynamiska bilder; valpanelen överlappar inte bildytan i den nu markerade ramen.",
     status: "Antagande",
   },
   {
@@ -837,14 +853,14 @@ export const figmaNotes: FigmaNote[] = [
     topic: "Trucktyp",
     figma: "Inte ritat; ram 15 börjar med lyftkapaciteten som `[01]`",
     code: 'Valet av truckfamilj är första steget, `[01]`, med familjerna som `Choice` med bild och "Från"-pris; familjens steg följer som `[02]` och framåt',
-    why: "Konfiguratorn behöver familjen; ingen ingång väljer den åt besökaren än",
+    why: "Familjeval behövs när /configurator öppnas utan family i URL:en. Startsidan kan nu välja familjen genom sina direktlänkar, som går direkt till familjens första konfigurationssteg.",
     status: "Antagande",
   },
   {
     target: "configurator",
     topic: "Före familjen",
     figma: "Inte ritat",
-    code: 'Totalpriset visar "Från" och familjernas lägsta pris; ingen truckbild, så ytan krymper till kontaktrutan; "Boka samtal" inaktiv tills en familj är vald',
+    code: 'Totalpriset visar "Från" och familjernas lägsta pris; pris-/kontaktytan behåller platsen även utan truckbild. "Boka samtal" är inaktiv tills en familj är vald',
     why: "Samtalet behöver en familj",
     status: "Antagande",
   },
