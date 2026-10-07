@@ -11,7 +11,8 @@ import { Icon } from "./icon";
  * We read "tablet" as "no hover": below Desktop S the arrow and prices are always there, from
  * Desktop S they appear on hover. Its proportions are those of product-grid's instances at each
  * mode's design width (339, 388, 416 and 469 wide, all 507 high), so it keeps Figma's shape as the
- * width grows; the image shrinks to make room.
+ * width grows; the image shrinks to make room for the arrow and prices on hover. Content sits
+ * inside the ratio box so its intrinsic size cannot change the card's height or the grid rows.
  * Pass `data-state="hover"` to show the hover look without a pointer.
  */
 
@@ -35,7 +36,7 @@ export type ProductCardProps = Omit<ComponentProps<typeof Link>, "children"> & {
 
 /** Hidden on Desktop until the card is hovered (or has `data-state="hover"`). */
 const revealOnHover =
-  "desktop-s:hidden desktop-s:group-hover/card:flex desktop-s:group-data-[state=hover]/card:flex";
+  "desktop-s:hidden desktop-s:group-hover/card:flex desktop-s:group-focus-visible/card:flex desktop-s:group-data-[state=hover]/card:flex";
 
 export function ProductCard({
   brand,
@@ -53,59 +54,63 @@ export function ProductCard({
 }: ProductCardProps) {
   return (
     <Link
-      className={`group/card flex aspect-[339/507] flex-col tablet:aspect-[388/507] desktop-s:aspect-[416/507] desktop-l:aspect-[469/507] rounded-lg bg-bg-fill p-(--spacing-sm) transition-colors hover:bg-bg-surface data-[state=hover]:bg-bg-surface ${className ?? ""}`}
+      className={`group/card relative block aspect-[339/507] tablet:aspect-[388/507] desktop-s:aspect-[416/507] desktop-l:aspect-[469/507] rounded-lg bg-bg-fill transition-colors hover:bg-bg-surface focus-visible:bg-bg-surface data-[state=hover]:bg-bg-surface ${className ?? ""}`}
       {...props}
     >
-      <span className="flex w-full items-start justify-between">
-        <span className="flex gap-4 text-label-s">
-          <span className="text-ui-tertiary">{brand}</span>
-          <span className="text-ui-primary">{category}</span>
-        </span>
-        <span className={`flex text-ui-primary ${revealOnHover}`}>
-          <Arrow name="halfup" />
-        </span>
-      </span>
-
-      <span className="flex min-h-0 w-full flex-1 items-center justify-center p-8">
-        <span className="relative block aspect-[489/365] h-full max-w-full">{image}</span>
-      </span>
-
-      <span className="flex w-full flex-col gap-(--spacing-xs)">
-        <span className="flex w-full items-center justify-between gap-4">
-          <span className="flex flex-wrap gap-4 text-label-s text-ui-secondary">
-            {specs.map((spec, index) => (
-              <span key={index} className="flex gap-4">
-                {index > 0 ? <span aria-hidden>{"///"}</span> : null}
-                {spec}
-              </span>
-            ))}
+      <span className="absolute inset-0 flex flex-col p-(--spacing-sm)">
+        <span className="flex w-full items-start justify-between">
+          <span className="flex gap-4 text-label-s">
+            <span className="text-ui-tertiary">{brand}</span>
+            <span className="text-ui-primary">{category}</span>
           </span>
-          <Icon name="info" className="text-ui-secondary" />
+          <span className={`flex text-ui-primary ${revealOnHover}`}>
+            <Arrow name="halfup" />
+          </span>
         </span>
-        <span className="text-display-s text-ui-primary">{name}</span>
-        {price || leasing ? (
-          <span
-            className={`flex w-full items-center justify-between text-ui-primary ${revealOnHover}`}
-          >
-            {price ? (
-              <span className="flex flex-col gap-2">
-                <span className="text-label-s">{priceLabel}</span>
-                <span className="whitespace-nowrap text-text-l">{price}</span>
-              </span>
-            ) : (
-              <span />
-            )}
-            {leasing ? (
-              <span className="flex flex-col gap-2">
-                <span className="text-label-s">{leasingLabel}</span>
-                <span className="flex items-end gap-1">
-                  <span className="whitespace-nowrap text-text-l">{leasing}</span>
-                  <span className="pb-[0.2em] text-label-s text-ui-secondary">{perMonthLabel}</span>
+
+        <span className="flex min-h-0 w-full flex-1 items-center justify-center p-8">
+          <span className="relative block aspect-[489/365] h-full max-w-full">{image}</span>
+        </span>
+
+        <span className="flex w-full flex-col gap-(--spacing-xs)">
+          <span className="flex w-full items-center justify-between gap-4">
+            <span className="flex flex-wrap gap-4 text-label-s text-ui-secondary">
+              {specs.map((spec, index) => (
+                <span key={index} className="flex gap-4">
+                  {index > 0 ? <span aria-hidden>{"///"}</span> : null}
+                  {spec}
                 </span>
-              </span>
-            ) : null}
+              ))}
+            </span>
+            <Icon name="info" className="text-ui-secondary" />
           </span>
-        ) : null}
+          <span className="text-display-s text-ui-primary">{name}</span>
+          {price || leasing ? (
+            <span
+              className={`flex w-full items-center justify-between text-ui-primary ${revealOnHover}`}
+            >
+              {price ? (
+                <span className="flex flex-col gap-2">
+                  <span className="text-label-s">{priceLabel}</span>
+                  <span className="whitespace-nowrap text-text-l">{price}</span>
+                </span>
+              ) : (
+                <span />
+              )}
+              {leasing ? (
+                <span className="flex flex-col gap-2">
+                  <span className="text-label-s">{leasingLabel}</span>
+                  <span className="flex items-end gap-1">
+                    <span className="whitespace-nowrap text-text-l">{leasing}</span>
+                    <span className="pb-[0.2em] text-label-s text-ui-secondary">
+                      {perMonthLabel}
+                    </span>
+                  </span>
+                </span>
+              ) : null}
+            </span>
+          ) : null}
+        </span>
       </span>
     </Link>
   );

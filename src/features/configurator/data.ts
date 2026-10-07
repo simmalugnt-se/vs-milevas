@@ -80,6 +80,7 @@ function mapFamily(family: TruckFamily): ConfiguratorFamily {
   const imageUrl = getMediaImageURL(family.image);
 
   return {
+    id: family.id,
     key: family.key,
     name: family.name,
     description: family.description || undefined,

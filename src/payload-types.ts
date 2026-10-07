@@ -342,6 +342,128 @@ export interface Page {
             blockName?: string | null;
             blockType: 'configurator';
           }
+        | {
+            /**
+             * Valfritt, för länkar inom sidan. Exempel: modeller (utan #).
+             */
+            anchor?: string | null;
+            /**
+             * Sidans h1, läses av skärmläsare men visas inte i kolumnerna.
+             */
+            heading: string;
+            activeColumn?: number | null;
+            columns: {
+              /**
+               * Valfritt. Hämtar namn, bild och priser från konfiguratorn.
+               */
+              family?: (string | null) | TruckFamily;
+              heading: string;
+              link?: {
+                type?: ('internal' | 'external') | null;
+                reference?: {
+                  relationTo: 'pages';
+                  value: string | Page;
+                } | null;
+                url?: string | null;
+                label: string;
+                newTab?: boolean | null;
+              };
+              price?: string | null;
+              leasing?: string | null;
+              id?: string | null;
+            }[];
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'milevasHero';
+          }
+        | {
+            /**
+             * Valfritt, för länkar inom sidan. Exempel: modeller (utan #).
+             */
+            anchor?: string | null;
+            label: string;
+            brand?: string | null;
+            category?: string | null;
+            products: {
+              /**
+               * Valfritt. Hämtar namn, bild och priser från konfiguratorn.
+               */
+              family?: (string | null) | TruckFamily;
+              name?: string | null;
+              image?: (string | null) | Image;
+              capacity?: string | null;
+              battery?: string | null;
+              imageFit?: ('contain' | 'cover' | 'crop') | null;
+              imageCrop?: {
+                width?: number | null;
+                height?: number | null;
+                left?: number | null;
+                top?: number | null;
+              };
+              link?: {
+                type?: ('internal' | 'external') | null;
+                reference?: {
+                  relationTo: 'pages';
+                  value: string | Page;
+                } | null;
+                url?: string | null;
+                label: string;
+                newTab?: boolean | null;
+              };
+              price?: number | null;
+              leasing?: number | null;
+              id?: string | null;
+            }[];
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'productGrid';
+          }
+        | {
+            /**
+             * Valfritt, för länkar inom sidan. Exempel: modeller (utan #).
+             */
+            anchor?: string | null;
+            heading: string;
+            cards: {
+              number: string;
+              label: string;
+              text?: string | null;
+              image: string | Image;
+              id?: string | null;
+            }[];
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'textGrid';
+          }
+        | {
+            /**
+             * Valfritt, för länkar inom sidan. Exempel: modeller (utan #).
+             */
+            anchor?: string | null;
+            heading: string;
+            highlight?: string | null;
+            text?: string | null;
+            items: {
+              heading: string;
+              label?: string | null;
+              text?: string | null;
+              id?: string | null;
+            }[];
+            showButton?: boolean | null;
+            cta: {
+              type?: ('internal' | 'external') | null;
+              reference?: {
+                relationTo: 'pages';
+                value: string | Page;
+              } | null;
+              url?: string | null;
+              label: string;
+              newTab?: boolean | null;
+            };
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'textBoxinfo';
+          }
       )[]
     | null;
   meta?: {
@@ -432,28 +554,6 @@ export interface Video {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "documents".
- */
-export interface Document {
-  id: string;
-  title: string;
-  description?: string | null;
-  prefix?: string | null;
-  _objectKey?: string | null;
-  updatedAt: string;
-  createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "truck-families".
  */
 export interface TruckFamily {
@@ -537,6 +637,28 @@ export interface TruckFamily {
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "documents".
+ */
+export interface Document {
+  id: string;
+  title: string;
+  description?: string | null;
+  prefix?: string | null;
+  _objectKey?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1046,6 +1168,118 @@ export interface PagesSelect<T extends boolean = true> {
         configurator?:
           | T
           | {
+              id?: T;
+              blockName?: T;
+            };
+        milevasHero?:
+          | T
+          | {
+              anchor?: T;
+              heading?: T;
+              activeColumn?: T;
+              columns?:
+                | T
+                | {
+                    family?: T;
+                    heading?: T;
+                    link?:
+                      | T
+                      | {
+                          type?: T;
+                          reference?: T;
+                          url?: T;
+                          label?: T;
+                          newTab?: T;
+                        };
+                    price?: T;
+                    leasing?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        productGrid?:
+          | T
+          | {
+              anchor?: T;
+              label?: T;
+              brand?: T;
+              category?: T;
+              products?:
+                | T
+                | {
+                    family?: T;
+                    name?: T;
+                    image?: T;
+                    capacity?: T;
+                    battery?: T;
+                    imageFit?: T;
+                    imageCrop?:
+                      | T
+                      | {
+                          width?: T;
+                          height?: T;
+                          left?: T;
+                          top?: T;
+                        };
+                    link?:
+                      | T
+                      | {
+                          type?: T;
+                          reference?: T;
+                          url?: T;
+                          label?: T;
+                          newTab?: T;
+                        };
+                    price?: T;
+                    leasing?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        textGrid?:
+          | T
+          | {
+              anchor?: T;
+              heading?: T;
+              cards?:
+                | T
+                | {
+                    number?: T;
+                    label?: T;
+                    text?: T;
+                    image?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        textBoxinfo?:
+          | T
+          | {
+              anchor?: T;
+              heading?: T;
+              highlight?: T;
+              text?: T;
+              items?:
+                | T
+                | {
+                    heading?: T;
+                    label?: T;
+                    text?: T;
+                    id?: T;
+                  };
+              showButton?: T;
+              cta?:
+                | T
+                | {
+                    type?: T;
+                    reference?: T;
+                    url?: T;
+                    label?: T;
+                    newTab?: T;
+                  };
               id?: T;
               blockName?: T;
             };

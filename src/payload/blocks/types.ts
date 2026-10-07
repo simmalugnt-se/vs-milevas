@@ -15,3 +15,11 @@ export type FAQBlock = Extract<LayoutBlock, { blockType: "faq" }>;
 export type GalleryBlock = Extract<LayoutBlock, { blockType: "gallery" }>;
 export type CallToActionBlock = Extract<LayoutBlock, { blockType: "callToAction" }>;
 export type ColumnsBlock = Extract<LayoutBlock, { blockType: "columns" }>;
+
+export type MilevasHeroBlock = Extract<LayoutBlock, { blockType: "milevasHero" }>;
+
+export type ProductGridBlock = Extract<LayoutBlock, { blockType: "productGrid" }>;
+
+export type TextGridBlock = Extract<LayoutBlock, { blockType: "textGrid" }>;
+
+export type TextBoxinfoBlock = Extract<LayoutBlock, { blockType: "textBoxinfo" }>;

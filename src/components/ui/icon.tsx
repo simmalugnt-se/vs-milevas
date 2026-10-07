@@ -330,8 +330,8 @@ export function Icon({ name, title, className, ...props }: IconProps) {
   return (
     <svg
       viewBox={viewBox}
-      width={width}
-      height={height}
+      width={`${Number(width) / 16}rem`}
+      height={`${Number(height) / 16}rem`}
       fill="none"
       aria-hidden={title ? undefined : true}
       role={title ? "img" : undefined}

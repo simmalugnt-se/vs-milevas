@@ -111,6 +111,6 @@
 }
 
 .cms-richtext blockquote {
-  border-left: 3px solid currentColor;
+  border-left: 0.1875rem solid currentColor;
   padding-left: 1em;
 }

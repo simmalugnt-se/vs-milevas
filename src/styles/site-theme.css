@@ -83,6 +83,15 @@
   --breakpoint-desktop-l: 90rem;
 }
 
+/** Scale the public site from its 1440px design width; respect the browser's base font size. */
+html.milevas-site {
+  font-size: 100%;
+
+  @variant desktop-l {
+    font-size: max(100%, calc(100vw / 90));
+  }
+}
+
 /** Figma `shape/radius-*`: `rounded-sm` and `rounded-lg` (Tailwind's defaults are 4 and 8px). */
 @theme {
   --radius-sm: 0.5rem;
@@ -253,8 +262,8 @@
 
 /** Block boundaries, shown with the grid overlay (`GridOverlay`, Ctrl+Shift+G in development). */
 html[data-grid-overlay-visible] [data-layout-block] {
-  outline: 1px dashed #ff2d7a;
-  outline-offset: -1px;
+  outline: 0.0625rem dashed #ff2d7a;
+  outline-offset: -0.0625rem;
 }
 
 /**
@@ -311,7 +320,7 @@ html[data-grid-overlay-visible] [data-layout-block] {
 
 /** Flat bordered panel (no glass, no shadow). */
 @utility surface {
-  border-width: 1px;
+  border-width: 0.0625rem;
   border-style: solid;
   border-color: var(--color-neutral-200);
   background-color: var(--color-white);

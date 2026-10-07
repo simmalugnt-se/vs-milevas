@@ -112,6 +112,7 @@ export function FigmaNotes({ target }: { target: NoteTarget }) {
 
 /** Where each block's notes are on /kitchensink/blocks. */
 const blockLinks: Record<BlockTarget, { title: string; href: string }> = {
+  hero: { title: "Milevas Hero", href: "/kitchensink/blocks#hero" },
   navigation: { title: "Navigation", href: "/kitchensink/blocks#navigation" },
   "product-grid": { title: "Product-Grid", href: "/kitchensink/blocks#product-grid" },
   "text-grid": { title: "Text+Grid", href: "/kitchensink/blocks#text-grid" },

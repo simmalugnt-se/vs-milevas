@@ -29,6 +29,7 @@ export type ComponentTarget =
 
 /** Blocks on /kitchensink/blocks. */
 export type BlockTarget =
+  | "hero"
   | "navigation"
   | "product-grid"
   | "text-grid"
@@ -68,9 +69,9 @@ export type DesignQuestion = {
 export const designQuestions: DesignQuestion[] = [
   // General
   {
-    target: "general",
+    target: "hero",
     question:
-      "Hero (`8539:7103`): Desktop L har fem kolumner, kitchensinks exempel fyra. En per trucktyp i `TruckFamilies`?",
+      "Startsidan har fem hero-kolumner och sex produktkort. Testet kopplar en kolumn till varje befintlig truckfamilj; är det rätt indelning?",
     figma: "8539:7103",
   },
   {
@@ -143,6 +144,89 @@ export const designQuestions: DesignQuestion[] = [
 ];
 
 export const figmaNotes: FigmaNote[] = [
+  {
+    target: "general",
+    topic: "Dynamisk rem-skala",
+    figma: "Desktop L är ritad vid 1440px; ingen regel för skalning över designbredden",
+    code: "Publika sajten behåller grundstorleken upp till 1440px och skalar därefter rem med viewportens bredd: 1rem = bredd / 90. Text, spacing, ikoner och layoutmått följer samma skala",
+    why: "Användarens önskemål att behålla proportionerna från 1440px på större skärmar. Payload-admin har en separat root-layout och omfattas inte",
+    status: "Beslut",
+    date: "2026-10-07",
+  },
+  {
+    target: "hero",
+    topic: "Mindre skärmar",
+    figma:
+      "Page Template har tomma blockytor på Desktop S, Tablet och Mobile; hero-blocket är inte färdigritat under desktop",
+    code: "Fem kolumner på desktop; horisontell snap-lista under Desktop S, 85 % kortbredd på Mobile och 55 % på Tablet, alla val synliga",
+    why: "Första testversionen behöver fungerande länkar även utan hover",
+    status: "Antagande",
+    date: "2026-10-07",
+  },
+  {
+    target: "hero",
+    topic: "Höjd på desktop",
+    figma: "Hero-ramen har proportionen 1440:832",
+    code: "Från Desktop S är heron 100svh hög utan aspektförhållande. Kolumnernas text ligger längst ner inom den synliga höjden",
+    why: "På breda skärmar blev den breddstyrda höjden större än viewporten och dolde texten. Anpassat till viewportens höjd efter användarens granskning",
+    status: "Beslut",
+    date: "2026-10-07",
+  },
+  {
+    target: "hero",
+    topic: "Aktiv kolumn",
+    figma: "Den tredje av fem kolumner är gul",
+    code: "Startkolumnen väljs i Payload; hover och tangentbordsfokus aktiverar en annan kolumn",
+    why: "Figma visar ett läge men ingen regel för startkolumnen",
+    status: "Antagande",
+    date: "2026-10-07",
+  },
+  {
+    target: "hero",
+    topic: "Rubrik och priser",
+    figma: "Bygg din truck: med exempelpriser, ingen sidrubrik",
+    code: "En redigerbar h1 för skärmläsare; pris och leasing från vald truckfamilj och konfiguratorns finansieringsinställningar",
+    why: "Riktigt CMS-innehåll och priser som följer konfiguratorn",
+    status: "Beslut (teknisk)",
+    date: "2026-10-07",
+  },
+  {
+    target: "product-grid",
+    topic: "Truckdata och plocktruck",
+    figma: "Sex kort med exempel på namn, specifikationer och bilder",
+    code: "Familjekopplade kort hämtar priser och länkar från konfiguratorn. Bild, namn, kapacitet och batteritext kan ersättas i blocket. Plocktruckar länkar tills vidare till kontakt utan priser",
+    why: "Plocktruckar finns inte i konfiguratorns katalog; specifikationerna i testet följer Figmas exempel och behöver innehållsgranskas",
+    status: "Antagande",
+    date: "2026-10-07",
+  },
+  {
+    target: "product-grid",
+    topic: "Bildproportioner",
+    figma: "Anpassade bildutsnitt per truck",
+    code: "Anpassade utsnitt använder object-contain så bildens proportioner bevaras",
+    why: "Object-fill sträckte bilderna i kortens viloläge; korrigerat efter granskning av startsidan",
+    status: "Beslut (teknisk)",
+    date: "2026-10-07",
+  },
+  {
+    target: "text-grid",
+    topic: "Testinnehåll",
+    figma: "Tre etiketter med 01 och label, två texter med text",
+    code: "01/02/03 och Bygg din truck/Få offert/Leverans; fotografierna från Figma, text-platshållarna kvar",
+    why: "Samma etiketter som kitchensink, redigerbara i Payload",
+    status: "Antagande",
+    date: "2026-10-07",
+  },
+  {
+    target: "text-boxinfo",
+    topic: "Knappens mål",
+    figma: "Label med pil, inget mål angivet",
+    code: "Läs mer länkar till kontakt i teststartsidan; både text och mål går att ändra i Payload",
+    why: "Finansieringssidan finns inte än",
+    status: "Antagande",
+    date: "2026-10-07",
+  },
+
   // General
   {
     target: "general",
@@ -329,6 +413,24 @@ export const figmaNotes: FigmaNote[] = [
     date: "2026-10-05",
   },
   {
+    target: "product-card",
+    topic: "Stabil layout vid hover",
+    figma: "Pil och priser visas i hover-läget",
+    code: "Kortets yttre proportioner bestämmer höjden. Innehållet ligger i en absolut positionerad flex-layout; bilden krymper när pil och priser visas vid hover eller tangentbordsfokus",
+    why: "Bilden ska ändra storlek enligt designen, medan innehållets storlek inte ska kunna ändra kortets höjd eller flytta nästa rad",
+    status: "Beslut (teknisk)",
+    date: "2026-10-07",
+  },
+  {
+    target: "product-grid",
+    topic: "Scrollankring vid hover",
+    figma: "Bilden ändrar storlek vid hover utan att sidan flyttas",
+    code: "Produktgridden använder overflow-anchor:none; kortens innehåll får inte användas som webbläsarens scrollankare",
+    why: "När kortets topp låg utanför viewport flyttade webbläsaren scrollpositionen för att kompensera för bildens storleksändring. Det kunde också flytta kortens kanter under pekaren och växla hover-läge",
+    status: "Beslut (teknisk)",
+    date: "2026-10-07",
+  },
+  {
     target: "card",
     topic: "Färger",
     figma: "Text `#f5f5f5`, gradient `rgba(0,0,0,.4)` → `.2`; inga variabler",
@@ -416,6 +518,15 @@ export const figmaNotes: FigmaNote[] = [
   },
   {
     target: "navigation",
+    topic: "Om Baoli i testet",
+    figma: "Om Baoli i navigationen",
+    code: "Länkar till kontakt tills sidan finns; redigerbart i Header-globalen",
+    why: "Ingen Om Baoli-sida i lokala testinnehållet",
+    status: "Antagande",
+    date: "2026-10-07",
+  },
+  {
+    target: "navigation",
     topic: "Mobilmenyn",
     figma: 'Knappen heter "MENY" stängd och "Close" öppen',
     code: '"Meny" och "Stäng" (props)',
@@ -426,8 +537,8 @@ export const figmaNotes: FigmaNote[] = [
     target: "navigation",
     topic: "Position",
     figma: "Okänt om den ska följa med vid scroll",
-    code: "Ligger kvar överst (inte sticky)",
-    why: "Inget ritat",
+    code: "På sidor som börjar med Milevas Hero ligger navigationen över innehållet och följer med vid scroll; övriga sidor behåller vanlig placering",
+    why: "Page Template på Desktop L har navigationen i ett sticky lager ovanpå sidan; används även under desktop tills designen är klar",
     status: "Antagande",
   },
   {
@@ -578,9 +689,30 @@ export const figmaNotes: FigmaNote[] = [
     target: "text-boxinfo",
     topic: "Höjd",
     figma: "Desktop-ramarna är 800px höga, med texten upptill och boxen nedtill",
-    code: "Ingen fast höjd: boxen ligger minst `spacing/4xl` lägre än texten och slutar i jämnhöjd med den eller längre ned",
-    why: "Inga fasta höjder; Figmas luft mellan text och box blir mindre (blocket 631px vid 1440)",
+    code: "Minhöjd 50rem från Desktop S, texten upptill och boxen nedtill. Blocket kan växa med innehållet; under Desktop bestäms höjden av innehållet.",
+    why: "Den tidigare tolkningen utan minhöjd gav 631px vid 1440 och 596px vid 1280. Minhöjden behåller Figmas luft (800px vid rotstorlek 16px) och följer den proportionella rem-skalningen över 1440.",
+    status: "Beslut",
+    date: "2026-10-07",
+  },
+  {
+    target: "text-boxinfo",
+    topic: "Typografi och radbrytning",
+    figma:
+      "Desktop L (`8389:8525`): Clash Grotesk Variable, rubrik 96px med radavstånd 0.9 och fyra rader; brödtext 36px med radavstånd 1.1",
+    code: "Samma storlekar och radavstånd, men Geist som platshållare. Vid 1440 blir rubriken fem rader och 432px hög, jämfört med Figmas 344px.",
+    why: "Fontfilerna saknas. Vid 1440 är rotstorleken 16px; extra raden uppstår med det andra typsnittets teckenbredder, inte av större rem-skalning.",
+    status: "Platshållare",
+    date: "2026-10-07",
+  },
+  {
+    target: "text-boxinfo",
+    topic: "Textbredd",
+    figma:
+      "Desktop L: textnoderna `8389:8880` och `8389:8881` har explicit bredd 803px inom en kolumnyta på 827.33px med 16px vänsterpadding",
+    code: "Texten fyller gridytan efter padding: 811.33px vid 1440",
+    why: "Den gemensamma griden följer Figmas 12 kolumner med 8px marginal och gap; textnodernas explicita bredd lämnar ytterligare cirka 8px tomt i Figma.",
     status: "Antagande",
+    date: "2026-10-07",
   },
   {
     target: "text-boxinfo",

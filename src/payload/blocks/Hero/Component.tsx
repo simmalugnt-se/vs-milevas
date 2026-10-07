@@ -4,7 +4,7 @@ import type { HeroBlock, LayoutBlockComponentProps } from "../types";
 
 export function HeroBlockComponent({ block }: LayoutBlockComponentProps<HeroBlock>) {
   return (
-    <section className="surface grid gap-6 p-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(280px,0.9fr)] lg:gap-8 lg:p-8">
+    <section className="surface grid gap-6 p-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(17.5rem,0.9fr)] lg:gap-8 lg:p-8">
       <div className="space-y-5">
         {block.headline ? (
           <h1

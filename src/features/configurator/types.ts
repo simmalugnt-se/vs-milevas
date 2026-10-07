@@ -45,6 +45,7 @@ export type ConfiguratorStep = {
 };
 
 export type ConfiguratorFamily = {
+  id?: string;
   key: string;
   name: string;
   description?: string;

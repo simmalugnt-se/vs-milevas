@@ -107,7 +107,7 @@ export default async function QuotePage({ params, searchParams }: QuotePageProps
         </div>
       </header>
 
-      <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_380px]">
+      <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_23.75rem]">
         <div className="space-y-5">
           <div className="border border-neutral-300 bg-white">
             <div className="border-b border-neutral-300 bg-neutral-50 px-5 py-3 text-xs uppercase tracking-[0.16em] text-neutral-600">

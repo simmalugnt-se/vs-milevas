@@ -727,7 +727,7 @@ export default function KitchensinkPage() {
                       {variant.label}
                     </th>
                     {[false, true].map((selected) => (
-                      <td key={String(selected)} className="w-[368px] p-2 align-top">
+                      <td key={String(selected)} className="w-[23rem] p-2 align-top">
                         <Choice
                           title="Title"
                           price="€€€€"

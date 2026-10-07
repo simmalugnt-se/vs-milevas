@@ -9,6 +9,7 @@ type LayoutBlockValue = {
   image?: unknown;
   media?: unknown;
   summary?: unknown;
+  text?: unknown;
 };
 
 type LexicalNode = {
@@ -69,6 +70,11 @@ export const getDocumentDescription = (doc: PageLike) => {
       if (summary) {
         return truncate(summary);
       }
+    }
+
+    if (block.blockType === "textBoxinfo") {
+      const text = asString(block.text);
+      if (text) return truncate(text);
     }
 
     if (block.blockType === "callout") {

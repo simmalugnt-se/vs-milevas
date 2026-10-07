@@ -8,6 +8,8 @@ const ALL_CMS_TAGS = [
   "documents",
   "images",
   "videos",
+  "truck-families",
+  "configurator-settings",
   REDIRECTS_CACHE_TAG,
   "global:header",
   "global:footer",

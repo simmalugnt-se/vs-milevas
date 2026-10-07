@@ -123,7 +123,7 @@ export const AdminBar: React.FC<{
     >
       <div
         className={cn(
-          `absolute min-w-[260px] max-w-[min(340px,calc(100vw-2rem))] rounded-lg border border-white/15 bg-black/95 p-5 text-white shadow-[0_12px_40px_rgba(0,0,0,0.45)] backdrop-blur-md transition-all duration-200 ${panelPositionClasses}`,
+          `absolute min-w-[16.25rem] max-w-[min(21.25rem,calc(100vw-2rem))] rounded-lg border border-white/15 bg-black/95 p-5 text-white shadow-[0_0.75rem_2.5rem_rgba(0,0,0,0.45)] backdrop-blur-md transition-all duration-200 ${panelPositionClasses}`,
           isMenuOpen
             ? "pointer-events-auto translate-y-0 opacity-100"
             : "pointer-events-none translate-y-2 opacity-0",
@@ -181,13 +181,13 @@ export const AdminBar: React.FC<{
       <button
         aria-expanded={isMenuOpen}
         aria-label="Toggle admin bar"
-        className="flex h-11 items-center gap-2 rounded-full border border-white/20 bg-black/95 px-3 text-xs font-semibold text-white shadow-[0_8px_30px_rgba(0,0,0,0.45)] backdrop-blur-md transition hover:bg-black"
+        className="flex h-11 items-center gap-2 rounded-full border border-white/20 bg-black/95 px-3 text-xs font-semibold text-white shadow-[0_0.5rem_1.875rem_rgba(0,0,0,0.45)] backdrop-blur-md transition hover:bg-black"
         onClick={() => setIsMenuOpen((prev) => !prev)}
         type="button"
       >
         <span>{isMenuOpen ? "Close" : "Admin"}</span>
         {isPreviewMode ? (
-          <span className="rounded-full bg-emerald-500/20 px-1.5 py-0.5 text-[10px] font-medium text-emerald-200">
+          <span className="rounded-full bg-emerald-500/20 px-1.5 py-0.5 text-[0.625rem] font-medium text-emerald-200">
             Draft
           </span>
         ) : null}

@@ -21,7 +21,7 @@ export function RenderBlocks({
   }
 
   return (
-    <div className={className}>
+    <div className={layout[0]?.blockType === "milevasHero" ? "milevas-page" : className}>
       {layout.map((block, index) => {
         const BlockComponent = renderers[block.blockType];
 

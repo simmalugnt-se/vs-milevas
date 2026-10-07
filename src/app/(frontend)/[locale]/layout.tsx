@@ -76,7 +76,7 @@ export default async function LocaleLayout({
   setRequestLocale(locale);
 
   return (
-    <html lang={locale}>
+    <html lang={locale} className="milevas-site">
       <body
         className={`${geistSans.variable} ${geistMono.variable} canvas min-h-screen font-sans antialiased`}
       >
@@ -84,7 +84,7 @@ export default async function LocaleLayout({
           <AdminBarSlot />
           <div className="canvas min-h-screen">
             <SiteHeader locale={locale} />
-            <main className="flex min-h-[calc(100vh-88px)] w-full flex-col px-(--grid-margin) pb-12 pt-6">
+            <main className="flex min-h-[calc(100vh-5.5rem)] w-full flex-col px-(--grid-margin) pb-12 pt-6">
               {children}
             </main>
             <SiteFooter locale={locale} />

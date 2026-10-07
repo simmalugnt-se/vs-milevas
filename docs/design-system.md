@@ -1,6 +1,6 @@
 # Designsystemet: läge och hur du fortsätter
 
-Läget 2026-10-05, branch `develop`. Designsystemet byggs från Figma-filen "Milevas — Website" i
+Läget 2026-10-07, branch `develop`. Designsystemet byggs från Figma-filen "Milevas — Website" i
 omgångar: "01 — Foundations" och "02 — Components" är klara, och "04 — Blocks" pågår.
 
 ## Var allt finns
@@ -9,7 +9,7 @@ omgångar: "01 — Foundations" och "02 — Components" är klara, och "04 — B
 |---|---|
 | Tokens (färger, textstilar, brytpunkter, storlekar, spacing, grid, radier) | `src/styles/site-theme.css` |
 | Komponenter (Icon, Arrow, Logo, Button, Choice, ProductCard, Card, ConfiguratorBox, PriceBox, TextBox, TruckColumn) | `src/components/ui/` |
-| Block som komponenter (Navigation, Footer, Product-Grid, Text+Grid, Text & boxinfo) | `src/components/blocks/`; Navigation och Footer matas av Header- och Footer-globalerna i `src/payload/globals/*/Component.tsx` |
+| Block som komponenter (Navigation, Footer, Milevas Hero, Product-Grid, Text+Grid, Text & boxinfo) | `src/components/blocks/`; Navigation och Footer matas av Header- och Footer-globalerna i `src/payload/globals/*/Component.tsx` |
 | Referenssidor, noindex och 404 i produktion | `/kitchensink` (foundations och komponenter, en sektion per komponent med Figma-id och props), `/kitchensink/blocks` |
 | Listorna kitchensink visar, som testet jämför med CSS:en | `src/app/(frontend)/[locale]/kitchensink/*.ts` |
 | Test för tokens | `tests/design-tokens.test.mts` |
@@ -56,6 +56,14 @@ Figma, och säg vilket nummer i backloggen det är.
   skulle styra `w-*` och `max-w-*` i boilerplaten.
 - **Brytpunkter:** `tablet:`, `desktop-s:` och `desktop-l:`. Mobile är utan prefix. Tailwinds
   `sm`–`2xl` är kvar för boilerplate-blocken.
+- **Enheter och skalning:** publika sajten använder `rem` för text, spacing, radier, ikonstorlekar
+  och fasta layoutmått. Under Desktop L behålls webbläsarens grundstorlek. Från 1440px skalar
+  `html.milevas-site` proportionellt (`1rem = viewportbredd / 90`, minst webbläsarens grundstorlek).
+  1440px ger 16px/rem, 1920px ger cirka 21,33px/rem. Procent, `fr`, `vw` och aspektförhållanden
+  används där måttet ska följa en behållare. Hårfina borders/rings från Tailwind behåller sina
+  pixelmått; bilders pixelstorlekar, SVG-koordinater och `sizes` är metadata och ska inte konverteras.
+  Payload-admin och e-post har egna stilar. Brytpunkter i rem utgår från webbläsarens grundstorlek,
+  inte från sidans dynamiska root-storlek.
 - **En ny token** i `site-theme.css` ska också in i kitchensinks lista, annars fallerar testet.
 - **Gridet över sidan:** Ctrl+Shift+G visar sidans grid (`GridOverlay`, bara i utveckling), med
   samma `grid-layout` som blocken: 12 kolumner från Desktop S och 6 under, och en streckad kontur runt
@@ -72,6 +80,29 @@ Figma, och säg vilket nummer i backloggen det är.
 - **Nya ikoner:** lägg till namn och asset-hash i `scripts/figma-svgs/assets.json`, kör
   `node scripts/figma-svgs/to-tsx.mjs icon` med Figma öppet och klistra in resultatet i
   `src/components/ui/icon.tsx`.
+
+## Startsidan som Payload-block (2026-10-07)
+
+Fyra egna block finns i `src/payload/blocks`: `MilevasHero`, `ProductGrid`, `TextGrid` och
+`TextBoxinfo`. De återanvänder kitchensinks komponenter, har lokaliserade innehållsfält,
+bildfält, länkar och markörer för visual editing. Boilerplatens block är kvar.
+
+- En sida som börjar med `milevasHero` använder fullbredd, sammanhängande block och navigation
+  ovanpå innehållet som följer med vid scroll. Övriga sidors layout behålls.
+- Hero är `100svh` hög från Desktop S så texten längst ner ryms även på breda skärmar.
+  Mobile och Tablet använder sina tidigare aspektförhållanden i snap-listan.
+- Hero och produktkort kan kopplas till truckfamiljer: namn, bild och priser kan hämtas från
+  konfiguratorn. Produktkortens bildutsnitt kan styras i Payload; testet använder Figmas utsnitt.
+- `pnpm seed:homepage` skapar startsidan (`home`) samt navigation/footer som lokala utkast.
+  `pnpm seed:homepage -- --publish-local` publicerar testet enbart lokalt. Kommandot kräver
+  `SERVICES=local`, körs aldrig automatiskt och ersätter inte en startsida som redan har Milevas Hero.
+  Figma-bilderna finns i `scripts/figma-homepage-assets` och laddas upp till Payload av scriptet.
+- Ingen ny SQL-migrering behövs: `blocksAsJSON` lagrar block och relationer i sidans JSON.
+- `pnpm test:milevas-blocks` provar sparande, relationer, lokaliserad text och upprepad seed i
+  en egen tillfällig databas. Befintliga migrationsfiler bygger hela schemat.
+
+Hero på mindre skärmar, plocktruckens kontaktlänk, specifikationerna och kvarvarande
+text-platshållare är dokumenterade vid blocken i `figma-notes.ts`. Clash Grotesk saknas fortfarande.
 
 ## Nästa steg
 

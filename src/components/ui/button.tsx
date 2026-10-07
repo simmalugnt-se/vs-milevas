@@ -40,7 +40,7 @@ function SlidingIcon({ name, size }: { name: IconName; size: 12 | 16 }) {
   return (
     <span
       className={`flex ${box} shrink-0 overflow-hidden`}
-      style={{ "--slide": `${size + 4}px` } as React.CSSProperties}
+      style={{ "--slide": `${(size + 4) / 16}rem` } as React.CSSProperties}
     >
       <span className={`flex shrink-0 gap-1 ${slide}`}>
         {[0, 1].map((copy) => (

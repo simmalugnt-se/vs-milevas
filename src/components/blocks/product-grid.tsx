@@ -1,3 +1,4 @@
+import type { HTMLAttributes } from "react";
 import { ProductCard, type ProductCardProps } from "@/components/ui/product-card";
 
 /**
@@ -9,18 +10,22 @@ import { ProductCard, type ProductCardProps } from "@/components/ui/product-card
  *   `spacing/md`, so the next one shows at the edge.
  * The cards keep Figma's proportions per mode (see ProductCard).
  *
- * A component with props for now; `TruckFamilies` will feed it as a Payload block.
+ * Reused by the ProductGrid Payload block, with optional TruckFamilies data.
  */
 
-type ProductGridProps = {
+type ProductGridProps = HTMLAttributes<HTMLElement> & {
   products: ProductCardProps[];
   /** Accessible name of the list, e.g. "Modeller". */
   label?: string;
 };
 
-export function ProductGrid({ products, label }: ProductGridProps) {
+export function ProductGrid({ products, label, ...attributes }: ProductGridProps) {
   return (
-    <section aria-label={label} className="bg-bg-inv-fill py-(--grid-margin)">
+    <section
+      {...attributes}
+      aria-label={label}
+      className="bg-bg-inv-fill py-(--grid-margin) [overflow-anchor:none]"
+    >
       {/* The slider runs to the screen edge; its padding keeps the first card on the margin. */}
       <ul className="flex snap-x snap-mandatory scroll-px-(--grid-margin) gap-(--grid-gap) overflow-x-auto px-(--grid-margin) [scrollbar-width:none] tablet:card-grid-3 tablet:overflow-visible">
         {products.map((product) => (

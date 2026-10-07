@@ -16,8 +16,16 @@ import { HeroBlockComponent } from "./Hero/Component";
 import { HeroBlock } from "./Hero/config";
 import { MediaBlockComponent } from "./Media/Component";
 import { MediaBlock } from "./Media/config";
+import { MilevasHeroBlockComponent } from "./MilevasHero/Component";
+import { MilevasHeroBlock } from "./MilevasHero/config";
+import { ProductGridBlockComponent } from "./ProductGrid/Component";
+import { ProductGridBlock } from "./ProductGrid/config";
 import { RichTextBlockComponent } from "./RichText/Component";
 import { RichTextBlock } from "./RichText/config";
+import { TextBoxinfoBlockComponent } from "./TextBoxinfo/Component";
+import { TextBoxinfoBlock } from "./TextBoxinfo/config";
+import { TextGridBlockComponent } from "./TextGrid/Component";
+import { TextGridBlock } from "./TextGrid/config";
 import type { LayoutBlock } from "./types";
 
 export type { LayoutBlock } from "./types";
@@ -57,6 +65,11 @@ export const layoutBlocks: Block[] = [
   CallToActionBlock,
   ColumnsBlock,
   ConfiguratorBlock,
+  MilevasHeroBlock,
+  ProductGridBlock,
+  TextGridBlock,
+  TextBoxinfoBlock,
+
   // sl-cli:layout-blocks (do not remove)
 ];
 
@@ -74,5 +87,17 @@ export const blockComponents = {
     CallToActionBlockComponent({ block }),
   ),
   columns: renderTypedBlock("columns", ({ block }) => ColumnsBlockComponent({ block })),
+  milevasHero: renderTypedBlock("milevasHero", ({ block }) =>
+    createElement(MilevasHeroBlockComponent, { block }),
+  ),
+  productGrid: renderTypedBlock("productGrid", ({ block }) =>
+    createElement(ProductGridBlockComponent, { block }),
+  ),
+  textGrid: renderTypedBlock("textGrid", ({ block }) =>
+    createElement(TextGridBlockComponent, { block }),
+  ),
+  textBoxinfo: renderTypedBlock("textBoxinfo", ({ block }) =>
+    createElement(TextBoxinfoBlockComponent, { block }),
+  ),
   // sl-cli:block-components-map (do not remove)
 } satisfies Record<string, LayoutBlockRenderer>;

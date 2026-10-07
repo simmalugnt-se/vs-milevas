@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 import { ConfiguratorScreen } from "@/components/blocks/configurator-screen";
 import { Footer, type FooterLink } from "@/components/blocks/footer";
+import { MilevasHero } from "@/components/blocks/milevas-hero";
 import { Navigation, type NavigationLink } from "@/components/blocks/navigation";
 import { ProductGrid } from "@/components/blocks/product-grid";
 import { TextBoxinfo } from "@/components/blocks/text-boxinfo";
@@ -168,8 +169,8 @@ export default function KitchensinkBlocksPage() {
         </p>
         <h1 className="text-display-m text-ui-primary">Block</h1>
         <p className="max-w-prose text-text-m text-ui-secondary">
-          Komponenter från Figma &quot;04 — Blocks&quot; med platshållarinnehåll. De blir
-          Payload-block med riktiga fält senare.
+          Komponenter från Figma med platshållarinnehåll. Hero, Product-Grid, Text+Grid och Text
+          &amp; boxinfo finns också som redigerbara Payload-block.
         </p>
         <div className="border-l-4 border-status-info bg-bg-fill px-4 py-3 text-sm text-ui-primary">
           <strong>Fortsätta arbetet?</strong> Läs{" "}
@@ -187,6 +188,22 @@ export default function KitchensinkBlocksPage() {
       {/* The mobile menu follows the viewport, not this box: try it at phone width. */}
       <Block id="navigation" notes="navigation" title="Navigation" figma="8309:4506">
         <Navigation links={navigationLinks} cta={navigationCta} />
+      </Block>
+
+      <Block id="hero" notes="hero" title="Milevas Hero" figma="8550:12778">
+        <MilevasHero
+          heading="Bygg din truck med Milevas"
+          columns={Array.from({ length: 5 }, (_, index) => ({
+            id: String(index),
+            heading: "Bygg din truck:",
+            label: `Bygg din truck, kolumn ${index + 1}`,
+            href: "/configurator",
+            rows: [
+              { label: "Från", value: "169 000 kr" },
+              { label: "Leasing från:", value: "3 326 kr/mån" },
+            ],
+          }))}
+        />
       </Block>
 
       {/* Hover a card for the Desktop look; below Desktop S the arrow and prices always show. */}
