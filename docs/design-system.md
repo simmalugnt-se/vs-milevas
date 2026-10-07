@@ -8,6 +8,7 @@ omgångar: "01 — Foundations" och "02 — Components" är klara, och "04 — B
 | Vad | Var |
 |---|---|
 | Tokens (färger, textstilar, brytpunkter, storlekar, spacing, grid, radier) | `src/styles/site-theme.css` |
+| Clash Grotesk Variable (WOFF2, vikter 200–700) och licens | `src/app/(frontend)/fonts/clash-grotesk/`; laddas via `next/font/local` i `[locale]/layout.tsx` |
 | Komponenter (Icon, Arrow, Logo, Button, Choice, ProductCard, Card, ConfiguratorBox, PriceBox, TextBox, TruckColumn) | `src/components/ui/` |
 | Block som komponenter (Navigation, Footer, Milevas Hero, Product-Grid, Text+Grid, Text & boxinfo) | `src/components/blocks/`; Navigation och Footer matas av Header- och Footer-globalerna i `src/payload/globals/*/Component.tsx` |
 | Referenssidor, noindex och 404 i produktion | `/kitchensink` (foundations och komponenter, en sektion per komponent med Figma-id och props), `/kitchensink/blocks` |
@@ -103,7 +104,8 @@ bildfält, länkar och markörer för visual editing. Boilerplatens block är kv
   en egen tillfällig databas. Befintliga migrationsfiler bygger hela schemat.
 
 Hero på mindre skärmar, plocktruckens kontaktlänk, specifikationerna och kvarvarande
-text-platshållare är dokumenterade vid blocken i `figma-notes.ts`. Clash Grotesk saknas fortfarande.
+text-platshållare är dokumenterade vid blocken i `figma-notes.ts`. Clash Grotesk Variable används
+för Display, Text och sajtens standardtext; Label använder Geist Mono.
 
 ## Nästa steg
 
@@ -111,6 +113,5 @@ text-platshållare är dokumenterade vid blocken i `figma-notes.ts`. Clash Grote
    skiss. Hero, Grid och Image & Text väntar på designen, och text-box och truck-column är utkast
    tills ramen "blabla" är klar.
 2. **Väntar på designen eller på dig:**
-   - woff2-filerna för Clash Grotesk Variable (`TODO(clash-grotesk)`)
    - värdena i Figmas `motion`-samling (`TODO(motion)`)
    - en genomgång av posterna med status Antagande och frågorna till designen, på `/kitchensink`

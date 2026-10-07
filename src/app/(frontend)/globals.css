@@ -3,6 +3,6 @@
 @import "../../styles/rich-text.css";
 
 @theme inline {
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-clash-grotesk), sans-serif;
   --font-mono: var(--font-geist-mono);
 }

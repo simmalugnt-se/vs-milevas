@@ -373,11 +373,6 @@ export default function KitchensinkPage() {
         </Section>
 
         <Section id="typography">
-          {/* TODO(clash-grotesk): remove this notice when the font is loaded in the layout. */}
-          <p className="border-l-4 border-status-warning bg-bg-fill px-4 py-3 text-sm text-ui-primary">
-            Platshållare: Clash Grotesk Variable saknas än, så Display och Text visas i Geist.
-            Storlek, vikt och radavstånd följer Figma.
-          </p>
           <ul className="space-y-2 text-sm">
             {textStyles.map((style) => (
               <TextStyleSpec key={style.className} style={style} />

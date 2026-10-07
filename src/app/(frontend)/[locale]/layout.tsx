@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist_Mono } from "next/font/google";
+import localFont from "next/font/local";
 import { NextIntlClientProvider } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import type { TypedLocale } from "payload";
@@ -12,12 +13,12 @@ import { FooterSlot as SiteFooter } from "@/payload/globals/Footer/Slot";
 import { HeaderSlot as SiteHeader } from "@/payload/globals/Header/Slot";
 import "../globals.css";
 
-// TODO(clash-grotesk): add Clash Grotesk Variable here with `next/font/local` (woff2 files not yet
-// in the repo), `variable: "--font-clash-grotesk"`, and put it on <body>. `site-theme.css` falls back
-// to Geist until then.
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+const clashGrotesk = localFont({
+  src: "../fonts/clash-grotesk/ClashGrotesk-Variable.woff2",
+  variable: "--font-clash-grotesk",
+  weight: "200 700",
+  style: "normal",
+  display: "swap",
 });
 
 const geistMono = Geist_Mono({
@@ -78,7 +79,7 @@ export default async function LocaleLayout({
   return (
     <html lang={locale} className="milevas-site">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} canvas min-h-screen font-sans antialiased`}
+        className={`${clashGrotesk.variable} ${geistMono.variable} canvas min-h-screen font-sans antialiased`}
       >
         <NextIntlClientProvider locale={locale}>
           <AdminBarSlot />

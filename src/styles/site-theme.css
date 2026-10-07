@@ -61,13 +61,11 @@
 
 /**
  * Font families (Figma `font/family/display`, `font/family/text`, `font/family/label`).
- * TODO(clash-grotesk): display and text should be Clash Grotesk Variable. Until its woff2 files are
- * added with `next/font/local` (variable `--font-clash-grotesk`) in `[locale]/layout.tsx`, Geist
- * stands in. The kitchensink page shows a warning while the placeholder is in use.
+ * Clash Grotesk Variable is self-hosted with `next/font/local` in `[locale]/layout.tsx`.
  */
 @theme inline {
-  --font-display: var(--font-clash-grotesk, var(--font-geist-sans)), sans-serif;
-  --font-text: var(--font-clash-grotesk, var(--font-geist-sans)), sans-serif;
+  --font-display: var(--font-clash-grotesk), sans-serif;
+  --font-text: var(--font-clash-grotesk), sans-serif;
   --font-label: var(--font-geist-mono), monospace;
 }
 

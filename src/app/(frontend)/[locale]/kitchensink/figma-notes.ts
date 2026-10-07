@@ -271,9 +271,10 @@ export const figmaNotes: FigmaNote[] = [
     target: "typography",
     topic: "Typsnitt",
     figma: "Clash Grotesk Variable för Display och Text",
-    code: "Geist",
-    why: "woff2-filerna saknas, se `TODO(clash-grotesk)`",
-    status: "Platshållare",
+    code: "Clash Grotesk Variable för Display, Text och sajtens standardtext; Geist Mono för Label",
+    why: "Fontshares officiella WOFF2-fil laddas lokalt via next/font/local, med viktintervallet 200–700. Licensen ligger tillsammans med fontfilen i repot.",
+    status: "Beslut",
+    date: "2026-10-07",
   },
   {
     target: "typography",
@@ -710,9 +711,9 @@ export const figmaNotes: FigmaNote[] = [
     topic: "Typografi och radbrytning",
     figma:
       "Desktop L (`8389:8525`): Clash Grotesk Variable, rubrik 96px med radavstånd 0.9 och fyra rader; brödtext 36px med radavstånd 1.1",
-    code: "Samma storlekar och radavstånd, men Geist som platshållare. Vid 1440 blir rubriken fem rader och 432px hög, jämfört med Figmas 344px.",
-    why: "Fontfilerna saknas. Vid 1440 är rotstorleken 16px; extra raden uppstår med det andra typsnittets teckenbredder, inte av större rem-skalning.",
-    status: "Platshållare",
+    code: "Clash Grotesk Variable med samma storlekar och radavstånd som Figma.",
+    why: "Den tidigare Geist-platshållaren gav en extra rad vid 1440. Den officiella variabla fontfilen är nu inlagd; layoutmåtten och rem-skalningen är oförändrade.",
+    status: "Beslut",
     date: "2026-10-07",
   },
   {
@@ -785,6 +786,15 @@ export const figmaNotes: FigmaNote[] = [
     code: "Truckytan har Figmas proportion (893:704, 787:704) på Desktop och ungefär 704:480 och 359:340 under, uppmätta i skärmdumparna; skärmen är så hög som den och steget",
     why: "Inga fasta höjder",
     status: "Antagande",
+  },
+  {
+    target: "configurator",
+    topic: "Sidbredd",
+    figma: "Konfiguratorns bakgrund fyller sidbredden",
+    code: "Blocket följer den globala fullbreddslayouten utan negativa sidmarginaler. ConfiguratorScreen ansvarar för sin interna padding.",
+    why: "Den gamla kompensationen för main-padding gav sidscroll när den globala paddingen togs bort.",
+    status: "Beslut (teknisk)",
+    date: "2026-10-07",
   },
   {
     target: "configurator",
