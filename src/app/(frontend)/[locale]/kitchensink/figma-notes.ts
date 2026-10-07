@@ -146,6 +146,16 @@ export const designQuestions: DesignQuestion[] = [
 export const figmaNotes: FigmaNote[] = [
   {
     target: "general",
+    topic: "Global sidlayout",
+    figma:
+      "Fullbreddsblock med grid/margin för innehållet; navigationen ligger över sidans innehåll",
+    code: "Alla publika sidor har en gemensam layout utan yttre padding eller automatiska mellanrum mellan CMS-block. Headern är sticky och överlagrad; varje block ansvarar för sin egen spacing.",
+    why: "Användaren förtydligade att layouten ska gälla globalt. Kopplingen till första blockets typ och klassen milevas-page är borttagen.",
+    status: "Beslut",
+    date: "2026-10-07",
+  },
+  {
+    target: "general",
     topic: "Dynamisk rem-skala",
     figma: "Desktop L är ritad vid 1440px; ingen regel för skalning över designbredden",
     code: "Publika sajten behåller grundstorleken upp till 1440px och skalar därefter rem med viewportens bredd: 1rem = bredd / 90. Text, spacing, ikoner och layoutmått följer samma skala",
@@ -537,9 +547,10 @@ export const figmaNotes: FigmaNote[] = [
     target: "navigation",
     topic: "Position",
     figma: "Okänt om den ska följa med vid scroll",
-    code: "På sidor som börjar med Milevas Hero ligger navigationen över innehållet och följer med vid scroll; övriga sidor behåller vanlig placering",
-    why: "Page Template på Desktop L har navigationen i ett sticky lager ovanpå sidan; används även under desktop tills designen är klar",
-    status: "Antagande",
+    code: "Navigationen ligger över innehållet och följer med vid scroll på alla publika sidor",
+    why: "Global sidlayout enligt användarens förtydligande; Page Template på Desktop L visar navigationen i ett sticky lager ovanpå sidan",
+    status: "Beslut",
+    date: "2026-10-07",
   },
   {
     target: "navigation",

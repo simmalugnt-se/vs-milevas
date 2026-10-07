@@ -92,6 +92,11 @@ html.milevas-site {
   }
 }
 
+/** Keep block anchors below the site's overlaid navigation. */
+html.milevas-site [data-layout-block] > section {
+  scroll-margin-top: 6rem;
+}
+
 /** Figma `shape/radius-*`: `rounded-sm` and `rounded-lg` (Tailwind's defaults are 4 and 8px). */
 @theme {
   --radius-sm: 0.5rem;

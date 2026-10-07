@@ -84,9 +84,7 @@ export default async function LocaleLayout({
           <AdminBarSlot />
           <div className="canvas min-h-screen">
             <SiteHeader locale={locale} />
-            <main className="flex min-h-[calc(100vh-5.5rem)] w-full flex-col px-(--grid-margin) pb-12 pt-6">
-              {children}
-            </main>
+            <main className="flex w-full flex-col">{children}</main>
             <SiteFooter locale={locale} />
           </div>
           <GridOverlay />

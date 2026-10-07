@@ -87,8 +87,9 @@ Fyra egna block finns i `src/payload/blocks`: `MilevasHero`, `ProductGrid`, `Tex
 `TextBoxinfo`. De återanvänder kitchensinks komponenter, har lokaliserade innehållsfält,
 bildfält, länkar och markörer för visual editing. Boilerplatens block är kvar.
 
-- En sida som börjar med `milevasHero` använder fullbredd, sammanhängande block och navigation
-  ovanpå innehållet som följer med vid scroll. Övriga sidors layout behålls.
+- Den publika sidlayouten är global: fullbredd utan yttre padding, sammanhängande CMS-block
+  och navigation ovanpå innehållet som följer med vid scroll. Blocken ansvarar för sin egen spacing;
+  layouten beror inte på vilket block som ligger först.
 - Hero är `100svh` hög från Desktop S så texten längst ner ryms även på breda skärmar.
   Mobile och Tablet använder sina tidigare aspektförhållanden i snap-listan.
 - Hero och produktkort kan kopplas till truckfamiljer: namn, bild och priser kan hämtas från
