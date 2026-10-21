@@ -40,10 +40,18 @@ const financingExamples = (["Financiering", "Financiering-02"] as const).flatMap
   ),
 );
 
-/** configurator-box's Standard variants, in Figma's order. */
-const configuratorBoxes = (["grid", "stack"] as const).flatMap((layout) =>
-  [2, 4, 6].map((choices) => ({ layout, choices })),
-);
+/** configurator-box's variants, in Figma's order. */
+const configuratorBoxes = [
+  ...(["grid", "stack"] as const).flatMap((layout) =>
+    [2, 4, 6].map((choices) => ({ layout, choices, image: undefined })),
+  ),
+  { layout: "grid", choices: 2, image: "big" },
+  { layout: "grid", choices: 4, image: "big" },
+  { layout: "stack", choices: 2, image: "big" },
+  { layout: "stack", choices: 2, image: "small" },
+  { layout: "stack", choices: 3, image: "small" },
+  { layout: "stack", choices: 4, image: "small" },
+] as const;
 
 const draftBlabla =
   'Figma-ramen "blabla" på "02 — Components" är inte klar, så komponenten kan ändras.';
@@ -281,17 +289,24 @@ export default function ComponentsPage() {
           id="configurator-box"
           figma="9250:32719"
           api='<ConfiguratorBox number label layout="grid|stack" mobileLayout?>{<Choice>…}</ConfiguratorBox>'
-          description="Figmas Standard-varianter i Figmas bredd (469px)."
+          description="Figmas varianter med Standard, big image och small image, i Figmas bredd (469px)."
         >
           <div className="grid grid-cols-[repeat(auto-fill,29.3125rem)] items-start gap-6">
             {configuratorBoxes.map((box) => (
               <Example
-                key={`${box.layout}-${box.choices}`}
-                label={`layout="${box.layout}" · ${box.choices} val`}
+                key={`${box.layout}-${box.choices}-${box.image}`}
+                label={`layout="${box.layout}" · ${box.choices} val${box.image ? ` · image ${box.image}` : ""}`}
               >
                 <ConfiguratorBox number="01" label="Label" layout={box.layout}>
                   {Array.from({ length: box.choices }, (_, choice) => (
-                    <Choice key={choice} title="Title" price="€€€€" text="Text" />
+                    <Choice
+                      key={choice}
+                      title="Title"
+                      price="€€€€"
+                      text="Text"
+                      image={box.image ? choiceImage : undefined}
+                      imageSize={box.image}
+                    />
                   ))}
                 </ConfiguratorBox>
               </Example>

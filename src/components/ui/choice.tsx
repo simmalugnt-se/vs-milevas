@@ -10,8 +10,9 @@ import type { ButtonHTMLAttributes, ReactNode } from "react";
  * - Active (`selected`) and hover are both Tejp: the yellow `bg-fill` and the darker frame.
  * - `bottom` rounds the bottom corners (`radius-sm`), for the last choice of a box.
  * - With an image the parts are `spacing/2xs` apart and the choice has Figma's height, the same at
- *   368 and 469px wide: 262 for `big`, where the 489:365 image fills the room between title and
- *   text, and 140 for `small`, where a 124 × 93 image sits right and reaches over title and text.
+ *   234.5, 368 and 469px wide: 262 for `big`, where the 489:365 image takes the height between
+ *   title and text and, in a narrow choice, reaches past the padding at the sides as in Figma; and
+ *   140 for `small`, where a 124 × 93 image sits right and reaches over title and text.
  * Pass `data-state="hover"` to show hover without a pointer.
  */
 
@@ -36,7 +37,7 @@ const imageClasses = {
   big: {
     choice: "h-[16.375rem] gap-(--spacing-2xs)",
     wrapper: "items-center justify-center",
-    image: "h-full max-w-full",
+    image: "h-full",
   },
   small: {
     choice: "h-[8.75rem] gap-(--spacing-2xs)",

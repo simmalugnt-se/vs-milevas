@@ -261,6 +261,12 @@ export const designQuestions: DesignQuestion[] = [
     figma: "9250:32719",
   },
   {
+    target: "configurator-box",
+    question:
+      "Rutnät med 2 stora bilder är 278px högt, så valen blir 234px; med 4 är valen 262px, som choice. Koden använder 262 i båda. Vilket gäller?",
+    figma: "9250:33079",
+  },
+  {
     target: "contact-form",
     question:
       "order numrerar fälten 01, 02, 04 och 05. Saknas fält 03, och ska det finnas ett meddelandefält som i call och contact?",
@@ -887,9 +893,9 @@ export const figmaNotes: FigmaNote[] = [
   {
     target: "choice",
     topic: "Höjd med bild",
-    figma: "`image=big` är 262px och `image=small` 140px höga, både som 368 och 469px breda val",
+    figma: "`image=big` är 262px och `image=small` 140px höga, som 234,5, 368 och 469px breda val",
     code: "Samma höjder i rem (`h-[16.375rem]`, `h-[8.75rem]`), som skalar med sidan; big-bilden fyller rummet mellan titel och text",
-    why: "Figma håller höjden fast när valet blir bredare, så en proportion hade gett fel höjd i den ena bredden. configurator-box ritar big i rutnät 234px högt; det tas i configurator-box",
+    why: "Figma håller höjden fast när valet blir bredare, så en proportion hade gett fel höjd i de andra bredderna",
     status: "Beslut (teknisk)",
     date: "2026-10-21",
   },
@@ -1020,6 +1026,16 @@ export const figmaNotes: FigmaNote[] = [
     figma: "Rutnät ritat med 2, 4 och 6 val",
     code: "Med ett udda antal står det sista valet ensamt till vänster, med båda nederhörnen rundade",
     why: "Inte ritat",
+    status: "Lucka",
+    date: "2026-10-21",
+  },
+  {
+    target: "configurator-box",
+    topic: "Smala val med stor bild",
+    figma:
+      "Den stora bilden behåller sin höjd och går ut över valets sidomarginal när valet är 234,5px brett (rutnät)",
+    code: "Som Figma",
+    why: "Inte ritat smalare än så; i ännu smalare val skulle bilden kunna gå utanför valet",
     status: "Lucka",
     date: "2026-10-21",
   },
