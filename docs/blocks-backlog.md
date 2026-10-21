@@ -28,7 +28,7 @@ Genomgånget i Figma 2026-10-05: bara blocken i den första tabellen har innehå
 
 | # | Block | Figma | Innehåll | Bygger på | Payload | Storlek |
 |---|---|---|---|---|---|---|
-| 1 | Navigation: stängt läge ✓ (2026-10-21), menyerna kvar | `9051:12518` | Genomskinlig rad i sidans grid med logotypen, menyerna Modeller, Tjänster och Om oss, och "Dealer login"; Dark och Light. Menyerna öppnar paneler, Modeller med en bild per truck; Mobile och Tablet har "[Meny]" | Logo, NavLink, TextLink | Header-global (finns; fält för menyer och login saknas) | L |
+| 1 | Navigation: stängt läge och menyer ✓ (2026-10-21), truckbilderna och Header-globalens fält kvar | `9051:12518` | Genomskinlig rad i sidans grid med logotypen, menyerna Modeller, Tjänster och Om oss, och "Dealer login"; Dark och Light. Menyerna öppnar paneler, Modeller med en bild per truck; Mobile och Tablet har "[Meny]" | Logo, NavLink, TextLink | Header-global (finns; fält för menyer och login saknas) | L |
 | 2 | Footer ✓ komponent, ✓ Footer-global | `6076:622` | Länkar, ordmärket i full bredd, ikoner (mail, globe) | Logo, Icon, TextLink | Footer-global (finns) | S |
 | 3 | Product-Grid ✓ komponent, ✓ Payload | `8365:8988` | Product-cards, 3 per rad på desktop, 2 på Tablet, en slider på Mobile | ProductCard | Nytt block, data från `TruckFamilies` | M |
 | 4 | Text+Grid ✓ komponent, ✓ Payload | `8389:4705` | Rubrik med pil ("Så enkelt fungerar det") och cards i en ljus panel | Arrow, Card, card grid | Nytt block, eller Cards med nytt utseende | M |

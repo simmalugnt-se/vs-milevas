@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import { ConfiguratorScreen } from "@/components/blocks/configurator-screen";
 import { Footer, type FooterLink } from "@/components/blocks/footer";
 import { MilevasHero } from "@/components/blocks/milevas-hero";
-import { Navigation, type NavigationLink } from "@/components/blocks/navigation";
+import { Navigation, type NavigationMenu } from "@/components/blocks/navigation";
 import { ProductGrid } from "@/components/blocks/product-grid";
 import { TextBoxinfo } from "@/components/blocks/text-boxinfo";
 import { TextGrid, type TextGridCard } from "@/components/blocks/text-grid";
@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Choice } from "@/components/ui/choice";
 import { ConfiguratorBox, choiceLayout } from "@/components/ui/configurator-box";
 import type { ProductCardProps } from "@/components/ui/product-card";
+import navigationTruck from "../assets/navigation-truck.png";
 import truckCounterbalance from "../assets/truck-counterbalance.png";
 import truckPallet from "../assets/truck-pallet.png";
 import warehouse from "../assets/warehouse.jpg";
@@ -25,10 +26,34 @@ import { KitchensinkPage } from "../ui";
  */
 export const metadata: Metadata = { title: "Kitchensink: Block" };
 
-const navigationLinks: NavigationLink[] = [
-  { label: "Modeller", href: "/kitchensink/blocks#navigation" },
-  { label: "Tjänster", href: "/kitchensink/blocks#tjanster" },
-  { label: "Om oss", href: "/kitchensink/blocks#om-oss" },
+/** Figma's three menus, with its texts; Modeller has Figma's truck. */
+const navigationMenus: NavigationMenu[] = [
+  {
+    label: "Modeller",
+    links: [
+      "Elektriska motviktstruckar",
+      "Skjutstativtruckar",
+      "Låglyftare",
+      "Ledstaplare",
+      "Elektriska pallyftare",
+      "Plocktruckar",
+    ].map((label, index) => ({ label, href: `/kitchensink/blocks#modell-${index + 1}` })),
+    image: <Image src={navigationTruck} alt="" fill sizes="25vw" className="object-contain" />,
+  },
+  {
+    label: "Tjänster",
+    links: ["Hur det fungerar", "Finansiering", "Bli återförsäljare"].map((label, index) => ({
+      label,
+      href: `/kitchensink/blocks#tjanst-${index + 1}`,
+    })),
+  },
+  {
+    label: "Om oss",
+    links: ["Om Baoli", "Service & eftermarknad", "Kontakt"].map((label, index) => ({
+      label,
+      href: `/kitchensink/blocks#om-oss-${index + 1}`,
+    })),
+  },
 ];
 const navigationLogin = {
   label: "Dealer login",
@@ -148,9 +173,17 @@ export default function BlocksPage() {
       {/* The mobile menu follows the viewport, not this box: try it at phone width. */}
       <Block id="navigation" figma="9051:12518">
         <div className="mode-dark bg-bg-fill">
-          <Navigation links={navigationLinks} login={navigationLogin} color="dark" />
+          <Navigation menus={navigationMenus} login={navigationLogin} color="dark" />
         </div>
-        <Navigation links={navigationLinks} login={navigationLogin} />
+        <Navigation menus={navigationMenus} login={navigationLogin} />
+        <div className="mode-dark bg-bg-fill">
+          <Navigation
+            menus={navigationMenus}
+            login={navigationLogin}
+            color="dark"
+            defaultActive={0}
+          />
+        </div>
       </Block>
 
       <Block id="hero" figma="8550:12778">

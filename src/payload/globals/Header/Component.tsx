@@ -5,7 +5,7 @@ import {
 } from "@simmalugnt-se/payload-visual-editing/frontend";
 import { getTranslations } from "next-intl/server";
 import type { TypedLocale } from "payload";
-import { Navigation, type NavigationLink } from "@/components/blocks/navigation";
+import { Navigation, type NavigationMenu } from "@/components/blocks/navigation";
 import { Link } from "@/i18n/navigation";
 import { getHeader, resolveNavItem } from "@/payload/data/globals";
 import { resolveLinkField } from "@/payload/utilities/link-field";
@@ -19,7 +19,8 @@ type HeaderComponentProps = {
  * The site's header: the Navigation block (Figma 9051:12518) fed by the Header global, with the
  * boilerplate's optional announcement bar above it. `siteName` and `siteTagline` stay in the global
  * but are not shown, and neither is `cta`: Figma's navigation has no button. The global has no
- * field for the login link yet. Dark, since the site's sections are dark.
+ * fields for the menus' links and images or for the login link yet, so each `navItems` link is a
+ * menu without links (a plain link). Dark, since the site's sections are dark.
  */
 export async function HeaderComponent({ draft = false, locale }: HeaderComponentProps) {
   const header = await getHeader(locale, draft);
@@ -30,7 +31,7 @@ export async function HeaderComponent({ draft = false, locale }: HeaderComponent
   // Click-to-edit markers, only in Live Preview; they respond while the header is edited.
   const mark = (attributes: ReturnType<typeof editableField>) => (draft ? attributes : {});
 
-  const links = (header.navItems ?? []).flatMap((item): NavigationLink[] => {
+  const menus = (header.navItems ?? []).flatMap((item): NavigationMenu[] => {
     const resolved = resolveNavItem(item);
     if (!resolved) return [];
     return [
@@ -68,7 +69,7 @@ export async function HeaderComponent({ draft = false, locale }: HeaderComponent
           </div>
         </div>
       ) : null}
-      <Navigation links={links} color="dark" menuLabel={t("menu")} closeLabel={t("close")} />
+      <Navigation menus={menus} color="dark" menuLabel={t("menu")} />
     </header>
   );
 }

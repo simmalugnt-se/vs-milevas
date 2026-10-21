@@ -283,8 +283,19 @@ export const designQuestions: DesignQuestion[] = [
   {
     target: "navigation",
     question:
-      "Färgramen har `NAVIGATION/FILL` (`#121212eb`) och `NAVIGATION/OVERLAY` (`#00000066`). Är navigationen nu mörk, och var används overlay? Koden har båda som tokens (`navigation-fill`, `navigation-overlay`), men använder dem inte ännu.",
-    figma: "6073:1230",
+      "I Modeller har den andra kolumnen med länkar 8px mellan länkarna, den första ingen. Avsiktligt?",
+    figma: "9051:12686",
+  },
+  {
+    target: "navigation",
+    question: "Chevronen i dragspelet är 1px på Mobile och 2px på Tablet. Vilken gäller?",
+    figma: "9051:12754",
+  },
+  {
+    target: "navigation",
+    question:
+      "Varje rad i dragspelet har en linje både upptill och nedtill, så mellan raderna blir linjen dubbelt så tjock. Avsiktligt?",
+    figma: "9051:12754",
   },
   {
     target: "product-grid",
@@ -1121,10 +1132,11 @@ export const figmaNotes: FigmaNote[] = [
   {
     target: "navigation",
     topic: "Menyknappen",
-    figma: '"[Meny]" i stängt läge',
-    code: '`menuLabel` inom hakparenteser; öppen visar den `closeLabel` ("[Stäng]") tills de öppna menyerna gås igenom',
-    why: "Det öppna läget gås igenom i nästa steg",
-    status: "Platshållare",
+    figma:
+      '"[Meny]" både stängd och öppen; vilket dragspel som är öppet när menyn öppnas är inte ritat, inte heller att alla är stängda',
+    code: 'Samma text i båda lägena. Menyn öppnas med det första dragspelet utfällt; ett klick på det öppna stänger det. Tidigare stod "Stäng" när menyn var öppen',
+    why: "Inte ritat",
+    status: "Lucka",
     date: "2026-10-21",
   },
   {
@@ -1158,10 +1170,47 @@ export const figmaNotes: FigmaNote[] = [
   {
     target: "navigation",
     topic: "Data",
-    figma: 'Menyerna Modeller, Tjänster och Om oss, och länken "Dealer login"',
-    code: 'Header-globalens `navItems` blir menylänkarna. Globalen har inget fält för login än, så sajten visar ingen; `cta` ("Bygg din truck") visas inte, och `siteName` och `siteTagline` inte heller',
-    why: "Globalens fält ses över när de öppna menyerna byggs",
+    figma:
+      'Menyerna Modeller, Tjänster och Om oss, med länkar och en bild, och länken "Dealer login"',
+    code: 'Header-globalens `navItems` blir menyer utan länkar, alltså vanliga länkar. Globalen har inga fält för menyernas länkar och bilder eller för login; `cta` ("Bygg din truck"), `siteName` och `siteTagline` visas inte',
+    why: "Globalens fält behöver ändras, med en migrering",
     status: "Platshållare",
+    date: "2026-10-21",
+  },
+  {
+    target: "navigation",
+    topic: "Stänga menyn",
+    figma: "Öppen meny med en mörk overlay över resten av sidan; inget om hur den stängs",
+    code: 'Ett nytt klick på menyn (på Desktop) eller på "[Meny]" stänger den; klick på overlayn eller Escape gör inget',
+    why: "Inte ritat",
+    status: "Lucka",
+    date: "2026-10-21",
+  },
+  {
+    target: "navigation",
+    topic: "Öppna med hover",
+    figma: "Öppna lägen, men inte om de öppnas med klick eller hover",
+    code: "Klick",
+    why: "Inte ritat",
+    status: "Lucka",
+    date: "2026-10-21",
+  },
+  {
+    target: "navigation",
+    topic: "Öppen i Light",
+    figma: "De öppna lägena finns bara i Dark",
+    code: "Öppen blir navigationen Dark, även när `color` är Light",
+    why: "Inte ritat; panelen (`navigation-fill`) är mörk",
+    status: "Lucka",
+    date: "2026-10-21",
+  },
+  {
+    target: "navigation",
+    topic: "Många länkar",
+    figma: "Menyer med tre och sex länkar",
+    code: "Fler än tre länkar delas i två kolumner, den första med hälften (avrundat uppåt)",
+    why: "Inte ritat med fler än sex",
+    status: "Lucka",
     date: "2026-10-21",
   },
   {

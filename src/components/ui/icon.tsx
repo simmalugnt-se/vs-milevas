@@ -280,6 +280,18 @@ const icons = {
       </>
     ),
   },
+  /**
+   * Figma's `icon-chevron-down` (4141:41092), not on the Icons frame: the navigation's accordion.
+   * A 1px line; pass a `stroke-width` for Tablet's 2px.
+   */
+  "chevron-down": {
+    viewBox: "0 0 16 16",
+    body: (
+      <>
+        <path d="M4 6L8 10L12 6" stroke="currentColor" />
+      </>
+    ),
+  },
 } satisfies Record<string, { viewBox: string; body: ReactNode }>;
 
 export type IconName = keyof typeof icons;
