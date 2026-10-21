@@ -24,6 +24,8 @@ import { Link, usePathname } from "@/i18n/navigation";
  * - Desktop S and L: the open menu's label stays `ui-primary` and the others turn `ui-tertiary`.
  *   Its links in Text XL sit at the bottom of five columns, or of five and four when there are
  *   more than three, and a square image fills the last three columns (empty without `image`).
+ *   Pointing at a link with its own `image` (Figma's `Truck=1` to `6`) turns it `ui-brand`, the
+ *   others `ui-tertiary`, and shows its image instead.
  * - Tablet and Mobile: "[Meny]" opens an accordion of the menus between lines, the open one's label
  *   `ui-brand` with its links in Text XL, the others `ui-tertiary`. Tablet has the open menu's
  *   square image in the last two columns, cut at the edge.
@@ -42,6 +44,8 @@ export type NavigationLink = {
   current?: boolean;
   rel?: string;
   target?: "_blank";
+  /** Shown in the open menu's square while the link is pointed at (Figma's truck images). */
+  image?: ReactNode;
   attributes?: Attributes;
 };
 
@@ -67,6 +71,8 @@ type NavigationProps = {
   menuLabel?: string;
   /** The menu open from the start, and below Desktop S the accordion open (the kitchensink). */
   defaultActive?: number;
+  /** The link of the open menu pointed at from the start (the kitchensink). */
+  defaultHovered?: number;
   attributes?: Attributes;
 };
 
@@ -81,22 +87,30 @@ const isCurrentPath = (href: string, pathname: string) =>
 function MenuLinks({
   links,
   isCurrent,
+  hovered,
+  onHover,
   className,
 }: {
   links: NavigationLink[];
   isCurrent: (link: NavigationLink) => boolean;
+  /** The link pointed at, `ui-brand` with the others `ui-tertiary` (Desktop's truck images). */
+  hovered?: NavigationLink;
+  onHover?: (link: NavigationLink | undefined) => void;
   className?: string;
 }) {
   return (
-    <ul className={`flex flex-col ${className ?? ""}`}>
+    <ul className={`flex flex-col ${className ?? ""}`} onMouseLeave={() => onHover?.(undefined)}>
       {links.map((link) => (
-        <li key={link.href}>
+        <li key={link.href} onMouseEnter={() => onHover?.(link.image ? link : undefined)}>
           <NavLink
             variant="secondary"
             href={link.href}
             rel={link.rel}
             target={link.target}
             aria-current={isCurrent(link) ? "page" : undefined}
+            className={
+              hovered ? (hovered === link ? "text-ui-brand!" : "text-ui-tertiary!") : undefined
+            }
             {...link.attributes}
           >
             {link.label}
@@ -113,6 +127,7 @@ export function Navigation({
   color = "light",
   menuLabel = "Meny",
   defaultActive,
+  defaultHovered,
   attributes,
 }: NavigationProps) {
   const [active, setActive] = useState<number | null>(defaultActive ?? null);
@@ -122,8 +137,14 @@ export function Navigation({
   const isCurrent = (link: NavigationLink) => link.current ?? isCurrentPath(link.href, pathname);
 
   const activeMenu = active === null ? undefined : menus[active];
+  const [hovered, setHovered] = useState<NavigationLink | undefined>(
+    defaultHovered === undefined ? undefined : activeMenu?.links?.[defaultHovered],
+  );
   const desktopOpen = Boolean(activeMenu?.links?.length);
-  const toggle = (index: number) => setActive((value) => (value === index ? null : index));
+  const toggle = (index: number) => {
+    setActive((value) => (value === index ? null : index));
+    setHovered(undefined);
+  };
 
   // Figma's open look, per width: below Desktop S when "[Meny]" is open, from it when a menu is.
   const openLook = [
@@ -238,6 +259,8 @@ export function Navigation({
                 key={column}
                 links={links}
                 isCurrent={isCurrent}
+                hovered={hovered}
+                onHover={setHovered}
                 className={`justify-end ${
                   column === 0
                     ? `pl-(--spacing-sm) ${activeMenu.links && activeMenu.links.length > 3 ? "col-span-5" : "col-span-9"}`
@@ -246,7 +269,9 @@ export function Navigation({
               />
             ))}
             <div className="col-span-3 flex items-center pr-(--spacing-sm)">
-              <div className="relative aspect-square flex-1">{activeMenu.image}</div>
+              <div className="relative aspect-square flex-1">
+                {hovered?.image ?? activeMenu.image}
+              </div>
             </div>
           </div>
         ) : null}

@@ -1188,6 +1188,16 @@ export const figmaNotes: FigmaNote[] = [
   },
   {
     target: "navigation",
+    topic: "Truckbilderna",
+    figma:
+      "`Truck=1` till `6`: på Desktop S och L blir länken man pekar på `ui-brand`, de andra `ui-tertiary`, och trucken visas i rutan",
+    code: "Bara vid hover med pekaren, inte vid tangentbordsfokus, och inte i dragspelet på Tablet och Mobile; en länk utan egen bild ändrar ingenting",
+    why: "Inte ritat för fokus eller mindre skärmar",
+    status: "Lucka",
+    date: "2026-10-21",
+  },
+  {
+    target: "navigation",
     topic: "Öppna med hover",
     figma: "Öppna lägen, men inte om de öppnas med klick eller hover",
     code: "Klick",

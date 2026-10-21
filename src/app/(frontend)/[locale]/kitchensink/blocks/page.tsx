@@ -15,6 +15,7 @@ import type { ProductCardProps } from "@/components/ui/product-card";
 import navigationTruck from "../assets/navigation-truck.png";
 import truckCounterbalance from "../assets/truck-counterbalance.png";
 import truckPallet from "../assets/truck-pallet.png";
+import truckProductCard from "../assets/truck-product-card.png";
 import warehouse from "../assets/warehouse.jpg";
 import { FigmaNotes } from "../figma-notes-list";
 import { type SectionId, sectionTitle } from "../sections";
@@ -37,7 +38,20 @@ const navigationMenus: NavigationMenu[] = [
       "Ledstaplare",
       "Elektriska pallyftare",
       "Plocktruckar",
-    ].map((label, index) => ({ label, href: `/kitchensink/blocks#modell-${index + 1}` })),
+    ].map((label, index) => ({
+      label,
+      href: `/kitchensink/blocks#modell-${index + 1}`,
+      // Placeholder trucks; the first is Figma's `Truck=1`.
+      image: (
+        <Image
+          src={[truckProductCard, truckCounterbalance, truckPallet][index % 3]}
+          alt=""
+          fill
+          sizes="25vw"
+          className="object-cover"
+        />
+      ),
+    })),
     image: <Image src={navigationTruck} alt="" fill sizes="25vw" className="object-contain" />,
   },
   {
@@ -182,6 +196,15 @@ export default function BlocksPage() {
             login={navigationLogin}
             color="dark"
             defaultActive={0}
+          />
+        </div>
+        <div className="mode-dark bg-bg-fill">
+          <Navigation
+            menus={navigationMenus}
+            login={navigationLogin}
+            color="dark"
+            defaultActive={0}
+            defaultHovered={0}
           />
         </div>
       </Block>
