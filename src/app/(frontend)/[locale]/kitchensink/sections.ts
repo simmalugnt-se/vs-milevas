@@ -7,7 +7,7 @@ export const kitchensinkPages = [
     href: "/kitchensink",
     title: "Grunder",
     intro:
-      "Tokens från Figma och de minsta byggstenarna: färger, text, brytpunkter, grid, spacing, motion, ikoner, knappar och val.",
+      "Tokens från Figma och de minsta byggstenarna: färger, text, brytpunkter, grid, spacing, motion, ikoner, knappar, val och formfält.",
     groups: [
       {
         title: "Tokens",
@@ -31,6 +31,7 @@ export const kitchensinkPages = [
           { id: "buttons", title: "Knappar" },
           { id: "links", title: "Länkar" },
           { id: "choice", title: "Choice" },
+          { id: "text-field", title: "Formfält" },
         ],
       },
     ],

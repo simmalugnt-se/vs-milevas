@@ -186,6 +186,18 @@ export const designQuestions: DesignQuestion[] = [
     figma: "9321:51222",
   },
   {
+    target: "text-field",
+    question:
+      "Fältets text är Text XS (12px). Safari på iPhone zoomar in sidan när man trycker i ett fält med mindre text än 16px. Ska fälten ha 16px på mobil?",
+    figma: "8861:10820",
+  },
+  {
+    target: "text-field",
+    question:
+      'Felmeddelandet i Figma är engelskt och felstavat ("This field is requierd"). Koden skriver meddelandet per fält, på svenska.',
+    figma: "8861:10845",
+  },
+  {
     target: "choice",
     question:
       "`choice` har bara `Default` och `active`, inget hover-läge. Koden ger bara pekhanden. Förslag: vit bakgrund (`bg-active`) vid hover, som inte förväxlas med det gula valda läget.",
@@ -496,6 +508,24 @@ export const figmaNotes: FigmaNote[] = [
   },
 
   // Components
+  {
+    target: "text-field",
+    topic: "Höjd och ikoner",
+    figma: "Fältet är 40px högt; Error har den gamla `icon-close` (12px), Success `icon-check`",
+    code: "Minst 40px (`min-h-10`), så att texten får plats om den blir större; ikonerna `close` i 12px och `check` från Icons",
+    why: "Fasta höjder undviks; de gamla ikonerna finns inte längre",
+    status: "Beslut (teknisk)",
+    date: "2026-10-21",
+  },
+  {
+    target: "text-field",
+    topic: "Krysset vid fel",
+    figma: "Ett kryss i fältet när det är fel",
+    code: "Bara en markering, ingen knapp som tömmer fältet",
+    why: "Figma visar inte vad krysset gör",
+    status: "Antagande",
+    date: "2026-10-21",
+  },
   {
     target: "links",
     topic: "footerlink Desktop och Mobile",

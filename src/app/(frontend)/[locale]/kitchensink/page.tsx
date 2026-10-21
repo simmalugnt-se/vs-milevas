@@ -14,6 +14,7 @@ import { FooterLink } from "@/components/ui/footer-link";
 import { Icon, iconNames } from "@/components/ui/icon";
 import { Logo } from "@/components/ui/logo";
 import { NavLink } from "@/components/ui/nav-link";
+import { TextField } from "@/components/ui/text-field";
 import truckPallet from "./assets/truck-pallet.png";
 import { type Mode, modes } from "./breakpoints";
 import { ChoiceDemo } from "./choice-demo";
@@ -726,6 +727,33 @@ export default function FoundationsPage() {
           <Example label="Klickbar: välj ett alternativ">
             <ChoiceDemo />
           </Example>
+        </Section>
+
+        <Section
+          id="text-field"
+          figma="8861:10820"
+          api="<TextField label number? error? success? …input>"
+          description='Ett input med etikett. Active är fokus; data-state="active" visar det utan fokus.'
+        >
+          <div className="grid items-start gap-6 tablet:grid-cols-2 desktop-l:grid-cols-4">
+            <Example label="Default">
+              <TextField number="01" label="Heading" placeholder="Supporting text" />
+            </Example>
+            <Example label='data-state="active"'>
+              <TextField number="01" label="Heading" defaultValue="T" data-state="active" />
+            </Example>
+            <Example label='error="…"'>
+              <TextField
+                number="01"
+                label="Heading"
+                placeholder="Supporting text"
+                error="Fältet måste fyllas i"
+              />
+            </Example>
+            <Example label="success">
+              <TextField number="01" label="Heading" defaultValue="Text" success />
+            </Example>
+          </div>
         </Section>
       </Group>
     </KitchensinkPage>
