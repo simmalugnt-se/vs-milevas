@@ -596,6 +596,15 @@ export const figmaNotes: FigmaNote[] = [
     date: "2026-10-21",
   },
   {
+    target: "configurator-topbar",
+    topic: "Ram",
+    figma: "Ett streck inuti (`stroke/width`) runt hela topbar, rundat bara upptill",
+    code: "En ring inuti, så att topbar är Figmas 44px hög",
+    why: "En vanlig ram hade gjort den högre",
+    status: "Beslut (teknisk)",
+    date: "2026-10-21",
+  },
+  {
     target: "price-box",
     topic: "Linjer",
     figma: "Ramen och radernas linjer är streck inuti (`stroke/width`)",

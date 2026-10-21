@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Choice } from "@/components/ui/choice";
 import { ColorImageCard } from "@/components/ui/color-image-card";
 import { ConfiguratorBox } from "@/components/ui/configurator-box";
+import { ConfiguratorTopbar } from "@/components/ui/configurator-topbar";
 import { PriceBox } from "@/components/ui/price-box";
 import { ProductCard } from "@/components/ui/product-card";
 import { TextBox } from "@/components/ui/text-box";
@@ -167,6 +168,19 @@ export default function ComponentsPage() {
                 />
               </Example>
             ))}
+          </div>
+        </Section>
+
+        <Section
+          id="configurator-topbar"
+          figma="9207:32131"
+          api="<ConfiguratorTopbar number label>"
+          description="Huvudet på ett steg i konfiguratorn, i Figmas bredd (325px)."
+        >
+          <div className="grid grid-cols-[repeat(auto-fill,20.3125rem)] items-start gap-6">
+            <Example label="Default">
+              <ConfiguratorTopbar number="01" label="Label" />
+            </Example>
           </div>
         </Section>
 

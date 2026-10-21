@@ -49,6 +49,7 @@ export const kitchensinkPages = [
           { id: "product-card", title: "Product card" },
           { id: "card", title: "Card" },
           { id: "color-image-card", title: "Color image card" },
+          { id: "configurator-topbar", title: "Configurator topbar" },
           { id: "configurator-box", title: "Configurator box" },
           { id: "price-box", title: "Price box" },
           { id: "text-box", title: "Text box" },
