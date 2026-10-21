@@ -50,5 +50,5 @@ de finns på kitchensink men ändras när ramen är klar.
 
 ## Frågor att lösa med designen
 
-Står vid respektive block på `/kitchensink/blocks`, och de allmänna överst på `/kitchensink`
-(`figma-notes.ts`).
+Står vid respektive block på `/kitchensink/blocks`, och alla samlat med de allmänna på
+`/kitchensink/notes` (`figma-notes.ts`).

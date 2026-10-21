@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import { notFound } from "next/navigation";
 import { Arrow, arrowNames } from "@/components/ui/arrow";
 import {
   Button,
@@ -9,165 +8,23 @@ import {
   type ButtonVariant,
   TextLink,
 } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Choice } from "@/components/ui/choice";
 import { type ColorMode, modeClass } from "@/components/ui/color-mode";
-import { ConfiguratorBox } from "@/components/ui/configurator-box";
 import { Icon, iconNames } from "@/components/ui/icon";
 import { Logo } from "@/components/ui/logo";
-import { PriceBox } from "@/components/ui/price-box";
-import { ProductCard } from "@/components/ui/product-card";
-import { TextBox } from "@/components/ui/text-box";
-import { TruckColumn } from "@/components/ui/truck-column";
-import { Link } from "@/i18n/navigation";
-import { getAppEnv } from "@/utilities/environment";
-import truckCounterbalance from "./assets/truck-counterbalance.png";
 import truckPallet from "./assets/truck-pallet.png";
-import warehouse from "./assets/warehouse.jpg";
 import { type Mode, modes } from "./breakpoints";
 import { ChoiceDemo } from "./choice-demo";
 import { type ColorToken, colorGroups, colorModes } from "./colors";
-import { FigmaNotes, GeneralFigmaNotes } from "./figma-notes-list";
 import { cardGrids, fromFigma, grid, radii } from "./grid";
 import { durations, easings } from "./motion";
 import { primitiveGroups } from "./primitives";
 import { spacing, strokes } from "./spacing";
 import { sizes, sizesForMode, type TextStyle, textStyles } from "./typography";
+import { Example, Group, KitchensinkPage, Section } from "./ui";
 
-/**
- * Design-system reference built from Figma "01 — Foundations" and "02 — Components", one section
- * per token group or component. Blocks are on /kitchensink/blocks. Static, unlinked, not in
- * production.
- */
-export const metadata: Metadata = {
-  title: "Kitchensink",
-  robots: { index: false, follow: false },
-};
-
-/** The page's parts, in order: Figma's pages, then one entry per section. */
-const contents = [
-  {
-    id: "foundations",
-    title: "01 — Foundations",
-    sections: [
-      { id: "colors", title: "Color styles" },
-      { id: "typography", title: "Text styles" },
-      { id: "breakpoints", title: "Breakpoints" },
-      { id: "grids", title: "Grids" },
-      { id: "spacing", title: "Spacing och stroke" },
-      { id: "motion", title: "Motion" },
-    ],
-  },
-  {
-    id: "components",
-    title: "02 — Components",
-    sections: [
-      { id: "logos", title: "Logos" },
-      { id: "icons", title: "Icons" },
-      { id: "arrows", title: "Arrows" },
-      { id: "buttons", title: "Button" },
-      { id: "links", title: "Link" },
-      { id: "choice", title: "Choice" },
-      { id: "product-card", title: "Product card" },
-      { id: "card", title: "Card" },
-      { id: "configurator-box", title: "Configurator box" },
-      { id: "price-box", title: "Price box" },
-      { id: "text-box", title: "Text box" },
-      { id: "truck-column", title: "Truck column" },
-    ],
-  },
-] as const;
-
-type SectionId = (typeof contents)[number]["sections"][number]["id"];
-type GroupId = (typeof contents)[number]["id"];
-
-const sections: readonly { id: SectionId; title: string }[] = contents.flatMap(
-  (group): readonly { id: SectionId; title: string }[] => group.sections,
-);
-const sectionTitle = (id: SectionId) => sections.find((section) => section.id === id)?.title ?? id;
-
-/** One of Figma's pages: a heading the sections below belong to. */
-function Group({ id, children }: { id: GroupId; children: React.ReactNode }) {
-  const group = contents.find((candidate) => candidate.id === id);
-  return (
-    <div className="space-y-16">
-      <h2 id={id} className="border-b border-border-secondary pb-4 text-display-m text-ui-primary">
-        {group?.title}
-      </h2>
-      {children}
-    </div>
-  );
-}
-
-/**
- * One token group or component. `figma` is the node it is built from and `api` the component's
- * props, both shown under the title. `draft` marks a component whose Figma frame is not finished.
- * The section's questions and deviations from `figma-notes.ts` follow.
- */
-function Section({
-  id,
-  figma,
-  api,
-  description,
-  draft,
-  children,
-}: {
-  id: SectionId;
-  figma?: string;
-  api?: string;
-  description?: React.ReactNode;
-  /** Why the component is a draft; shown as a notice under the title. */
-  draft?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <section aria-labelledby={id} className="scroll-mt-8 space-y-6">
-      <div className="space-y-2">
-        <h3
-          id={id}
-          className="flex flex-wrap items-baseline gap-x-4 text-display-s text-ui-primary"
-        >
-          {sectionTitle(id)}
-          {draft ? <span className="text-label-s text-status-warning">Utkast</span> : null}
-        </h3>
-        {figma || api ? (
-          <p className="flex flex-wrap gap-x-4 gap-y-1 font-mono text-xs text-ui-tertiary">
-            {figma ? <span>Figma {figma}</span> : null}
-            {api ? <code className="text-ui-secondary">{api}</code> : null}
-          </p>
-        ) : null}
-        {draft ? (
-          <p className="max-w-prose border-l-4 border-status-warning bg-bg-fill px-4 py-3 text-sm text-ui-primary">
-            {draft}
-          </p>
-        ) : null}
-        {description ? (
-          <div className="max-w-prose text-sm text-ui-secondary">{description}</div>
-        ) : null}
-        <FigmaNotes target={id} />
-      </div>
-      {children}
-    </section>
-  );
-}
-
-/** One variant with a label above it, so every example says what it shows. */
-function Example({
-  label,
-  className,
-  children,
-}: {
-  label: React.ReactNode;
-  className?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <figure className={`min-w-0 space-y-2 ${className ?? ""}`}>
-      <figcaption className="font-mono text-xs text-ui-secondary">{label}</figcaption>
-      {children}
-    </figure>
-  );
-}
+/** Tokens and the smallest building blocks from Figma "01 — Foundations" and "02 — Components". */
+export const metadata: Metadata = { title: "Kitchensink: Grunder" };
 
 /** A swatch in a mode's column: the token resolves inside the column's `mode-*` class. */
 function ColorRow({ color, mode }: { color: ColorToken; mode: ColorMode }) {
@@ -228,26 +85,6 @@ const buttonVariants: ButtonVariant[] = ["primary", "secondary"];
 const buttonSizes: ButtonSize[] = ["s", "m"];
 const buttonStates = ["default", "hover", "disabled"] as const;
 
-/** configurator-box variants shown, in Figma frame 9's order. */
-const configuratorBoxes = [
-  { choices: 2, layout: "grid", textSize: "s" },
-  { choices: 2, layout: "grid", textSize: "m" },
-  { choices: 6, layout: "grid", textSize: "s" },
-  { choices: 4, layout: "grid", textSize: "s" },
-  { choices: 2, layout: "stack", textSize: "s" },
-  { choices: 4, layout: "stack", textSize: "m" },
-  { choices: 2, layout: "stack", textSize: "s", image: true },
-  { choices: 4, layout: "grid", textSize: "s", image: true },
-] as const;
-
-const priceRows = [
-  { label: "Leasing (48 mån)", value: "3 261 kr/mån" },
-  { label: "Långtidshyra (48 mån)", value: "3 261 kr/mån" },
-];
-
-const draftBlabla =
-  'Figma-ramen "blabla" på "02 — Components" är inte klar, så komponenten kan ändras.';
-
 const widest = modes[0].maxWidth;
 
 /** Variants that target only this mode: from its own breakpoint up to the next wider one. */
@@ -276,57 +113,10 @@ function BreakpointBar({ mode }: { mode: Mode }) {
   );
 }
 
-export default function KitchensinkPage() {
-  if (getAppEnv() === "prod") notFound();
-
+export default function FoundationsPage() {
   return (
-    <div className="w-full space-y-24 py-12">
-      <header className="space-y-6">
-        <div className="space-y-2">
-          <p className="text-label-s text-ui-secondary">Milevas designsystem</p>
-          <h1 className="text-display-l text-ui-primary">Kitchensink</h1>
-          <p className="max-w-prose text-text-m text-ui-secondary">
-            Tokens och komponenter från Figma &quot;Milevas — Website&quot;. Blocken från &quot;04 —
-            Blocks&quot; finns på{" "}
-            <Link href="/kitchensink/blocks" className="text-ui-primary underline">
-              Kitchensink: block
-            </Link>
-            .
-          </p>
-        </div>
-        <nav aria-label="Innehåll" className="grid gap-6 tablet:grid-cols-3">
-          {contents.map((group) => (
-            <div key={group.id} className="space-y-2">
-              <a href={`#${group.id}`} className="block text-label-s text-ui-primary">
-                {group.title}
-              </a>
-              <ul className="space-y-1 text-sm">
-                {group.sections.map((section) => (
-                  <li key={section.id}>
-                    <a href={`#${section.id}`} className="text-ui-secondary hover:text-ui-primary">
-                      {section.title}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-          <div className="space-y-2">
-            <Link href="/kitchensink/blocks" className="block text-label-s text-ui-primary">
-              04 — Blocks →
-            </Link>
-          </div>
-        </nav>
-        <div className="border-l-4 border-status-info bg-bg-fill px-4 py-3 text-sm text-ui-primary">
-          <strong>Fortsätta arbetet?</strong> Läs{" "}
-          <code className="font-mono text-xs">docs/design-system.md</code> i repot: var allt finns,
-          hur ett block byggs från Figma och vad som är nästa steg. Blocken står i{" "}
-          <code className="font-mono text-xs">docs/blocks-backlog.md</code>.
-        </div>
-        <GeneralFigmaNotes sectionTitle={(id) => sectionTitle(id as SectionId)} />
-      </header>
-
-      <Group id="foundations">
+    <KitchensinkPage href="/kitchensink">
+      <Group title="Tokens" figma="01 — Foundations">
         <Section id="colors">
           <div className="grid gap-2 desktop-s:grid-cols-3">
             {colorModes.map(({ mode, name }) => (
@@ -632,7 +422,7 @@ export default function KitchensinkPage() {
         </Section>
       </Group>
 
-      <Group id="components">
+      <Group title="Byggstenar" figma="02 — Components">
         <Section
           id="logos"
           figma="6075:2513"
@@ -851,205 +641,7 @@ export default function KitchensinkPage() {
             <ChoiceDemo />
           </Example>
         </Section>
-
-        <Section
-          id="product-card"
-          figma="8268:2970"
-          api="<ProductCard href brand category name specs price leasing image>"
-          description={
-            <>
-              Under Desktop S syns pilen och priserna alltid (Figmas läge &quot;tablet&quot;), från
-              Desktop S vid hover.
-            </>
-          }
-        >
-          <div className="card-grid-3">
-            {(
-              [
-                { variant: "default", label: "Default (hovra för hover)" },
-                { variant: "hover", label: 'Hover (data-state="hover")' },
-                { variant: "utan pris", label: "Utan price och leasing" },
-              ] as const
-            ).map(({ variant, label }) => (
-              <Example key={variant} label={label}>
-                <ProductCard
-                  href="/kitchensink#product-card"
-                  brand="Baoli"
-                  category="Modeller"
-                  name="Elektriska motviktstruckar"
-                  specs={["1.5 – 3.5 ton", "80 V 228 Ah"]}
-                  price={variant === "utan pris" ? undefined : "169 000 kr"}
-                  leasing={variant === "utan pris" ? undefined : "3 326 kr"}
-                  data-state={variant === "hover" ? "hover" : undefined}
-                  image={
-                    <Image
-                      src={truckCounterbalance}
-                      alt="Elektrisk motviktstruck"
-                      fill
-                      sizes="(width >= 64rem) 25vw, 50vw"
-                      className="object-contain"
-                    />
-                  }
-                />
-              </Example>
-            ))}
-          </div>
-        </Section>
-
-        <Section id="card" figma="8389:4461" api="<Card number label text image>">
-          <Example label="Tre kort i card-grid-3">
-            <div className="card-grid-3">
-              {["Service", "Uthyrning", "Begagnat"].map((label, index) => (
-                <Card
-                  key={label}
-                  number={String(index + 1).padStart(2, "0")}
-                  label={label}
-                  text="text"
-                  image={
-                    <Image
-                      src={warehouse}
-                      alt=""
-                      fill
-                      sizes="(width >= 64rem) 33vw, 100vw"
-                      className="object-cover"
-                    />
-                  }
-                />
-              ))}
-            </div>
-          </Example>
-        </Section>
-
-        <Section
-          id="configurator-box"
-          figma="8721:17422"
-          api="<ConfiguratorBox number label layout>{<Choice>…}</ConfiguratorBox>"
-          description="Från frame 9 (frame 6 är den gamla, urblekta versionen). Det andra valet i varje box visas som valt."
-        >
-          <div className="grid items-start gap-6 tablet:grid-cols-2">
-            {configuratorBoxes.map((box, index) => (
-              <Example
-                key={`${box.layout}-${box.choices}-${box.textSize}-${"image" in box}`}
-                label={`${box.choices} val · layout="${box.layout}" · text ${box.textSize.toUpperCase()}${"image" in box ? " · med bild" : ""}`}
-              >
-                <ConfiguratorBox
-                  number={String(index + 1).padStart(2, "0")}
-                  label="Label"
-                  layout={box.layout}
-                >
-                  {Array.from({ length: box.choices }, (_, choice) => (
-                    <Choice
-                      key={choice}
-                      title="Title"
-                      price="€€€€"
-                      text="Text"
-                      textSize={box.textSize}
-                      selected={choice === 1}
-                      image={
-                        "image" in box ? (
-                          <Image
-                            src={truckPallet}
-                            alt=""
-                            fill
-                            sizes="12rem"
-                            className="object-contain"
-                          />
-                        ) : undefined
-                      }
-                    />
-                  ))}
-                </ConfiguratorBox>
-              </Example>
-            ))}
-          </div>
-        </Section>
-
-        <Section
-          id="price-box"
-          figma="8389:7276"
-          api="<PriceBox price rows delivery? action>"
-          description="Från frame 6, den enda som har den. Den nyare Configurator-designen (frame 15) visar ett totalpris i stället; se Configurator på /kitchensink/blocks."
-        >
-          <div className="grid items-start gap-6 tablet:grid-cols-2">
-            <Example label="Utan delivery">
-              <PriceBox
-                price="173 900 kr"
-                rows={priceRows}
-                action={
-                  <Button size="m" className="w-full">
-                    Label
-                  </Button>
-                }
-              />
-            </Example>
-            <Example label="Med delivery">
-              <PriceBox
-                price="173 900 kr"
-                rows={priceRows}
-                delivery={{ label: "Uppskattad leverans", value: "4–6 veckor" }}
-                action={
-                  <Button size="m" className="w-full">
-                    Label
-                  </Button>
-                }
-              />
-            </Example>
-          </div>
-        </Section>
-
-        <Section
-          id="text-box"
-          figma="8502:6114"
-          api="<TextBox heading label text border?>"
-          draft={draftBlabla}
-        >
-          <div className="grid gap-6 tablet:grid-cols-2">
-            <Example label="Med linje (standard)">
-              <TextBox heading="Heading" label="Label" text="Text" />
-            </Example>
-            <Example label="border={false}">
-              <TextBox heading="Heading" label="Label" text="Text" border={false} />
-            </Example>
-          </div>
-        </Section>
-
-        <Section
-          id="truck-column"
-          figma="8539:7382"
-          draft={draftBlabla}
-          api="<TruckColumn href heading rows>"
-          description={
-            <>
-              Kolumner över en bild. Från Desktop S syns innehållet vid hover eller fokus; under
-              Desktop S är alla kolumner aktiva, eftersom Figma saknar beteende utan hover (eget
-              beslut, som product-card). Hero-blocket (backlog 7, väntar på designen) bygger på dem.
-            </>
-          }
-        >
-          <Example label='Fyra kolumner; den andra visas aktiv med data-state="active", hovra över de andra'>
-            <div className="relative overflow-hidden rounded-lg desktop-s:h-[28rem]">
-              <Image src={warehouse} alt="" fill sizes="100vw" className="object-cover" />
-              <div className="relative grid h-full grid-cols-1 tablet:grid-cols-2 desktop-s:grid-cols-4">
-                {["Motviktstruckar", "Ledstaplare", "Låglyftare", "Höglyftare"].map(
-                  (name, index) => (
-                    <TruckColumn
-                      key={name}
-                      href="/kitchensink#truck-column"
-                      aria-label={`Bygg din truck: ${name}`}
-                      heading="Bygg din truck:"
-                      rows={[
-                        { label: "Från", value: "169 000 kr" },
-                        { label: "Leasing från:", value: "3 326 kr/mån" },
-                      ]}
-                      data-state={index === 1 ? "active" : undefined}
-                    />
-                  ),
-                )}
-              </div>
-            </div>
-          </Example>
-        </Section>
       </Group>
-    </div>
+    </KitchensinkPage>
   );
 }

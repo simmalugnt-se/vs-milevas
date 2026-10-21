@@ -12,18 +12,19 @@ omgångar: "01 — Foundations" och "02 — Components" är klara, och "04 — B
 | Clash Grotesk Variable (WOFF2, vikter 200–700) och licens | `src/app/(frontend)/fonts/clash-grotesk/`; laddas via `next/font/local` i `[locale]/layout.tsx` |
 | Komponenter (Icon, Arrow, Logo, Button, Choice, ProductCard, Card, ConfiguratorBox, PriceBox, TextBox, TruckColumn) | `src/components/ui/` |
 | Block som komponenter (Navigation, Footer, Milevas Hero, Product-Grid, Text+Grid, Text & boxinfo) | `src/components/blocks/`; Navigation och Footer matas av Header- och Footer-globalerna i `src/payload/globals/*/Component.tsx` |
-| Referenssidor, noindex och 404 i produktion | `/kitchensink` (foundations och komponenter, en sektion per komponent med Figma-id och props), `/kitchensink/blocks` |
+| Referenssidor, noindex och 404 i produktion | `/kitchensink` (Grunder: tokens, ikoner, knappar, länkar, choice), `/kitchensink/components` (sammansatta komponenter), `/kitchensink/blocks` (hela block), `/kitchensink/notes` (alla frågor och avvikelser) |
+| Kitchensinks sidor och sektioner, layout och delade delar | `kitchensink/sections.ts` (flikar, sektionsindex och länkar), `layout.tsx`, `ui.tsx` (`KitchensinkPage`, `Group`, `Section`, `Example`) |
 | Listorna kitchensink visar, som testet jämför med CSS:en | `src/app/(frontend)/[locale]/kitchensink/*.ts` |
 | Test för tokens | `tests/design-tokens.test.mts` |
 | Ikoner, pilar och logotyp från Figmas SVG:er | `scripts/figma-svgs/` |
 | Backlog för blocken | [`blocks-backlog.md`](./blocks-backlog.md) |
-| Avvikelser från Figma, egna beslut och frågor till designen | `src/app/(frontend)/[locale]/kitchensink/figma-notes.ts`; visas vid varje komponent på `/kitchensink` och block på `/kitchensink/blocks`, det som gäller hela sajten överst på `/kitchensink` |
+| Avvikelser från Figma, egna beslut och frågor till designen | `src/app/(frontend)/[locale]/kitchensink/figma-notes.ts`; visas vid sin sektion, och alla samlat på `/kitchensink/notes` med det som gäller hela sajten |
 
 ## Kom igång på en annan dator
 
 1. Klona, `git checkout develop`, och sätt upp enligt `README.md` (`pnpm install`, `SERVICES=local`).
    Kitchensink-sidorna läser inget från databasen.
-2. `pnpm dev` och öppna `/kitchensink` och `/kitchensink/blocks`.
+2. `pnpm dev` och öppna `/kitchensink`; flikarna leder till komponenter, block och frågor.
 3. Figma desktop med filen öppen och dess MCP-server påslagen, så att en agent kan läsa markeringen.
 
 För att fortsätta med en agent: be den läsa `AGENTS.md` och det här dokumentet, markera blocket i
@@ -35,8 +36,9 @@ Figma, och säg vilket nummer i backloggen det är.
    `get_variable_defs` för blocket. Variablernas namn och värden gäller, inte skärmdumpen.
 2. Bygg komponenten i `src/components/blocks/` med innehåll som props och återanvänd
    `src/components/ui/`. Lägg den på `/kitchensink/blocks` med platshållarinnehåll. En ny
-   UI-komponent får en egen sektion på `/kitchensink` (i `contents` överst i sidan), med
-   `figma`, `api` och en `Example` med etikett per variant.
+   UI-komponent får en egen sektion på `/kitchensink` (byggstenar) eller `/kitchensink/components`
+   (sammansatta), med id och titel i `sections.ts` och `figma`, `api` och en `Example` med
+   etikett per variant.
 3. Jämför i webbläsaren mot Figma vid 1440, 1100, 800 och 375 px (Desktop L, Desktop S, Tablet,
    Mobile). Mät höjder och bredder och kontrollera att sidan inte scrollar i sidled.
 4. Skriv in varje avvikelse, varje lucka du fyller och varje fråga till designern i `figma-notes.ts`
@@ -85,8 +87,8 @@ Figma, och säg vilket nummer i backloggen det är.
   `data-state="active"`.
 - **Urblekta frames i Figma** är gamla versioner. Den nyare har högre node-id (till exempel
   `8721:` mot `8389:`).
-- **Sidbredd:** `main`, header och footer har full bredd med `px-(--grid-margin)`. Block som går kant i
-  kant (Hero) behöver gå ut över marginalen; på kitchensink görs det med `-mx-(--grid-margin)`.
+- **Sidbredd:** `main` har full bredd utan padding; blocken har sin egen marginal. Kitchensinks
+  sidmarginal är `--ks-gutter`, och blocken där går kant i kant med `-mx-(--ks-gutter)`.
 - **Nya ikoner:** lägg till namn och asset-hash i `scripts/figma-svgs/assets.json`, kör
   `node scripts/figma-svgs/to-tsx.mjs icon` med Figma öppet och klistra in resultatet i
   `src/components/ui/icon.tsx`.
@@ -122,4 +124,4 @@ för Display, Text och sajtens standardtext; Label använder Geist Mono.
    skiss. Hero, Grid och Image & Text väntar på designen, och text-box och truck-column är utkast
    tills ramen "blabla" är klar.
 2. **Väntar på designen eller på dig:**
-   - en genomgång av posterna med status Antagande och frågorna till designen, på `/kitchensink`
+   - en genomgång av posterna med status Antagande och frågorna till designen, på `/kitchensink/notes`

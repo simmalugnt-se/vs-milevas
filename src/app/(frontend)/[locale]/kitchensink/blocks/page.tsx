@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 import { ConfiguratorScreen } from "@/components/blocks/configurator-screen";
 import { Footer, type FooterLink } from "@/components/blocks/footer";
@@ -13,22 +12,18 @@ import { Button } from "@/components/ui/button";
 import { Choice } from "@/components/ui/choice";
 import { ConfiguratorBox, choiceLayout } from "@/components/ui/configurator-box";
 import type { ProductCardProps } from "@/components/ui/product-card";
-import { Link } from "@/i18n/navigation";
-import { getAppEnv } from "@/utilities/environment";
 import truckCounterbalance from "../assets/truck-counterbalance.png";
 import truckPallet from "../assets/truck-pallet.png";
 import warehouse from "../assets/warehouse.jpg";
-import type { BlockTarget } from "../figma-notes";
 import { FigmaNotes } from "../figma-notes-list";
+import { type SectionId, sectionTitle } from "../sections";
+import { KitchensinkPage } from "../ui";
 
 /**
- * Blocks from Figma "04 — Blocks" as components with placeholder content, before they become
- * Payload blocks (backlog: docs/blocks-backlog.md). Static, unlinked, not in production.
+ * Blocks from Figma "04 — Blocks" as components with placeholder content, edge to edge as in the
+ * page layout (backlog: docs/blocks-backlog.md).
  */
-export const metadata: Metadata = {
-  title: "Kitchensink: block",
-  robots: { index: false, follow: false },
-};
+export const metadata: Metadata = { title: "Kitchensink: Block" };
 
 const navigationLinks: NavigationLink[] = [
   { label: "Modeller", href: "/kitchensink/blocks#navigation", current: true },
@@ -123,74 +118,36 @@ const configuratorSteps = [
   },
 ] as const;
 
-/**
- * One block: a label on the page's grid margin, its questions and deviations from `figma-notes.ts`
- * (`notes`), then the block across the full width.
- */
-function Block({
-  id,
-  title,
-  figma,
-  notes,
-  children,
-}: {
-  id: string;
-  title: string;
-  figma: string;
-  notes?: BlockTarget;
-  children: ReactNode;
-}) {
+/** One block: its title and notes within the page margin, then the block edge to edge. */
+function Block({ id, figma, children }: { id: SectionId; figma: string; children: ReactNode }) {
   return (
-    <section aria-labelledby={id} className="space-y-4">
-      <h2 id={id} className="flex gap-4 text-label-s">
-        <span className="text-ui-primary">{title}</span>
-        <span className="text-ui-tertiary">Figma {figma}</span>
-      </h2>
-      {notes ? <FigmaNotes target={notes} /> : null}
-      {/* The layout pads <main> with the grid margin; blocks bring their own, so cancel it. */}
-      <div data-layout-block={id} className="-mx-(--grid-margin) bg-bg-fill">
+    <section aria-labelledby={id} className="scroll-mt-28 space-y-(--spacing-md)">
+      <div className="space-y-(--spacing-xs)">
+        <h2
+          id={id}
+          className="flex flex-wrap items-baseline gap-x-(--spacing-sm) text-display-xs text-ui-primary"
+        >
+          {sectionTitle(id)}
+          <span className="font-mono text-xs text-ui-tertiary">Figma {figma}</span>
+        </h2>
+        <FigmaNotes target={id} />
+      </div>
+      <div data-layout-block={id} className="-mx-(--ks-gutter) bg-bg-fill">
         {children}
       </div>
     </section>
   );
 }
 
-export default function KitchensinkBlocksPage() {
-  if (getAppEnv() === "prod") notFound();
-
+export default function BlocksPage() {
   return (
-    <div className="w-full space-y-16 py-12">
-      <header className="space-y-2">
-        <p className="text-label-s text-ui-secondary">
-          Milevas designsystem ·{" "}
-          <Link href="/kitchensink" className="underline">
-            Kitchensink
-          </Link>
-        </p>
-        <h1 className="text-display-m text-ui-primary">Block</h1>
-        <p className="max-w-prose text-text-m text-ui-secondary">
-          Komponenter från Figma med platshållarinnehåll. Hero, Product-Grid, Text+Grid och Text
-          &amp; boxinfo finns också som redigerbara Payload-block.
-        </p>
-        <div className="border-l-4 border-status-info bg-bg-fill px-4 py-3 text-sm text-ui-primary">
-          <strong>Fortsätta arbetet?</strong> Läs{" "}
-          <code className="font-mono text-xs">docs/design-system.md</code> i repot: var allt finns,
-          hur ett block byggs från Figma och vad som är nästa steg. Blocken står i{" "}
-          <code className="font-mono text-xs">docs/blocks-backlog.md</code>. Frågor och avvikelser
-          står vid varje block, och det som gäller hela sajten överst på{" "}
-          <Link href="/kitchensink" className="underline">
-            Kitchensink
-          </Link>
-          .
-        </div>
-      </header>
-
+    <KitchensinkPage href="/kitchensink/blocks" fullWidth>
       {/* The mobile menu follows the viewport, not this box: try it at phone width. */}
-      <Block id="navigation" notes="navigation" title="Navigation" figma="8309:4506">
+      <Block id="navigation" figma="8309:4506">
         <Navigation links={navigationLinks} cta={navigationCta} />
       </Block>
 
-      <Block id="hero" notes="hero" title="Milevas Hero" figma="8550:12778">
+      <Block id="hero" figma="8550:12778">
         <MilevasHero
           heading="Bygg din truck med Milevas"
           columns={Array.from({ length: 5 }, (_, index) => ({
@@ -207,15 +164,15 @@ export default function KitchensinkBlocksPage() {
       </Block>
 
       {/* Hover a card for the Desktop look; below Desktop S the arrow and prices always show. */}
-      <Block id="product-grid" notes="product-grid" title="Product-Grid" figma="8365:8988">
+      <Block id="product-grid" figma="8365:8988">
         <ProductGrid products={products} label="Modeller" />
       </Block>
 
-      <Block id="text-grid" notes="text-grid" title="Text+Grid" figma="8389:4705">
+      <Block id="text-grid" figma="8389:4705">
         <TextGrid heading={"Så enkelt\nfungerar det"} cards={textGridCards} />
       </Block>
 
-      <Block id="text-boxinfo" notes="text-boxinfo" title="Text & boxinfo" figma="8389:8524">
+      <Block id="text-boxinfo" figma="8389:8524">
         <TextBoxinfo
           heading="Truck från 390 kr/mån"
           highlight="Easy peasy lemon squeezy."
@@ -241,77 +198,76 @@ export default function KitchensinkBlocksPage() {
         />
       </Block>
 
-      {configuratorSteps.map((step, index) => (
-        <Block
-          key={step.number}
-          id={`configurator-${step.number}`}
-          title={`Configurator, steg ${step.number}`}
-          figma="8721:16450"
-          notes={index === 0 ? "configurator" : undefined}
-        >
-          <ConfiguratorScreen
-            total="Totalt: 173 900 kr"
-            prices={[
-              { label: "Leasing (48 mån)", value: "3 261 kr/mån" },
-              { label: "Långtidshyra (48 mån)", value: "3 261 kr/mån" },
-            ]}
-            image={
-              <Image
-                src={truckCounterbalance}
-                alt="Elektrisk motviktstruck"
-                fill
-                sizes="(width >= 64rem) 66vw, 100vw"
-                className="object-contain"
-              />
-            }
-            step={
-              <ConfiguratorBox
-                number={step.number}
-                label={step.label}
-                {...choiceLayout(step.choices.map(([, price]) => price))}
-              >
-                {step.choices.map(([title, price, text], choice) => (
-                  <Choice
-                    key={title}
-                    title={title}
-                    price={price}
-                    text={text}
-                    textSize={step.choices.length > 2 ? "m" : "s"}
-                    selected={choice === 1}
-                  />
-                ))}
-              </ConfiguratorBox>
-            }
-            help={"help" in step ? step.help : undefined}
-            actions={
-              <>
-                {index > 0 ? (
-                  <Button variant="secondary" size="m" iconLeft="arrow-left" iconRight={null}>
-                    Föregående
+      <Block id="configurator" figma="8721:16450">
+        {configuratorSteps.map((step, index) => (
+          <div key={step.number} id={`configurator-${step.number}`}>
+            <p className="px-(--ks-gutter) pt-(--spacing-sm) font-mono text-xs text-ui-secondary">
+              Steg {step.number}: {step.label}
+            </p>
+            <ConfiguratorScreen
+              total="Totalt: 173 900 kr"
+              prices={[
+                { label: "Leasing (48 mån)", value: "3 261 kr/mån" },
+                { label: "Långtidshyra (48 mån)", value: "3 261 kr/mån" },
+              ]}
+              image={
+                <Image
+                  src={truckCounterbalance}
+                  alt="Elektrisk motviktstruck"
+                  fill
+                  sizes="(width >= 64rem) 66vw, 100vw"
+                  className="object-contain"
+                />
+              }
+              step={
+                <ConfiguratorBox
+                  number={step.number}
+                  label={step.label}
+                  {...choiceLayout(step.choices.map(([, price]) => price))}
+                >
+                  {step.choices.map(([title, price, text], choice) => (
+                    <Choice
+                      key={title}
+                      title={title}
+                      price={price}
+                      text={text}
+                      textSize={step.choices.length > 2 ? "m" : "s"}
+                      selected={choice === 1}
+                    />
+                  ))}
+                </ConfiguratorBox>
+              }
+              help={"help" in step ? step.help : undefined}
+              actions={
+                <>
+                  {index > 0 ? (
+                    <Button variant="secondary" size="m" iconLeft="arrow-left" iconRight={null}>
+                      Föregående
+                    </Button>
+                  ) : null}
+                  <Button mode="dark" size="m">
+                    Nästa
                   </Button>
-                ) : null}
-                <Button mode="dark" size="m">
-                  Nästa
+                </>
+              }
+              contactText="Har du frågor eller önskar något annat av din konfiguration?"
+              contact={
+                <Button mode="tejp" size="m" iconRight="phone" className="w-full">
+                  Boka samtal
                 </Button>
-              </>
-            }
-            contactText="Har du frågor eller önskar något annat av din konfiguration?"
-            contact={
-              <Button mode="tejp" size="m" iconRight="phone" className="w-full">
-                Boka samtal
-              </Button>
-            }
-          />
-        </Block>
-      ))}
+              }
+            />
+          </div>
+        ))}
+      </Block>
 
-      <Block id="footer" notes="footer" title="Footer" figma="6076:622">
+      <Block id="footer" figma="6076:622">
         <Footer
           links={footerLinks}
           email={{ address: "hej@example.com", label: "E-post" }}
           languageLabel="In English"
         />
       </Block>
-    </div>
+    </KitchensinkPage>
   );
 }

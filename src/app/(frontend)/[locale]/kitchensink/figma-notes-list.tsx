@@ -1,11 +1,7 @@
 import { Fragment } from "react";
-import {
-  type BlockTarget,
-  designQuestions,
-  figmaNotes,
-  type NoteStatus,
-  type NoteTarget,
-} from "./figma-notes";
+import { Link } from "@/i18n/navigation";
+import { designQuestions, figmaNotes, type NoteStatus, type NoteTarget } from "./figma-notes";
+import { kitchensinkPages, sectionHref } from "./sections";
 
 /** Text with `backticks` shown as code. */
 function Inline({ text }: { text: string }) {
@@ -110,61 +106,62 @@ export function FigmaNotes({ target }: { target: NoteTarget }) {
   );
 }
 
-/** Where each block's notes are on /kitchensink/blocks. */
-const blockLinks: Record<BlockTarget, { title: string; href: string }> = {
-  hero: { title: "Milevas Hero", href: "/kitchensink/blocks#hero" },
-  navigation: { title: "Navigation", href: "/kitchensink/blocks#navigation" },
-  "product-grid": { title: "Product-Grid", href: "/kitchensink/blocks#product-grid" },
-  "text-grid": { title: "Text+Grid", href: "/kitchensink/blocks#text-grid" },
-  "text-boxinfo": { title: "Text & boxinfo", href: "/kitchensink/blocks#text-boxinfo" },
-  configurator: { title: "Configurator", href: "/kitchensink/blocks#configurator-01" },
-  footer: { title: "Footer", href: "/kitchensink/blocks#footer" },
-};
+const hasNotes = (target: NoteTarget) =>
+  designQuestions.some((question) => question.target === target) ||
+  figmaNotes.some((note) => note.target === target);
 
 /**
- * The top of /kitchensink: questions and notes for the whole site, then where the questions about
- * a component or block are. `sectionTitle` names a /kitchensink section.
+ * /kitchensink/notes: what the statuses mean, the notes for the whole site, then every section's
+ * questions and deviations under a link to the section, page by page.
  */
-export function GeneralFigmaNotes({ sectionTitle }: { sectionTitle: (id: string) => string }) {
-  const counts = new Map<NoteTarget, number>();
-  for (const question of designQuestions) {
-    if (question.target !== "general") {
-      counts.set(question.target, (counts.get(question.target) ?? 0) + 1);
-    }
-  }
-
+export function AllFigmaNotes() {
   return (
-    <section aria-labelledby="figma-notes" className="space-y-4">
-      <h2 id="figma-notes" className="text-display-s text-ui-primary">
-        Frågor och avvikelser
-      </h2>
-      <p className="max-w-prose text-sm text-ui-secondary">
-        Där koden avviker från Figma eller fyller i något Figma inte säger står det vid komponenten
-        eller blocket, med status <strong className="text-ui-primary">Beslut</strong> (bestämt
-        tillsammans), <strong className="text-status-warning">Antagande</strong> (vår tolkning, att
-        bekräfta) eller <strong className="text-status-info">Platshållare</strong> (tillfälligt).
-        Här står det som gäller hela sajten.
-      </p>
-      <DesignQuestions target="general" />
-      <div className="max-w-prose space-y-2 text-sm">
-        <p className="text-label-s text-ui-primary">Frågor vid komponenter och block</p>
-        <ul className="flex flex-wrap gap-x-4 gap-y-1">
-          {[...counts].map(([target, count]) => {
-            const block = blockLinks[target as BlockTarget];
-            return (
-              <li key={target}>
-                <a
-                  href={block ? block.href : `#${target}`}
-                  className="text-ui-secondary underline hover:text-ui-primary"
-                >
-                  {block ? block.title : sectionTitle(target)} ({count})
-                </a>
-              </li>
-            );
-          })}
-        </ul>
-      </div>
-      <Deviations target="general" open />
-    </section>
+    <div className="space-y-(--spacing-3xl)">
+      <section aria-labelledby="general" className="space-y-(--spacing-md)">
+        <h2
+          id="general"
+          className="border-b-2 border-border-secondary pb-(--spacing-2xs) text-display-s text-ui-primary"
+        >
+          Hela sajten
+        </h2>
+        <p className="max-w-prose text-sm text-ui-secondary">
+          Status <strong className="text-ui-primary">Beslut</strong> är bestämt tillsammans,{" "}
+          <strong className="text-status-warning">Antagande</strong> är vår tolkning att bekräfta
+          och <strong className="text-status-info">Platshållare</strong> är tillfälligt.
+        </p>
+        <DesignQuestions target="general" />
+        <Deviations target="general" open />
+      </section>
+      {kitchensinkPages
+        .filter((page) => page.groups.length > 0)
+        .map((page) => (
+          <section
+            key={page.href}
+            aria-labelledby={`notes-${page.title}`}
+            className="space-y-(--spacing-xl)"
+          >
+            <h2
+              id={`notes-${page.title}`}
+              className="border-b-2 border-border-secondary pb-(--spacing-2xs) text-display-s text-ui-primary"
+            >
+              {page.title}
+            </h2>
+            {page.groups.flatMap((group) =>
+              group.sections
+                .filter((section) => hasNotes(section.id))
+                .map((section) => (
+                  <div key={section.id} className="space-y-(--spacing-xs)">
+                    <h3 className="text-display-xs text-ui-primary">
+                      <Link href={sectionHref(section.id)} className="hover:underline">
+                        {section.title} →
+                      </Link>
+                    </h3>
+                    <FigmaNotes target={section.id} />
+                  </div>
+                )),
+            )}
+          </section>
+        ))}
+    </div>
   );
 }

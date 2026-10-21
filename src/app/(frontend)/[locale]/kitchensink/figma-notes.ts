@@ -1,45 +1,17 @@
+import type { SectionId } from "./sections";
+
 /**
  * Where the code departs from Figma "Milevas — Website", or fills a gap Figma leaves, and the
  * questions for the designer. Each entry belongs to the kitchensink section or block where it shows
- * (`target`) and is listed there; `general` entries are listed at the top of /kitchensink.
+ * (`target`) and is listed there; all of them, and the `general` ones, are on /kitchensink/notes.
  *
  * The rule is that Figma's variable names and values apply. Add a note whenever the code departs from
  * Figma or fills a gap, with the date, and remove it when Figma and the code agree again. Text in
  * backticks is shown as code.
  */
 
-/** Sections on /kitchensink. */
-export type ComponentTarget =
-  | "colors"
-  | "typography"
-  | "breakpoints"
-  | "grids"
-  | "spacing"
-  | "motion"
-  | "logos"
-  | "icons"
-  | "arrows"
-  | "buttons"
-  | "links"
-  | "choice"
-  | "product-card"
-  | "card"
-  | "configurator-box"
-  | "price-box"
-  | "text-box"
-  | "truck-column";
-
-/** Blocks on /kitchensink/blocks. */
-export type BlockTarget =
-  | "hero"
-  | "navigation"
-  | "product-grid"
-  | "text-grid"
-  | "text-boxinfo"
-  | "configurator"
-  | "footer";
-
-export type NoteTarget = "general" | ComponentTarget | BlockTarget;
+/** A kitchensink section (`sections.ts`), or `general` for the whole site. */
+export type NoteTarget = "general" | SectionId;
 
 /**
  * - `Beslut`: decided together; applies until Figma changes.
