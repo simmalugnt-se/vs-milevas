@@ -82,6 +82,18 @@ export const designQuestions: DesignQuestion[] = [
       "Temats `Font/*`-variabler stämmer inte med textstilarna: `Font/Label/family` pekar på `font/family/text` (Clash Grotesk), men Label L och S använder `font/family/label` (Geist Mono). `Font/Text/weight L` är Semibold men Text L är Medium, och `Font/Text/weight-S` är 450 men Text S är Semibold. Koden följer textstilarna.",
   },
   {
+    target: "colors",
+    question:
+      "GRIDS-framen och knappkomponenten använder fortfarande `Color/UI/inv-primary`, `Color/BG/inv-fill`, `Color/BG/surface` och `Color/BTN/tejp|inverted/*`, som inte finns i `theme`-samlingen. Ska de ersättas med lägena (Dark `BG/fill`, Tejp `BG/fill` och så vidare) och den gamla samlingen tas bort? Koden använder redan lägena.",
+    figma: "6075:1689",
+  },
+  {
+    target: "breakpoints",
+    question:
+      'Desktop L har "Inf" i BREAKPOINTS-framen men `breakpoints/width-max` 1920. Ska Desktop L sakna övre gräns, som koden gör, eller ska något hända vid 1920?',
+    figma: "8004:139",
+  },
+  {
     target: "typography",
     question: 'TEXT STYLES-framen kallar kolumnen "Desktop M"; läget i `layout` heter Desktop S.',
   },
@@ -407,9 +419,10 @@ export const figmaNotes: FigmaNote[] = [
     target: "breakpoints",
     topic: "Desktop L max",
     figma: 'Framen "Breakpoints" säger "Inf"; `breakpoints/width-max` är 1920',
-    code: "1920 (bara på kitchensink)",
-    why: "Variabeln gäller; om 1920 är innehållets maxbredd hör den hemma i grid",
+    code: "Ingen övre gräns: från 1440 skalar sidan (`1rem` = bredden / 90). 1920 står bara i kitchensinks tabell",
+    why: "Framen och skalningen säger samma sak; variabeln används inte till något",
     status: "Antagande",
+    date: "2026-10-21",
   },
   {
     target: "breakpoints",
@@ -447,7 +460,7 @@ export const figmaNotes: FigmaNote[] = [
     date: "2026-10-02",
   },
   {
-    target: "grids",
+    target: "spacing",
     topic: "`layout/spacing/*`",
     figma: "Variabler som `spacing/xs`",
     code: "`p-(--spacing-xs)`, inte `p-xs`",

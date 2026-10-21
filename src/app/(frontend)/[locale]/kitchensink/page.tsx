@@ -95,8 +95,13 @@ const onlyThisMode = (index: number) => {
 };
 const percentOfWidest = (px: number) => `${(px / widest) * 100}%`;
 
-/** Figma's breakpoint frame, scaled: the grey area runs to `width-min`, the open area on to `width-max`. */
+/**
+ * Figma's breakpoint frame, scaled: the grey area runs to `width-min`, the open area on to
+ * `width-max`. The widest mode has no end in the frame ("Inf"), so its open area runs to the edge
+ * without a line.
+ */
 function BreakpointBar({ mode }: { mode: Mode }) {
+  const open = mode.maxWidth === widest;
   return (
     <div className="flex h-24" style={{ width: percentOfWidest(mode.maxWidth) }}>
       <div
@@ -106,8 +111,12 @@ function BreakpointBar({ mode }: { mode: Mode }) {
         <span className="text-display-xs text-ui-primary">{mode.name}</span>
         <span className="text-text-s text-status-error">Min</span>
       </div>
-      <div className="flex flex-1 justify-end border-r border-status-error bg-bg-fill/50 p-2">
-        <span className="text-text-s text-status-error">Max</span>
+      <div
+        className={`flex flex-1 justify-end bg-bg-fill/50 p-2 ${open ? "" : "border-r border-status-error"}`}
+      >
+        <span className={`text-text-s ${open ? "text-ui-tertiary" : "text-status-error"}`}>
+          {open ? "Inf" : "Max"}
+        </span>
       </div>
     </div>
   );
@@ -221,7 +230,9 @@ export default function FoundationsPage() {
                     <td className="py-2 pr-4">{mode.variant ? `${mode.variant}:` : "(bas)"}</td>
                     <td className="py-2 pr-4">{onlyThisMode(index)}</td>
                     <td className="py-2 pr-4">{mode.minWidth}px</td>
-                    <td className="py-2 pr-4">{mode.maxWidth}px</td>
+                    <td className="py-2 pr-4">
+                      {mode.maxWidth}px{mode.maxWidth === widest ? " (Inf i framen)" : ""}
+                    </td>
                     <td className="py-2">{mode.designWidth}px</td>
                   </tr>
                 ))}
