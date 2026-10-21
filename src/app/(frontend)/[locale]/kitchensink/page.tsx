@@ -487,7 +487,7 @@ export default function FoundationsPage() {
           id="arrows"
           figma="8389:5810"
           api='<Arrow name="round" />'
-          description="64px, den enda storleken."
+          description="64px på den långa sidan (size=L, den enda storleken), beskuren till formen."
         >
           <ul className="flex flex-wrap gap-4">
             {arrowNames.map((name) => (

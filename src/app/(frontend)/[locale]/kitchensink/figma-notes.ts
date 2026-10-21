@@ -162,6 +162,12 @@ export const designQuestions: DesignQuestion[] = [
       "`arrow-up&forward` är en rak högerpil, och den svängda pilen heter `arrow-halfup`. Koden följer Figmas namn.",
   },
   {
+    target: "arrows",
+    question:
+      "Pilarna är nu beskurna till formen (`arrow-back` 64 × 40, `arrow-halfup` 48 × 64), men product-card har fortfarande `arrow-halfup` som en 64 × 64-instans. Ska den följa pilen? Koden centrerar pilen i en 64 px-ruta så att kortet inte ändras.",
+    figma: "8268:2971",
+  },
+  {
     target: "links",
     question: "Link har hover-texten `black`, inte en färgvariabel. Koden följer Figma.",
     figma: "8309:3919",

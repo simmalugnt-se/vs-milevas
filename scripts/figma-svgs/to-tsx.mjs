@@ -1,11 +1,12 @@
 // Prints the entries for `src/components/ui/{icon,arrow,logo}.tsx` from SVGs on Figma desktop's
-// local MCP asset server: `node scripts/figma-svgs/to-tsx.mjs icon`. Figma must be open with the
-// file. `assets.json` maps each name to its asset hash (the `http://localhost:3845/assets/<hash>.svg`
+// local MCP asset server: `node scripts/figma-svgs/to-tsx.mjs icon`, or only some of them with
+// `node scripts/figma-svgs/to-tsx.mjs arrow back halfup`. Figma must be open with the file, and the
+// asset server only serves SVGs from frames that are loaded. `assets.json` maps each name to its asset hash (the `http://localhost:3845/assets/<hash>.svg`
 // URLs get_design_context returns); add new icons there, run, and paste the output between
 // `const icons = {` and `} satisfies`.
 import { readFile } from "node:fs/promises";
 
-const group = process.argv[2];
+const [group, ...only] = process.argv.slice(2);
 const assets = JSON.parse(await readFile(new URL("./assets.json", import.meta.url), "utf8"))[group];
 if (!assets)
   throw new Error(
@@ -35,6 +36,7 @@ const convert = (svg) => {
 };
 
 for (const [name, hash] of Object.entries(assets)) {
+  if (only.length > 0 && !only.includes(name)) continue;
   const response = await fetch(`http://localhost:3845/assets/${hash}.svg`);
   if (!response.ok) throw new Error(`${name}: ${response.status} (is Figma desktop open?)`);
   const { viewBox, body } = convert(await response.text());

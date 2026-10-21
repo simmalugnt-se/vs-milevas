@@ -63,7 +63,8 @@ export function ProductCard({
             <span className="text-ui-tertiary">{brand}</span>
             <span className="text-ui-primary">{category}</span>
           </span>
-          <span className={`flex text-ui-primary ${revealOnHover}`}>
+          {/* Figma's instance is 64 × 64, the arrow 48 wide in it. */}
+          <span className={`flex size-16 justify-center text-ui-primary ${revealOnHover}`}>
             <Arrow name="halfup" />
           </span>
         </span>
