@@ -41,9 +41,12 @@ Figma, och säg vilket nummer i backloggen det är.
    etikett per variant.
 3. Jämför i webbläsaren mot Figma vid 1440, 1100, 800 och 375 px (Desktop L, Desktop S, Tablet,
    Mobile). Mät höjder och bredder och kontrollera att sidan inte scrollar i sidled.
-4. Skriv in varje avvikelse, varje lucka du fyller och varje fråga till designern i `figma-notes.ts`
-   med komponenten eller blocket som `target` (`general` för hela sajten), och bocka av blocket i
-   `blocks-backlog.md`.
+4. Bygg bara det som är ritat: inga egna hover-, fokus-, valda eller tomma lägen, animationer eller
+   varianter. Det designern inte har ritat blir en anteckning med status `Lucka` (vad som saknas och
+   vad som skulle behövas), och en fråga till designern där det behövs. Skriv in varje avvikelse,
+   lucka och fråga i `figma-notes.ts` med komponenten eller blocket som `target` (`general` för hela
+   sajten), gå igenom de äldre `Antagande`-posterna för samma komponent eller block, och bocka av
+   blocket i `blocks-backlog.md`.
 5. `pnpm check`, `pnpm typecheck`, `pnpm lint` och `pnpm test` ska gå igenom. Committa när
    användaren ber om det, och aldrig till `main`.
 
@@ -92,7 +95,8 @@ Figma, och säg vilket nummer i backloggen det är.
 - **Nya ikoner:** markera Icons-framen, hämta asset-hasharna med `get_design_context`, lägg in
   namn (Figmas namn i kebab-case) och hash i `scripts/figma-svgs/assets.json`, kör
   `node scripts/figma-svgs/to-tsx.mjs icon` med Figma öppet och klistra in resultatet i
-  `src/components/ui/icon.tsx`. Behåll `globe`, som inte längre finns i Figma.
+  `src/components/ui/icon.tsx`. Behåll `globe`, som inte längre finns i Figma; `arrow-right-s` hämtas
+  bara när Form-framen är inläst.
 
 ## Startsidan som Payload-block (2026-10-07)
 

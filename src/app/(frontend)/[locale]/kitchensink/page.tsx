@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import { Alternative } from "@/components/ui/alternative";
 import { Arrow, arrowNames } from "@/components/ui/arrow";
 import {
   Button,
@@ -15,6 +16,7 @@ import { Icon, iconNames } from "@/components/ui/icon";
 import { Logo } from "@/components/ui/logo";
 import { NavLink } from "@/components/ui/nav-link";
 import { TextField } from "@/components/ui/text-field";
+import { TimePicker, type TimePickerDay } from "@/components/ui/time-picker";
 import truckPallet from "./assets/truck-pallet.png";
 import { type Mode, modes } from "./breakpoints";
 import { ChoiceDemo } from "./choice-demo";
@@ -91,6 +93,29 @@ const buttonRows: { variant: ButtonVariant; border: boolean }[] = [
 ];
 const buttonSizes: ButtonSize[] = ["s", "m"];
 const buttonStates = ["default", "hover", "disabled"] as const;
+
+/** Placeholder days for the time picker. */
+const timePickerDays: TimePickerDay[] = [
+  "Idag 12 oktober",
+  "Imorgon 13 oktober",
+  "Tisdag 14 oktober",
+].map((label) => ({
+  label,
+  times: [
+    "10:30",
+    "11:00",
+    "11:30",
+    "12:00",
+    "13:00",
+    "13:30",
+    "14:00",
+    "14:30",
+    "15:00",
+    "15:30",
+    "16:00",
+    "16:30",
+  ],
+}));
 
 const widest = modes[0].maxWidth;
 
@@ -517,7 +542,7 @@ export default function FoundationsPage() {
               Färgerna kommer från läget runt knappen, eller från{" "}
               <code className="font-mono text-xs">mode</code>. Hover-kolumnen visas med{" "}
               <code className="font-mono text-xs">data-state=&quot;hover&quot;</code>; håll pekaren
-              över en knapp i Default-kolumnen för den riktiga övergången. iconRight är
+              över en knapp i Default-kolumnen för det riktiga hover-läget. iconRight är
               keyboard-arrow-right som standard. Figma ritar border bara på Tejp secondary.
               Tabellerna har en grå botten (primitiven neutral/400) så att alla knappar syns; Figma
               visar dem på lila.
@@ -735,7 +760,7 @@ export default function FoundationsPage() {
           api="<TextField label number? error? success? …input>"
           description='Ett input med etikett. Active är fokus; data-state="active" visar det utan fokus.'
         >
-          <div className="grid items-start gap-6 tablet:grid-cols-2 desktop-l:grid-cols-4">
+          <div className="grid grid-cols-[repeat(auto-fill,16.625rem)] items-start gap-6">
             <Example label="Default">
               <TextField number="01" label="Heading" placeholder="Supporting text" />
             </Example>
@@ -752,6 +777,53 @@ export default function FoundationsPage() {
             </Example>
             <Example label="success">
               <TextField number="01" label="Heading" defaultValue="Text" success />
+            </Example>
+          </div>
+        </Section>
+
+        <Section
+          id="alternative"
+          figma="8882:12777"
+          api="<Alternative name value label? number?>text</Alternative> · <TimePicker name days placeholder>"
+          description="Alternativ är radioknappar; ge alternativen i ett val samma name. Tidsväljaren skickar dag och tid som text."
+        >
+          <div className="grid grid-cols-[repeat(auto-fill,16.625rem)] items-start gap-6">
+            <Example label="label och number">
+              <Alternative name="demo-heading" number="01" label="Heading">
+                Text
+              </Alternative>
+            </Example>
+            <Example label='data-state="active"'>
+              <Alternative
+                name="demo-heading-active"
+                number="01"
+                label="Heading"
+                data-state="active"
+              >
+                Text
+              </Alternative>
+            </Example>
+            <Example label="Utan rubrik: välj ett">
+              <fieldset className="flex flex-col gap-(--spacing-2xs)">
+                <legend className="sr-only">När ska vi ringa?</legend>
+                <Alternative name="demo-call" value="asap" defaultChecked>
+                  Så snart som möjligt
+                </Alternative>
+                <Alternative name="demo-call" value="specific">
+                  Jag önskar en särskild tid
+                </Alternative>
+              </fieldset>
+            </Example>
+            <Example label="TimePicker, stängd">
+              <TimePicker name="demo-time" days={timePickerDays} placeholder="Välj tid" />
+            </Example>
+            <Example label="TimePicker, öppen">
+              <TimePicker
+                name="demo-time-open"
+                days={timePickerDays}
+                placeholder="Välj tid"
+                defaultOpen
+              />
             </Example>
           </div>
         </Section>

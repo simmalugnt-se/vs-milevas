@@ -15,10 +15,13 @@ export type NoteTarget = "general" | SectionId;
 
 /**
  * - `Beslut`: decided together; applies until Figma changes.
+ * - `Beslut (teknisk)`: how the code carries out what Figma shows; does not change the look.
  * - `Antagande`: our reading; applies until the designer says otherwise.
+ * - `Lucka`: Figma seems to lack something (a state, a behaviour). The code follows Figma without
+ *   it; `code` says what was there before or what it would take, so it can be added if wanted.
  * - `Platshållare`: temporary, to be replaced (search the code for `TODO(...)`).
  */
-export type NoteStatus = "Beslut" | "Beslut (teknisk)" | "Antagande" | "Platshållare";
+export type NoteStatus = "Beslut" | "Beslut (teknisk)" | "Antagande" | "Lucka" | "Platshållare";
 
 export type FigmaNote = {
   target: NoteTarget;
@@ -119,6 +122,12 @@ export const designQuestions: DesignQuestion[] = [
   {
     target: "buttons",
     question:
+      "Knappens och länkens hover flyttar pilen ett steg, och footerlänkens byter till texten under. Ska bytet animeras? Figmas `motion`-samling har tider och kurvor, men komponenterna visar inte vilka. Koden byter direkt.",
+    figma: "9207:21288",
+  },
+  {
+    target: "buttons",
+    question:
       "Disabled i storlek M använder `btn/primary/text` (full färg), medan S använder `btn/primary/text-disabled`. Ska M också tonas ner? Koden tonar ner båda.",
     figma: "9207:21288",
   },
@@ -196,6 +205,30 @@ export const designQuestions: DesignQuestion[] = [
     question:
       'Felmeddelandet i Figma är engelskt och felstavat ("This field is requierd"). Koden skriver meddelandet per fält, på svenska.',
     figma: "8861:10845",
+  },
+  {
+    target: "alternative",
+    question:
+      "Alternativen, kalendern och länkarna har inget fokusläge för tangentbord, som behövs för tillgänglighet: med tangentbordet syns det inte var man är. Hur ska det se ut? Koden har inget eget.",
+    figma: "8882:12777",
+  },
+  {
+    target: "alternative",
+    question:
+      "Kalendern visar inget valt läge för en tid, och alla tider är grå (`ui-tertiary`). Hur ser en vald tid ut, och finns det upptagna tider? Koden visar dem som Figma; den valda tiden syns bara i rutans text.",
+    figma: "9207:25710",
+  },
+  {
+    target: "alternative",
+    question:
+      "Kalenderns pilar ser likadana ut på första och sista dagen. Ska de se annorlunda ut där? Koden låter dem se ut som i Figma men göra ingenting.",
+    figma: "9207:25710",
+  },
+  {
+    target: "alternative",
+    question:
+      "Var kommer dagarna och tiderna i kalendern ifrån, och hur många dagar framåt ska man kunna välja? I dag skriver man en önskad tid som fritext.",
+    figma: "9207:25710",
   },
   {
     target: "choice",
@@ -361,7 +394,7 @@ export const figmaNotes: FigmaNote[] = [
     figma: "`Color/gradient` finns inte på färgramen",
     code: "`bg-gradient-inv` och dess två tokens är borttagna",
     why: "Användes bara på kitchensink; card har en egen svart gradient",
-    status: "Beslut",
+    status: "Antagande",
     date: "2026-10-21",
   },
   {
@@ -371,7 +404,7 @@ export const figmaNotes: FigmaNote[] = [
       "`---primitives` (läget Value): palett med nyans och opacitet, som `color/neutral/700/100`",
     code: "`--primitive-neutral-700-100` i `:root`, utan Tailwind-klasser; temafärgerna pekar på samma primitiv som i Figma",
     why: "Komponenterna använder temafärgerna, som i Figma",
-    status: "Beslut",
+    status: "Beslut (teknisk)",
     date: "2026-10-21",
   },
   {
@@ -509,6 +542,116 @@ export const figmaNotes: FigmaNote[] = [
 
   // Components
   {
+    target: "buttons",
+    topic: "Animation vid hover",
+    figma: "Default och hover (pilraden ett steg åt vänster), ingen rörelse mellan dem",
+    code: "Byts direkt. Tidigare gled pilen 300 ms (`duration-short`, `ease-slow-out`) och fyllningen tonade över 150 ms (`transition-colors`)",
+    why: "Figma visar lägena men inte rörelsen; se frågan om animation",
+    status: "Lucka",
+    date: "2026-10-21",
+  },
+  {
+    target: "links",
+    topic: "Animation vid hover",
+    figma: "Link: pilraden ett steg; footerlink: texten utrullad. Ingen rörelse mellan lägena",
+    code: "Byts direkt. Tidigare gled länkens pil och footerlänkens text rullade 300 ms (`duration-short`, `ease-slow-out`), och footerlänken visade hover-läget även vid tangentbordsfokus",
+    why: "Figma visar lägena men inte rörelsen eller fokus; se frågorna",
+    status: "Lucka",
+    date: "2026-10-21",
+  },
+  {
+    target: "alternative",
+    topic: "Fokusläge",
+    figma: "Inget läge för tangentbordsfokus på alternativen",
+    code: "Inget. Tidigare en 2px kontur i `ui-primary`, 2px utanför rutan",
+    why: "Behövs för tillgänglighet men finns inte i Figma; se frågan",
+    status: "Lucka",
+    date: "2026-10-21",
+  },
+  {
+    target: "alternative",
+    topic: "Vald tid i kalendern",
+    figma:
+      "Alla tider ser likadana ut (`ui-tertiary`, ram `border-primary`); inget valt läge och ingen hover",
+    code: "Den valda tiden syns bara i rutans text. Tidigare fick den vald tid ram `border-secondary` och text `ui-primary`, och tiderna blev `ui-primary` vid hover",
+    why: "Ett val utan synlig markering; se frågan",
+    status: "Lucka",
+    date: "2026-10-21",
+  },
+  {
+    target: "alternative",
+    topic: "Kalenderns pilar på första och sista dagen",
+    figma: "Pilarna ser alltid likadana ut",
+    code: "Ser ut som i Figma men gör ingenting. Tidigare var de grå (`ui-tertiary`) där",
+    why: "Figma visar inte första och sista dagen; se frågan",
+    status: "Lucka",
+    date: "2026-10-21",
+  },
+  {
+    target: "alternative",
+    topic: "Kalendern innan en tid valts",
+    figma: "Texten i rutan är `ui-primary`; inget tomt läge",
+    code: 'Platshållartexten ("Välj tid") i `ui-primary`. Tidigare var den grå (`ui-tertiary`), som formfältens',
+    why: "Figma visar inget tomt läge",
+    status: "Lucka",
+    date: "2026-10-21",
+  },
+  {
+    target: "product-card",
+    topic: "Färgövergång vid hover",
+    figma: "Default och hover, ingen rörelse mellan dem",
+    code: "Byts direkt. Tidigare tonade färgen över 150 ms (`transition-colors`)",
+    why: "Figma visar inte rörelsen",
+    status: "Lucka",
+    date: "2026-10-21",
+  },
+  {
+    target: "truck-column",
+    topic: "Färgövergång vid hover",
+    figma: "Default och active, ingen rörelse mellan dem",
+    code: "Byts direkt. Tidigare tonade färgen över 150 ms (`transition-colors`)",
+    why: "Figma visar inte rörelsen",
+    status: "Lucka",
+    date: "2026-10-21",
+  },
+  {
+    target: "choice",
+    topic: "Färgövergång",
+    figma: "Default och active, ingen rörelse mellan dem",
+    code: "Byts direkt. Tidigare tonade färgen över 150 ms (`transition-colors`)",
+    why: "Figma visar inte rörelsen",
+    status: "Lucka",
+    date: "2026-10-21",
+  },
+  {
+    target: "navigation",
+    topic: "Färgövergång på länkarna",
+    figma: "Inga hover-lägen för navigationens länkar",
+    code: "Ingen övergång. Tidigare tonade färgen över 150 ms (`transition-colors`); hover till `ui-primary` finns kvar tills navigationen gås igenom",
+    why: "Figma visar inte rörelsen; navigationen gås igenom för sig",
+    status: "Lucka",
+    date: "2026-10-21",
+  },
+  {
+    target: "alternative",
+    topic: "Alternativ som radioknapp",
+    figma: "`form-alternative` är en knapp med `Default` och `Active`, med eller utan rubrik",
+    code: "`Alternative`: en dold radioknapp i rutan; vald är Active. Inget fokusläge, som i Figma (se frågan)",
+    why: "Ett av flera alternativ; samma som samtalsformulärets val av tid",
+    status: "Antagande",
+    date: "2026-10-21",
+  },
+  {
+    target: "alternative",
+    topic: "Kalendern",
+    figma:
+      "`calendar-close` 60px högt, `calendar-open` med dag, pilar (gamla `icon-arrow-right`, 12px) och tider fyra per rad; kalendern är fast 230px bred i en 234px bred ruta, så den har 16px luft till vänster och 20px till höger",
+    code: "`TimePicker`: stängd tar chevronen 12px i raden så att rutan blir 60px; pilarna är Figmas gamla 12px-pil (`arrow-right-s`), vänd för vänster; kalendern är 4px smalare än rutan till höger, som i Figma; vald dag och tid skickas som text",
+    why: "Ingen fast höjd; samtalsförfrågan sparar önskad tid som text",
+    status: "Beslut (teknisk)",
+    date: "2026-10-21",
+  },
+  {
     target: "text-field",
     topic: "Höjd och ikoner",
     figma: "Fältet är 40px högt; Error har den gamla `icon-close` (12px), Success `icon-check`",
@@ -521,9 +664,9 @@ export const figmaNotes: FigmaNote[] = [
     target: "text-field",
     topic: "Krysset vid fel",
     figma: "Ett kryss i fältet när det är fel",
-    code: "Bara en markering, ingen knapp som tömmer fältet",
+    code: "Bara en markering. Om krysset ska tömma fältet behöver det bli en knapp",
     why: "Figma visar inte vad krysset gör",
-    status: "Antagande",
+    status: "Lucka",
     date: "2026-10-21",
   },
   {
@@ -560,15 +703,6 @@ export const figmaNotes: FigmaNote[] = [
       "Den nya Icons-framen saknar `play`, `pause`, `skip-*`, `maximize`, `minimize`, `sound-*` och `globe`",
     code: "Borttagna utom `globe`, som footern använder; den har den gamla SVG:n",
     why: "Ingen annan använde dem",
-    status: "Antagande",
-    date: "2026-10-21",
-  },
-  {
-    target: "buttons",
-    topic: "Animation",
-    figma: "Hover byter läge (pilraden från start till slut), utan animation",
-    code: "Pilen glider 20px med `duration-short` (300 ms) och `ease-slow-out`",
-    why: "Figmas motion-variabler; vilka som gäller för knappen är vårt val",
     status: "Antagande",
     date: "2026-10-21",
   },
@@ -640,7 +774,7 @@ export const figmaNotes: FigmaNote[] = [
       "Komponenten (`9207:21288`) använder `BTN/primary` och `BTN/secondary` men heter efter färger: `primary`/`black`, `inverted`, `tejp`, `tejp` med `border=true` och `gray`",
     code: '`variant="primary|secondary"` och läget runt knappen, eller `mode`: `primary`/`black` är Dark primary, `inverted` Light primary, `tejp` Tejp primary, `tejp` med ram Tejp secondary och `gray` Light secondary',
     why: "Variablerna gäller; färgnamnen är lägen",
-    status: "Beslut",
+    status: "Beslut (teknisk)",
     date: "2026-10-21",
   },
   {
@@ -649,16 +783,16 @@ export const figmaNotes: FigmaNote[] = [
     figma: "Blocken använder knappkomponentens fyra färger",
     code: 'Mörka knappar på ljus botten har `mode="dark"`, gula `mode="tejp"`',
     why: "Samma utseende som förut, tills blocken ritas med lägen",
-    status: "Beslut",
+    status: "Antagande",
     date: "2026-10-21",
   },
   {
     target: "buttons",
     topic: "Ram",
     figma: "`border=true` (bara på Tejp secondary): `stroke/width` i `BTN/secondary/border`",
-    code: "`border`-prop för båda varianterna, ritad som en ring inuti knappen (`ring-inset`) så att storleken är oförändrad",
+    code: "`border`-prop på secondary, ritad som en ring inuti knappen (`ring-inset`) så att storleken är oförändrad; primary har ingen ram, som i Figma",
     why: "Figmas ram ligger inuti; propen följer komponenten",
-    status: "Beslut",
+    status: "Beslut (teknisk)",
     date: "2026-10-21",
   },
   {

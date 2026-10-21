@@ -32,7 +32,7 @@ const showWhenActive =
 export function TruckColumn({ heading, rows = [], className, ...props }: TruckColumnProps) {
   return (
     <Link
-      className={`group/column mode-tejp flex h-full flex-col justify-end border-r border-bg-fill bg-bg-fill p-(--spacing-sm) transition-colors desktop-s:bg-transparent desktop-s:hover:bg-bg-fill desktop-s:focus-visible:bg-bg-fill desktop-s:data-[state=active]:bg-bg-fill ${className ?? ""}`}
+      className={`group/column mode-tejp flex h-full flex-col justify-end border-r border-bg-fill bg-bg-fill p-(--spacing-sm) desktop-s:bg-transparent desktop-s:hover:bg-bg-fill desktop-s:focus-visible:bg-bg-fill desktop-s:data-[state=active]:bg-bg-fill ${className ?? ""}`}
       {...props}
     >
       <span className={`flex flex-col gap-4 ${showWhenActive}`}>

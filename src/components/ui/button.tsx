@@ -6,12 +6,10 @@ import { Icon, type IconName } from "./icon";
 /**
  * Button and Link from Figma "02 — Components" → "Buttons & Links" (button 9207:21288, Link 8309:3919).
  *
- * Hover in Figma swaps a row of two identical icons from start to end inside a clipped box, so the
- * icon slides out and its copy slides in. Pass `data-state="hover"` to show the hover look without a
- * pointer (the kitchensink does).
- *
- * The slide uses Figma's motion `duration/short` and `easing/slow-out`; the component has no
- * animation of its own, so the choice is ours.
+ * Hover in Figma shifts a row of two identical icons from start to end inside a clipped box. Figma
+ * shows the two states but no animation between them, so there is none here (a question for the
+ * designer). Pass `data-state="hover"` to show the hover look without a pointer (the kitchensink
+ * does).
  */
 
 export type ButtonVariant = "primary" | "secondary";
@@ -31,11 +29,11 @@ const variantClasses: Record<ButtonVariant, string> = {
 };
 
 /**
- * Figma's `border=true`: a `stroke/width` line in the variant's border color, drawn inside (an inset
- * ring), so the button keeps its size. Figma only draws it on Tejp secondary.
+ * Figma's `border=true`: a `stroke/width` line in `BTN/secondary/border`, drawn inside (an inset
+ * ring), so the button keeps its size. Figma only has it on secondary (Tejp), so primary has none.
  */
 const borderClasses: Record<ButtonVariant, string> = {
-  primary: "ring-(length:--stroke-width) ring-btn-primary-border ring-inset",
+  primary: "",
   secondary:
     "ring-(length:--stroke-width) ring-btn-secondary-border ring-inset disabled:ring-btn-secondary-border-disabled",
 };
@@ -47,11 +45,11 @@ const sizeClasses: Record<ButtonSize, string> = {
 };
 
 const slide =
-  "transition-transform duration-short ease-slow-out motion-reduce:transition-none group-[:not(:disabled):hover]/slide:-translate-x-(--slide) group-data-[state=hover]/slide:-translate-x-(--slide)";
+  "group-[:not(:disabled):hover]/slide:-translate-x-(--slide) group-data-[state=hover]/slide:-translate-x-(--slide)";
 
 /**
  * Two copies of the 16px icon, 4px apart, in a clipped box; hovering the parent (`group/slide`)
- * slides to the second, as Figma's 20px step.
+ * shifts to the second, Figma's 20px step.
  */
 function SlidingIcon({ name }: { name: IconName }) {
   return (
@@ -71,7 +69,7 @@ type ButtonStyleProps = {
   variant?: ButtonVariant;
   /** Color mode for the button alone; the surrounding mode by default. */
   mode?: ColorMode;
-  /** Figma's `border=true`; no border by default. */
+  /** Figma's `border=true`, secondary only; no border by default. */
   border?: boolean;
   size?: ButtonSize;
   /** Icon before the label; none by default. */
@@ -86,7 +84,7 @@ export const buttonClassName = ({
   border,
   size = "s",
 }: Pick<ButtonStyleProps, "variant" | "mode" | "border" | "size">) =>
-  `group/slide inline-flex items-center justify-center whitespace-nowrap rounded-sm text-label-s transition-colors disabled:cursor-not-allowed ${mode ? modeClass[mode] : ""} ${variantClasses[variant]} ${border ? borderClasses[variant] : ""} ${sizeClasses[size]}`;
+  `group/slide inline-flex items-center justify-center whitespace-nowrap rounded-sm text-label-s disabled:cursor-not-allowed ${mode ? modeClass[mode] : ""} ${variantClasses[variant]} ${border ? borderClasses[variant] : ""} ${sizeClasses[size]}`;
 
 function ButtonContent({
   iconLeft,
@@ -164,7 +162,7 @@ type TextLinkProps = ComponentProps<typeof Link> & {
 
 /**
  * Figma "Link" (8309:3919): Label S in `ui-primary` with the 16px `arrow_right`, 8px gap and
- * vertical padding (`spacing/2xs`). Hover only slides the icon. Figma's `Color=White` is the same
+ * vertical padding (`spacing/2xs`). Hover only shifts the icon. Figma's `Color=White` is the same
  * variable in Dark mode, so the link follows the mode around it.
  */
 export function TextLink({

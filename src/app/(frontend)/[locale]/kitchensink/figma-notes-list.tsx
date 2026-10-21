@@ -20,6 +20,7 @@ const statusClasses: Record<NoteStatus, string> = {
   Beslut: "text-ui-secondary",
   "Beslut (teknisk)": "text-ui-secondary",
   Antagande: "text-status-warning",
+  Lucka: "text-status-error",
   Platshållare: "text-status-info",
 };
 
@@ -50,15 +51,17 @@ function Deviations({ target, open }: { target: NoteTarget; open?: boolean }) {
   const notes = figmaNotes.filter((note) => note.target === target);
   if (notes.length === 0) return null;
   const assumptions = notes.filter((note) => note.status === "Antagande").length;
+  const gaps = notes.filter((note) => note.status === "Lucka").length;
+  const counts = [
+    assumptions > 0 ? `${assumptions} ${assumptions === 1 ? "antagande" : "antaganden"}` : "",
+    gaps > 0 ? `${gaps} ${gaps === 1 ? "lucka" : "luckor"}` : "",
+  ].filter(Boolean);
 
   return (
     <details open={open} className="text-sm">
       <summary className="text-label-s text-ui-secondary">
-        Avvikelser och egna beslut ({notes.length}
-        {assumptions > 0
-          ? `, varav ${assumptions} ${assumptions === 1 ? "antagande" : "antaganden"}`
-          : ""}
-        )
+        Avvikelser, egna beslut och luckor ({notes.length}
+        {counts.length > 0 ? `, varav ${counts.join(" och ")}` : ""})
       </summary>
       <ul className="mt-3 divide-y divide-border-secondary border-y border-border-secondary">
         {notes.map((note) => (
@@ -126,8 +129,10 @@ export function AllFigmaNotes() {
         </h2>
         <p className="max-w-prose text-sm text-ui-secondary">
           Status <strong className="text-ui-primary">Beslut</strong> är bestämt tillsammans,{" "}
-          <strong className="text-status-warning">Antagande</strong> är vår tolkning att bekräfta
-          och <strong className="text-status-info">Platshållare</strong> är tillfälligt.
+          <strong className="text-status-warning">Antagande</strong> är vår tolkning att bekräfta,{" "}
+          <strong className="text-status-error">Lucka</strong> är något som verkar saknas i Figma
+          och som koden därför inte har (med vad som skulle behövas) och{" "}
+          <strong className="text-status-info">Platshållare</strong> är tillfälligt.
         </p>
         <DesignQuestions target="general" />
         <Deviations target="general" open />

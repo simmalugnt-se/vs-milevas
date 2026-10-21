@@ -37,7 +37,7 @@ export function Choice({
     <button
       type={type}
       aria-pressed={selected}
-      className={`flex w-full flex-col items-start border-y border-border-primary p-(--spacing-sm) text-left transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
+      className={`flex w-full flex-col items-start border-y border-border-primary p-(--spacing-sm) text-left disabled:cursor-not-allowed disabled:opacity-50 ${
         image ? "gap-(--spacing-2xs)" : "gap-(--spacing-md)"
       } ${borderRight ? "border-r" : ""} ${selected ? "bg-ui-brand" : ""} ${className ?? ""}`}
       {...props}

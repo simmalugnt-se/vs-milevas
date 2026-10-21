@@ -4,7 +4,8 @@ import type { ReactNode, SVGProps } from "react";
  * Icons from Figma "02 — Components" → "Icons" (node 9207:18160), all 16px, named as in Figma in
  * kebab case (`keyboard_arrow_down` → `keyboard-arrow-down`). Generated with
  * `scripts/figma-svgs/to-tsx.mjs` (#121212 becomes currentColor): colour them with `text-*`, size
- * them with `size-*`. `globe` is kept from the old Icons frame for the footer.
+ * them with `size-*`. `globe` is kept from the old Icons frame for the footer, and `arrow-right-s`
+ * (12px) is the old arrow the Form calendar uses.
  */
 const icons = {
   "arrow-up": {
@@ -254,6 +255,15 @@ const icons = {
           d="M3.725 14.275C3.46389 14.0139 3.33333 13.7 3.33333 13.3333C3.33333 12.9667 3.46389 12.6528 3.725 12.3917C3.98611 12.1306 4.3 12 4.66667 12C5.03333 12 5.34722 12.1306 5.60833 12.3917C5.86944 12.6528 6 12.9667 6 13.3333C6 13.7 5.86944 14.0139 5.60833 14.275C5.34722 14.5361 5.03333 14.6667 4.66667 14.6667C4.3 14.6667 3.98611 14.5361 3.725 14.275ZM10.3917 14.275C10.1306 14.0139 10 13.7 10 13.3333C10 12.9667 10.1306 12.6528 10.3917 12.3917C10.6528 12.1306 10.9667 12 11.3333 12C11.7 12 12.0139 12.1306 12.275 12.3917C12.5361 12.6528 12.6667 12.9667 12.6667 13.3333C12.6667 13.7 12.5361 14.0139 12.275 14.275C12.0139 14.5361 11.7 14.6667 11.3333 14.6667C10.9667 14.6667 10.6528 14.5361 10.3917 14.275ZM4.1 4L5.7 7.33333H10.3667L12.2 4H4.1ZM3.46667 2.66667H13.3C13.5556 2.66667 13.75 2.78056 13.8833 3.00833C14.0167 3.23611 14.0222 3.46667 13.9 3.7L11.5333 7.96667C11.4111 8.18889 11.2472 8.36111 11.0417 8.48333C10.8361 8.60556 10.6111 8.66667 10.3667 8.66667H5.4L4.66667 10H12.6667V11.3333H4.66667C4.16667 11.3333 3.78889 11.1139 3.53333 10.675C3.27778 10.2361 3.26667 9.8 3.5 9.36667L4.4 7.73333L2 2.66667H0.666667V1.33333H2.83333L3.46667 2.66667Z"
           fill="currentColor"
         />
+      </>
+    ),
+  },
+  /** Figma's old 12px `icon-arrow-right`, which the Form calendar still uses (turned for left). */
+  "arrow-right-s": {
+    viewBox: "0 0 12 12",
+    body: (
+      <>
+        <path d="M1 6H9M5 10L9 6L5 2" strokeWidth="2" stroke="currentColor" />
       </>
     ),
   },

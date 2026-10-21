@@ -99,7 +99,7 @@ export function Navigation({
                   rel={link.rel}
                   target={link.target}
                   aria-current={isCurrent(link) ? "page" : undefined}
-                  className={`block whitespace-nowrap py-(--spacing-2xs) text-label-s transition-colors hover:text-ui-primary ${
+                  className={`block whitespace-nowrap py-(--spacing-2xs) text-label-s hover:text-ui-primary ${
                     isCurrent(link) ? "text-ui-primary" : "text-ui-tertiary"
                   }`}
                   {...link.attributes}

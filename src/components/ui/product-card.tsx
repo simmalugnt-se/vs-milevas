@@ -54,7 +54,7 @@ export function ProductCard({
 }: ProductCardProps) {
   return (
     <Link
-      className={`group/card relative block aspect-[339/507] tablet:aspect-[388/507] desktop-s:aspect-[416/507] desktop-l:aspect-[469/507] mode-light rounded-lg bg-bg-fill transition-colors hover:mode-tejp focus-visible:mode-tejp data-[state=hover]:mode-tejp ${className ?? ""}`}
+      className={`group/card relative block aspect-[339/507] tablet:aspect-[388/507] desktop-s:aspect-[416/507] desktop-l:aspect-[469/507] mode-light rounded-lg bg-bg-fill hover:mode-tejp focus-visible:mode-tejp data-[state=hover]:mode-tejp ${className ?? ""}`}
       {...props}
     >
       <span className="absolute inset-0 flex flex-col p-(--spacing-sm)">

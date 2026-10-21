@@ -32,6 +32,7 @@ export const kitchensinkPages = [
           { id: "links", title: "Länkar" },
           { id: "choice", title: "Choice" },
           { id: "text-field", title: "Formfält" },
+          { id: "alternative", title: "Alternativ och tid" },
         ],
       },
     ],
