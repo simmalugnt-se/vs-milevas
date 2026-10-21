@@ -29,6 +29,9 @@ import { ChoiceDemo } from "./choice-demo";
 import { type ColorToken, colorGroups, colorModes } from "./colors";
 import { FigmaNotes, GeneralFigmaNotes } from "./figma-notes-list";
 import { cardGrids, fromFigma, grid, radii } from "./grid";
+import { durations, easings } from "./motion";
+import { primitiveGroups } from "./primitives";
+import { spacing, strokes } from "./spacing";
 import { sizes, sizesForMode, type TextStyle, textStyles } from "./typography";
 
 /**
@@ -51,6 +54,8 @@ const contents = [
       { id: "typography", title: "Text styles" },
       { id: "breakpoints", title: "Breakpoints" },
       { id: "grids", title: "Grids" },
+      { id: "spacing", title: "Spacing och stroke" },
+      { id: "motion", title: "Motion" },
     ],
   },
   {
@@ -342,6 +347,36 @@ export default function KitchensinkPage() {
               </div>
             ))}
           </div>
+          <div className="space-y-3">
+            <h4 className="text-label-s text-ui-primary">
+              Primitives{" "}
+              <span className="text-ui-tertiary">(---primitives, alias för färgerna ovan)</span>
+            </h4>
+            <div className="space-y-2">
+              {primitiveGroups.map((group) => (
+                <div
+                  key={group.title}
+                  className="grid grid-cols-[7rem_1fr] items-center gap-x-4 text-xs"
+                >
+                  <span className="font-mono text-ui-secondary">{group.title}</span>
+                  <ul className="grid grid-cols-3 gap-1 tablet:grid-cols-9">
+                    {group.colors.map((color) => (
+                      <li key={color.token} title={color.token} className="space-y-1">
+                        <span
+                          aria-hidden
+                          className="block h-8 border border-border-primary"
+                          style={{ backgroundColor: `var(${color.token})` }}
+                        />
+                        <span className="block font-mono text-ui-secondary">
+                          {color.name} · {color.value}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </div>
         </Section>
 
         <Section id="typography">
@@ -505,6 +540,95 @@ export default function KitchensinkPage() {
               </div>
             ))}
           </div>
+        </Section>
+
+        <Section
+          id="spacing"
+          description="Spacing används som p-(--spacing-xs), stroke som border-(length:--stroke-width)."
+        >
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[44rem] text-left text-sm">
+              <thead className="text-ui-tertiary">
+                <tr>
+                  <th className="py-2 pr-4 font-medium" />
+                  {modes.map((mode) => (
+                    <th key={mode.name} className="py-2 pr-4 font-medium">
+                      {mode.name}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="font-mono text-xs text-ui-secondary">
+                {[
+                  ...Object.entries(spacing).map(
+                    ([key, values]) => [`--spacing-${key}`, values] as const,
+                  ),
+                  ...Object.entries(strokes).map(
+                    ([key, values]) => [`--stroke-${key}`, values] as const,
+                  ),
+                ].map(([token, values]) => (
+                  <tr key={token} className="border-t border-border-primary">
+                    <td className="py-2 pr-4">{token}</td>
+                    {modes.map((mode) => (
+                      <td key={mode.name} className="py-2 pr-4">
+                        {values[mode.name]}px
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <Example label="Aktuellt läge">
+            <ul className="space-y-2">
+              {Object.keys(spacing).map((key) => (
+                <li key={key} className="grid grid-cols-[6rem_1fr] items-center gap-4">
+                  <code className="font-mono text-xs text-ui-secondary">{key}</code>
+                  <span
+                    className="block h-4 bg-ui-brand"
+                    style={{ width: `var(--spacing-${key})` }}
+                  />
+                </li>
+              ))}
+              {Object.keys(strokes).map((key) => (
+                <li key={key} className="grid grid-cols-[6rem_1fr] items-center gap-4">
+                  <code className="font-mono text-xs text-ui-secondary">stroke-{key}</code>
+                  <span
+                    className="block w-32 bg-ui-primary"
+                    style={{ height: `var(--stroke-${key})` }}
+                  />
+                </li>
+              ))}
+            </ul>
+          </Example>
+        </Section>
+
+        <Section id="motion" description="Mode Fast. Håll pekaren över en rad för att se kurvan.">
+          <ul className="space-y-2 text-sm">
+            {easings.map((easing) => (
+              <li
+                key={easing.name}
+                className="group/motion grid grid-cols-[8rem_1fr] items-center gap-x-4 lg:grid-cols-[8rem_14rem_1fr]"
+              >
+                <code className="font-mono text-xs text-ui-primary">{easing.className}</code>
+                <code className="col-start-2 font-mono text-xs text-ui-secondary lg:col-start-auto">
+                  {easing.value}
+                </code>
+                <span className="@container col-span-full block h-6 bg-bg-fill lg:col-span-1">
+                  <span
+                    className={`block size-6 bg-ui-primary transition-transform duration-medium group-hover/motion:translate-x-[calc(100cqw-1.5rem)] ${easing.className}`}
+                  />
+                </span>
+              </li>
+            ))}
+          </ul>
+          <ul className="space-y-1 font-mono text-xs text-ui-secondary">
+            {durations.map((duration) => (
+              <li key={duration.name}>
+                <span className="text-ui-primary">{duration.className}</span> · {duration.value}ms
+              </li>
+            ))}
+          </ul>
         </Section>
       </Group>
 

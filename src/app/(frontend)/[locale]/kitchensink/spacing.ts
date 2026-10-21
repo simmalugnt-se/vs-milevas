@@ -1,10 +1,12 @@
 /**
- * Figma `layout/spacing/*` in px per mode; the CSS holds them as `--spacing-*` in rem.
+ * Figma `layout/spacing/*` and `layout/stroke/*` in px per mode; the CSS holds them as `--spacing-*`
+ * and `--stroke-*` in rem.
  * `tests/design-tokens.test.mts` checks this list against `src/styles/site-theme.css`.
  */
 import type { ModeName } from "./breakpoints";
 
 export const spacing: Record<string, Record<ModeName, number>> = {
+  "5xl": { "Desktop L": 200, "Desktop S": 128, Tablet: 128, Mobile: 128 },
   "4xl": { "Desktop L": 128, "Desktop S": 96, Tablet: 80, Mobile: 64 },
   "3xl": { "Desktop L": 96, "Desktop S": 80, Tablet: 64, Mobile: 56 },
   "2xl": { "Desktop L": 64, "Desktop S": 64, Tablet: 56, Mobile: 48 },
@@ -16,4 +18,10 @@ export const spacing: Record<string, Record<ModeName, number>> = {
   "2xs": { "Desktop L": 8, "Desktop S": 8, Tablet: 8, Mobile: 8 },
   "3xs": { "Desktop L": 4, "Desktop S": 4, Tablet: 4, Mobile: 4 },
   "4xs": { "Desktop L": 2, "Desktop S": 2, Tablet: 2, Mobile: 2 },
+};
+
+/** `layout/stroke/*`: `--stroke-width` and `--stroke-width-icon`. */
+export const strokes: Record<string, Record<ModeName, number>> = {
+  width: { "Desktop L": 1, "Desktop S": 1, Tablet: 1, Mobile: 0.5 },
+  "width-icon": { "Desktop L": 2, "Desktop S": 2, Tablet: 2, Mobile: 1 },
 };

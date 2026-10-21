@@ -14,6 +14,8 @@ export type ComponentTarget =
   | "typography"
   | "breakpoints"
   | "grids"
+  | "spacing"
+  | "motion"
   | "logos"
   | "icons"
   | "arrows"
@@ -95,6 +97,30 @@ export const designQuestions: DesignQuestion[] = [
   {
     target: "colors",
     question:
+      "I `---primitives` är `neutral/700/85` (`#363636`) och `brand/tejp/85` (`#e5ff59`) fasta färger, medan alla andra `85` är basfärgen på 85 %. Därför är knapparnas hover genomskinlig i Light men fast i Dark och Tejp. Avsiktligt?",
+  },
+  {
+    target: "colors",
+    question:
+      "`neutral/100/0`–`90` är `#fcfcfc` med opacitet, men `neutral/100/100` är `#ffffff`. Ska de ha samma bas?",
+  },
+  {
+    target: "typography",
+    question:
+      "Temats `Font/*`-variabler stämmer inte med textstilarna: `Font/Label/family` pekar på `font/family/text` (Clash Grotesk), men Label L och S använder `font/family/label` (Geist Mono). `Font/Text/weight L` är Semibold men Text L är Medium, och `Font/Text/weight-S` är 450 men Text S är Semibold. Koden följer textstilarna.",
+  },
+  {
+    target: "typography",
+    question: 'TEXT STYLES-framen kallar kolumnen "Desktop M"; läget i `layout` heter Desktop S.',
+  },
+  {
+    target: "motion",
+    question:
+      "Exporten av `motion` har bara läget Fast. Finns det fler lägen, och när ska de gälla?",
+  },
+  {
+    target: "colors",
+    question:
       "`BORDER/secondary` är `#121212` i Dark, samma som `BG/fill`, så ramen syns inte. Ska den vara ljus i Dark?",
     figma: "6073:1230",
   },
@@ -122,11 +148,6 @@ export const designQuestions: DesignQuestion[] = [
     target: "buttons",
     question:
       "Dark `BTN/secondary/text-disabled` är `#f0f0f0`, samma som texten, så disabled syns bara på fyllningen. I Light och Tejp är den `#f0f0f099`. Avsiktligt?",
-  },
-  {
-    target: "buttons",
-    question:
-      "Hover är genomskinlig i Light (fyllningen på 85 %) men en fast färg i Dark (`#363636`) och Tejp (`#e5ff59`). Avsiktligt?",
   },
   {
     target: "buttons",
@@ -322,6 +343,43 @@ export const figmaNotes: FigmaNote[] = [
   },
   {
     target: "colors",
+    topic: "Primitiver",
+    figma:
+      "`---primitives` (läget Value): palett med nyans och opacitet, som `color/neutral/700/100`",
+    code: "`--primitive-neutral-700-100` i `:root`, utan Tailwind-klasser; temafärgerna pekar på samma primitiv som i Figma",
+    why: "Komponenterna använder temafärgerna, som i Figma",
+    status: "Beslut",
+    date: "2026-10-21",
+  },
+  {
+    target: "colors",
+    topic: "Utan primitiv",
+    figma: "Dark `BG/active` (`#000000`), status och navigation har egna värden, inget alias",
+    code: "Värdet direkt",
+    why: "Det finns ingen primitiv för dem",
+    status: "Beslut (teknisk)",
+    date: "2026-10-21",
+  },
+  {
+    target: "colors",
+    topic: "Figmas export",
+    figma: "Variables → samling → Export ger en JSON-fil per läge",
+    code: "Filerna ligger i `docs/figma-variables`; `tests/design-tokens.test.mts` jämför CSS:en med dem",
+    why: "Exporten visar alla lägen och alias, även det som framarna inte visar",
+    status: "Beslut (teknisk)",
+    date: "2026-10-21",
+  },
+  {
+    target: "spacing",
+    topic: "Stroke",
+    figma: "`stroke/width` (0,5 px på Mobile, annars 1 px) och `stroke/width-icon` (1 och 2 px)",
+    code: "`--stroke-width` och `--stroke-width-icon`, ännu inte använda; ramar är 1 px och ikonerna har strecken från sina SVG:er",
+    why: "Figmas komponenter visar inte var de används",
+    status: "Antagande",
+    date: "2026-10-21",
+  },
+  {
+    target: "colors",
     topic: "Färgnamn",
     figma: "Både `Color/BG/*` och `Color/BACKGROUND/*`, och `Color/status/iinfo`",
     code: "`bg-*` och `status-info`",
@@ -438,10 +496,11 @@ export const figmaNotes: FigmaNote[] = [
   {
     target: "buttons",
     topic: "Animation",
-    figma: "Hover byter läge (pilraden från start till slut); `motion`-samlingen går inte att läsa",
-    code: "Pilen glider 20px på 200 ms ease-out",
-    why: "Värdena i `motion` saknas, se `TODO(motion)`",
-    status: "Platshållare",
+    figma: "Hover byter läge (pilraden från start till slut), utan animation",
+    code: "Pilen glider 20px med `duration-short` (300 ms) och `ease-slow-out`",
+    why: "Figmas motion-variabler; vilka som gäller för knappen är vårt val",
+    status: "Antagande",
+    date: "2026-10-21",
   },
   {
     target: "buttons",

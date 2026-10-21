@@ -1,0 +1,101 @@
+{
+  "easing": {
+    "slow-in": {
+      "$type": "easing",
+      "$value": "cubic-bezier(1, 0, 0.4, 1)",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:6058:581",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "slow-out": {
+      "$type": "easing",
+      "$value": "cubic-bezier(0.6, 0, 0, 1)",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:6059:656",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "slow-in-out": {
+      "$type": "easing",
+      "$value": "cubic-bezier(0.8, 0, 0.2, 1)",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:6059:657",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "fade-in": {
+      "$type": "easing",
+      "$value": "cubic-bezier(0, 0, 0, 1)",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:6059:678",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    }
+  },
+  "duration": {
+    "short": {
+      "$type": "duration",
+      "$value": {
+        "value": 300,
+        "unit": "ms"
+      },
+      "$extensions": {
+        "com.figma.variableId": "VariableID:6058:580",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "medium": {
+      "$type": "duration",
+      "$value": {
+        "value": 600,
+        "unit": "ms"
+      },
+      "$extensions": {
+        "com.figma.variableId": "VariableID:6059:658",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "long": {
+      "$type": "duration",
+      "$value": {
+        "value": 1200,
+        "unit": "ms"
+      },
+      "$extensions": {
+        "com.figma.variableId": "VariableID:6059:659",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    },
+    "very-long": {
+      "$type": "duration",
+      "$value": {
+        "value": 2400,
+        "unit": "ms"
+      },
+      "$extensions": {
+        "com.figma.variableId": "VariableID:6059:677",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    }
+  },
+  "$extensions": {
+    "com.figma.modeName": "Fast"
+  }
+}

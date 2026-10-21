@@ -38,7 +38,7 @@ export const textStyles: TextStyle[] = [
     family: "display",
     size: "3xl",
     weight: 700,
-    lineHeight: 0.9,
+    lineHeight: 1,
     uppercase: true,
   },
   {

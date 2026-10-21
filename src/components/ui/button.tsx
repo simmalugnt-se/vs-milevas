@@ -10,8 +10,8 @@ import { Icon, type IconName } from "./icon";
  * icon slides out and its copy slides in. Pass `data-state="hover"` to show the hover look without a
  * pointer (the kitchensink does).
  *
- * TODO(motion): Figma has a `motion` variable collection, but no keyframes on these components and
- * no way to read the collection from a selection. 200ms ease-out is our own placeholder.
+ * The slide uses Figma's motion `duration/short` and `easing/slow-out`; the component has no
+ * animation of its own, so the choice is ours.
  */
 
 export type ButtonVariant = "primary" | "secondary";
@@ -37,7 +37,7 @@ const sizeClasses: Record<ButtonSize, string> = {
 };
 
 const slide =
-  "transition-transform duration-200 ease-out motion-reduce:transition-none group-[:not(:disabled):hover]/slide:-translate-x-(--slide) group-data-[state=hover]/slide:-translate-x-(--slide)";
+  "transition-transform duration-short ease-slow-out motion-reduce:transition-none group-[:not(:disabled):hover]/slide:-translate-x-(--slide) group-data-[state=hover]/slide:-translate-x-(--slide)";
 
 /** Two copies of the icon in a clipped box; hovering the parent (`group/slide`) slides to the second. */
 function SlidingIcon({ name, size }: { name: IconName; size: 12 | 16 }) {

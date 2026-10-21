@@ -4,26 +4,47 @@ import { test } from "node:test";
 import { modes } from "../src/app/(frontend)/[locale]/kitchensink/breakpoints.ts";
 import { allColorTokens, colorModes } from "../src/app/(frontend)/[locale]/kitchensink/colors.ts";
 import { cardGrids, grid, radii } from "../src/app/(frontend)/[locale]/kitchensink/grid.ts";
-import { spacing } from "../src/app/(frontend)/[locale]/kitchensink/spacing.ts";
+import { durations, easings } from "../src/app/(frontend)/[locale]/kitchensink/motion.ts";
+import { spacing, strokes } from "../src/app/(frontend)/[locale]/kitchensink/spacing.ts";
 import { sizes, textStyles } from "../src/app/(frontend)/[locale]/kitchensink/typography.ts";
 
 const themeCss = await readFile(new URL("../src/styles/site-theme.css", import.meta.url), "utf8");
 
-const colorDeclarations = (block: string) =>
+/** The body of the first top-level block opened by `opener` (`:root`, `@theme`) that contains `marker`. */
+const cssBlock = (opener: string, marker: string) =>
+  [...themeCss.matchAll(new RegExp(`^${opener} \\{\\n([\\s\\S]*?)\\n\\}$`, "gm"))]
+    .map((match) => match[1])
+    .find((block) => block.includes(marker)) ?? "";
+
+const customProperties = (block: string, prefix: string) =>
   new Map(
-    [...block.matchAll(/(--color-[a-z0-9-]+)\s*:\s*([^;]+);/g)].map(([, token, value]) => [
-      token,
-      value.trim().toLowerCase(),
-    ]),
+    [...block.matchAll(new RegExp(`(${prefix}[a-z0-9-]+)\\s*:\\s*([^;]+);`, "g"))].map(
+      ([, token, value]) => [token, value.trim().toLowerCase()],
+    ),
   );
 
-/** The first `@theme` block: every color, with its Light value. */
-const themeColors = colorDeclarations(themeCss.match(/@theme \{\n([\s\S]*?)\n\}/)?.[1] ?? "");
+/** `--primitive-*` from the `:root` block that holds Figma's primitives. */
+const primitives = customProperties(cssBlock(":root", "--primitive-"), "--primitive-");
+
+/** A color as written in the CSS, with a `var(--primitive-*)` replaced by its value. */
+const resolveColor = (value: string) =>
+  value.replace(/^var\((--primitive-[a-z0-9-]+)\)$/, (_, token) => {
+    assert.ok(primitives.has(token), `${token} is not defined`);
+    return primitives.get(token) ?? "";
+  });
+
+const colorDeclarations = (block: string) => customProperties(block, "--color-");
+
+/** The `@theme` block with the colors: every color, with its Light value. */
+const themeColors = colorDeclarations(cssBlock("@theme", "--color-ui-primary"));
 
 const modeColors = (mode: string) =>
   colorDeclarations(
     themeCss.match(new RegExp(`@utility mode-${mode} \\{\\n([\\s\\S]*?)\\n\\}`))?.[1] ?? "",
   );
+
+const resolved = (colors: Map<string, string>) =>
+  new Map([...colors].map(([token, value]) => [token, resolveColor(value)]));
 
 test("kitchensink color list and site-theme.css define the same tokens", () => {
   const listed = allColorTokens.map((color) => color.token).sort();
@@ -33,7 +54,11 @@ test("kitchensink color list and site-theme.css define the same tokens", () => {
 
 test("@theme holds the Light value of every color", () => {
   for (const color of allColorTokens) {
-    assert.equal(themeColors.get(color.token), color.values.light.toLowerCase(), color.token);
+    assert.equal(
+      resolveColor(themeColors.get(color.token) ?? ""),
+      color.values.light.toLowerCase(),
+      color.token,
+    );
   }
 });
 
@@ -43,7 +68,7 @@ test("each mode utility sets exactly the colors that differ between modes", () =
   );
   for (const { mode } of colorModes) {
     assert.deepEqual(
-      modeColors(mode),
+      resolved(modeColors(mode)),
       new Map(modeDependent.map((color) => [color.token, color.values[mode].toLowerCase()])),
       `mode-${mode}`,
     );
@@ -94,7 +119,7 @@ const resolveForWidth = (block: string, width: number) => {
 };
 
 /** The `:root` block with the per-mode layout variables (`--sizes-*`, `--grid-*`). */
-const layoutRoot = themeCss.match(/:root \{\n([\s\S]*?)\n\}\n/)?.[1] ?? "";
+const layoutRoot = cssBlock(":root", "--grid-columns");
 
 const withPrefix = (values: Map<string, string>, prefix: string) =>
   new Map([...values].filter(([property]) => property.startsWith(prefix)));
@@ -102,6 +127,7 @@ const withPrefix = (values: Map<string, string>, prefix: string) =>
 for (const [prefix, table] of [
   ["--sizes-", sizes],
   ["--spacing-", spacing],
+  ["--stroke-", strokes],
 ] as const) {
   test(`${prefix}* in site-theme.css match Figma layout for every mode`, () => {
     for (const mode of modes) {
@@ -200,5 +226,154 @@ test("text style utilities match the Figma text styles", () => {
       style.uppercase ? "uppercase" : undefined,
       style.className,
     );
+  }
+});
+
+const motionTheme = cssBlock("@theme", "--ease-");
+
+test("motion in site-theme.css matches the kitchensink lists", () => {
+  assert.deepEqual(
+    customProperties(motionTheme, "--ease-"),
+    new Map(easings.map((easing) => [`--ease-${easing.name}`, easing.value])),
+  );
+  assert.deepEqual(
+    customProperties(motionTheme, "--transition-duration-"),
+    new Map(
+      durations.map((duration) => [
+        `--transition-duration-${duration.name}`,
+        `${duration.value}ms`,
+      ]),
+    ),
+  );
+});
+
+/**
+ * Figma's variable export in `docs/figma-variables`, one file per collection and mode
+ * (Variables → collection → Export). Replace the files after a change in Figma; these tests then
+ * say what the CSS has to follow.
+ */
+type FigmaVariable = {
+  $type: string;
+  $value: unknown;
+  $extensions?: { "com.figma.aliasData"?: { targetVariableName: string } };
+};
+
+const readExport = async (collection: string, mode: string) => {
+  const json = JSON.parse(
+    await readFile(
+      new URL(`../docs/figma-variables/${collection}/${mode}.tokens.json`, import.meta.url),
+      "utf8",
+    ),
+  );
+  const variables = new Map<string, FigmaVariable>();
+  const walk = (node: Record<string, unknown>, path: string[]) => {
+    if ("$value" in node) {
+      variables.set(path.join("/"), node as FigmaVariable);
+      return;
+    }
+    for (const [key, child] of Object.entries(node)) {
+      if (!key.startsWith("$")) walk(child as Record<string, unknown>, [...path, key]);
+    }
+  };
+  walk(json, []);
+  return variables;
+};
+
+const figmaHex = (value: unknown) => {
+  const { hex, alpha } = value as { hex: string; alpha: number };
+  return `${hex.toLowerCase()}${
+    alpha < 1
+      ? Math.round(alpha * 255)
+          .toString(16)
+          .padStart(2, "0")
+      : ""
+  }`;
+};
+
+/** `color/neutral/700/100` → `--primitive-neutral-700-100`. */
+const primitiveToken = (name: string) =>
+  `--primitive-${name.replace(/^color\//, "").replaceAll("/", "-")}`;
+
+/** `Color/BTN/secondary/border disabled` → `--color-btn-secondary-border-disabled`. */
+const themeToken = (name: string) =>
+  `--color-${name
+    .toLowerCase()
+    .replace(/^color\//, "")
+    .replace(/[/ ]/g, "-")
+    .replace("iinfo", "info")}`;
+
+test("primitives in site-theme.css match Figma's ---primitives", async () => {
+  const figma = await readExport("primitives", "Value");
+  const colors = [...figma].filter(([, variable]) => variable.$type === "color");
+  assert.deepEqual(
+    primitives,
+    new Map(colors.map(([name, variable]) => [primitiveToken(name), figmaHex(variable.$value)])),
+  );
+});
+
+test("theme colors match Figma's theme collection in every mode, aliases included", async () => {
+  for (const { mode, name } of colorModes) {
+    const figma = await readExport("theme", name);
+    const css = new Map([...themeColors, ...modeColors(mode)]);
+    for (const [variableName, variable] of figma) {
+      if (variable.$type !== "color") continue;
+      const alias = variable.$extensions?.["com.figma.aliasData"]?.targetVariableName;
+      assert.equal(
+        css.get(themeToken(variableName)),
+        alias ? `var(${primitiveToken(alias)})` : figmaHex(variable.$value),
+        `${name} ${variableName}`,
+      );
+    }
+  }
+});
+
+test("layout in site-theme.css matches Figma's layout collection in every mode", async () => {
+  for (const mode of modes) {
+    const figma = await readExport("layout", mode.name);
+    const css = resolveForWidth(layoutRoot, mode.minWidth);
+    const value = (name: string) => figma.get(name)?.$value;
+    for (const [name, variable] of figma) {
+      const [group, key] = name.split("/");
+      if (group === "sizes" || group === "spacing" || group === "stroke") {
+        const token = `--${group}-${key}`;
+        assert.equal(toPx(css.get(token) ?? ""), variable.$value, `${mode.name} ${name}`);
+      }
+    }
+    assert.equal(Number(css.get("--grid-columns")), value("grid/columns"), mode.name);
+    assert.equal(toPx(css.get("--grid-margin") ?? ""), value("grid/margin"), mode.name);
+    assert.equal(toPx(css.get("--grid-gap") ?? ""), value("grid/gap"), mode.name);
+    assert.equal(radii.sm, value("shape/radius-sm"), mode.name);
+    assert.equal(radii.lg, value("shape/radius-lg"), mode.name);
+    assert.equal(mode.minWidth, value("breakpoints/width-min"), mode.name);
+    assert.equal(mode.maxWidth, value("breakpoints/width-max"), mode.name);
+    assert.equal(mode.designWidth, value("breakpoints/width-design"), mode.name);
+  }
+});
+
+test("motion in site-theme.css matches Figma's motion collection", async () => {
+  const figma = await readExport("motion", "Fast");
+  for (const [name, variable] of figma) {
+    const [group, key] = name.split("/");
+    if (group === "easing") {
+      assert.equal(customProperties(motionTheme, "--ease-").get(`--ease-${key}`), variable.$value);
+    } else {
+      const { value, unit } = variable.$value as { value: number; unit: string };
+      assert.equal(
+        customProperties(motionTheme, "--transition-duration-").get(`--transition-duration-${key}`),
+        `${value}${unit}`,
+      );
+    }
+  }
+});
+
+test("Figma's font families are the fonts the site loads ([locale]/layout.tsx)", async () => {
+  const figma = await readExport("primitives", "Value");
+  const families = {
+    display: "Clash Grotesk Variable",
+    text: "Clash Grotesk Variable",
+    label: "Geist Mono",
+  };
+  for (const [family, font] of Object.entries(families)) {
+    assert.equal(figma.get(`font/family/${family}`)?.$value, font, family);
   }
 });

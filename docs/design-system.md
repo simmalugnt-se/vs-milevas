@@ -7,7 +7,8 @@ omgångar: "01 — Foundations" och "02 — Components" är klara, och "04 — B
 
 | Vad | Var |
 |---|---|
-| Tokens (färger, textstilar, brytpunkter, storlekar, spacing, grid, radier) | `src/styles/site-theme.css` |
+| Tokens (färger, primitiver, textstilar, brytpunkter, storlekar, spacing, stroke, grid, radier, motion) | `src/styles/site-theme.css` |
+| Figmas variabler som JSON (en fil per samling och läge) | `docs/figma-variables/`; `tests/design-tokens.test.mts` jämför CSS:en med dem |
 | Clash Grotesk Variable (WOFF2, vikter 200–700) och licens | `src/app/(frontend)/fonts/clash-grotesk/`; laddas via `next/font/local` i `[locale]/layout.tsx` |
 | Komponenter (Icon, Arrow, Logo, Button, Choice, ProductCard, Card, ConfiguratorBox, PriceBox, TextBox, TruckColumn) | `src/components/ui/` |
 | Block som komponenter (Navigation, Footer, Milevas Hero, Product-Grid, Text+Grid, Text & boxinfo) | `src/components/blocks/`; Navigation och Footer matas av Header- och Footer-globalerna i `src/payload/globals/*/Component.tsx` |
@@ -71,6 +72,9 @@ Figma, och säg vilket nummer i backloggen det är.
   Payload-admin och e-post har egna stilar. Brytpunkter i rem utgår från webbläsarens grundstorlek,
   inte från sidans dynamiska root-storlek.
 - **En ny token** i `site-theme.css` ska också in i kitchensinks lista, annars fallerar testet.
+- **När Figmas variabler ändras:** exportera samlingarna (Variables → samling → Export) och ersätt
+  filerna i `docs/figma-variables/<samling>/`. `pnpm test` visar då vad i `site-theme.css` som inte
+  längre stämmer.
 - **Gridet över sidan:** Ctrl+Shift+G visar sidans grid (`GridOverlay`, bara i utveckling), med
   samma `grid-layout` som blocken: 12 kolumner från Desktop S och 6 under, och en streckad kontur runt
   varje block (`data-layout-block`, satt i `RenderBlocks`, på header, footer och kitchensinks block).
@@ -118,5 +122,4 @@ för Display, Text och sajtens standardtext; Label använder Geist Mono.
    skiss. Hero, Grid och Image & Text väntar på designen, och text-box och truck-column är utkast
    tills ramen "blabla" är klar.
 2. **Väntar på designen eller på dig:**
-   - värdena i Figmas `motion`-samling (`TODO(motion)`)
    - en genomgång av posterna med status Antagande och frågorna till designen, på `/kitchensink`

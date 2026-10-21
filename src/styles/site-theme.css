@@ -1,43 +1,138 @@
 /**
  * Public-site design tokens (Tailwind @theme) + minimal layout utilities.
  * Keeps Payload admin free of frontend-only CSS when globals.css is not loaded there.
- *
+ * Figma's variable export is in `docs/figma-variables`; `tests/design-tokens.test.mts` checks this
+ * file against it.
+ */
+
+/**
+ * Figma `---primitives`: the palette the theme colors alias, as `color/neutral/700/100` →
+ * `--primitive-neutral-700-100` (shade, then opacity in percent). Plain custom properties, not
+ * Tailwind colors: components use the theme colors below.
+ */
+:root {
+  --primitive-brand-tejp-60: #e0ff3c99;
+  --primitive-brand-tejp-85: #e5ff59;
+  --primitive-brand-tejp-100: #e0ff3c;
+
+  --primitive-neutral-100-0: #fcfcfc00;
+  --primitive-neutral-100-5: #fcfcfc0d;
+  --primitive-neutral-100-10: #fcfcfc1a;
+  --primitive-neutral-100-15: #fcfcfc26;
+  --primitive-neutral-100-30: #fcfcfc4d;
+  --primitive-neutral-100-60: #fcfcfc99;
+  --primitive-neutral-100-85: #fcfcfcd9;
+  --primitive-neutral-100-90: #fcfcfce5;
+  --primitive-neutral-100-100: #ffffff;
+
+  --primitive-neutral-200-0: #f0f0f000;
+  --primitive-neutral-200-5: #f0f0f00d;
+  --primitive-neutral-200-10: #f0f0f01a;
+  --primitive-neutral-200-15: #f0f0f026;
+  --primitive-neutral-200-30: #f0f0f04d;
+  --primitive-neutral-200-60: #f0f0f099;
+  --primitive-neutral-200-85: #f0f0f0d9;
+  --primitive-neutral-200-90: #f0f0f0e5;
+  --primitive-neutral-200-100: #f0f0f0;
+
+  --primitive-neutral-300-0: #d9d9d900;
+  --primitive-neutral-300-5: #d9d9d90d;
+  --primitive-neutral-300-10: #d9d9d91a;
+  --primitive-neutral-300-15: #d9d9d926;
+  --primitive-neutral-300-30: #d9d9d94d;
+  --primitive-neutral-300-60: #d9d9d999;
+  --primitive-neutral-300-85: #d9d9d9d9;
+  --primitive-neutral-300-90: #d9d9d9e5;
+  --primitive-neutral-300-100: #d9d9d9;
+
+  --primitive-neutral-400-0: #99999900;
+  --primitive-neutral-400-5: #9999990d;
+  --primitive-neutral-400-10: #9999991a;
+  --primitive-neutral-400-15: #99999926;
+  --primitive-neutral-400-30: #9999994d;
+  --primitive-neutral-400-60: #99999999;
+  --primitive-neutral-400-85: #999999d9;
+  --primitive-neutral-400-90: #999999e5;
+  --primitive-neutral-400-100: #999999;
+
+  --primitive-neutral-500-0: #57575700;
+  --primitive-neutral-500-5: #5757570d;
+  --primitive-neutral-500-10: #5757571a;
+  --primitive-neutral-500-15: #57575726;
+  --primitive-neutral-500-30: #5757574d;
+  --primitive-neutral-500-60: #57575799;
+  --primitive-neutral-500-85: #575757d9;
+  --primitive-neutral-500-90: #575757e5;
+  --primitive-neutral-500-100: #575757;
+
+  --primitive-neutral-600-0: #2b2b2b00;
+  --primitive-neutral-600-5: #2b2b2b0d;
+  --primitive-neutral-600-10: #2b2b2b1a;
+  --primitive-neutral-600-15: #2b2b2b26;
+  --primitive-neutral-600-30: #2b2b2b4d;
+  --primitive-neutral-600-60: #2b2b2b99;
+  --primitive-neutral-600-85: #2b2b2bd9;
+  --primitive-neutral-600-90: #2b2b2be5;
+  --primitive-neutral-600-100: #2b2b2b;
+
+  --primitive-neutral-700-0: #12121200;
+  --primitive-neutral-700-5: #1212120d;
+  --primitive-neutral-700-10: #1212121a;
+  --primitive-neutral-700-15: #12121226;
+  --primitive-neutral-700-30: #1212124d;
+  --primitive-neutral-700-60: #12121299;
+  --primitive-neutral-700-85: #363636;
+  --primitive-neutral-700-90: #121212e5;
+  --primitive-neutral-700-100: #121212;
+
+  --primitive-neutral-800-0: #0b0b0b00;
+  --primitive-neutral-800-5: #0b0b0b0d;
+  --primitive-neutral-800-10: #0b0b0b1a;
+  --primitive-neutral-800-15: #0b0b0b26;
+  --primitive-neutral-800-30: #0b0b0b4d;
+  --primitive-neutral-800-60: #0b0b0b99;
+  --primitive-neutral-800-85: #0b0b0bd9;
+  --primitive-neutral-800-90: #0b0b0be5;
+  --primitive-neutral-800-100: #0b0b0b;
+}
+
+/**
  * Colors mirror the Figma variables on "01 — Foundations" → "COLOR STYLES": one set (Color/UI,
  * Color/BG, Color/BORDER, Color/BTN, NAVIGATION, Color/status) with three modes, Light, Dark and
  * Tejp. @theme holds the Light values; `mode-light`, `mode-dark` and `mode-tejp` below set the
- * colors that change for an element and everything in it, as a Figma frame's mode does. The
- * kitchensink page lists them; `tests/design-tokens.test.mts` keeps that list and this file in sync.
+ * colors that change for an element and everything in it, as a Figma frame's mode does. A color
+ * that aliases a primitive in Figma points at it here. The kitchensink page lists them.
  */
 @theme {
-  --color-ui-primary: #121212;
-  --color-ui-secondary: #575757;
-  --color-ui-tertiary: #999999;
+  --color-ui-primary: var(--primitive-neutral-700-100);
+  --color-ui-secondary: var(--primitive-neutral-500-100);
+  --color-ui-tertiary: var(--primitive-neutral-400-100);
 
-  --color-bg-fill: #f0f0f0;
-  --color-bg-fill-secondary: #d9d9d9;
-  --color-bg-active: #ffffff;
+  --color-bg-fill: var(--primitive-neutral-200-100);
+  --color-bg-fill-secondary: var(--primitive-neutral-300-100);
+  --color-bg-active: var(--primitive-neutral-100-100);
 
-  --color-border-primary: #999999;
-  --color-border-secondary: #121212;
+  --color-border-primary: var(--primitive-neutral-400-100);
+  --color-border-secondary: var(--primitive-neutral-700-100);
 
-  --color-btn-primary-fill: #f0f0f0;
-  --color-btn-primary-fill-hover: #f0f0f0d9;
-  --color-btn-primary-fill-disabled: #f0f0f099;
-  --color-btn-primary-text: #121212;
-  --color-btn-primary-text-disabled: #12121299;
-  --color-btn-primary-border: #121212;
+  --color-btn-primary-fill: var(--primitive-neutral-200-100);
+  --color-btn-primary-fill-hover: var(--primitive-neutral-200-85);
+  --color-btn-primary-fill-disabled: var(--primitive-neutral-200-60);
+  --color-btn-primary-text: var(--primitive-neutral-700-100);
+  --color-btn-primary-text-disabled: var(--primitive-neutral-700-60);
+  --color-btn-primary-border: var(--primitive-neutral-700-100);
 
-  --color-btn-secondary-fill: #575757;
-  --color-btn-secondary-fill-hover: #575757d9;
-  --color-btn-secondary-fill-disabled: #575757d9;
-  --color-btn-secondary-text: #f0f0f0;
-  --color-btn-secondary-text-hover: #f0f0f0;
-  --color-btn-secondary-text-disabled: #f0f0f099;
-  --color-btn-secondary-border: #575757d9;
-  --color-btn-secondary-border-disabled: #57575799;
+  --color-btn-secondary-fill: var(--primitive-neutral-500-100);
+  --color-btn-secondary-fill-hover: var(--primitive-neutral-500-85);
+  --color-btn-secondary-fill-disabled: var(--primitive-neutral-500-85);
+  --color-btn-secondary-text: var(--primitive-neutral-200-100);
+  --color-btn-secondary-text-hover: var(--primitive-neutral-200-100);
+  --color-btn-secondary-text-disabled: var(--primitive-neutral-200-60);
+  --color-btn-secondary-border: var(--primitive-neutral-500-85);
+  --color-btn-secondary-border-disabled: var(--primitive-neutral-500-60);
 
   /* Same in every mode. */
-  --color-ui-brand: #e0ff3c;
+  --color-ui-brand: var(--primitive-brand-tejp-100);
   --color-navigation-fill: #121212eb;
   --color-navigation-overlay: #00000066;
 
@@ -52,87 +147,87 @@
  * Mode-dependent colors only; a mode sets all of them, so nested modes never mix.
  */
 @utility mode-light {
-  --color-ui-primary: #121212;
-  --color-ui-secondary: #575757;
-  --color-ui-tertiary: #999999;
+  --color-ui-primary: var(--primitive-neutral-700-100);
+  --color-ui-secondary: var(--primitive-neutral-500-100);
+  --color-ui-tertiary: var(--primitive-neutral-400-100);
 
-  --color-bg-fill: #f0f0f0;
-  --color-bg-fill-secondary: #d9d9d9;
-  --color-bg-active: #ffffff;
+  --color-bg-fill: var(--primitive-neutral-200-100);
+  --color-bg-fill-secondary: var(--primitive-neutral-300-100);
+  --color-bg-active: var(--primitive-neutral-100-100);
 
-  --color-border-primary: #999999;
+  --color-border-primary: var(--primitive-neutral-400-100);
 
-  --color-btn-primary-fill: #f0f0f0;
-  --color-btn-primary-fill-hover: #f0f0f0d9;
-  --color-btn-primary-fill-disabled: #f0f0f099;
-  --color-btn-primary-text: #121212;
-  --color-btn-primary-text-disabled: #12121299;
-  --color-btn-primary-border: #121212;
+  --color-btn-primary-fill: var(--primitive-neutral-200-100);
+  --color-btn-primary-fill-hover: var(--primitive-neutral-200-85);
+  --color-btn-primary-fill-disabled: var(--primitive-neutral-200-60);
+  --color-btn-primary-text: var(--primitive-neutral-700-100);
+  --color-btn-primary-text-disabled: var(--primitive-neutral-700-60);
+  --color-btn-primary-border: var(--primitive-neutral-700-100);
 
-  --color-btn-secondary-fill: #575757;
-  --color-btn-secondary-fill-hover: #575757d9;
-  --color-btn-secondary-fill-disabled: #575757d9;
-  --color-btn-secondary-text: #f0f0f0;
-  --color-btn-secondary-text-hover: #f0f0f0;
-  --color-btn-secondary-text-disabled: #f0f0f099;
-  --color-btn-secondary-border: #575757d9;
-  --color-btn-secondary-border-disabled: #57575799;
+  --color-btn-secondary-fill: var(--primitive-neutral-500-100);
+  --color-btn-secondary-fill-hover: var(--primitive-neutral-500-85);
+  --color-btn-secondary-fill-disabled: var(--primitive-neutral-500-85);
+  --color-btn-secondary-text: var(--primitive-neutral-200-100);
+  --color-btn-secondary-text-hover: var(--primitive-neutral-200-100);
+  --color-btn-secondary-text-disabled: var(--primitive-neutral-200-60);
+  --color-btn-secondary-border: var(--primitive-neutral-500-85);
+  --color-btn-secondary-border-disabled: var(--primitive-neutral-500-60);
 }
 
 @utility mode-dark {
-  --color-ui-primary: #f0f0f0;
-  --color-ui-secondary: #999999;
-  --color-ui-tertiary: #575757;
+  --color-ui-primary: var(--primitive-neutral-200-100);
+  --color-ui-secondary: var(--primitive-neutral-400-100);
+  --color-ui-tertiary: var(--primitive-neutral-500-100);
 
-  --color-bg-fill: #121212;
-  --color-bg-fill-secondary: #2b2b2b;
+  --color-bg-fill: var(--primitive-neutral-700-100);
+  --color-bg-fill-secondary: var(--primitive-neutral-600-100);
   --color-bg-active: #000000;
 
-  --color-border-primary: #999999;
+  --color-border-primary: var(--primitive-neutral-400-100);
 
-  --color-btn-primary-fill: #121212;
-  --color-btn-primary-fill-hover: #363636;
-  --color-btn-primary-fill-disabled: #12121299;
-  --color-btn-primary-text: #f0f0f0;
-  --color-btn-primary-text-disabled: #f0f0f099;
-  --color-btn-primary-border: #f0f0f0;
+  --color-btn-primary-fill: var(--primitive-neutral-700-100);
+  --color-btn-primary-fill-hover: var(--primitive-neutral-700-85);
+  --color-btn-primary-fill-disabled: var(--primitive-neutral-700-60);
+  --color-btn-primary-text: var(--primitive-neutral-200-100);
+  --color-btn-primary-text-disabled: var(--primitive-neutral-200-60);
+  --color-btn-primary-border: var(--primitive-neutral-200-100);
 
-  --color-btn-secondary-fill: #575757;
-  --color-btn-secondary-fill-hover: #575757d9;
-  --color-btn-secondary-fill-disabled: #57575799;
-  --color-btn-secondary-text: #f0f0f0;
-  --color-btn-secondary-text-hover: #f0f0f0;
-  --color-btn-secondary-text-disabled: #f0f0f0;
-  --color-btn-secondary-border: #575757d9;
-  --color-btn-secondary-border-disabled: #575757d9;
+  --color-btn-secondary-fill: var(--primitive-neutral-500-100);
+  --color-btn-secondary-fill-hover: var(--primitive-neutral-500-85);
+  --color-btn-secondary-fill-disabled: var(--primitive-neutral-500-60);
+  --color-btn-secondary-text: var(--primitive-neutral-200-100);
+  --color-btn-secondary-text-hover: var(--primitive-neutral-200-100);
+  --color-btn-secondary-text-disabled: var(--primitive-neutral-200-100);
+  --color-btn-secondary-border: var(--primitive-neutral-500-85);
+  --color-btn-secondary-border-disabled: var(--primitive-neutral-500-85);
 }
 
 @utility mode-tejp {
-  --color-ui-primary: #121212;
-  --color-ui-secondary: #575757;
-  --color-ui-tertiary: #999999;
+  --color-ui-primary: var(--primitive-neutral-700-100);
+  --color-ui-secondary: var(--primitive-neutral-500-100);
+  --color-ui-tertiary: var(--primitive-neutral-400-100);
 
-  --color-bg-fill: #e0ff3c;
-  --color-bg-fill-secondary: #d9d9d9;
-  --color-bg-active: #e0ff3c;
+  --color-bg-fill: var(--primitive-brand-tejp-100);
+  --color-bg-fill-secondary: var(--primitive-neutral-300-100);
+  --color-bg-active: var(--primitive-brand-tejp-100);
 
-  --color-border-primary: #575757;
+  --color-border-primary: var(--primitive-neutral-500-100);
 
-  --color-btn-primary-fill: #e0ff3c;
-  --color-btn-primary-fill-hover: #e5ff59;
-  --color-btn-primary-fill-disabled: #e0ff3c99;
-  --color-btn-primary-text: #121212;
-  --color-btn-primary-text-disabled: #12121299;
-  --color-btn-primary-border: #121212;
+  --color-btn-primary-fill: var(--primitive-brand-tejp-100);
+  --color-btn-primary-fill-hover: var(--primitive-brand-tejp-85);
+  --color-btn-primary-fill-disabled: var(--primitive-brand-tejp-60);
+  --color-btn-primary-text: var(--primitive-neutral-700-100);
+  --color-btn-primary-text-disabled: var(--primitive-neutral-700-60);
+  --color-btn-primary-border: var(--primitive-neutral-700-100);
 
-  --color-btn-secondary-fill: #121212;
-  --color-btn-secondary-fill-hover: #e0ff3c;
-  --color-btn-secondary-fill-disabled: #12121299;
-  --color-btn-secondary-text: #e0ff3c;
-  --color-btn-secondary-text-hover: #121212;
-  --color-btn-secondary-text-disabled: #f0f0f099;
-  --color-btn-secondary-border: #e0ff3c;
-  --color-btn-secondary-border-disabled: #e0ff3c99;
+  --color-btn-secondary-fill: var(--primitive-neutral-700-100);
+  --color-btn-secondary-fill-hover: var(--primitive-brand-tejp-100);
+  --color-btn-secondary-fill-disabled: var(--primitive-neutral-700-60);
+  --color-btn-secondary-text: var(--primitive-brand-tejp-100);
+  --color-btn-secondary-text-hover: var(--primitive-neutral-700-100);
+  --color-btn-secondary-text-disabled: var(--primitive-neutral-200-60);
+  --color-btn-secondary-border: var(--primitive-brand-tejp-100);
+  --color-btn-secondary-border-disabled: var(--primitive-brand-tejp-60);
 }
 
 /**
@@ -171,6 +266,22 @@ html.milevas-site [data-layout-block] > section {
   scroll-margin-top: 6rem;
 }
 
+/**
+ * Figma `motion` (mode Fast) as Tailwind's easing and duration themes: `ease-slow-out`,
+ * `duration-short` and so on.
+ */
+@theme {
+  --ease-slow-in: cubic-bezier(1, 0, 0.4, 1);
+  --ease-slow-out: cubic-bezier(0.6, 0, 0, 1);
+  --ease-slow-in-out: cubic-bezier(0.8, 0, 0.2, 1);
+  --ease-fade-in: cubic-bezier(0, 0, 0, 1);
+
+  --transition-duration-short: 300ms;
+  --transition-duration-medium: 600ms;
+  --transition-duration-long: 1200ms;
+  --transition-duration-very-long: 2400ms;
+}
+
 /** Figma `shape/radius-*`: `rounded-sm` and `rounded-lg` (Tailwind's defaults are 4 and 8px). */
 @theme {
   --radius-sm: 0.5rem;
@@ -178,8 +289,8 @@ html.milevas-site [data-layout-block] > section {
 }
 
 /**
- * Figma `layout/sizes/*`, `layout/spacing/*` and `layout/grid/*`, one value per variable mode, mobile
- * first. `grid/margin` and `grid/gap` are 8px in every mode; `grid/columns` is 6 below Desktop S.
+ * Figma `layout/sizes/*`, `layout/spacing/*`, `layout/grid/*` and `layout/stroke/*`, one value per
+ * variable mode, mobile first. `grid/margin` and `grid/gap` are 8px in every mode; `grid/columns` is 6 below Desktop S.
  * `--spacing-*` is used as `p-(--spacing-xs)`: in @theme it would also feed `w-*`/`max-w-*` (Tailwind
  * looks there before `--container-*`) and change `max-w-2xl` across the boilerplate.
  */
@@ -200,6 +311,7 @@ html.milevas-site [data-layout-block] > section {
   --sizes-3xs: 0.25rem;
   --sizes-4xs: 0.125rem;
 
+  --spacing-5xl: 8rem;
   --spacing-4xl: 4rem;
   --spacing-3xl: 3.5rem;
   --spacing-2xl: 3rem;
@@ -212,7 +324,12 @@ html.milevas-site [data-layout-block] > section {
   --spacing-3xs: 0.25rem;
   --spacing-4xs: 0.125rem;
 
+  --stroke-width: 0.03125rem;
+  --stroke-width-icon: 0.0625rem;
+
   @variant tablet {
+    --stroke-width: 0.0625rem;
+    --stroke-width-icon: 0.125rem;
     --sizes-4xl: 5rem;
     --sizes-3xl: 4rem;
     --sizes-2xl: 3.5rem;
@@ -241,6 +358,7 @@ html.milevas-site [data-layout-block] > section {
   @variant desktop-l {
     --sizes-4xl: 8rem;
     --sizes-3xl: 6rem;
+    --spacing-5xl: 12.5rem;
     --spacing-4xl: 8rem;
     --spacing-3xl: 6rem;
   }
@@ -251,7 +369,7 @@ html.milevas-site [data-layout-block] > section {
   font-family: --theme(--font-display);
   font-size: var(--sizes-3xl);
   font-weight: 700;
-  line-height: 0.9;
+  line-height: 1;
   text-transform: uppercase;
 }
 

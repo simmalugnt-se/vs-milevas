@@ -20,7 +20,8 @@
       "!next-env.d.ts",
       "!src/app/(payload)/importMap.js",
       "!src/payload-types.ts",
-      "!src/payload/migrations/*.json"
+      "!src/payload/migrations/*.json",
+      "!docs/figma-variables"
     ]
   },
   "formatter": { "enabled": true, "indentStyle": "space", "indentWidth": 2, "lineWidth": 100 },
