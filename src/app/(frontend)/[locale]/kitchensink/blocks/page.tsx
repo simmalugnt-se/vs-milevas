@@ -26,12 +26,15 @@ import { KitchensinkPage } from "../ui";
 export const metadata: Metadata = { title: "Kitchensink: Block" };
 
 const navigationLinks: NavigationLink[] = [
-  { label: "Modeller", href: "/kitchensink/blocks#navigation", current: true },
-  { label: "Hur det fungerar", href: "/kitchensink/blocks#hur-det-fungerar" },
-  { label: "Finansiering", href: "/kitchensink/blocks#finansiering" },
-  { label: "Om Baoli", href: "/kitchensink/blocks#om-baoli" },
+  { label: "Modeller", href: "/kitchensink/blocks#navigation" },
+  { label: "Tjänster", href: "/kitchensink/blocks#tjanster" },
+  { label: "Om oss", href: "/kitchensink/blocks#om-oss" },
 ];
-const navigationCta = { label: "Bygg din truck", href: "/kitchensink/blocks#configurator" };
+const navigationLogin = {
+  label: "Dealer login",
+  shortLabel: "Login",
+  href: "/kitchensink/blocks#login",
+};
 
 const footerLinks: FooterLink[] = [
   { label: "Modeller", href: "/kitchensink/blocks#footer" },
@@ -143,8 +146,11 @@ export default function BlocksPage() {
   return (
     <KitchensinkPage href="/kitchensink/blocks" fullWidth>
       {/* The mobile menu follows the viewport, not this box: try it at phone width. */}
-      <Block id="navigation" figma="8309:4506">
-        <Navigation links={navigationLinks} cta={navigationCta} />
+      <Block id="navigation" figma="9051:12518">
+        <div className="mode-dark bg-bg-fill">
+          <Navigation links={navigationLinks} login={navigationLogin} color="dark" />
+        </div>
+        <Navigation links={navigationLinks} login={navigationLogin} />
       </Block>
 
       <Block id="hero" figma="8550:12778">
