@@ -231,6 +231,24 @@ export const designQuestions: DesignQuestion[] = [
     figma: "9207:25710",
   },
   {
+    target: "product-card",
+    question:
+      "Pilen i Hover ligger mitt i en 64 × 64-ruta (8px från kanten), men i hover-INLOGGAD är den 48 × 64 och ligger kant i kant. Ska de ligga likadant?",
+    figma: "8268:2970",
+  },
+  {
+    target: "product-card",
+    question:
+      "När är ett kort Active på Mobile, till exempel det som syns i slidern? Det avgör blocket som använder kortet.",
+    figma: "9425:31341",
+  },
+  {
+    target: "price-box",
+    question:
+      "Varje rad har en linje både upptill och nedtill, så mellan raderna blir linjen dubbelt så tjock. Avsiktligt?",
+    figma: "9207:25676",
+  },
+  {
     target: "contact-form",
     question:
       "order numrerar fälten 01, 02, 04 och 05. Saknas fält 03, och ska det finnas ett meddelandefält som i call och contact?",
@@ -265,7 +283,7 @@ export const designQuestions: DesignQuestion[] = [
   {
     target: "product-grid",
     question:
-      "Mobile är en slider där det första kortet är gult med pil och priser och de andra grå utan priser. Ska kortet som syns bli gult, eller är det bara ett exempel på hover? Koden visar alla kort grå med pil och priser, som på Tablet.",
+      "Mobile är en slider där det första kortet är gult med pil och priser och de andra grå utan priser. Ska kortet som syns bli gult, eller är det bara ett exempel på hover? Product-card har nu ett Active-läge för Mobile; koden visar tills vidare alla kort i Default.",
     figma: "8389:569",
   },
   {
@@ -560,6 +578,60 @@ export const figmaNotes: FigmaNote[] = [
 
   // Components
   {
+    target: "product-card",
+    topic: "Länken och info-knappen",
+    figma: "Hela kortet är klickbart och har `truckinfo`, en knapp, vid specifikationerna",
+    code: "Namnet är länken och täcker kortet (`after:absolute`); info-knappen ligger ovanpå. Utan `info` är ikonen ingen knapp",
+    why: "En knapp får inte ligga i en länk",
+    status: "Beslut (teknisk)",
+    date: "2026-10-21",
+  },
+  {
+    target: "product-card",
+    topic: "Stänga infotexten",
+    figma: "`clicked` visar texten; inget om hur den stängs",
+    code: "Ett nytt klick på ikonen döljer den",
+    why: "Inte ritat; klick utanför eller Escape skulle behöva läggas till",
+    status: "Lucka",
+    date: "2026-10-21",
+  },
+  {
+    target: "price-box",
+    topic: "Linjer",
+    figma: "Ramen och radernas linjer är streck inuti (`stroke/width`)",
+    code: "Ramen är en kontur inuti och radernas linjer skuggor inuti, så att rutan är Figmas 109 och 193px höga",
+    why: "Vanliga ramar hade gjort rutan högre",
+    status: "Beslut (teknisk)",
+    date: "2026-10-21",
+  },
+  {
+    target: "color-image-card",
+    topic: "Proportion",
+    figma: "518,667 × 388 i alla lägen",
+    code: "Samma proportion (`aspect-[389/291]`); ingen fast storlek",
+    why: "Fasta höjder undviks",
+    status: "Beslut (teknisk)",
+    date: "2026-10-21",
+  },
+  {
+    target: "color-image-card",
+    topic: "Hover på gray",
+    figma: "gray har bara Default",
+    code: "Inget hover-läge för gray",
+    why: "Inte ritat",
+    status: "Lucka",
+    date: "2026-10-21",
+  },
+  {
+    target: "color-image-card",
+    topic: "Hover utan pekare",
+    figma: "Bildläget visas vid hover; inget läge för pekskärmar eller tangentbord",
+    code: "Bara hover, och `static` för bildläget hela tiden",
+    why: "Inte ritat; på mobil syns bildläget bara som `static`",
+    status: "Lucka",
+    date: "2026-10-21",
+  },
+  {
     target: "contact-form",
     topic: "Desktop och Mobile",
     figma: "`Device=Desktop` och `Device=Mobile`, utan brytpunkt",
@@ -656,6 +728,15 @@ export const figmaNotes: FigmaNote[] = [
     figma: "Texten i rutan är `ui-primary`; inget tomt läge",
     code: 'Platshållartexten ("Välj tid") i `ui-primary`. Tidigare var den grå (`ui-tertiary`), som formfältens',
     why: "Figma visar inget tomt läge",
+    status: "Lucka",
+    date: "2026-10-21",
+  },
+  {
+    target: "product-card",
+    topic: "Fokus",
+    figma: "Inget fokusläge",
+    code: "Inget. Tidigare visade kortet hover-läget (gult, pil och priser) vid tangentbordsfokus",
+    why: "Figma visar inget fokusläge; se frågan om fokus",
     status: "Lucka",
     date: "2026-10-21",
   },
@@ -796,27 +877,29 @@ export const figmaNotes: FigmaNote[] = [
   },
   {
     target: "product-card",
-    topic: 'Läget "tablet"',
-    figma: "Läget visar pil och priser utan hover",
-    code: "Under Desktop S syns pil och priser alltid; från Desktop S vid hover",
-    why: '"tablet" läses som "ingen hover"',
-    status: "Beslut",
-    date: "2026-10-02",
+    topic: "Lägen per enhet",
+    figma:
+      "Desktop: Default, Hover och hover-INLOGGAD; tablet: pil och priser utan hover; Mobile: Default och Active",
+    code: 'Mobile under Tablet, tablet till Desktop S, Desktop från Desktop S. Active med `data-state="active"` (bara Mobile), inloggad med `loggedIn`; hover bara på Desktop',
+    why: "Komponentens lägen per enhet",
+    status: "Beslut (teknisk)",
+    date: "2026-10-21",
   },
   {
     target: "product-card",
     topic: "Storlek",
-    figma: "430 × 507 i komponenten; 507px hög i varje instans i product-grid, oavsett bredd",
-    code: "Proportionen från product-grids instanser per läge: 339:507, 388:507, 416:507 och 469:507",
-    why: "Inga fasta höjder; samma mått som Figma vid varje lägens designbredd, och samma form när skärmen är bredare",
-    status: "Beslut",
-    date: "2026-10-05",
+    figma:
+      "430 × 507 i alla komponentens lägen; instanserna i product-grid är 507px höga i andra bredder",
+    code: "Komponentens proportion, 430:507, i alla lägen och bredder. Tidigare product-grids instanser (339–469:507), som gjorde bilden för liten vid hover",
+    why: "Komponenten gäller; inga fasta höjder. Blockets bredder tas när product-grid gås igenom",
+    status: "Beslut (teknisk)",
+    date: "2026-10-21",
   },
   {
     target: "product-card",
     topic: "Stabil layout vid hover",
     figma: "Pil och priser visas i hover-läget",
-    code: "Kortets yttre proportioner bestämmer höjden. Innehållet ligger i en absolut positionerad flex-layout; bilden krymper när pil och priser visas vid hover eller tangentbordsfokus",
+    code: "Kortets yttre proportioner bestämmer höjden. Innehållet ligger i en absolut positionerad flex-layout; bilden krymper när pil och priser visas",
     why: "Bilden ska ändra storlek enligt designen, medan innehållets storlek inte ska kunna ändra kortets höjd eller flytta nästa rad",
     status: "Beslut (teknisk)",
     date: "2026-10-07",
@@ -861,10 +944,12 @@ export const figmaNotes: FigmaNote[] = [
   {
     target: "card",
     topic: "Färger",
-    figma: "Text `#f5f5f5`, gradient `rgba(0,0,0,.4)` → `.2`; inga variabler",
-    code: "Kortet i Dark (text `ui-primary`, `#f0f0f0`), etiketten i Tejp, gradient svart 40 % → 20 %",
-    why: "Närmaste token",
-    status: "Antagande",
+    figma:
+      "Texten `color/ui/primary` (`#f0f0f0`), brödtexten den gamla `Color/UI/inv-primary`; gradienten `rgba(0,0,0,.4)` → `.2` utan variabel",
+    code: "Kortet i Dark (`ui-primary` för både text och brödtext), etiketten i Tejp, gradienten svart 40 % → 20 %",
+    why: "Samma färg; gradienten har ingen variabel",
+    status: "Beslut (teknisk)",
+    date: "2026-10-21",
   },
   {
     target: "configurator-box",
@@ -903,10 +988,11 @@ export const figmaNotes: FigmaNote[] = [
   {
     target: "truck-column",
     topic: "Linje",
-    figma: "Variabeln `Color/BG/surface` (gul); ser grå ut i framen",
-    code: "Gul linje: kolumnen är i Tejp, linjen `border-bg-fill`",
-    why: "Variabeln gäller",
-    status: "Antagande",
+    figma: "`color/bg/fill` i Tejp (gul), `stroke/width` bred",
+    code: "Kolumnen är i Tejp; linjen är `border-bg-fill`, `stroke/width` bred",
+    why: "Som i Figma",
+    status: "Beslut (teknisk)",
+    date: "2026-10-21",
   },
   {
     target: "truck-column",
@@ -928,11 +1014,22 @@ export const figmaNotes: FigmaNote[] = [
   },
   {
     target: "truck-column",
-    topic: "Pilen",
-    figma: "Egen smal SVG, 24 × 32, kallad `arrow-halfup`",
-    code: '`<Arrow name="halfup-s">`',
-    why: 'Ingen egen komponent i "Arrows"',
+    topic: "Scroll-läget",
+    figma:
+      '`Acitve+scroll`: "Skrolla" (Label L) under `arrow-up&down` vriden, 38,4 × 24, `spacing/5xl` från toppen',
+    code: "`scrollLabel` visar tipset i aktivt läge; pilen är `up-down` i 24 × 38,4, vriden",
+    why: "Läget beskriver inte när det gäller; det avgör blocket",
     status: "Beslut (teknisk)",
+    date: "2026-10-21",
+  },
+  {
+    target: "truck-column",
+    topic: "Fokus",
+    figma: "Inget fokusläge",
+    code: "Inget. Tidigare blev kolumnen aktiv vid tangentbordsfokus",
+    why: "Figma visar inget fokusläge",
+    status: "Lucka",
+    date: "2026-10-21",
   },
 
   // Blocks
@@ -1068,8 +1165,8 @@ export const figmaNotes: FigmaNote[] = [
     target: "product-grid",
     topic: "Mobilkortet",
     figma: "Det första kortet är gult med pil och priser (hover), de andra i Default utan priser",
-    code: 'Alla kort i product-cards "tablet"-läge: grå, med pil och priser',
-    why: "Samma regel som under Desktop S i övrigt; se frågan ovan",
+    code: "Alla kort i product-cards Mobile Default: grå utan pil och priser; blocket sätter inte Active än",
+    why: "Blocket gås igenom för sig; se frågan ovan",
     status: "Antagande",
   },
   {

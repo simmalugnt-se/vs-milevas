@@ -2,18 +2,23 @@ import type { ComponentProps, ReactNode } from "react";
 import { Link } from "@/i18n/navigation";
 import { Arrow } from "./arrow";
 import { Icon } from "./icon";
+import { TruckInfo } from "./truck-info";
 
 /**
  * product-card from Figma "02 — Components" → "Cards" (8268:2970): a truck model linking to its page.
  *
- * Figma has three states. Default: Light `bg-fill`, name and specs. Hover: Tejp `bg-fill`, plus the
- * `halfup` arrow and the prices. Tablet: Default's colours with the arrow and prices always shown.
- * We read "tablet" as "no hover": below Desktop S the arrow and prices are always there, from
- * Desktop S they appear on hover. Its proportions are those of product-grid's instances at each
- * mode's design width (339, 388, 416 and 469 wide, all 507 high), so it keeps Figma's shape as the
- * width grows; the image shrinks to make room for the arrow and prices on hover. Content sits
- * inside the ratio box so its intrinsic size cannot change the card's height or the grid rows.
- * Pass `data-state="hover"` to show the hover look without a pointer.
+ * Figma's states, per device:
+ * - Mobile: Default is Light `bg-fill` with name and specs; Active (`data-state="active"`) is Tejp
+ *   with the 36 × 48 `halfup` arrow and the prices.
+ * - Tablet: Light, with the 36 × 48 arrow and the prices always shown; no hover.
+ * - Desktop (from Desktop S): Default as on Mobile; Hover is Tejp with the arrow in a 64 × 64 box
+ *   and the prices. `loggedIn` is Figma's `hover-INLOGGAD`: "Ditt ÅF-pris:" and "Kundpris:" without
+ *   "/mån", and the 48 × 64 arrow without the box.
+ * It keeps the component's 430 × 507 proportion in every state and width; the image shrinks to make
+ * room for the arrow and prices. Content sits inside the ratio box so its intrinsic size cannot
+ * change the card's height or the grid rows. Pass `data-state="hover"` to show the Desktop hover
+ * without a pointer. The name is the link and covers the card, so the info button (`info`, Figma's
+ * truckinfo) can sit on top of it.
  */
 
 export type ProductCardProps = Omit<ComponentProps<typeof Link>, "children"> & {
@@ -31,12 +36,18 @@ export type ProductCardProps = Omit<ComponentProps<typeof Link>, "children"> & {
   leasing?: ReactNode;
   priceLabel?: ReactNode;
   leasingLabel?: ReactNode;
+  /** After `leasing`; `null` for none. */
   perMonthLabel?: ReactNode;
+  /** Figma's `hover-INLOGGAD`: the labels and the arrow of a logged-in customer. */
+  loggedIn?: boolean;
+  /** The text the info button (Figma's `truckinfo`) shows; without it the icon is not a button. */
+  info?: ReactNode;
+  "data-state"?: "hover" | "active";
 };
 
-/** Hidden on Desktop until the card is hovered (or has `data-state="hover"`). */
-const revealOnHover =
-  "desktop-s:hidden desktop-s:group-hover/card:flex desktop-s:group-focus-visible/card:flex desktop-s:group-data-[state=hover]/card:flex";
+/** Hidden on Mobile until the card is active, always shown on Tablet, on Desktop on hover. */
+const reveal =
+  "hidden max-tablet:group-data-[state=active]/card:flex tablet:flex desktop-s:hidden desktop-s:group-hover/card:flex desktop-s:group-data-[state=hover]/card:flex";
 
 export function ProductCard({
   brand,
@@ -46,16 +57,19 @@ export function ProductCard({
   image,
   price,
   leasing,
-  priceLabel = "Från:",
-  leasingLabel = "Leasing:",
-  perMonthLabel = "/mån",
+  loggedIn = false,
+  priceLabel = loggedIn ? "Ditt ÅF-pris:" : "Från:",
+  leasingLabel = loggedIn ? "Kundpris:" : "Leasing:",
+  perMonthLabel = loggedIn ? null : "/mån",
+  info,
   className,
+  "data-state": dataState,
   ...props
 }: ProductCardProps) {
   return (
-    <Link
-      className={`group/card relative block aspect-[339/507] tablet:aspect-[388/507] desktop-s:aspect-[416/507] desktop-l:aspect-[469/507] mode-light rounded-lg bg-bg-fill hover:mode-tejp focus-visible:mode-tejp data-[state=hover]:mode-tejp ${className ?? ""}`}
-      {...props}
+    <div
+      data-state={dataState}
+      className={`group/card relative block aspect-[430/507] mode-light rounded-lg bg-bg-fill max-tablet:data-[state=active]:mode-tejp desktop-s:hover:mode-tejp desktop-s:data-[state=hover]:mode-tejp ${className ?? ""}`}
     >
       <span className="absolute inset-0 flex flex-col p-(--spacing-sm)">
         <span className="flex w-full items-start justify-between">
@@ -63,9 +77,11 @@ export function ProductCard({
             <span className="text-ui-tertiary">{brand}</span>
             <span className="text-ui-primary">{category}</span>
           </span>
-          {/* Figma's instance is 64 × 64, the arrow 48 wide in it. */}
-          <span className={`flex size-16 justify-center text-ui-primary ${revealOnHover}`}>
-            <Arrow name="halfup" />
+          {/* Desktop Hover: the arrow centred in a 64 × 64 box; logged in, the arrow alone. */}
+          <span
+            className={`justify-end text-ui-primary ${reveal} ${loggedIn ? "" : "desktop-s:w-16 desktop-s:justify-center"}`}
+          >
+            <Arrow name="halfup" className="h-12 w-9 desktop-s:h-16 desktop-s:w-12" />
           </span>
         </span>
 
@@ -83,13 +99,17 @@ export function ProductCard({
                 </span>
               ))}
             </span>
-            <Icon name="info" className="text-ui-secondary" />
+            {info ? <TruckInfo text={info} /> : <Icon name="info" className="text-ui-secondary" />}
           </span>
-          <span className="text-display-s text-ui-primary">{name}</span>
+          {/* The name is the link; it covers the card, under the info button. */}
+          <Link
+            className="text-display-s text-ui-primary after:absolute after:inset-0 after:rounded-lg"
+            {...props}
+          >
+            {name}
+          </Link>
           {price || leasing ? (
-            <span
-              className={`flex w-full items-center justify-between text-ui-primary ${revealOnHover}`}
-            >
+            <span className={`w-full items-center justify-between text-ui-primary ${reveal}`}>
               {price ? (
                 <span className="flex flex-col gap-2">
                   <span className="text-label-s">{priceLabel}</span>
@@ -103,9 +123,11 @@ export function ProductCard({
                   <span className="text-label-s">{leasingLabel}</span>
                   <span className="flex items-end gap-1">
                     <span className="whitespace-nowrap text-text-l">{leasing}</span>
-                    <span className="pb-[0.2em] text-label-s text-ui-secondary">
-                      {perMonthLabel}
-                    </span>
+                    {perMonthLabel ? (
+                      <span className="pb-[0.2em] text-label-s text-ui-secondary">
+                        {perMonthLabel}
+                      </span>
+                    ) : null}
                   </span>
                 </span>
               ) : null}
@@ -113,6 +135,6 @@ export function ProductCard({
           ) : null}
         </span>
       </span>
-    </Link>
+    </div>
   );
 }

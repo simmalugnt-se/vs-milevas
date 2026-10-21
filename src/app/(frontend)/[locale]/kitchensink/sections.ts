@@ -48,6 +48,7 @@ export const kitchensinkPages = [
         sections: [
           { id: "product-card", title: "Product card" },
           { id: "card", title: "Card" },
+          { id: "color-image-card", title: "Color image card" },
           { id: "configurator-box", title: "Configurator box" },
           { id: "price-box", title: "Price box" },
           { id: "text-box", title: "Text box" },

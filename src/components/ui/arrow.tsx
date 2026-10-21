@@ -2,8 +2,7 @@ import type { ReactNode, SVGProps } from "react";
 
 /**
  * Arrows from Figma "02 — Components" → "Arrows" (node 8389:5810), size=L, the only size: 64px on
- * the long side and cropped to the shape (`back` 64 × 40, `up-down` 40 × 64, `halfup` 48 × 64), plus
- * `halfup-s` (24 × 32), a narrower halfup drawn separately for truck-column (8539:7382).
+ * the long side and cropped to the shape (`back` 64 × 40, `up-down` 40 × 64, `halfup` 48 × 64).
  * Generated with `scripts/figma-svgs/to-tsx.mjs` (#121212 becomes currentColor). Names follow Figma
  * (`arrow-up&forward` → `up-forward`).
  */
@@ -60,17 +59,6 @@ const arrows = {
       <>
         <path
           d="M48 5.81464C44.9252 12.7376 43.9472 21.1843 45.0653 31.1533L35.8408 40.2917L31.6472 26.1682L23.2623 34.4759L23.2611 34.4748L18.0761 39.6125C15.2012 42.4606 14.2312 45.0531 14.2311 47.552V64H-4.76837e-07V47.552C8.21955e-05 40.6521 2.98324 34.6286 8.01428 29.6445L21.5841 16.1991L7.32867 12.0457L16.5532 2.90732C26.6159 4.01496 35.1413 3.04595 42.1294 0L48 5.81464Z"
-          fill="currentColor"
-        />
-      </>
-    ),
-  },
-  "halfup-s": {
-    viewBox: "0 0 24 32",
-    body: (
-      <>
-        <path
-          d="M24 2.90732C22.4626 6.36878 21.9736 10.5921 22.5326 15.5766L17.9204 20.1459L15.8236 13.0841L11.6311 17.238L11.6306 17.2374L9.03807 19.8062C7.60059 21.2303 7.11561 22.5266 7.11557 23.776V32H-4.76837e-07V23.776C4.08593e-05 20.3261 1.49162 17.3143 4.00714 14.8223L10.7921 8.09953L3.66433 6.02287L8.2766 1.45366C13.308 2.00748 17.5707 1.52297 21.0647 0L24 2.90732Z"
           fill="currentColor"
         />
       </>

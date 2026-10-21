@@ -2,9 +2,9 @@ import type { HTMLAttributes, ReactNode } from "react";
 
 /**
  * card from Figma "02 — Components" → "Cards" (8389:4461): a photo with a darkening gradient, a
- * numbered tag top left and Text XL bottom left. 459:405 like Figma unless the parent sets a size.
- * Figma's text is #f5f5f5 and the gradient black 40% → 20%; neither is a variable, so the card is in
- * Dark mode (text `ui-primary`, #f0f0f0), the tag in Tejp, and the gradient plain black.
+ * numbered tag top left, Text XL bottom left and, optionally, a Text M paragraph under it (Figma's
+ * `showParagraph`). 459:405 like Figma unless the parent sets a size. The card is in Dark mode (text
+ * `ui-primary`), the tag in Tejp; the gradient is black 40% → 20%, which is not a variable.
  */
 
 type CardProps = HTMLAttributes<HTMLDivElement> & {
@@ -14,9 +14,11 @@ type CardProps = HTMLAttributes<HTMLDivElement> & {
   number: ReactNode;
   label: ReactNode;
   text: ReactNode;
+  /** Text M under `text`; none by default. */
+  paragraph?: ReactNode;
 };
 
-export function Card({ image, number, label, text, className, ...props }: CardProps) {
+export function Card({ image, number, label, text, paragraph, className, ...props }: CardProps) {
   return (
     <div
       className={`mode-dark relative flex aspect-[459/405] flex-col justify-between overflow-hidden rounded-lg p-(--spacing-sm) ${className ?? ""}`}
@@ -31,7 +33,10 @@ export function Card({ image, number, label, text, className, ...props }: CardPr
         <span aria-hidden>{"///"}</span>
         <span>{label}</span>
       </p>
-      <p className="relative text-text-xl text-ui-primary">{text}</p>
+      <div className="relative text-ui-primary">
+        <p className="text-text-xl">{text}</p>
+        {paragraph ? <p className="text-text-m">{paragraph}</p> : null}
+      </div>
     </div>
   );
 }

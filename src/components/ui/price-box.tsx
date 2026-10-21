@@ -1,62 +1,80 @@
 import type { HTMLAttributes, ReactNode } from "react";
 
 /**
- * price-box from Figma "02 — Components" → "Configurator" (frame 6, 8389:7276; frame 9 has none):
- * the configured truck's price in Text XL, monthly alternatives and an optional delivery estimate
- * (Text XS label, Text S value, `ui-secondary`), and a full-width action, in Figma a primary M
- * <Button>.
+ * pricebox from Figma "02 — Components" → "blabla" (9207:25676), in a `stroke/width` frame in
+ * `border-primary` with `radius-sm`.
+ * - The total: Label S label and Text L amount on `bg-active`, `spacing/2xs` × `spacing/xs`.
+ * - Rows: Text XS label in `ui-secondary` and Text S value on `bg-fill`, a line above and below.
+ *   `configurator` pads them `spacing/2xs`, `checkout` `spacing/2xs` × `spacing/xs`.
+ * - `checkout` adds a note: a row and a Text XS text in `ui-tertiary` (Figma: the warranty).
+ * Lines are drawn inside, as Figma's strokes are, so the box is Figma's height (109 and 193).
  */
 
 type PriceRow = { label: ReactNode; value: ReactNode };
 
 type PriceBoxProps = HTMLAttributes<HTMLDivElement> & {
-  price: ReactNode;
-  /** Figma: "Leasing (48 mån)", "Långtidshyra (48 mån)". */
+  variant?: "configurator" | "checkout";
+  /** Figma: "Totalpris". */
+  totalLabel: ReactNode;
+  total: ReactNode;
+  /** Figma: "Leasing (48mån)", "Långtidshyra" or "Uppskattad leverans". */
   rows?: PriceRow[];
-  /** Figma's `Deliviry=True`: "Uppskattad leverans", "4–6 veckor". */
-  delivery?: PriceRow;
-  /** E.g. `<Button size="m" className="w-full">`. */
-  action?: ReactNode;
+  /** checkout: Figma's "Garanti", "4 år" with its text. */
+  note?: PriceRow & { text: ReactNode };
 };
+
+/** A line above and below, inside the box. */
+const lines =
+  "shadow-[inset_0_var(--stroke-width)_var(--color-border-primary),inset_0_calc(var(--stroke-width)*-1)_var(--color-border-primary)]";
 
 function Row({ label, value }: PriceRow) {
   return (
-    <div className="flex items-center justify-between gap-4">
-      <dt className="text-text-xs">{label}</dt>
-      <dd className="text-right text-text-s">{value}</dd>
-    </div>
+    <>
+      <dt className="text-text-xs text-ui-secondary">{label}</dt>
+      <dd className="text-right text-text-s text-ui-primary">{value}</dd>
+    </>
   );
 }
 
 export function PriceBox({
-  price,
+  variant = "configurator",
+  totalLabel,
+  total,
   rows = [],
-  delivery,
-  action,
+  note,
   className,
   ...props
 }: PriceBoxProps) {
+  const checkout = variant === "checkout";
+  const rowPadding = checkout ? "px-(--spacing-2xs) py-(--spacing-xs)" : "p-(--spacing-2xs)";
+
   return (
     <div
-      className={`flex flex-col gap-(--spacing-md) overflow-hidden rounded-lg bg-bg-fill p-(--spacing-sm) ${className ?? ""}`}
+      className={`flex flex-col overflow-hidden rounded-sm outline-solid outline-(length:--stroke-width) outline-offset-[calc(var(--stroke-width)*-1)] outline-border-primary ${className ?? ""}`}
       {...props}
     >
-      <div className="flex flex-col gap-4">
-        <p className="text-text-xl text-ui-primary">{price}</p>
-        {rows.length > 0 ? (
-          <dl className="flex flex-col gap-1 text-ui-secondary">
-            {rows.map((row, index) => (
-              <Row key={index} {...row} />
-            ))}
-          </dl>
-        ) : null}
-        {delivery ? (
-          <dl className="text-ui-secondary">
-            <Row {...delivery} />
-          </dl>
-        ) : null}
+      <div
+        className={`flex items-center justify-between gap-4 bg-bg-active px-(--spacing-2xs) py-(--spacing-xs) text-ui-primary ${checkout ? "" : lines}`}
+      >
+        <p className="text-label-s">{totalLabel}</p>
+        <p className="text-text-l whitespace-nowrap">{total}</p>
       </div>
-      {action}
+      {rows.map((row, index) => (
+        <dl
+          key={index}
+          className={`flex items-center justify-between gap-4 bg-bg-fill ${lines} ${rowPadding}`}
+        >
+          <Row {...row} />
+        </dl>
+      ))}
+      {checkout && note ? (
+        <div className="flex flex-col gap-(--spacing-2xs) bg-bg-fill px-(--spacing-2xs) py-(--spacing-xs)">
+          <dl className="flex items-center justify-between gap-4">
+            <Row label={note.label} value={note.value} />
+          </dl>
+          <p className="text-text-xs text-ui-tertiary">{note.text}</p>
+        </div>
+      ) : null}
     </div>
   );
 }
