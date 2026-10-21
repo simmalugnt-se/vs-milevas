@@ -249,6 +249,12 @@ export const designQuestions: DesignQuestion[] = [
     figma: "9207:25676",
   },
   {
+    target: "choice",
+    question:
+      "Reglaget för avtalslängd står mellan 48 och 60 i Figma. Går det bara att välja de sex stegen (24–84 månader), som koden gör, eller även värden mellan dem?",
+    figma: "9207:32222",
+  },
+  {
     target: "contact-form",
     question:
       "order numrerar fälten 01, 02, 04 och 05. Saknas fält 03, och ska det finnas ett meddelandefält som i call och contact?",
@@ -851,6 +857,25 @@ export const figmaNotes: FigmaNote[] = [
     code: "Borttagna utom `globe`, som footern använder; den har den gamla SVG:n",
     why: "Ingen annan använde dem",
     status: "Antagande",
+    date: "2026-10-21",
+  },
+  {
+    target: "choice",
+    topic: "Financiering som egen komponent",
+    figma:
+      "`Type=Financiering` och `Financiering-02` är varianter av choice; valt har Financiering ett reglage för avtalslängd",
+    code: "`FinancingChoice`: huvudet är knappen och reglaget ligger i en panel under den",
+    why: "Ett reglage kan inte ligga inuti en knapp",
+    status: "Beslut (teknisk)",
+    date: "2026-10-21",
+  },
+  {
+    target: "choice",
+    topic: "Reglagets lägen",
+    figma: "Reglaget ritat i ett läge; inget fokus-, hover- eller dragläge",
+    code: "Ett osynligt range-fält över det ritade reglaget tar mus, pek och tangentbord, men fokus syns inte",
+    why: "Inte ritat; för tangentbordet behövs ett synligt fokusläge",
+    status: "Lucka",
     date: "2026-10-21",
   },
   {

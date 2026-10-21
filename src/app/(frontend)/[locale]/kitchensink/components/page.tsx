@@ -5,6 +5,7 @@ import { Choice } from "@/components/ui/choice";
 import { ColorImageCard } from "@/components/ui/color-image-card";
 import { ConfiguratorBox } from "@/components/ui/configurator-box";
 import { ConfiguratorTopbar } from "@/components/ui/configurator-topbar";
+import { FinancingChoice } from "@/components/ui/financing-choice";
 import { PriceBox } from "@/components/ui/price-box";
 import { ProductCard } from "@/components/ui/product-card";
 import { TextBox } from "@/components/ui/text-box";
@@ -13,7 +14,7 @@ import { TruckInfo } from "@/components/ui/truck-info";
 import truckPallet from "../assets/truck-pallet.png";
 import truckProductCard from "../assets/truck-product-card.png";
 import warehouse from "../assets/warehouse.jpg";
-import { ChoiceDemo } from "../choice-demo";
+import { ChoiceDemo, FinancingChoiceDemo } from "../choice-demo";
 import { ContactFormDemo } from "../contact-form-demo";
 import { Example, Group, KitchensinkPage, Section } from "../ui";
 
@@ -30,6 +31,13 @@ const choiceImage = (
       className="absolute top-[-14.04%] left-[9.65%] h-[119.85%] w-[89.46%] max-w-none"
     />
   </span>
+);
+
+/** The Financiering choices Figma draws: Financiering with and without `bottom`, Financiering-02. */
+const financingExamples = (["Financiering", "Financiering-02"] as const).flatMap((type) =>
+  (type === "Financiering" ? [false, true] : [false]).flatMap((bottom) =>
+    (["Default", "active", "hover"] as const).map((state) => ({ type, state, bottom })),
+  ),
 );
 
 /** configurator-box variants shown, in Figma frame 9's order. */
@@ -200,7 +208,7 @@ export default function ComponentsPage() {
         <Section
           id="choice"
           figma="9207:30462"
-          api='<Choice title price? text? textSize="s|m" selected? bottom? image?>'
+          api='<Choice title price? text? textSize="s|m" selected? bottom? image? imageSize?> · <FinancingChoice title price? selected? bottom? onSelect? term? residual?>'
           description='En button med aria-pressed, i Figmas bredd (368px). data-state="hover" visar hover utan pekare.'
         >
           <div className="grid grid-cols-[repeat(auto-fill,23rem)] items-start gap-6">
@@ -245,9 +253,34 @@ export default function ComponentsPage() {
                 )),
               ),
             )}
+            {financingExamples.map(({ type, state, bottom }) => (
+              <Example
+                key={`${type}-${state}-${bottom}`}
+                label={`${type} · ${state}${bottom ? " · bottom" : ""}`}
+              >
+                <FinancingChoice
+                  title="Title"
+                  price="€€€€"
+                  bottom={bottom}
+                  selected={state === "active"}
+                  data-state={state === "hover" ? "hover" : undefined}
+                  term={
+                    type === "Financiering"
+                      ? { label: "Avtalslängd", steps: [24, 36, 48, 60, 72, 84], value: 60 }
+                      : undefined
+                  }
+                  residual={
+                    type === "Financiering" ? { label: "Restvärde", value: "10%" } : undefined
+                  }
+                />
+              </Example>
+            ))}
           </div>
           <Example label="Klickbar: välj ett alternativ">
             <ChoiceDemo />
+          </Example>
+          <Example label="Klickbar: finansiering och avtalslängd">
+            <FinancingChoiceDemo />
           </Example>
         </Section>
 
