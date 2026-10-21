@@ -1,13 +1,12 @@
 import type { HTMLAttributes, ReactNode } from "react";
+import { ConfiguratorTopbar } from "./configurator-topbar";
 
 /**
- * configurator-box from Figma "02 — Components" → "Configurator" (frame 9, 8721:17422): one step of
- * the configurator. A `bg-fill` box with a `[01] LABEL` tag and its <Choice> options, two per row
- * (`grid`) or one per row (`stack`). Inside the box each choice keeps only its top rule, and in the
- * grid the left column also gets a rule on the right, as in Figma. Frame 9 replaces frame 6, which
- * Figma shows faded; its `choises=2, image=true, Grid` variant has no counterpart in 9 and is left out.
- * Stacked choices in Figma have rules above and below, which doubles them between options; one rule
- * is used here.
+ * configurator-box from Figma "02 — Components" → "Configurator" (9250:32719): one step of the
+ * configurator, a <ConfiguratorTopbar> over its <Choice> options, two per row (`grid`, Figma's
+ * Grid) or one per row (`stack`, Figma's Stack). Each choice keeps its own frame, as in Figma, so
+ * the lines between them are doubled. The box rounds the bottom corners of the last row; do not
+ * pass `bottom` to choices inside it.
  */
 
 type ConfiguratorBoxProps = Omit<HTMLAttributes<HTMLDivElement>, "children"> & {
@@ -22,14 +21,15 @@ type ConfiguratorBoxProps = Omit<HTMLAttributes<HTMLDivElement>, "children"> & {
   children: ReactNode;
 };
 
+/** The last row's bottom corners, per layout. */
 const layoutClasses = {
-  grid: "grid grid-cols-2 [&>*:nth-child(odd)]:border-r",
-  stack: "flex flex-col",
+  grid: "grid grid-cols-2 [&>:last-child]:rounded-br-sm [&>:last-child:nth-child(odd)]:rounded-bl-sm [&>:nth-last-child(2):nth-child(odd)]:rounded-bl-sm",
+  stack: "flex flex-col [&>:last-child]:rounded-b-sm",
 } as const;
 
-/** A grid from Tablet up, stacked below it. */
+/** Stacked below Tablet, a grid from Tablet up. */
 const stackOnMobile =
-  "flex flex-col tablet:grid tablet:grid-cols-2 tablet:[&>*:nth-child(odd)]:border-r";
+  "flex flex-col [&>:last-child]:rounded-b-sm tablet:grid tablet:grid-cols-2 tablet:[&>:last-child:nth-child(even)]:rounded-bl-none tablet:[&>:nth-last-child(2):nth-child(odd)]:rounded-bl-sm";
 
 /**
  * The layout for a step's choices: two per row when there are more than two (Figma's lift
@@ -55,15 +55,12 @@ export function ConfiguratorBox({
     <div
       role="group"
       aria-label={`${number} ${label}`}
-      className={`flex flex-col gap-(--spacing-sm) overflow-hidden rounded-sm bg-bg-fill pt-(--spacing-sm) ${className ?? ""}`}
+      className={`flex flex-col ${className ?? ""}`}
       {...props}
     >
-      <p aria-hidden className="flex gap-4 px-4 text-label-s">
-        <span className="text-ui-tertiary">[{number}]</span>
-        <span className="text-ui-primary">{label}</span>
-      </p>
+      <ConfiguratorTopbar aria-hidden number={number} label={label} />
       <div
-        className={`w-full *:border-b-0 ${
+        className={`w-full ${
           layout === "grid" && mobileLayout === "stack" ? stackOnMobile : layoutClasses[layout]
         }`}
       >

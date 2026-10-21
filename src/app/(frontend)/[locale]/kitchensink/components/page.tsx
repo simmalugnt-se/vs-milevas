@@ -40,17 +40,10 @@ const financingExamples = (["Financiering", "Financiering-02"] as const).flatMap
   ),
 );
 
-/** configurator-box variants shown, in Figma frame 9's order. */
-const configuratorBoxes = [
-  { choices: 2, layout: "grid", textSize: "s" },
-  { choices: 2, layout: "grid", textSize: "m" },
-  { choices: 6, layout: "grid", textSize: "s" },
-  { choices: 4, layout: "grid", textSize: "s" },
-  { choices: 2, layout: "stack", textSize: "s" },
-  { choices: 4, layout: "stack", textSize: "m" },
-  { choices: 2, layout: "stack", textSize: "s", image: true },
-  { choices: 4, layout: "grid", textSize: "s", image: true },
-] as const;
+/** configurator-box's Standard variants, in Figma's order. */
+const configuratorBoxes = (["grid", "stack"] as const).flatMap((layout) =>
+  [2, 4, 6].map((choices) => ({ layout, choices })),
+);
 
 const draftBlabla =
   'Figma-ramen "blabla" på "02 — Components" är inte klar, så komponenten kan ändras.';
@@ -286,41 +279,19 @@ export default function ComponentsPage() {
 
         <Section
           id="configurator-box"
-          figma="8721:17422"
-          api="<ConfiguratorBox number label layout>{<Choice>…}</ConfiguratorBox>"
-          description="Från frame 9 (frame 6 är den gamla, urblekta versionen). Det andra valet i varje box visas som valt."
+          figma="9250:32719"
+          api='<ConfiguratorBox number label layout="grid|stack" mobileLayout?>{<Choice>…}</ConfiguratorBox>'
+          description="Figmas Standard-varianter i Figmas bredd (469px)."
         >
-          <div className="grid items-start gap-6 tablet:grid-cols-2">
-            {configuratorBoxes.map((box, index) => (
+          <div className="grid grid-cols-[repeat(auto-fill,29.3125rem)] items-start gap-6">
+            {configuratorBoxes.map((box) => (
               <Example
-                key={`${box.layout}-${box.choices}-${box.textSize}-${"image" in box}`}
-                label={`${box.choices} val · layout="${box.layout}" · text ${box.textSize.toUpperCase()}${"image" in box ? " · med bild" : ""}`}
+                key={`${box.layout}-${box.choices}`}
+                label={`layout="${box.layout}" · ${box.choices} val`}
               >
-                <ConfiguratorBox
-                  number={String(index + 1).padStart(2, "0")}
-                  label="Label"
-                  layout={box.layout}
-                >
+                <ConfiguratorBox number="01" label="Label" layout={box.layout}>
                   {Array.from({ length: box.choices }, (_, choice) => (
-                    <Choice
-                      key={choice}
-                      title="Title"
-                      price="€€€€"
-                      text="Text"
-                      textSize={box.textSize}
-                      selected={choice === 1}
-                      image={
-                        "image" in box ? (
-                          <Image
-                            src={truckPallet}
-                            alt=""
-                            fill
-                            sizes="12rem"
-                            className="object-contain"
-                          />
-                        ) : undefined
-                      }
-                    />
+                    <Choice key={choice} title="Title" price="€€€€" text="Text" />
                   ))}
                 </ConfiguratorBox>
               </Example>
