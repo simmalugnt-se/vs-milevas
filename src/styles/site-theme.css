@@ -39,6 +39,7 @@
   /* Same in every mode. */
   --color-ui-brand: #e0ff3c;
   --color-navigation-fill: #121212eb;
+  --color-navigation-overlay: #00000066;
 
   --color-status-success: #168a67;
   --color-status-warning: #f4a900;
@@ -73,11 +74,11 @@
   --color-btn-secondary-fill-disabled: #575757d9;
   --color-btn-secondary-text: #f0f0f0;
   --color-btn-secondary-text-hover: #f0f0f0;
+  --color-btn-secondary-text-disabled: #f0f0f099;
   --color-btn-secondary-border: #575757d9;
   --color-btn-secondary-border-disabled: #57575799;
 }
 
-/* Figma shows no BTN/secondary in Dark; the Light values until it does. */
 @utility mode-dark {
   --color-ui-primary: #f0f0f0;
   --color-ui-secondary: #999999;
@@ -98,14 +99,14 @@
 
   --color-btn-secondary-fill: #575757;
   --color-btn-secondary-fill-hover: #575757d9;
-  --color-btn-secondary-fill-disabled: #575757d9;
+  --color-btn-secondary-fill-disabled: #57575799;
   --color-btn-secondary-text: #f0f0f0;
   --color-btn-secondary-text-hover: #f0f0f0;
+  --color-btn-secondary-text-disabled: #f0f0f0;
   --color-btn-secondary-border: #575757d9;
-  --color-btn-secondary-border-disabled: #57575799;
+  --color-btn-secondary-border-disabled: #575757d9;
 }
 
-/* Figma shows no BG/active in Tejp; the Light value until it does. */
 @utility mode-tejp {
   --color-ui-primary: #121212;
   --color-ui-secondary: #575757;
@@ -113,7 +114,7 @@
 
   --color-bg-fill: #e0ff3c;
   --color-bg-fill-secondary: #d9d9d9;
-  --color-bg-active: #ffffff;
+  --color-bg-active: #e0ff3c;
 
   --color-border-primary: #575757;
 
@@ -129,6 +130,7 @@
   --color-btn-secondary-fill-disabled: #12121299;
   --color-btn-secondary-text: #e0ff3c;
   --color-btn-secondary-text-hover: #121212;
+  --color-btn-secondary-text-disabled: #f0f0f099;
   --color-btn-secondary-border: #e0ff3c;
   --color-btn-secondary-border-disabled: #e0ff3c99;
 }

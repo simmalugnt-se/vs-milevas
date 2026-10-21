@@ -95,12 +95,6 @@ export const designQuestions: DesignQuestion[] = [
   {
     target: "colors",
     question:
-      "Färgramen visar inte `BTN/secondary` i Dark, och varken `BG/active` eller Navigation i Tejp. Kan rutorna läggas till? Koden använder Light-värdena så länge.",
-    figma: "6073:1230",
-  },
-  {
-    target: "colors",
-    question:
       "`BORDER/secondary` är `#121212` i Dark, samma som `BG/fill`, så ramen syns inte. Ska den vara ljus i Dark?",
     figma: "6073:1230",
   },
@@ -121,8 +115,13 @@ export const designQuestions: DesignQuestion[] = [
   {
     target: "buttons",
     question:
-      "Light `BTN/secondary/fill-disabled` är `#575757d9`, samma som hover, medan de andra disabled-värdena är `99`. Komponenten har `#2b2b2b99`. Ska den vara `#57575799`? Ramen är också `d9`, inte heltäckande.",
+      "`BTN/secondary` disabled: Light har fill `#575757d9` (samma som hover) och ram `#57575799`, Dark det omvända (fill `#57575799`, ram `#575757d9`). Är Light ombytt? Komponenten har fill `#2b2b2b99`.",
     figma: "6073:1230",
+  },
+  {
+    target: "buttons",
+    question:
+      "Dark `BTN/secondary/text-disabled` är `#f0f0f0`, samma som texten, så disabled syns bara på fyllningen. I Light och Tejp är den `#f0f0f099`. Avsiktligt?",
   },
   {
     target: "buttons",
@@ -165,7 +164,7 @@ export const designQuestions: DesignQuestion[] = [
   {
     target: "navigation",
     question:
-      "Färgramen har `NAVIGATION/FILL` (`#121212eb`) och en ruta Overlay utan egen variabel. Är navigationen nu mörk, och ska overlay ha ett eget värde? Koden har en token, `navigation-fill`, som inte används ännu.",
+      "Färgramen har `NAVIGATION/FILL` (`#121212eb`) och `NAVIGATION/OVERLAY` (`#00000066`). Är navigationen nu mörk, och var används overlay? Koden har båda som tokens (`navigation-fill`, `navigation-overlay`), men använder dem inte ännu.",
     figma: "6073:1230",
   },
   {
@@ -306,8 +305,7 @@ export const figmaNotes: FigmaNote[] = [
   {
     target: "colors",
     topic: "Lika i alla lägen",
-    figma:
-      "Brand, Navigation, Status, `BORDER/secondary` och `BTN/secondary/text-disabled` har samma värde i alla tre lägena",
+    figma: "Brand, Navigation, Status och `BORDER/secondary` har samma värde i alla tre lägena",
     code: "Bara i `@theme`; lägena sätter de färger som skiljer sig",
     why: "Kortare CSS; testet flyttar en färg till lägena om Figma ändrar den",
     status: "Beslut (teknisk)",
@@ -320,15 +318,6 @@ export const figmaNotes: FigmaNote[] = [
     code: "`bg-gradient-inv` och dess två tokens är borttagna",
     why: "Användes bara på kitchensink; card har en egen svart gradient",
     status: "Beslut",
-    date: "2026-10-21",
-  },
-  {
-    target: "colors",
-    topic: "Färger som inte visas",
-    figma: "Dark visar ingen `BTN/secondary`, Tejp varken `BG/active` eller Navigation",
-    code: "Light-värdena, märkta antagande i listan",
-    why: "Figma-MCP:n läser bara variabler som används i framen",
-    status: "Antagande",
     date: "2026-10-21",
   },
   {
@@ -667,7 +656,7 @@ export const figmaNotes: FigmaNote[] = [
     target: "navigation",
     topic: "Färg",
     figma: "Navigationsblocket använder `Color/BG/active` (`#ffffff`)",
-    code: "`bg-bg-active`; `navigation-fill` från färgramen används inte än",
+    code: "`bg-bg-active`; `navigation-fill` och `navigation-overlay` från färgramen används inte än",
     why: "Blocket gås igenom mot Figma i ett eget steg",
     status: "Antagande",
     date: "2026-10-21",

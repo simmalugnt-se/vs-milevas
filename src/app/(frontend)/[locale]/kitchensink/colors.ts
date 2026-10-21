@@ -1,7 +1,8 @@
 import type { ColorMode } from "@/components/ui/color-mode";
 
 /**
- * Color tokens as grouped on Figma "01 — Foundations" → "COLOR STYLES", with a value per mode.
+ * Color tokens as grouped on Figma "01 — Foundations" → "COLOR STYLES", with a value per mode; the
+ * values match Figma's variable export (`Light.tokens.json`, `Dark.tokens.json`, `Tejp.tokens.json`).
  * `tests/design-tokens.test.mts` checks this list against `src/styles/site-theme.css`.
  */
 export type ColorToken = {
@@ -11,8 +12,6 @@ export type ColorToken = {
   /** Tailwind class that applies the token the way the group is meant to be used. */
   className: string;
   values: Record<ColorMode, string>;
-  /** Modes the COLOR STYLES frame does not show this color in; their value is the Light one. */
-  assumed?: ColorMode[];
 };
 
 export type ColorGroup = {
@@ -76,8 +75,7 @@ export const colorGroups: ColorGroup[] = [
         name: "Active",
         token: "--color-bg-active",
         className: "bg-bg-active",
-        values: { light: "#ffffff", dark: "#000000", tejp: "#ffffff" },
-        assumed: ["tejp"],
+        values: { light: "#ffffff", dark: "#000000", tejp: "#e0ff3c" },
       },
     ],
   },
@@ -142,56 +140,48 @@ export const colorGroups: ColorGroup[] = [
         token: "--color-btn-secondary-fill",
         className: "bg-btn-secondary-fill",
         values: { light: "#575757", dark: "#575757", tejp: "#121212" },
-        assumed: ["dark"],
       },
       {
         name: "Secondary Fill Hover",
         token: "--color-btn-secondary-fill-hover",
         className: "bg-btn-secondary-fill-hover",
         values: { light: "#575757d9", dark: "#575757d9", tejp: "#e0ff3c" },
-        assumed: ["dark"],
       },
       {
         name: "Secondary Fill Disabled",
         token: "--color-btn-secondary-fill-disabled",
         className: "bg-btn-secondary-fill-disabled",
-        values: { light: "#575757d9", dark: "#575757d9", tejp: "#12121299" },
-        assumed: ["dark"],
+        values: { light: "#575757d9", dark: "#57575799", tejp: "#12121299" },
       },
       {
         name: "Secondary Text",
         token: "--color-btn-secondary-text",
         className: "text-btn-secondary-text",
         values: { light: "#f0f0f0", dark: "#f0f0f0", tejp: "#e0ff3c" },
-        assumed: ["dark"],
       },
       {
         name: "Secondary Text Hover",
         token: "--color-btn-secondary-text-hover",
         className: "text-btn-secondary-text-hover",
         values: { light: "#f0f0f0", dark: "#f0f0f0", tejp: "#121212" },
-        assumed: ["dark"],
       },
       {
         name: "Secondary Text Disabled",
         token: "--color-btn-secondary-text-disabled",
         className: "text-btn-secondary-text-disabled",
-        values: { light: "#f0f0f099", dark: "#f0f0f099", tejp: "#f0f0f099" },
-        assumed: ["dark"],
+        values: { light: "#f0f0f099", dark: "#f0f0f0", tejp: "#f0f0f099" },
       },
       {
         name: "Secondary Border",
         token: "--color-btn-secondary-border",
         className: "ring-btn-secondary-border",
         values: { light: "#575757d9", dark: "#575757d9", tejp: "#e0ff3c" },
-        assumed: ["dark"],
       },
       {
         name: "Secondary Border Disabled",
         token: "--color-btn-secondary-border-disabled",
         className: "ring-btn-secondary-border-disabled",
-        values: { light: "#57575799", dark: "#57575799", tejp: "#e0ff3c99" },
-        assumed: ["dark"],
+        values: { light: "#57575799", dark: "#575757d9", tejp: "#e0ff3c99" },
       },
     ],
   },
@@ -203,7 +193,12 @@ export const colorGroups: ColorGroup[] = [
         token: "--color-navigation-fill",
         className: "bg-navigation-fill",
         values: { light: "#121212eb", dark: "#121212eb", tejp: "#121212eb" },
-        assumed: ["tejp"],
+      },
+      {
+        name: "Overlay",
+        token: "--color-navigation-overlay",
+        className: "bg-navigation-overlay",
+        values: { light: "#00000066", dark: "#00000066", tejp: "#00000066" },
       },
     ],
   },

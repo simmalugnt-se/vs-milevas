@@ -166,7 +166,6 @@ function Example({
 
 /** A swatch in a mode's column: the token resolves inside the column's `mode-*` class. */
 function ColorRow({ color, mode }: { color: ColorToken; mode: ColorMode }) {
-  const assumed = color.assumed?.includes(mode);
   return (
     <li className="grid grid-cols-[2rem_1fr_auto] items-center gap-x-3">
       <span
@@ -182,7 +181,6 @@ function ColorRow({ color, mode }: { color: ColorToken; mode: ColorMode }) {
       </span>
       <code className="text-right font-mono text-xs uppercase text-ui-secondary">
         {color.values[mode]}
-        {assumed ? <span className="block normal-case">antagande</span> : null}
       </code>
     </li>
   );
