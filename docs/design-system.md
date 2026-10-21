@@ -10,9 +10,9 @@ omgångar: "01 — Foundations" och "02 — Components" är klara, och "04 — B
 | Tokens (färger, primitiver, textstilar, brytpunkter, storlekar, spacing, stroke, grid, radier, motion) | `src/styles/site-theme.css` |
 | Figmas variabler som JSON (en fil per samling och läge) | `docs/figma-variables/`; `tests/design-tokens.test.mts` jämför CSS:en med dem |
 | Clash Grotesk Variable (WOFF2, vikter 200–700) och licens | `src/app/(frontend)/fonts/clash-grotesk/`; laddas via `next/font/local` i `[locale]/layout.tsx` |
-| Komponenter (Icon, Arrow, Logo, Button, TextLink, NavLink, FooterLink, Choice, TextField, TextAreaField, Alternative, TimePicker, ContactForm, ProductCard, TruckInfo, Card, ColorImageCard, ConfiguratorBox, PriceBox, TextBox, TruckColumn) | `src/components/ui/` |
+| Komponenter (Icon, Arrow, Logo, Button, TextLink, NavLink, FooterLink, Choice, TextField, TextAreaField, Alternative, TimePicker, ContactForm, ProductCard, TruckInfo, Card, ColorImageCard, ConfiguratorTopbar, ConfiguratorBox, PriceBox, TextBox, TruckColumn) | `src/components/ui/` |
 | Block som komponenter (Navigation, Footer, Milevas Hero, Product-Grid, Text+Grid, Text & boxinfo) | `src/components/blocks/`; Navigation och Footer matas av Header- och Footer-globalerna i `src/payload/globals/*/Component.tsx` |
-| Referenssidor, noindex och 404 i produktion | `/kitchensink` (Grunder: tokens, ikoner, knappar, länkar, choice), `/kitchensink/components` (sammansatta komponenter), `/kitchensink/blocks` (hela block), `/kitchensink/notes` (alla frågor och avvikelser) |
+| Referenssidor, noindex och 404 i produktion | `/kitchensink` (Grunder: tokens, ikoner, knappar, länkar, formfält), `/kitchensink/components` (sammansatta komponenter), `/kitchensink/blocks` (hela block), `/kitchensink/notes` (alla frågor och avvikelser) |
 | Kitchensinks sidor och sektioner, layout och delade delar | `kitchensink/sections.ts` (flikar, sektionsindex och länkar), `layout.tsx`, `ui.tsx` (`KitchensinkPage`, `Group`, `Section`, `Example`) |
 | Listorna kitchensink visar, som testet jämför med CSS:en | `src/app/(frontend)/[locale]/kitchensink/*.ts` |
 | Test för tokens | `tests/design-tokens.test.mts` |

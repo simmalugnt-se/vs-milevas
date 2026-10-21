@@ -1,13 +1,15 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 
 /**
- * Choice from Figma "02 — Components" → "Buttons etc" → "choice" (8268:3371): one option in a
- * configurator step. Rules above and below (`border-primary`), optionally on the right, and
- * `ui-brand` when selected. Text S uses Text XS, text M uses Text M; both grey (`ui-tertiary`) until
- * selected (`ui-secondary`). With an image the gaps shrink from `spacing/md` to `spacing/2xs`.
- * Figma has no hover or disabled state; disabled (an option that needs another choice first) is
- * dimmed to half opacity. When the title and price do not fit side by side, the price moves to a
- * line under the title, and a word longer than the choice is hyphenated or broken.
+ * choice from Figma "02 — Components" → "Configurator" (9207:30462): one option in a configurator
+ * step, a `bg-fill` box with a `stroke/width` frame in `border-primary`, `spacing/sm` around and
+ * `spacing/md` between the parts. The frame is drawn inside, as Figma's stroke is.
+ * - Top: the title in Display XS, and the price in Label S (`ui-secondary`) top right. Figma breaks
+ *   a word too long for the box.
+ * - Text S is Text XS, text M is Text M; `ui-tertiary`, `ui-secondary` when active or hovered.
+ * - Active (`selected`) and hover are both Tejp: the yellow `bg-fill` and the darker frame.
+ * - `bottom` rounds the bottom corners (`radius-sm`), for the last choice of a box.
+ * Pass `data-state="hover"` to show hover without a pointer.
  */
 
 type ChoiceProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, "title"> & {
@@ -15,10 +17,13 @@ type ChoiceProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, "title"> & {
   price?: ReactNode;
   text?: ReactNode;
   textSize?: "s" | "m";
+  /** Figma's `active`. */
   selected?: boolean;
-  borderRight?: boolean;
+  /** Figma's `bottom`: rounded bottom corners. */
+  bottom?: boolean;
   /** Product image, e.g. a `next/image` with `fill`; it is contained in a 489:365 box. */
   image?: ReactNode;
+  "data-state"?: "hover";
 };
 
 export function Choice({
@@ -27,7 +32,7 @@ export function Choice({
   text,
   textSize = "s",
   selected = false,
-  borderRight = false,
+  bottom = false,
   image,
   className,
   type = "button",
@@ -37,15 +42,13 @@ export function Choice({
     <button
       type={type}
       aria-pressed={selected}
-      className={`flex w-full flex-col items-start border-y border-border-primary p-(--spacing-sm) text-left disabled:cursor-not-allowed disabled:opacity-50 ${
+      className={`group/choice flex w-full flex-col items-start bg-bg-fill p-(--spacing-sm) text-left wrap-break-word ring-(length:--stroke-width) ring-border-primary ring-inset hover:mode-tejp data-[state=hover]:mode-tejp ${
         image ? "gap-(--spacing-2xs)" : "gap-(--spacing-md)"
-      } ${borderRight ? "border-r" : ""} ${selected ? "bg-ui-brand" : ""} ${className ?? ""}`}
+      } ${selected ? "mode-tejp" : ""} ${bottom ? "rounded-b-sm" : ""} ${className ?? ""}`}
       {...props}
     >
-      <span className="flex w-full flex-wrap items-start justify-between gap-x-(--spacing-xs) gap-y-(--spacing-3xs)">
-        <span className="min-w-0 grow hyphens-auto text-text-l text-ui-primary [overflow-wrap:break-word]">
-          {title}
-        </span>
+      <span className="flex w-full items-start justify-between">
+        <span className="min-w-0 flex-1 text-display-xs text-ui-primary">{title}</span>
         {price ? (
           <span className="shrink-0 whitespace-nowrap text-label-s text-ui-secondary">{price}</span>
         ) : null}
@@ -56,7 +59,9 @@ export function Choice({
       {text ? (
         <span
           className={`w-full ${textSize === "m" ? "text-text-m" : "text-text-xs"} ${
-            selected ? "text-ui-secondary" : "text-ui-tertiary"
+            selected
+              ? "text-ui-secondary"
+              : "text-ui-tertiary group-hover/choice:text-ui-secondary group-data-[state=hover]/choice:text-ui-secondary"
           }`}
         >
           {text}

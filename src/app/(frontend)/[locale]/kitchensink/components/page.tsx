@@ -13,6 +13,7 @@ import { TruckInfo } from "@/components/ui/truck-info";
 import truckPallet from "../assets/truck-pallet.png";
 import truckProductCard from "../assets/truck-product-card.png";
 import warehouse from "../assets/warehouse.jpg";
+import { ChoiceDemo } from "../choice-demo";
 import { ContactFormDemo } from "../contact-form-demo";
 import { Example, Group, KitchensinkPage, Section } from "../ui";
 
@@ -182,6 +183,39 @@ export default function ComponentsPage() {
               <ConfiguratorTopbar number="01" label="Label" />
             </Example>
           </div>
+        </Section>
+
+        <Section
+          id="choice"
+          figma="9207:30462"
+          api='<Choice title price? text? textSize="s|m" selected? bottom? image?>'
+          description='En button med aria-pressed, i Figmas bredd (368px). data-state="hover" visar hover utan pekare.'
+        >
+          <div className="grid grid-cols-[repeat(auto-fill,23rem)] items-start gap-6">
+            {(["s", "m"] as const).flatMap((textSize) =>
+              [false, true].flatMap((bottom) =>
+                (["Default", "active", "hover"] as const).map((state) => (
+                  <Example
+                    key={`${textSize}-${bottom}-${state}`}
+                    label={`text ${textSize.toUpperCase()} · ${state}${bottom ? " · bottom" : ""}`}
+                  >
+                    <Choice
+                      title="Title"
+                      price="€€€€"
+                      text="Text"
+                      textSize={textSize}
+                      bottom={bottom}
+                      selected={state === "active"}
+                      data-state={state === "hover" ? "hover" : undefined}
+                    />
+                  </Example>
+                )),
+              ),
+            )}
+          </div>
+          <Example label="Klickbar: välj ett alternativ">
+            <ChoiceDemo />
+          </Example>
         </Section>
 
         <Section

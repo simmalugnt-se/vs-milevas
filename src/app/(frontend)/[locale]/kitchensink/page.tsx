@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import { Alternative } from "@/components/ui/alternative";
 import { Arrow, arrowNames } from "@/components/ui/arrow";
 import {
@@ -9,7 +8,6 @@ import {
   type ButtonVariant,
   TextLink,
 } from "@/components/ui/button";
-import { Choice } from "@/components/ui/choice";
 import { type ColorMode, modeClass } from "@/components/ui/color-mode";
 import { FooterLink } from "@/components/ui/footer-link";
 import { Icon, iconNames } from "@/components/ui/icon";
@@ -17,9 +15,7 @@ import { Logo } from "@/components/ui/logo";
 import { NavLink } from "@/components/ui/nav-link";
 import { TextAreaField, TextField } from "@/components/ui/text-field";
 import { TimePicker, type TimePickerDay } from "@/components/ui/time-picker";
-import truckPallet from "./assets/truck-pallet.png";
 import { type Mode, modes } from "./breakpoints";
-import { ChoiceDemo } from "./choice-demo";
 import { type ColorToken, colorGroups, colorModes } from "./colors";
 import { cardGrids, fromFigma, grid, radii } from "./grid";
 import { durations, easings } from "./motion";
@@ -690,68 +686,6 @@ export default function FoundationsPage() {
               </FooterLink>
             </Example>
           </div>
-        </Section>
-
-        <Section
-          id="choice"
-          figma="8268:3371"
-          api="<Choice title price text textSize selected borderRight image>"
-          description="En button med aria-pressed."
-        >
-          <Example label="Variant × default/selected" className="overflow-x-auto">
-            <table className="min-w-[48rem] text-left">
-              <thead className="text-xs text-ui-tertiary">
-                <tr>
-                  <th className="w-40 p-2 font-medium" />
-                  <th className="p-2 font-medium">default</th>
-                  <th className="p-2 font-medium">selected</th>
-                </tr>
-              </thead>
-              <tbody>
-                {(
-                  [
-                    { label: "text S", textSize: "s", borderRight: false },
-                    { label: "text M", textSize: "m", borderRight: false },
-                    { label: "text S · border-right", textSize: "s", borderRight: true },
-                    { label: "text M · border-right", textSize: "m", borderRight: true },
-                    { label: "image · text S", textSize: "s", borderRight: false, image: true },
-                  ] as const
-                ).map((variant) => (
-                  <tr key={variant.label}>
-                    <th className="p-2 align-top font-mono text-xs font-normal text-ui-secondary">
-                      {variant.label}
-                    </th>
-                    {[false, true].map((selected) => (
-                      <td key={String(selected)} className="w-[23rem] p-2 align-top">
-                        <Choice
-                          title="Title"
-                          price="€€€€"
-                          text="Text"
-                          textSize={variant.textSize}
-                          borderRight={variant.borderRight}
-                          selected={selected}
-                          image={
-                            "image" in variant ? (
-                              <Image
-                                src={truckPallet}
-                                alt=""
-                                fill
-                                sizes="16rem"
-                                className="object-contain"
-                              />
-                            ) : undefined
-                          }
-                        />
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </Example>
-          <Example label="Klickbar: välj ett alternativ">
-            <ChoiceDemo />
-          </Example>
         </Section>
 
         <Section

@@ -266,12 +266,6 @@ export const designQuestions: DesignQuestion[] = [
       'I call står ett alternativ ("Text") bredvid kalendern. Är det två val, till exempel "så snart som möjligt" och "välj tid", och hur visas det valda?',
     figma: "9321:47587",
   },
-  {
-    target: "choice",
-    question:
-      "`choice` har bara `Default` och `active`, inget hover-läge. Koden ger bara pekhanden. Förslag: vit bakgrund (`bg-active`) vid hover, som inte förväxlas med det gula valda läget.",
-    figma: "8268:3371",
-  },
 
   // Blocks
   {
@@ -869,20 +863,39 @@ export const figmaNotes: FigmaNote[] = [
   },
   {
     target: "choice",
-    topic: "Titel och pris",
-    figma: "Titeln till vänster och priset uppe till höger, ritat med korta titlar och priser",
-    code: "Får titel och pris inte plats bredvid varandra hamnar priset på en rad under titeln, och ett ord som är längre än valet avstavas (`hyphens-auto`) eller bryts",
-    why: 'Långa namn och priser (trucktypen, "FRÅN 169 900 KR") gick in i varandra när rutan är smal, till exempel från Desktop S till ungefär 1300px; där det får plats ser valet ut som i Figma',
-    status: "Antagande",
-    date: "2026-10-05",
+    topic: "Långa titlar och priser",
+    figma: "Titeln tar platsen bredvid priset och radbryts där; ett ord som inte får plats bryts",
+    code: "Som Figma. Tidigare flyttades priset till en rad under titeln när de inte fick plats bredvid varandra, och långa ord avstavades (`hyphens-auto`)",
+    why: 'Inte ritat; långa namn och priser (trucktypen, "FRÅN 169 900 KR") blir trånga när rutan är smal, till exempel från Desktop S till ungefär 1300px',
+    status: "Lucka",
+    date: "2026-10-21",
   },
   {
     target: "choice",
     topic: "Fokus",
-    figma: "Inget hover- eller fokusläge",
-    code: "Webbläsarens fokusram",
-    why: "Inget ritat",
-    status: "Antagande",
+    figma: "Inget fokusläge",
+    code: "Webbläsarens egen fokusram",
+    why: "Inte ritat; ett eget fokusläge skulle behöva ritas",
+    status: "Lucka",
+    date: "2026-10-21",
+  },
+  {
+    target: "choice",
+    topic: "Ej valbart",
+    figma: "Inget läge för ett val som inte går att välja",
+    code: "Knappen är `disabled` men ser ut som Default och blir gul vid hover. Tidigare halv opacitet och en förbjuden-markör",
+    why: "Inte ritat; konfiguratorn har val som kräver ett annat val först",
+    status: "Lucka",
+    date: "2026-10-21",
+  },
+  {
+    target: "choice",
+    topic: "Ram",
+    figma: "Varje val har ett eget streck inuti (`stroke/width`) runt om",
+    code: "En ring inuti, så att valet är Figmas 90 och 99px högt. Linjer mellan valen i en box sätter configurator-box",
+    why: "En vanlig ram hade gjort valet högre",
+    status: "Beslut (teknisk)",
+    date: "2026-10-21",
   },
   {
     target: "product-card",

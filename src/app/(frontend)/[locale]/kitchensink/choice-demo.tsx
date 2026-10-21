@@ -15,14 +15,13 @@ export function ChoiceDemo() {
   const [selected, setSelected] = useState("li");
   return (
     <div className="grid tablet:grid-cols-2">
-      {options.map((option, index) => (
+      {options.map((option) => (
         <Choice
           key={option.id}
           title={option.title}
           price={option.price}
           text={option.text}
           selected={selected === option.id}
-          borderRight={index === 0}
           onClick={() => setSelected(option.id)}
           image={<Image src={truckPallet} alt="" fill sizes="16rem" className="object-contain" />}
         />
