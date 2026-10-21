@@ -2,29 +2,51 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { test } from "node:test";
 import { modes } from "../src/app/(frontend)/[locale]/kitchensink/breakpoints.ts";
-import { allColorTokens } from "../src/app/(frontend)/[locale]/kitchensink/colors.ts";
+import { allColorTokens, colorModes } from "../src/app/(frontend)/[locale]/kitchensink/colors.ts";
 import { cardGrids, grid, radii } from "../src/app/(frontend)/[locale]/kitchensink/grid.ts";
 import { spacing } from "../src/app/(frontend)/[locale]/kitchensink/spacing.ts";
 import { sizes, textStyles } from "../src/app/(frontend)/[locale]/kitchensink/typography.ts";
 
 const themeCss = await readFile(new URL("../src/styles/site-theme.css", import.meta.url), "utf8");
 
-const cssColorTokens = new Map(
-  [...themeCss.matchAll(/(--color-[a-z0-9-]+)\s*:\s*([^;]+);/g)].map(([, token, value]) => [
-    token,
-    value.trim().toLowerCase(),
-  ]),
-);
+const colorDeclarations = (block: string) =>
+  new Map(
+    [...block.matchAll(/(--color-[a-z0-9-]+)\s*:\s*([^;]+);/g)].map(([, token, value]) => [
+      token,
+      value.trim().toLowerCase(),
+    ]),
+  );
+
+/** The first `@theme` block: every color, with its Light value. */
+const themeColors = colorDeclarations(themeCss.match(/@theme \{\n([\s\S]*?)\n\}/)?.[1] ?? "");
+
+const modeColors = (mode: string) =>
+  colorDeclarations(
+    themeCss.match(new RegExp(`@utility mode-${mode} \\{\\n([\\s\\S]*?)\\n\\}`))?.[1] ?? "",
+  );
 
 test("kitchensink color list and site-theme.css define the same tokens", () => {
   const listed = allColorTokens.map((color) => color.token).sort();
   assert.equal(new Set(listed).size, listed.length, "duplicate token in kitchensink list");
-  assert.deepEqual(listed, [...cssColorTokens.keys()].sort());
+  assert.deepEqual(listed, [...themeColors.keys()].sort());
 });
 
-test("kitchensink color values match site-theme.css", () => {
+test("@theme holds the Light value of every color", () => {
   for (const color of allColorTokens) {
-    assert.equal(cssColorTokens.get(color.token), color.value.toLowerCase(), color.token);
+    assert.equal(themeColors.get(color.token), color.values.light.toLowerCase(), color.token);
+  }
+});
+
+test("each mode utility sets exactly the colors that differ between modes", () => {
+  const modeDependent = allColorTokens.filter(
+    (color) => new Set(Object.values(color.values)).size > 1,
+  );
+  for (const { mode } of colorModes) {
+    assert.deepEqual(
+      modeColors(mode),
+      new Map(modeDependent.map((color) => [color.token, color.values[mode].toLowerCase()])),
+      `mode-${mode}`,
+    );
   }
 });
 

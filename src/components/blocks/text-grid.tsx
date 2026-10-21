@@ -3,7 +3,7 @@ import { Arrow } from "@/components/ui/arrow";
 import { Card } from "@/components/ui/card";
 
 /**
- * Text+Grid from Figma "04 — Blocks" (8389:4705): on `bg-inv-fill`, a light panel (`bg-fill`) with
+ * Text+Grid from Figma "04 — Blocks" (8389:4705): on Dark `bg-fill`, a Light panel (`bg-fill`) with
  * a Display L heading led by the `round` arrow, and three cards.
  * - Desktop L and S: the cards in a row, `spacing/4xl` under the heading (128px on Desktop L, where
  *   Figma's 800px panel leaves 126px).
@@ -33,8 +33,8 @@ type TextGridProps = HTMLAttributes<HTMLElement> & {
 
 export function TextGrid({ heading, cards, headingAttributes, ...attributes }: TextGridProps) {
   return (
-    <section {...attributes} className="bg-bg-inv-fill p-(--grid-margin)">
-      <div className="flex flex-col gap-(--spacing-lg) rounded-lg bg-bg-fill px-(--spacing-sm) py-(--spacing-xl) desktop-s:gap-(--spacing-4xl)">
+    <section {...attributes} className="mode-dark bg-bg-fill p-(--grid-margin)">
+      <div className="flex flex-col gap-(--spacing-lg) mode-light rounded-lg bg-bg-fill px-(--spacing-sm) py-(--spacing-xl) desktop-s:gap-(--spacing-4xl)">
         <h2 {...headingAttributes} className="whitespace-pre-line text-display-l text-ui-primary">
           <Arrow
             name="round"

@@ -397,16 +397,17 @@ export function ConfiguratorClient({
 
   const next = financingStep ? (
     currentComplete ? (
-      <ButtonLink href={quoteHref} size="m">
+      <ButtonLink href={quoteHref} mode="dark" size="m">
         Visa offert
       </ButtonLink>
     ) : (
-      <Button size="m" disabled>
+      <Button mode="dark" size="m" disabled>
         Visa offert
       </Button>
     )
   ) : (
     <Button
+      mode="dark"
       size="m"
       disabled={!currentComplete}
       onClick={() => dispatch({ type: "setStep", step: Math.min(maxStep, state.step + 1) })}
@@ -441,7 +442,7 @@ export function ConfiguratorClient({
           <>
             {state.step > 0 ? (
               <Button
-                color="gray"
+                variant="secondary"
                 size="m"
                 iconLeft="arrow-left"
                 iconRight={null}
@@ -456,7 +457,7 @@ export function ConfiguratorClient({
         contactText="Har du frågor eller önskar något annat av din konfiguration?"
         contact={
           <Button
-            color="tejp"
+            mode="tejp"
             size="m"
             iconRight="phone"
             className="w-full"
@@ -471,7 +472,7 @@ export function ConfiguratorClient({
         ref={dialog}
         aria-labelledby="call-request-heading"
         onClose={() => setCallOpen(false)}
-        className="m-auto w-[min(100%-2*var(--grid-margin),32rem)] rounded-lg bg-bg-fill p-(--spacing-md) backdrop:bg-bg-inv-fill/60"
+        className="m-auto w-[min(100%-2*var(--grid-margin),32rem)] rounded-lg bg-bg-fill p-(--spacing-md) backdrop:mode-dark backdrop:bg-bg-fill/60"
       >
         <div className="mb-(--spacing-md) flex items-start justify-between gap-(--spacing-sm)">
           <div className="flex flex-col gap-(--spacing-2xs)">

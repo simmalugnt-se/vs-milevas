@@ -4,13 +4,14 @@ import { notFound } from "next/navigation";
 import { Arrow, arrowNames } from "@/components/ui/arrow";
 import {
   Button,
-  type ButtonColor,
   ButtonLink,
   type ButtonSize,
+  type ButtonVariant,
   TextLink,
 } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Choice } from "@/components/ui/choice";
+import { type ColorMode, modeClass } from "@/components/ui/color-mode";
 import { ConfiguratorBox } from "@/components/ui/configurator-box";
 import { Icon, iconNames } from "@/components/ui/icon";
 import { Logo } from "@/components/ui/logo";
@@ -25,7 +26,7 @@ import truckPallet from "./assets/truck-pallet.png";
 import warehouse from "./assets/warehouse.jpg";
 import { type Mode, modes } from "./breakpoints";
 import { ChoiceDemo } from "./choice-demo";
-import { type ColorToken, colorGroups, gradientStops } from "./colors";
+import { type ColorToken, colorGroups, colorModes } from "./colors";
 import { FigmaNotes, GeneralFigmaNotes } from "./figma-notes-list";
 import { cardGrids, fromFigma, grid, radii } from "./grid";
 import { sizes, sizesForMode, type TextStyle, textStyles } from "./typography";
@@ -163,60 +164,27 @@ function Example({
   );
 }
 
-function SwatchRow({
-  swatch,
-  name,
-  token,
-  className,
-  value,
-}: {
-  swatch: React.ReactNode;
-  name: string;
-  token: string;
-  className: string;
-  value: string;
-}) {
+/** A swatch in a mode's column: the token resolves inside the column's `mode-*` class. */
+function ColorRow({ color, mode }: { color: ColorToken; mode: ColorMode }) {
+  const assumed = color.assumed?.includes(mode);
   return (
-    <li className="grid grid-cols-[2.5rem_1fr] items-center gap-x-4 lg:grid-cols-[2.5rem_12rem_1fr_1fr_6rem]">
-      {swatch}
-      <span className="font-medium text-ui-primary">{name}</span>
-      <code className="col-start-2 font-mono text-xs whitespace-pre text-ui-secondary lg:col-start-auto">
-        {token}
-      </code>
-      <code className="col-start-2 font-mono text-xs whitespace-pre text-ui-secondary lg:col-start-auto">
-        {className}
-      </code>
-      <code className="col-start-2 font-mono text-xs whitespace-pre uppercase text-ui-secondary lg:col-start-auto">
-        {value}
+    <li className="grid grid-cols-[2rem_1fr_auto] items-center gap-x-3">
+      <span
+        aria-hidden
+        className="size-8 border border-border-primary"
+        style={{ backgroundColor: `var(${color.token})` }}
+      />
+      <span className="min-w-0">
+        <span className="block font-medium text-ui-primary">{color.name}</span>
+        <code className="block truncate font-mono text-xs text-ui-secondary">
+          {color.className}
+        </code>
+      </span>
+      <code className="text-right font-mono text-xs uppercase text-ui-secondary">
+        {color.values[mode]}
+        {assumed ? <span className="block normal-case">antagande</span> : null}
       </code>
     </li>
-  );
-}
-
-function ColorRow({ color }: { color: ColorToken }) {
-  return (
-    <SwatchRow
-      swatch={
-        <span
-          aria-hidden
-          className="size-10 border border-border-primary"
-          style={{ backgroundColor: `var(${color.token})` }}
-        />
-      }
-      {...color}
-    />
-  );
-}
-
-function GradientRow() {
-  return (
-    <SwatchRow
-      swatch={<span aria-hidden className="size-10 border border-border-primary bg-gradient-inv" />}
-      name="Gradient"
-      token={gradientStops.map((stop) => stop.token).join("\n")}
-      className="bg-gradient-inv"
-      value={gradientStops.map((stop) => stop.value).join("\n")}
-    />
   );
 }
 
@@ -253,7 +221,7 @@ function TextStyleSpec({ style }: { style: TextStyle }) {
   );
 }
 
-const buttonColors: ButtonColor[] = ["primary", "inverted", "tejp", "gray"];
+const buttonVariants: ButtonVariant[] = ["primary", "secondary"];
 const buttonSizes: ButtonSize[] = ["s", "m"];
 const buttonStates = ["default", "hover", "disabled"] as const;
 
@@ -357,16 +325,22 @@ export default function KitchensinkPage() {
 
       <Group id="foundations">
         <Section id="colors">
-          <div className="space-y-8 bg-bg-fill p-4 sm:p-6">
-            {colorGroups.map((group) => (
-              <div key={group.title} className="space-y-3">
-                <h4 className="text-label-s text-ui-primary">{group.title}</h4>
-                <ul className="space-y-2 text-sm">
-                  {group.colors.map((color) => (
-                    <ColorRow key={color.token} color={color} />
-                  ))}
-                  {group.title === "Background" && <GradientRow />}
-                </ul>
+          <div className="grid gap-2 desktop-s:grid-cols-3">
+            {colorModes.map(({ mode, name }) => (
+              <div key={mode} className={`${modeClass[mode]} space-y-8 bg-bg-fill p-4 sm:p-6`}>
+                <h3 className="text-display-xs text-ui-primary">
+                  {name} <code className="font-mono text-xs normal-case">mode-{mode}</code>
+                </h3>
+                {colorGroups.map((group) => (
+                  <div key={group.title} className="space-y-3">
+                    <h4 className="text-label-s text-ui-primary">{group.title}</h4>
+                    <ul className="space-y-2 text-sm">
+                      {group.colors.map((color) => (
+                        <ColorRow key={color.token} color={color} mode={mode} />
+                      ))}
+                    </ul>
+                  </div>
+                ))}
               </div>
             ))}
           </div>
@@ -500,11 +474,11 @@ export default function KitchensinkPage() {
             <h4 className="text-label-s text-ui-primary">
               grid-layout <span className="text-ui-tertiary">(aktuellt antal kolumner)</span>
             </h4>
-            <div className="grid-layout bg-bg-inv-fill py-2">
+            <div className="grid-layout mode-dark bg-bg-fill py-2">
               {Array.from({ length: grid.columns["Desktop L"] }, (_, index) => (
                 <div
                   key={index}
-                  className={`rounded-sm bg-bg-surface py-3 text-center text-text-s text-ui-primary ${
+                  className={`mode-tejp rounded-sm bg-bg-fill py-3 text-center text-text-s text-ui-primary ${
                     index >= grid.columns.Mobile ? "max-desktop-s:hidden" : ""
                   }`}
                 >
@@ -514,18 +488,18 @@ export default function KitchensinkPage() {
             </div>
           </div>
 
-          <div className="space-y-2 bg-bg-inv-fill px-(--grid-margin) py-2">
+          <div className="space-y-2 mode-dark bg-bg-fill px-(--grid-margin) py-2">
             {cardGrids.map((cardGrid) => (
               <div key={cardGrid.className} className="space-y-2">
                 <p className="flex gap-8 text-display-s">
-                  <span className="text-ui-inv-primary">Card grid</span>
+                  <span className="text-ui-primary">Card grid</span>
                   <span className="text-ui-tertiary">{cardGrid.name}</span>
                 </p>
                 <div className={cardGrid.className}>
                   {Array.from({ length: cardGrid.perRow["Desktop L"] }, (_, index) => (
                     <div
                       key={index}
-                      className="rounded-lg bg-bg-surface"
+                      className="mode-tejp rounded-lg bg-bg-fill"
                       style={{ height: cardGrid.slotHeight }}
                     />
                   ))}
@@ -544,14 +518,14 @@ export default function KitchensinkPage() {
           description="Färgen kommer från text-*, storleken från h-* med w-auto."
         >
           <div className="grid gap-4 tablet:grid-cols-2">
-            <Example label="På bg-surface (text-ui-primary)">
-              <div className="flex flex-wrap items-center gap-8 bg-bg-surface p-8 text-ui-primary">
+            <Example label="mode-tejp (text-ui-primary)">
+              <div className="mode-tejp flex flex-wrap items-center gap-8 bg-bg-fill p-8 text-ui-primary">
                 <Logo className="h-10 w-auto" />
                 <Logo variant="symbol" className="size-10" title="" />
               </div>
             </Example>
-            <Example label="På bg-inv-fill (text-ui-inv-primary)">
-              <div className="flex flex-wrap items-center gap-8 bg-bg-inv-fill p-8 text-ui-inv-primary">
+            <Example label="mode-dark (text-ui-primary)">
+              <div className="mode-dark flex flex-wrap items-center gap-8 bg-bg-fill p-8 text-ui-primary">
                 <Logo className="h-10 w-auto" />
                 <Logo variant="symbol" className="size-10" title="" />
               </div>
@@ -569,7 +543,7 @@ export default function KitchensinkPage() {
             <ul className="grid grid-cols-2 gap-2 tablet:grid-cols-4 desktop-s:grid-cols-6">
               {iconNames.map((name) => (
                 <li key={name} className="flex items-center gap-3 bg-bg-fill p-3">
-                  <span className="flex size-12 items-center justify-center bg-bg-surface text-ui-primary">
+                  <span className="mode-tejp flex size-12 items-center justify-center bg-bg-fill text-ui-primary">
                     <Icon name={name} />
                   </span>
                   <code className="font-mono text-xs text-ui-secondary">{name}</code>
@@ -577,8 +551,8 @@ export default function KitchensinkPage() {
               ))}
             </ul>
           </Example>
-          <Example label="På mörk bakgrund (text-ui-inv-primary)">
-            <div className="flex flex-wrap items-center gap-4 bg-bg-inv-fill p-4 text-ui-inv-primary">
+          <Example label="mode-dark (text-ui-primary)">
+            <div className="mode-dark flex flex-wrap items-center gap-4 bg-bg-fill p-4 text-ui-primary">
               {iconNames.map((name) => (
                 <Icon key={name} name={name} />
               ))}
@@ -595,7 +569,7 @@ export default function KitchensinkPage() {
           <ul className="flex flex-wrap gap-4">
             {arrowNames.map((name) => (
               <li key={name} className="space-y-2">
-                <span className="flex size-28 items-center justify-center bg-bg-surface text-ui-primary">
+                <span className="mode-tejp flex size-28 items-center justify-center bg-bg-fill text-ui-primary">
                   <Arrow name={name} />
                 </span>
                 <code className="block font-mono text-xs text-ui-secondary">{name}</code>
@@ -607,67 +581,69 @@ export default function KitchensinkPage() {
         <Section
           id="buttons"
           figma="8268:3068"
-          api='<Button color="primary|inverted|tejp|gray" size="s|m" iconLeft iconRight> · <ButtonLink href>'
+          api='<Button variant="primary|secondary" mode?="light|dark|tejp" size="s|m" iconLeft iconRight> · <ButtonLink href>'
           description={
             <>
-              Hover-kolumnen visas med{" "}
+              Färgerna kommer från läget runt knappen, eller från{" "}
+              <code className="font-mono text-xs">mode</code>. Hover-kolumnen visas med{" "}
               <code className="font-mono text-xs">data-state=&quot;hover&quot;</code>; håll pekaren
-              över en knapp i Default-kolumnen för den riktiga övergången. Den grå bakgrunden finns
-              bara här så att alla fyra färgerna syns (Figma visar dem på lila). iconRight är
-              arrow-right som standard.
+              över en knapp i Default-kolumnen för den riktiga övergången. iconRight är arrow-right
+              som standard.
             </>
           }
         >
-          <Example label="Färg × storlek × läge" className="overflow-x-auto">
-            <table className="min-w-[36rem] bg-ui-tertiary text-left">
-              <thead className="text-xs text-ui-primary">
-                <tr>
-                  <th className="p-4 font-medium" />
-                  {buttonStates.map((state) => (
-                    <th key={state} className="p-4 font-medium">
-                      {state}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {buttonSizes.flatMap((size) =>
-                  buttonColors.map((color) => (
-                    <tr key={`${size}-${color}`}>
-                      <th className="p-4 text-left font-mono text-xs font-normal text-ui-primary">
-                        {color} · {size.toUpperCase()}
+          {colorModes.map(({ mode, name }) => (
+            <Example key={mode} label={`${name}: mode-${mode}`} className="overflow-x-auto">
+              <table className={`${modeClass[mode]} min-w-[36rem] bg-bg-fill text-left`}>
+                <thead className="text-xs text-ui-primary">
+                  <tr>
+                    <th className="p-4 font-medium" />
+                    {buttonStates.map((state) => (
+                      <th key={state} className="p-4 font-medium">
+                        {state}
                       </th>
-                      {buttonStates.map((state) => (
-                        <td key={state} className="p-4">
-                          <Button
-                            color={color}
-                            size={size}
-                            disabled={state === "disabled"}
-                            data-state={state === "hover" ? "hover" : undefined}
-                          >
-                            Label
-                          </Button>
-                        </td>
-                      ))}
-                    </tr>
-                  )),
-                )}
-              </tbody>
-            </table>
-          </Example>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {buttonSizes.flatMap((size) =>
+                    buttonVariants.map((variant) => (
+                      <tr key={`${size}-${variant}`}>
+                        <th className="p-4 text-left font-mono text-xs font-normal text-ui-primary">
+                          {variant} · {size.toUpperCase()}
+                        </th>
+                        {buttonStates.map((state) => (
+                          <td key={state} className="p-4">
+                            <Button
+                              variant={variant}
+                              size={size}
+                              disabled={state === "disabled"}
+                              data-state={state === "hover" ? "hover" : undefined}
+                            >
+                              Label
+                            </Button>
+                          </td>
+                        ))}
+                      </tr>
+                    )),
+                  )}
+                </tbody>
+              </table>
+            </Example>
+          ))}
           <div className="flex flex-wrap items-start gap-8">
-            <Example label='iconLeft="arrow-left" iconRight={null}'>
-              <Button iconLeft="arrow-left" iconRight={null}>
+            <Example label='mode="dark" iconLeft="arrow-left" iconRight={null}'>
+              <Button mode="dark" iconLeft="arrow-left" iconRight={null}>
                 Tillbaka
               </Button>
             </Example>
-            <Example label='color="tejp" size="m" iconRight="download"'>
-              <Button color="tejp" size="m" iconRight="download">
+            <Example label='mode="tejp" size="m" iconRight="download"'>
+              <Button mode="tejp" size="m" iconRight="download">
                 Ladda ner
               </Button>
             </Example>
-            <Example label='<ButtonLink color="gray">'>
-              <ButtonLink href="/kitchensink#buttons" color="gray">
+            <Example label='<ButtonLink variant="secondary">'>
+              <ButtonLink href="/kitchensink#buttons" variant="secondary">
                 Länk som knapp
               </ButtonLink>
             </Example>

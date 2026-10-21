@@ -91,7 +91,50 @@ export const designQuestions: DesignQuestion[] = [
       "Flera varianter heter `Device4`–`Device8` och `Variant2` i stället för Mobile och Desktop S. Det påverkar inte bygget, men namnen är otydliga.",
   },
 
+  // Foundations
+  {
+    target: "colors",
+    question:
+      "Färgramen visar inte `BTN/secondary` i Dark, och varken `BG/active` eller Navigation i Tejp. Kan rutorna läggas till? Koden använder Light-värdena så länge.",
+    figma: "6073:1230",
+  },
+  {
+    target: "colors",
+    question:
+      "`BORDER/secondary` är `#121212` i Dark, samma som `BG/fill`, så ramen syns inte. Ska den vara ljus i Dark?",
+    figma: "6073:1230",
+  },
+
   // Components
+  {
+    target: "buttons",
+    question:
+      "I Dark har `BTN/primary/fill` (`#121212`) samma färg som `BG/fill`, så knappen syns bara genom ramen (`#f0f0f0`). Är den tänkt som en konturknapp?",
+    figma: "6073:1230",
+  },
+  {
+    target: "buttons",
+    question:
+      "`BTN/*/border` finns på färgramen men inte på knappkomponenten. Ska knappen ha ramen? Koden ritar den som en 1px ring inuti knappen.",
+    figma: "8268:3068",
+  },
+  {
+    target: "buttons",
+    question:
+      "Light `BTN/secondary/fill-disabled` är `#575757d9`, samma som hover, medan de andra disabled-värdena är `99`. Komponenten har `#2b2b2b99`. Ska den vara `#57575799`? Ramen är också `d9`, inte heltäckande.",
+    figma: "6073:1230",
+  },
+  {
+    target: "buttons",
+    question:
+      "Hover är genomskinlig i Light (fyllningen på 85 %) men en fast färg i Dark (`#363636`) och Tejp (`#e5ff59`). Avsiktligt?",
+  },
+  {
+    target: "buttons",
+    question:
+      'Light visar "Secondary Disabled" två gånger. Koden läser dem som `fill-disabled` och `border disabled`, efter variablerna.',
+    figma: "6073:1230",
+  },
   {
     target: "logos",
     question:
@@ -119,6 +162,12 @@ export const designQuestions: DesignQuestion[] = [
   },
 
   // Blocks
+  {
+    target: "navigation",
+    question:
+      "Färgramen har `NAVIGATION/FILL` (`#121212eb`) och en ruta Overlay utan egen variabel. Är navigationen nu mörk, och ska overlay ha ett eget värde? Koden har en token, `navigation-fill`, som inte används ännu.",
+    figma: "6073:1230",
+  },
   {
     target: "product-grid",
     question:
@@ -244,6 +293,44 @@ export const figmaNotes: FigmaNote[] = [
   },
 
   // Foundations
+  {
+    target: "colors",
+    topic: "Lägen",
+    figma:
+      "En uppsättning variabler med lägena Light, Dark och Tejp; de tidigare `UI/inv-*`, `BG/inv-*` och `BG/surface` finns inte på färgramen",
+    code: "`@theme` har Light-värdena; `mode-light`, `mode-dark` och `mode-tejp` byter färgerna för ett element och allt i det, och tar varianter (`hover:mode-tejp`). `ui-inv-*`, `bg-surface` och `bg-inv-*` (även `#0b0b0b`) är borttagna",
+    why: "Som en Figma-frames läge; klasserna följer variablernas namn",
+    status: "Beslut",
+    date: "2026-10-21",
+  },
+  {
+    target: "colors",
+    topic: "Lika i alla lägen",
+    figma:
+      "Brand, Navigation, Status, `BORDER/secondary` och `BTN/secondary/text-disabled` har samma värde i alla tre lägena",
+    code: "Bara i `@theme`; lägena sätter de färger som skiljer sig",
+    why: "Kortare CSS; testet flyttar en färg till lägena om Figma ändrar den",
+    status: "Beslut (teknisk)",
+    date: "2026-10-21",
+  },
+  {
+    target: "colors",
+    topic: "Gradient",
+    figma: "`Color/gradient` finns inte på färgramen",
+    code: "`bg-gradient-inv` och dess två tokens är borttagna",
+    why: "Användes bara på kitchensink; card har en egen svart gradient",
+    status: "Beslut",
+    date: "2026-10-21",
+  },
+  {
+    target: "colors",
+    topic: "Färger som inte visas",
+    figma: "Dark visar ingen `BTN/secondary`, Tejp varken `BG/active` eller Navigation",
+    code: "Light-värdena, märkta antagande i listan",
+    why: "Figma-MCP:n läser bara variabler som används i framen",
+    status: "Antagande",
+    date: "2026-10-21",
+  },
   {
     target: "colors",
     topic: "Färgnamn",
@@ -437,10 +524,38 @@ export const figmaNotes: FigmaNote[] = [
     date: "2026-10-07",
   },
   {
+    target: "buttons",
+    topic: "Färger",
+    figma:
+      "Färgramen har `BTN/primary` och `BTN/secondary` per läge; knappkomponenten har fortfarande fyra färger (primary, inverted, tejp, secondary)",
+    code: '`variant="primary|secondary"` och läget runt knappen, eller `mode`. Light primary är inverted, Dark primary är primary, Tejp primary är tejp och Light secondary är secondary',
+    why: "Färgramen är nyare, och värdena stämmer med komponentens",
+    status: "Beslut",
+    date: "2026-10-21",
+  },
+  {
+    target: "buttons",
+    topic: "Läge i blocken",
+    figma: "Blocken använder knappkomponentens fyra färger",
+    code: 'Mörka knappar på ljus botten har `mode="dark"`, gula `mode="tejp"`',
+    why: "Samma utseende som förut, tills blocken ritas med lägen",
+    status: "Beslut",
+    date: "2026-10-21",
+  },
+  {
+    target: "buttons",
+    topic: "Ram",
+    figma: "`BTN/*/border` på färgramen, ingen ram på komponenten",
+    code: "1px ring inuti knappen (`ring-inset`), så storleken är oförändrad",
+    why: "Utan ramen syns Dark primary inte på Dark-botten",
+    status: "Antagande",
+    date: "2026-10-21",
+  },
+  {
     target: "card",
     topic: "Färger",
     figma: "Text `#f5f5f5`, gradient `rgba(0,0,0,.4)` → `.2`; inga variabler",
-    code: "Text `ui-inv-primary` (`#f0f0f0`), gradient svart 40 % → 20 %",
+    code: "Kortet i Dark (text `ui-primary`, `#f0f0f0`), etiketten i Tejp, gradient svart 40 % → 20 %",
     why: "Närmaste token",
     status: "Antagande",
   },
@@ -482,7 +597,7 @@ export const figmaNotes: FigmaNote[] = [
     target: "truck-column",
     topic: "Linje",
     figma: "Variabeln `Color/BG/surface` (gul); ser grå ut i framen",
-    code: "Gul linje (`border-bg-surface`)",
+    code: "Gul linje: kolumnen är i Tejp, linjen `border-bg-fill`",
     why: "Variabeln gäller",
     status: "Antagande",
   },
@@ -551,11 +666,11 @@ export const figmaNotes: FigmaNote[] = [
   {
     target: "navigation",
     topic: "Färg",
-    figma: "`Color/BG/active` (`#ffffff`), inte på färgframen",
-    code: "Token `bg-bg-active`",
-    why: "Variabeln gäller",
-    status: "Beslut",
-    date: "2026-10-02",
+    figma: "Navigationsblocket använder `Color/BG/active` (`#ffffff`)",
+    code: "`bg-bg-active`; `navigation-fill` från färgramen används inte än",
+    why: "Blocket gås igenom mot Figma i ett eget steg",
+    status: "Antagande",
+    date: "2026-10-21",
   },
   {
     target: "navigation",
@@ -587,7 +702,7 @@ export const figmaNotes: FigmaNote[] = [
     target: "navigation",
     topic: "Announcement bar",
     figma: "Finns inte i Figma",
-    code: "Boilerplatens fält är kvar och visas, när det är påslaget, ovanför navigationen i `bg-inv-fill`",
+    code: "Boilerplatens fält är kvar och visas, när det är påslaget, ovanför navigationen i Dark `bg-fill`",
     why: "Valfritt för redaktörerna; utseendet är vårt eget",
     status: "Antagande",
   },
@@ -725,7 +840,7 @@ export const figmaNotes: FigmaNote[] = [
     target: "text-boxinfo",
     topic: "Färger",
     figma: "Rubrikens andra del `#e0ff3c` och brödtexten `#f5f5f5`, utan variabler",
-    code: "`ui-brand` och `ui-inv-primary`",
+    code: "Blocket i Dark: `ui-brand` och `ui-primary`",
     why: "Närmaste token, som för card",
     status: "Antagande",
   },
@@ -760,7 +875,7 @@ export const figmaNotes: FigmaNote[] = [
     topic: "Föregående",
     figma:
       'Inte i ram 15; ett exempel ("bababa") har en grå "Föregående" bredvid "Nästa", lika breda',
-    code: '`Button color="gray"` med pil vänster, från andra steget; första steget har bara "Nästa"',
+    code: '`Button variant="secondary"` med pil vänster, från andra steget; första steget har bara "Nästa"',
     why: "Följer exemplet",
     status: "Beslut",
     date: "2026-10-05",
@@ -838,15 +953,6 @@ export const figmaNotes: FigmaNote[] = [
     code: "Ikonen `phone` från samma SVG",
     why: "Lucka i ikonerna",
     status: "Beslut (teknisk)",
-  },
-  {
-    target: "configurator",
-    topic: "Bakgrund",
-    figma: "`Color/BG/fill-secondary` (`#d9d9d9`), inte på färgframen",
-    code: "Ny token `bg-fill-secondary`",
-    why: "Variabeln gäller",
-    status: "Beslut",
-    date: "2026-10-05",
   },
   {
     target: "configurator",

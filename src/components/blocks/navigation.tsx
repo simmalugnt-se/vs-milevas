@@ -50,6 +50,7 @@ function CtaLink({ cta, className }: { cta: NavigationLink; className?: string }
       href={cta.href}
       rel={cta.rel}
       target={cta.target}
+      mode="dark"
       className={className}
       {...cta.attributes}
     >

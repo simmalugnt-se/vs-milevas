@@ -2,61 +2,135 @@
  * Public-site design tokens (Tailwind @theme) + minimal layout utilities.
  * Keeps Payload admin free of frontend-only CSS when globals.css is not loaded there.
  *
- * Colors mirror the Figma variables on "01 — Foundations" (Color/UI, Color/BG, Color/BORDER,
- * Color/status, Color/gradient). The kitchensink page lists them; `tests/design-tokens.test.mts`
- * keeps that list and this file in sync.
+ * Colors mirror the Figma variables on "01 — Foundations" → "COLOR STYLES": one set (Color/UI,
+ * Color/BG, Color/BORDER, Color/BTN, NAVIGATION, Color/status) with three modes, Light, Dark and
+ * Tejp. @theme holds the Light values; `mode-light`, `mode-dark` and `mode-tejp` below set the
+ * colors that change for an element and everything in it, as a Figma frame's mode does. The
+ * kitchensink page lists them; `tests/design-tokens.test.mts` keeps that list and this file in sync.
  */
 @theme {
   --color-ui-primary: #121212;
   --color-ui-secondary: #575757;
   --color-ui-tertiary: #999999;
-  --color-ui-inv-primary: #f0f0f0;
-  --color-ui-inv-secondary: #999999;
-  --color-ui-inv-tertiary: #575757;
-  /* Color/UI/BRAND: not on the COLOR STYLES frame; the selected Choice. */
-  --color-ui-brand: #e0ff3c;
 
   --color-bg-fill: #f0f0f0;
-  --color-bg-surface: #e0ff3c;
-  --color-bg-inv-fill: #121212;
-  --color-bg-inv-surface: #0b0b0b;
-  /* Color/BG/active: not on the COLOR STYLES frame; the navigation bar. */
-  --color-bg-active: #ffffff;
-  /* Color/BG/fill-secondary: not on the COLOR STYLES frame; the configurator's background. */
   --color-bg-fill-secondary: #d9d9d9;
-
-  --color-gradient-inv-start: #12121299;
-  --color-gradient-inv-end: #12121200;
+  --color-bg-active: #ffffff;
 
   --color-border-primary: #999999;
   --color-border-secondary: #121212;
+
+  --color-btn-primary-fill: #f0f0f0;
+  --color-btn-primary-fill-hover: #f0f0f0d9;
+  --color-btn-primary-fill-disabled: #f0f0f099;
+  --color-btn-primary-text: #121212;
+  --color-btn-primary-text-disabled: #12121299;
+  --color-btn-primary-border: #121212;
+
+  --color-btn-secondary-fill: #575757;
+  --color-btn-secondary-fill-hover: #575757d9;
+  --color-btn-secondary-fill-disabled: #575757d9;
+  --color-btn-secondary-text: #f0f0f0;
+  --color-btn-secondary-text-hover: #f0f0f0;
+  --color-btn-secondary-text-disabled: #f0f0f099;
+  --color-btn-secondary-border: #575757d9;
+  --color-btn-secondary-border-disabled: #57575799;
+
+  /* Same in every mode. */
+  --color-ui-brand: #e0ff3c;
+  --color-navigation-fill: #121212eb;
 
   --color-status-success: #168a67;
   --color-status-warning: #f4a900;
   --color-status-error: #e44737;
   --color-status-info: #3478f6;
+}
 
-  /* Color/BTN/<color>/*: hover is the fill at 85%, disabled fill and text at 60%. */
+/**
+ * Figma's color modes as utilities, so they take variants: `mode-light hover:mode-tejp`.
+ * Mode-dependent colors only; a mode sets all of them, so nested modes never mix.
+ */
+@utility mode-light {
+  --color-ui-primary: #121212;
+  --color-ui-secondary: #575757;
+  --color-ui-tertiary: #999999;
+
+  --color-bg-fill: #f0f0f0;
+  --color-bg-fill-secondary: #d9d9d9;
+  --color-bg-active: #ffffff;
+
+  --color-border-primary: #999999;
+
+  --color-btn-primary-fill: #f0f0f0;
+  --color-btn-primary-fill-hover: #f0f0f0d9;
+  --color-btn-primary-fill-disabled: #f0f0f099;
+  --color-btn-primary-text: #121212;
+  --color-btn-primary-text-disabled: #12121299;
+  --color-btn-primary-border: #121212;
+
+  --color-btn-secondary-fill: #575757;
+  --color-btn-secondary-fill-hover: #575757d9;
+  --color-btn-secondary-fill-disabled: #575757d9;
+  --color-btn-secondary-text: #f0f0f0;
+  --color-btn-secondary-text-hover: #f0f0f0;
+  --color-btn-secondary-border: #575757d9;
+  --color-btn-secondary-border-disabled: #57575799;
+}
+
+/* Figma shows no BTN/secondary in Dark; the Light values until it does. */
+@utility mode-dark {
+  --color-ui-primary: #f0f0f0;
+  --color-ui-secondary: #999999;
+  --color-ui-tertiary: #575757;
+
+  --color-bg-fill: #121212;
+  --color-bg-fill-secondary: #2b2b2b;
+  --color-bg-active: #000000;
+
+  --color-border-primary: #999999;
+
   --color-btn-primary-fill: #121212;
-  --color-btn-primary-text: #f0f0f0;
-  --color-btn-primary-fill-hover: #121212d9;
+  --color-btn-primary-fill-hover: #363636;
   --color-btn-primary-fill-disabled: #12121299;
+  --color-btn-primary-text: #f0f0f0;
   --color-btn-primary-text-disabled: #f0f0f099;
-  --color-btn-tejp-fill: #e0ff3c;
-  --color-btn-tejp-text: #121212;
-  --color-btn-tejp-fill-hover: #e0ff3cd9;
-  --color-btn-tejp-fill-disabled: #e0ff3c99;
-  --color-btn-tejp-text-disabled: #12121299;
-  --color-btn-inverted-fill: #f0f0f0;
-  --color-btn-inverted-text: #121212;
-  --color-btn-inverted-fill-hover: #f0f0f0d9;
-  --color-btn-inverted-fill-disabled: #f0f0f099;
-  --color-btn-inverted-text-disabled: #12121299;
-  --color-btn-gray-fill: #575757;
-  --color-btn-gray-text: #f0f0f0;
-  --color-btn-gray-fill-hover: #575757d9;
-  --color-btn-gray-fill-disabled: #2b2b2b99;
-  --color-btn-gray-text-disabled: #f0f0f099;
+  --color-btn-primary-border: #f0f0f0;
+
+  --color-btn-secondary-fill: #575757;
+  --color-btn-secondary-fill-hover: #575757d9;
+  --color-btn-secondary-fill-disabled: #575757d9;
+  --color-btn-secondary-text: #f0f0f0;
+  --color-btn-secondary-text-hover: #f0f0f0;
+  --color-btn-secondary-border: #575757d9;
+  --color-btn-secondary-border-disabled: #57575799;
+}
+
+/* Figma shows no BG/active in Tejp; the Light value until it does. */
+@utility mode-tejp {
+  --color-ui-primary: #121212;
+  --color-ui-secondary: #575757;
+  --color-ui-tertiary: #999999;
+
+  --color-bg-fill: #e0ff3c;
+  --color-bg-fill-secondary: #d9d9d9;
+  --color-bg-active: #ffffff;
+
+  --color-border-primary: #575757;
+
+  --color-btn-primary-fill: #e0ff3c;
+  --color-btn-primary-fill-hover: #e5ff59;
+  --color-btn-primary-fill-disabled: #e0ff3c99;
+  --color-btn-primary-text: #121212;
+  --color-btn-primary-text-disabled: #12121299;
+  --color-btn-primary-border: #121212;
+
+  --color-btn-secondary-fill: #121212;
+  --color-btn-secondary-fill-hover: #e0ff3c;
+  --color-btn-secondary-fill-disabled: #12121299;
+  --color-btn-secondary-text: #e0ff3c;
+  --color-btn-secondary-text-hover: #121212;
+  --color-btn-secondary-border: #e0ff3c;
+  --color-btn-secondary-border-disabled: #e0ff3c99;
 }
 
 /**
@@ -310,15 +384,6 @@ html[data-grid-overlay-visible] [data-layout-block] {
   @variant tablet {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-}
-
-/** Dark at the bottom, transparent at the top (Figma "Gradient"). */
-@utility bg-gradient-inv {
-  background-image: linear-gradient(
-    to top,
-    var(--color-gradient-inv-start),
-    var(--color-gradient-inv-end)
-  );
 }
 
 /** Flat bordered panel (no glass, no shadow). */

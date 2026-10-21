@@ -51,7 +51,7 @@ export async function HeaderComponent({ draft = false, locale }: HeaderComponent
       {...mark(editableGlobal("header"))}
     >
       {header.showAnnouncement && header.announcement ? (
-        <div className="bg-bg-inv-fill text-text-s text-ui-inv-primary">
+        <div className="mode-dark bg-bg-fill text-text-s text-ui-primary">
           <div className="flex w-full flex-wrap items-center gap-x-4 gap-y-1 px-(--grid-margin) py-2">
             <p {...mark(editableField("announcement"))}>{header.announcement}</p>
             {announcementLink ? (

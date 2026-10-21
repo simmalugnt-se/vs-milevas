@@ -286,16 +286,18 @@ export default function KitchensinkBlocksPage() {
             actions={
               <>
                 {index > 0 ? (
-                  <Button color="gray" size="m" iconLeft="arrow-left" iconRight={null}>
+                  <Button variant="secondary" size="m" iconLeft="arrow-left" iconRight={null}>
                     Föregående
                   </Button>
                 ) : null}
-                <Button size="m">Nästa</Button>
+                <Button mode="dark" size="m">
+                  Nästa
+                </Button>
               </>
             }
             contactText="Har du frågor eller önskar något annat av din konfiguration?"
             contact={
-              <Button color="tejp" size="m" iconRight="phone" className="w-full">
+              <Button mode="tejp" size="m" iconRight="phone" className="w-full">
                 Boka samtal
               </Button>
             }

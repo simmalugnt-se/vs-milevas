@@ -76,7 +76,7 @@ export function CallRequestForm({
       <div role="status" className="flex flex-col gap-(--spacing-sm)">
         <p className="text-text-xl text-ui-primary">Tack, vi ringer upp.</p>
         <p className="text-text-m text-ui-secondary">Referens: {state.reference}</p>
-        <Button size="m" iconRight={null} onClick={onClose}>
+        <Button mode="dark" size="m" iconRight={null} onClick={onClose}>
           Stäng
         </Button>
       </div>
@@ -183,10 +183,10 @@ export function CallRequestForm({
         </p>
       ) : null}
       <div className="flex gap-(--grid-gap) *:flex-1">
-        <Button color="gray" size="m" iconRight={null} onClick={onClose}>
+        <Button variant="secondary" size="m" iconRight={null} onClick={onClose}>
           Avbryt
         </Button>
-        <Button type="submit" size="m" disabled={pending}>
+        <Button type="submit" mode="dark" size="m" disabled={pending}>
           {pending ? "Skickar…" : "Skicka"}
         </Button>
       </div>

@@ -1,5 +1,7 @@
+import type { ColorMode } from "@/components/ui/color-mode";
+
 /**
- * Color tokens as grouped on Figma "01 — Foundations" → "COLOR STYLES".
+ * Color tokens as grouped on Figma "01 — Foundations" → "COLOR STYLES", with a value per mode.
  * `tests/design-tokens.test.mts` checks this list against `src/styles/site-theme.css`.
  */
 export type ColorToken = {
@@ -8,13 +10,22 @@ export type ColorToken = {
   token: `--color-${string}`;
   /** Tailwind class that applies the token the way the group is meant to be used. */
   className: string;
-  value: string;
+  values: Record<ColorMode, string>;
+  /** Modes the COLOR STYLES frame does not show this color in; their value is the Light one. */
+  assumed?: ColorMode[];
 };
 
 export type ColorGroup = {
   title: string;
   colors: ColorToken[];
 };
+
+/** The frame's three columns. */
+export const colorModes: { mode: ColorMode; name: string }[] = [
+  { mode: "light", name: "Light" },
+  { mode: "dark", name: "Dark" },
+  { mode: "tejp", name: "Tejp" },
+];
 
 export const colorGroups: ColorGroup[] = [
   {
@@ -24,79 +35,49 @@ export const colorGroups: ColorGroup[] = [
         name: "UI Primary",
         token: "--color-ui-primary",
         className: "text-ui-primary",
-        value: "#121212",
+        values: { light: "#121212", dark: "#f0f0f0", tejp: "#121212" },
       },
       {
         name: "UI Secondary",
         token: "--color-ui-secondary",
         className: "text-ui-secondary",
-        value: "#575757",
+        values: { light: "#575757", dark: "#999999", tejp: "#575757" },
       },
       {
         name: "UI Tertiary",
         token: "--color-ui-tertiary",
         className: "text-ui-tertiary",
-        value: "#999999",
+        values: { light: "#999999", dark: "#575757", tejp: "#999999" },
       },
       {
-        name: "UI Inv Primary",
-        token: "--color-ui-inv-primary",
-        className: "text-ui-inv-primary",
-        value: "#f0f0f0",
-      },
-      {
-        name: "UI Inv Secondary",
-        token: "--color-ui-inv-secondary",
-        className: "text-ui-inv-secondary",
-        value: "#999999",
-      },
-      {
-        name: "UI Inv Tertiary",
-        token: "--color-ui-inv-tertiary",
-        className: "text-ui-inv-tertiary",
-        value: "#575757",
-      },
-      {
-        name: "UI Brand",
+        name: "Brand",
         token: "--color-ui-brand",
         className: "bg-ui-brand",
-        value: "#e0ff3c",
+        values: { light: "#e0ff3c", dark: "#e0ff3c", tejp: "#e0ff3c" },
       },
     ],
   },
   {
     title: "Background",
     colors: [
-      { name: "BG Fill", token: "--color-bg-fill", className: "bg-bg-fill", value: "#f0f0f0" },
       {
-        name: "BG Surface",
-        token: "--color-bg-surface",
-        className: "bg-bg-surface",
-        value: "#e0ff3c",
-      },
-      {
-        name: "BG Inv Fill",
-        token: "--color-bg-inv-fill",
-        className: "bg-bg-inv-fill",
-        value: "#121212",
-      },
-      {
-        name: "BG Inv Surface",
-        token: "--color-bg-inv-surface",
-        className: "bg-bg-inv-surface",
-        value: "#0b0b0b",
-      },
-      {
-        name: "BG Active",
-        token: "--color-bg-active",
-        className: "bg-bg-active",
-        value: "#ffffff",
+        name: "BG Fill",
+        token: "--color-bg-fill",
+        className: "bg-bg-fill",
+        values: { light: "#f0f0f0", dark: "#121212", tejp: "#e0ff3c" },
       },
       {
         name: "BG Fill Secondary",
         token: "--color-bg-fill-secondary",
         className: "bg-bg-fill-secondary",
-        value: "#d9d9d9",
+        values: { light: "#d9d9d9", dark: "#2b2b2b", tejp: "#d9d9d9" },
+      },
+      {
+        name: "Active",
+        token: "--color-bg-active",
+        className: "bg-bg-active",
+        values: { light: "#ffffff", dark: "#000000", tejp: "#ffffff" },
+        assumed: ["tejp"],
       },
     ],
   },
@@ -107,13 +88,122 @@ export const colorGroups: ColorGroup[] = [
         name: "Border Primary",
         token: "--color-border-primary",
         className: "border-border-primary",
-        value: "#999999",
+        values: { light: "#999999", dark: "#999999", tejp: "#575757" },
       },
       {
         name: "Border Secondary",
         token: "--color-border-secondary",
         className: "border-border-secondary",
-        value: "#121212",
+        values: { light: "#121212", dark: "#121212", tejp: "#121212" },
+      },
+    ],
+  },
+  {
+    title: "BTN",
+    colors: [
+      {
+        name: "Primary Fill",
+        token: "--color-btn-primary-fill",
+        className: "bg-btn-primary-fill",
+        values: { light: "#f0f0f0", dark: "#121212", tejp: "#e0ff3c" },
+      },
+      {
+        name: "Primary Fill Hover",
+        token: "--color-btn-primary-fill-hover",
+        className: "bg-btn-primary-fill-hover",
+        values: { light: "#f0f0f0d9", dark: "#363636", tejp: "#e5ff59" },
+      },
+      {
+        name: "Primary Fill Disabled",
+        token: "--color-btn-primary-fill-disabled",
+        className: "bg-btn-primary-fill-disabled",
+        values: { light: "#f0f0f099", dark: "#12121299", tejp: "#e0ff3c99" },
+      },
+      {
+        name: "Primary Text",
+        token: "--color-btn-primary-text",
+        className: "text-btn-primary-text",
+        values: { light: "#121212", dark: "#f0f0f0", tejp: "#121212" },
+      },
+      {
+        name: "Primary Text Disabled",
+        token: "--color-btn-primary-text-disabled",
+        className: "text-btn-primary-text-disabled",
+        values: { light: "#12121299", dark: "#f0f0f099", tejp: "#12121299" },
+      },
+      {
+        name: "Primary Border",
+        token: "--color-btn-primary-border",
+        className: "ring-btn-primary-border",
+        values: { light: "#121212", dark: "#f0f0f0", tejp: "#121212" },
+      },
+      {
+        name: "Secondary Fill",
+        token: "--color-btn-secondary-fill",
+        className: "bg-btn-secondary-fill",
+        values: { light: "#575757", dark: "#575757", tejp: "#121212" },
+        assumed: ["dark"],
+      },
+      {
+        name: "Secondary Fill Hover",
+        token: "--color-btn-secondary-fill-hover",
+        className: "bg-btn-secondary-fill-hover",
+        values: { light: "#575757d9", dark: "#575757d9", tejp: "#e0ff3c" },
+        assumed: ["dark"],
+      },
+      {
+        name: "Secondary Fill Disabled",
+        token: "--color-btn-secondary-fill-disabled",
+        className: "bg-btn-secondary-fill-disabled",
+        values: { light: "#575757d9", dark: "#575757d9", tejp: "#12121299" },
+        assumed: ["dark"],
+      },
+      {
+        name: "Secondary Text",
+        token: "--color-btn-secondary-text",
+        className: "text-btn-secondary-text",
+        values: { light: "#f0f0f0", dark: "#f0f0f0", tejp: "#e0ff3c" },
+        assumed: ["dark"],
+      },
+      {
+        name: "Secondary Text Hover",
+        token: "--color-btn-secondary-text-hover",
+        className: "text-btn-secondary-text-hover",
+        values: { light: "#f0f0f0", dark: "#f0f0f0", tejp: "#121212" },
+        assumed: ["dark"],
+      },
+      {
+        name: "Secondary Text Disabled",
+        token: "--color-btn-secondary-text-disabled",
+        className: "text-btn-secondary-text-disabled",
+        values: { light: "#f0f0f099", dark: "#f0f0f099", tejp: "#f0f0f099" },
+        assumed: ["dark"],
+      },
+      {
+        name: "Secondary Border",
+        token: "--color-btn-secondary-border",
+        className: "ring-btn-secondary-border",
+        values: { light: "#575757d9", dark: "#575757d9", tejp: "#e0ff3c" },
+        assumed: ["dark"],
+      },
+      {
+        name: "Secondary Border Disabled",
+        token: "--color-btn-secondary-border-disabled",
+        className: "ring-btn-secondary-border-disabled",
+        values: { light: "#57575799", dark: "#57575799", tejp: "#e0ff3c99" },
+        assumed: ["dark"],
+      },
+    ],
+  },
+  {
+    title: "Navigation",
+    colors: [
+      {
+        name: "Fill",
+        token: "--color-navigation-fill",
+        className: "bg-navigation-fill",
+        values: { light: "#121212eb", dark: "#121212eb", tejp: "#121212eb" },
+        assumed: ["tejp"],
       },
     ],
   },
@@ -124,173 +214,28 @@ export const colorGroups: ColorGroup[] = [
         name: "Success",
         token: "--color-status-success",
         className: "text-status-success",
-        value: "#168a67",
+        values: { light: "#168a67", dark: "#168a67", tejp: "#168a67" },
       },
       {
         name: "Warning",
         token: "--color-status-warning",
         className: "text-status-warning",
-        value: "#f4a900",
+        values: { light: "#f4a900", dark: "#f4a900", tejp: "#f4a900" },
       },
       {
         name: "Error",
         token: "--color-status-error",
         className: "text-status-error",
-        value: "#e44737",
+        values: { light: "#e44737", dark: "#e44737", tejp: "#e44737" },
       },
       {
         name: "Info",
         token: "--color-status-info",
         className: "text-status-info",
-        value: "#3478f6",
-      },
-    ],
-  },
-  {
-    /** Color/BTN/*: not on the COLOR STYLES frame, used by the buttons on "02 — Components". */
-    title: "Button",
-    colors: [
-      {
-        name: "BTN Primary Fill",
-        token: "--color-btn-primary-fill",
-        className: "bg-btn-primary-fill",
-        value: "#121212",
-      },
-      {
-        name: "BTN Primary Text",
-        token: "--color-btn-primary-text",
-        className: "text-btn-primary-text",
-        value: "#f0f0f0",
-      },
-      {
-        name: "BTN Primary Fill Hover",
-        token: "--color-btn-primary-fill-hover",
-        className: "bg-btn-primary-fill-hover",
-        value: "#121212d9",
-      },
-      {
-        name: "BTN Primary Fill Disabled",
-        token: "--color-btn-primary-fill-disabled",
-        className: "bg-btn-primary-fill-disabled",
-        value: "#12121299",
-      },
-      {
-        name: "BTN Primary Text Disabled",
-        token: "--color-btn-primary-text-disabled",
-        className: "text-btn-primary-text-disabled",
-        value: "#f0f0f099",
-      },
-      {
-        name: "BTN Tejp Fill",
-        token: "--color-btn-tejp-fill",
-        className: "bg-btn-tejp-fill",
-        value: "#e0ff3c",
-      },
-      {
-        name: "BTN Tejp Text",
-        token: "--color-btn-tejp-text",
-        className: "text-btn-tejp-text",
-        value: "#121212",
-      },
-      {
-        name: "BTN Tejp Fill Hover",
-        token: "--color-btn-tejp-fill-hover",
-        className: "bg-btn-tejp-fill-hover",
-        value: "#e0ff3cd9",
-      },
-      {
-        name: "BTN Tejp Fill Disabled",
-        token: "--color-btn-tejp-fill-disabled",
-        className: "bg-btn-tejp-fill-disabled",
-        value: "#e0ff3c99",
-      },
-      {
-        name: "BTN Tejp Text Disabled",
-        token: "--color-btn-tejp-text-disabled",
-        className: "text-btn-tejp-text-disabled",
-        value: "#12121299",
-      },
-      {
-        name: "BTN Inverted Fill",
-        token: "--color-btn-inverted-fill",
-        className: "bg-btn-inverted-fill",
-        value: "#f0f0f0",
-      },
-      {
-        name: "BTN Inverted Text",
-        token: "--color-btn-inverted-text",
-        className: "text-btn-inverted-text",
-        value: "#121212",
-      },
-      {
-        name: "BTN Inverted Fill Hover",
-        token: "--color-btn-inverted-fill-hover",
-        className: "bg-btn-inverted-fill-hover",
-        value: "#f0f0f0d9",
-      },
-      {
-        name: "BTN Inverted Fill Disabled",
-        token: "--color-btn-inverted-fill-disabled",
-        className: "bg-btn-inverted-fill-disabled",
-        value: "#f0f0f099",
-      },
-      {
-        name: "BTN Inverted Text Disabled",
-        token: "--color-btn-inverted-text-disabled",
-        className: "text-btn-inverted-text-disabled",
-        value: "#12121299",
-      },
-      {
-        name: "BTN Gray Fill",
-        token: "--color-btn-gray-fill",
-        className: "bg-btn-gray-fill",
-        value: "#575757",
-      },
-      {
-        name: "BTN Gray Text",
-        token: "--color-btn-gray-text",
-        className: "text-btn-gray-text",
-        value: "#f0f0f0",
-      },
-      {
-        name: "BTN Gray Fill Hover",
-        token: "--color-btn-gray-fill-hover",
-        className: "bg-btn-gray-fill-hover",
-        value: "#575757d9",
-      },
-      {
-        name: "BTN Gray Fill Disabled",
-        token: "--color-btn-gray-fill-disabled",
-        className: "bg-btn-gray-fill-disabled",
-        value: "#2b2b2b99",
-      },
-      {
-        name: "BTN Gray Text Disabled",
-        token: "--color-btn-gray-text-disabled",
-        className: "text-btn-gray-text-disabled",
-        value: "#f0f0f099",
+        values: { light: "#3478f6", dark: "#3478f6", tejp: "#3478f6" },
       },
     ],
   },
 ];
 
-/** The two stops behind `bg-gradient-inv`; shown as one swatch under Background. */
-export const gradientStops: ColorToken[] = [
-  {
-    name: "Gradient Inv Start",
-    token: "--color-gradient-inv-start",
-    className: "bg-gradient-inv",
-    value: "#12121299",
-  },
-  {
-    name: "Gradient Inv End",
-    token: "--color-gradient-inv-end",
-    className: "bg-gradient-inv",
-    value: "#12121200",
-  },
-];
-
-export const allColorTokens: ColorToken[] = [
-  ...colorGroups.flatMap((group) => group.colors),
-  ...gradientStops,
-];
+export const allColorTokens: ColorToken[] = colorGroups.flatMap((group) => group.colors);

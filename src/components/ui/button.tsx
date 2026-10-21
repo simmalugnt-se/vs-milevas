@@ -1,5 +1,6 @@
 import type { ButtonHTMLAttributes, ComponentProps, ReactNode } from "react";
 import { Link } from "@/i18n/navigation";
+import { type ColorMode, modeClass } from "./color-mode";
 import { Icon, type IconName } from "./icon";
 
 /**
@@ -13,16 +14,20 @@ import { Icon, type IconName } from "./icon";
  * no way to read the collection from a selection. 200ms ease-out is our own placeholder.
  */
 
-export type ButtonColor = "primary" | "tejp" | "inverted" | "gray";
+export type ButtonVariant = "primary" | "secondary";
 export type ButtonSize = "s" | "m";
 
-const colorClasses: Record<ButtonColor, string> = {
+/**
+ * Color/BTN/primary and Color/BTN/secondary; the mode around the button, or `mode`, picks the
+ * colors. Figma's component still has four colors (primary, inverted, tejp, secondary): Light
+ * primary is inverted, Dark primary is primary, Tejp primary is tejp and Light secondary is
+ * secondary. The border is an inset ring, so it does not change the button's size.
+ */
+const variantClasses: Record<ButtonVariant, string> = {
   primary:
-    "bg-btn-primary-fill text-btn-primary-text not-disabled:hover:bg-btn-primary-fill-hover data-[state=hover]:bg-btn-primary-fill-hover disabled:bg-btn-primary-fill-disabled disabled:text-btn-primary-text-disabled",
-  tejp: "bg-btn-tejp-fill text-btn-tejp-text not-disabled:hover:bg-btn-tejp-fill-hover data-[state=hover]:bg-btn-tejp-fill-hover disabled:bg-btn-tejp-fill-disabled disabled:text-btn-tejp-text-disabled",
-  inverted:
-    "bg-btn-inverted-fill text-btn-inverted-text not-disabled:hover:bg-btn-inverted-fill-hover data-[state=hover]:bg-btn-inverted-fill-hover disabled:bg-btn-inverted-fill-disabled disabled:text-btn-inverted-text-disabled",
-  gray: "bg-btn-gray-fill text-btn-gray-text not-disabled:hover:bg-btn-gray-fill-hover data-[state=hover]:bg-btn-gray-fill-hover disabled:bg-btn-gray-fill-disabled disabled:text-btn-gray-text-disabled",
+    "bg-btn-primary-fill text-btn-primary-text ring-1 ring-btn-primary-border ring-inset not-disabled:hover:bg-btn-primary-fill-hover data-[state=hover]:bg-btn-primary-fill-hover disabled:bg-btn-primary-fill-disabled disabled:text-btn-primary-text-disabled",
+  secondary:
+    "bg-btn-secondary-fill text-btn-secondary-text ring-1 ring-btn-secondary-border ring-inset not-disabled:hover:bg-btn-secondary-fill-hover not-disabled:hover:text-btn-secondary-text-hover data-[state=hover]:bg-btn-secondary-fill-hover data-[state=hover]:text-btn-secondary-text-hover disabled:bg-btn-secondary-fill-disabled disabled:text-btn-secondary-text-disabled disabled:ring-btn-secondary-border-disabled",
 };
 
 /** S: 12px padding and gap (`spacing/xs`), 40px high. M: 16px (`spacing/sm`), 48px high. */
@@ -54,7 +59,9 @@ function SlidingIcon({ name, size }: { name: IconName; size: 12 | 16 }) {
 }
 
 type ButtonStyleProps = {
-  color?: ButtonColor;
+  variant?: ButtonVariant;
+  /** Color mode for the button alone; the surrounding mode by default. */
+  mode?: ColorMode;
   size?: ButtonSize;
   /** Icon before the label; none by default. */
   iconLeft?: IconName;
@@ -63,10 +70,11 @@ type ButtonStyleProps = {
 };
 
 export const buttonClassName = ({
-  color = "primary",
+  variant = "primary",
+  mode,
   size = "s",
-}: Pick<ButtonStyleProps, "color" | "size">) =>
-  `group/slide inline-flex items-center justify-center whitespace-nowrap rounded-sm text-label-s transition-colors disabled:cursor-not-allowed ${colorClasses[color]} ${sizeClasses[size]}`;
+}: Pick<ButtonStyleProps, "variant" | "mode" | "size">) =>
+  `group/slide inline-flex items-center justify-center whitespace-nowrap rounded-sm text-label-s transition-colors disabled:cursor-not-allowed ${mode ? modeClass[mode] : ""} ${variantClasses[variant]} ${sizeClasses[size]}`;
 
 function ButtonContent({
   iconLeft,
@@ -85,7 +93,8 @@ function ButtonContent({
 type ButtonProps = ButtonStyleProps & ButtonHTMLAttributes<HTMLButtonElement>;
 
 export function Button({
-  color,
+  variant,
+  mode,
   size,
   iconLeft,
   iconRight,
@@ -97,7 +106,7 @@ export function Button({
   return (
     <button
       type={type}
-      className={`${buttonClassName({ color, size })} ${className ?? ""}`}
+      className={`${buttonClassName({ variant, mode, size })} ${className ?? ""}`}
       {...props}
     >
       <ButtonContent iconLeft={iconLeft} iconRight={iconRight}>
@@ -111,7 +120,8 @@ type ButtonLinkProps = ButtonStyleProps & ComponentProps<typeof Link>;
 
 /** A link that looks like a Button (locale-aware, via `@/i18n/navigation`). */
 export function ButtonLink({
-  color,
+  variant,
+  mode,
   size,
   iconLeft,
   iconRight,
@@ -120,7 +130,7 @@ export function ButtonLink({
   ...props
 }: ButtonLinkProps) {
   return (
-    <Link className={`${buttonClassName({ color, size })} ${className ?? ""}`} {...props}>
+    <Link className={`${buttonClassName({ variant, mode, size })} ${className ?? ""}`} {...props}>
       <ButtonContent iconLeft={iconLeft} iconRight={iconRight}>
         {children}
       </ButtonContent>

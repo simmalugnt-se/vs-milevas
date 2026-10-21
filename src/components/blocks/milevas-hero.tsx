@@ -27,7 +27,7 @@ export function MilevasHero({ heading, columns, activeColumn = 3, id }: MilevasH
   const [hovered, setHovered] = useState<number | null>(null);
   const active = hovered ?? initial;
   return (
-    <section id={id} className="relative bg-bg-inv-fill">
+    <section id={id} className="relative mode-dark bg-bg-fill">
       <h1 className="sr-only">{heading}</h1>
       <ul
         className="flex aspect-[375/520] snap-x snap-mandatory overflow-x-auto [scrollbar-width:none] tablet:aspect-[800/600] desktop-s:aspect-auto desktop-s:h-svh desktop-s:overflow-visible"

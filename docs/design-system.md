@@ -47,7 +47,12 @@ Figma, och säg vilket nummer i backloggen det är.
 ## Bra att veta
 
 - **Klasser följer Figmas variabler**, även när det blir dubbelt: `text-ui-primary`,
-  `bg-bg-surface`, `border-border-primary`, `text-text-m`.
+  `bg-bg-fill`, `border-border-primary`, `text-text-m`.
+- **Färglägen:** Figmas färger har lägena Light, Dark och Tejp. Sidan är Light; `mode-dark` eller
+  `mode-tejp` på ett element byter färgerna för det och allt i det, som en Figma-frames läge
+  (`mode-dark bg-bg-fill` är en mörk sektion, `mode-light` en ljus panel i den). Lägena tar
+  varianter: `hover:mode-tejp`. Knappen har `variant="primary|secondary"` och tar färgerna från
+  läget runt den, eller från `mode`.
 - **Inga fasta höjder i px**, även när Figma har dem. Figma ritar bara varje läge vid en bredd
   (375, 800, 1280, 1440); en fast höjd ger andra proportioner så fort skärmen är bredare. Ta i
   stället proportionen från Figmas instans vid lägets designbredd (`aspect-[469/507]` per läge),

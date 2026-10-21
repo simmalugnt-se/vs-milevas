@@ -6,7 +6,7 @@ import { Icon } from "./icon";
 /**
  * product-card from Figma "02 — Components" → "Cards" (8268:2970): a truck model linking to its page.
  *
- * Figma has three states. Default: `bg-fill`, name and specs. Hover: `bg-surface`, plus the
+ * Figma has three states. Default: Light `bg-fill`, name and specs. Hover: Tejp `bg-fill`, plus the
  * `halfup` arrow and the prices. Tablet: Default's colours with the arrow and prices always shown.
  * We read "tablet" as "no hover": below Desktop S the arrow and prices are always there, from
  * Desktop S they appear on hover. Its proportions are those of product-grid's instances at each
@@ -54,7 +54,7 @@ export function ProductCard({
 }: ProductCardProps) {
   return (
     <Link
-      className={`group/card relative block aspect-[339/507] tablet:aspect-[388/507] desktop-s:aspect-[416/507] desktop-l:aspect-[469/507] rounded-lg bg-bg-fill transition-colors hover:bg-bg-surface focus-visible:bg-bg-surface data-[state=hover]:bg-bg-surface ${className ?? ""}`}
+      className={`group/card relative block aspect-[339/507] tablet:aspect-[388/507] desktop-s:aspect-[416/507] desktop-l:aspect-[469/507] mode-light rounded-lg bg-bg-fill transition-colors hover:mode-tejp focus-visible:mode-tejp data-[state=hover]:mode-tejp ${className ?? ""}`}
       {...props}
     >
       <span className="absolute inset-0 flex flex-col p-(--spacing-sm)">
