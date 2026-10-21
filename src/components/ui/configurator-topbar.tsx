@@ -14,7 +14,12 @@ type ConfiguratorTopbarProps = HTMLAttributes<HTMLDivElement> & {
   label: ReactNode;
 };
 
-export function ConfiguratorTopbar({ number, label, className, ...props }: ConfiguratorTopbarProps) {
+export function ConfiguratorTopbar({
+  number,
+  label,
+  className,
+  ...props
+}: ConfiguratorTopbarProps) {
   return (
     <div
       className={`flex items-start gap-4 rounded-t-sm bg-bg-fill p-(--spacing-sm) text-label-s whitespace-nowrap ring-(length:--stroke-width) ring-border-primary ring-inset ${className ?? ""}`}

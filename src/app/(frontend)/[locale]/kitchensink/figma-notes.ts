@@ -855,11 +855,12 @@ export const figmaNotes: FigmaNote[] = [
   },
   {
     target: "choice",
-    topic: "Med bild",
-    figma: "Fast höjd 262px",
-    code: "Bilden tar två tredjedelar av bredden",
-    why: "Fungerar i alla bredder; ungefär samma proportion",
-    status: "Antagande",
+    topic: "Höjd med bild",
+    figma: "`image=big` är 262px och `image=small` 140px höga, både som 368 och 469px breda val",
+    code: "Samma höjder i rem (`h-[16.375rem]`, `h-[8.75rem]`), som skalar med sidan; big-bilden fyller rummet mellan titel och text",
+    why: "Figma håller höjden fast när valet blir bredare, så en proportion hade gett fel höjd i den ena bredden. configurator-box ritar big i rutnät 234px högt; det tas i configurator-box",
+    status: "Beslut (teknisk)",
+    date: "2026-10-21",
   },
   {
     target: "choice",

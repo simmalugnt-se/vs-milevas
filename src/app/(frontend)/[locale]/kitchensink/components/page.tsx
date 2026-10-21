@@ -20,6 +20,18 @@ import { Example, Group, KitchensinkPage, Section } from "../ui";
 /** Composed components from Figma "02 — Components", with placeholder content. */
 export const metadata: Metadata = { title: "Kitchensink: Komponenter" };
 
+/** The truck in choice, cropped as Figma crops it in its 489:365 box. */
+const choiceImage = (
+  <span className="absolute inset-0 overflow-hidden">
+    <Image
+      src={truckPallet}
+      alt=""
+      sizes="15rem"
+      className="absolute top-[-14.04%] left-[9.65%] h-[119.85%] w-[89.46%] max-w-none"
+    />
+  </span>
+);
+
 /** configurator-box variants shown, in Figma frame 9's order. */
 const configuratorBoxes = [
   { choices: 2, layout: "grid", textSize: "s" },
@@ -204,6 +216,27 @@ export default function ComponentsPage() {
                       price="€€€€"
                       text="Text"
                       textSize={textSize}
+                      bottom={bottom}
+                      selected={state === "active"}
+                      data-state={state === "hover" ? "hover" : undefined}
+                    />
+                  </Example>
+                )),
+              ),
+            )}
+            {(["big", "small"] as const).flatMap((imageSize) =>
+              [false, true].flatMap((bottom) =>
+                (["Default", "active", "hover"] as const).map((state) => (
+                  <Example
+                    key={`${imageSize}-${bottom}-${state}`}
+                    label={`image ${imageSize} · ${state}${bottom ? " · bottom" : ""}`}
+                  >
+                    <Choice
+                      title="Title"
+                      price="€€€€"
+                      text="Text"
+                      image={choiceImage}
+                      imageSize={imageSize}
                       bottom={bottom}
                       selected={state === "active"}
                       data-state={state === "hover" ? "hover" : undefined}
