@@ -231,6 +231,24 @@ export const designQuestions: DesignQuestion[] = [
     figma: "9207:25710",
   },
   {
+    target: "contact-form",
+    question:
+      "order numrerar fälten 01, 02, 04 och 05. Saknas fält 03, och ska det finnas ett meddelandefält som i call och contact?",
+    figma: "9321:45053",
+  },
+  {
+    target: "contact-form",
+    question:
+      'call och contact har platshållarrubriker ("Heading") på alla fält, och call har knapptexten "Skicka avtal för signering" från order. Vilka rubriker och vilken knapptext ska de ha?',
+    figma: "9321:47587",
+  },
+  {
+    target: "contact-form",
+    question:
+      'I call står ett alternativ ("Text") bredvid kalendern. Är det två val, till exempel "så snart som möjligt" och "välj tid", och hur visas det valda?',
+    figma: "9321:47587",
+  },
+  {
     target: "choice",
     question:
       "`choice` har bara `Default` och `active`, inget hover-läge. Koden ger bara pekhanden. Förslag: vit bakgrund (`bg-active`) vid hover, som inte förväxlas med det gula valda läget.",
@@ -541,6 +559,51 @@ export const figmaNotes: FigmaNote[] = [
   },
 
   // Components
+  {
+    target: "contact-form",
+    topic: "Desktop och Mobile",
+    figma: "`Device=Desktop` och `Device=Mobile`, utan brytpunkt",
+    code: "Mobile under Tablet, Desktop från Tablet, där panelens 784px får plats",
+    why: "Panelen är för bred för Mobile",
+    status: "Antagande",
+    date: "2026-10-21",
+  },
+  {
+    target: "contact-form",
+    topic: "Panelens höjd",
+    figma: "Panelen är fast 784 × 816 (Mobile 375 × 816), innehållet centrerat",
+    code: "Figmas proportioner (`aspect-[784/816]`, `aspect-[375/816]`); blir innehållet högre växer panelen",
+    why: "Fasta höjder undviks",
+    status: "Beslut (teknisk)",
+    date: "2026-10-21",
+  },
+  {
+    target: "contact-form",
+    topic: "Kryss på Mobile",
+    figma: "Mobile har inget kryss",
+    code: "Inget kryss under Tablet. Ska formuläret kunna stängas där behövs ett kryss eller en annan väg",
+    why: "Figma visar inget sätt att stänga på Mobile",
+    status: "Lucka",
+    date: "2026-10-21",
+  },
+  {
+    target: "contact-form",
+    topic: "Fälten i Dark",
+    figma: "I contact är rubrikerna ljusa (Dark) men fälten ljusgrå",
+    code: "Fältens ruta är alltid i Light (`mode-light`), rubriken följer läget runt fältet",
+    why: "Så ser det ut i Figma",
+    status: "Beslut (teknisk)",
+    date: "2026-10-21",
+  },
+  {
+    target: "contact-form",
+    topic: "Meddelandefältet",
+    figma: "Ett formfält med fyra tomma rader, ingen dragkant",
+    code: "`TextAreaField`: fyra rader Text XS (72px), utan dragkant",
+    why: "Så ser det ut i Figma",
+    status: "Beslut (teknisk)",
+    date: "2026-10-21",
+  },
   {
     target: "buttons",
     topic: "Animation vid hover",

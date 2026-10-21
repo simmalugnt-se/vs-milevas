@@ -11,6 +11,7 @@ import { TruckColumn } from "@/components/ui/truck-column";
 import truckCounterbalance from "../assets/truck-counterbalance.png";
 import truckPallet from "../assets/truck-pallet.png";
 import warehouse from "../assets/warehouse.jpg";
+import { ContactFormDemo } from "../contact-form-demo";
 import { Example, Group, KitchensinkPage, Section } from "../ui";
 
 /** Composed components from Figma "02 — Components", with placeholder content. */
@@ -234,6 +235,29 @@ export default function ComponentsPage() {
                   ),
                 )}
               </div>
+            </div>
+          </Example>
+        </Section>
+
+        <Section
+          id="contact-form"
+          figma="9309:27343"
+          api='<ContactForm type="order|call|contact" heading text submit onClose>{fält}</ContactForm>'
+          description="Med Figmas texter och platshållare. Desktop från Tablet, Mobile under; ändra fönstrets bredd för Mobile. Panelerna visas i Figmas bredd."
+        >
+          <Example label='type="order"' className="max-w-[51rem]">
+            <div className="bg-(--primitive-neutral-400-100) p-(--spacing-sm)">
+              <ContactFormDemo type="order" />
+            </div>
+          </Example>
+          <Example label='type="call"' className="max-w-[51rem]">
+            <div className="bg-(--primitive-neutral-400-100) p-(--spacing-sm)">
+              <ContactFormDemo type="call" />
+            </div>
+          </Example>
+          <Example label='type="contact", i en Dark-sektion' className="max-w-[43.75rem]">
+            <div className="mode-dark bg-bg-fill p-(--spacing-sm)">
+              <ContactFormDemo type="contact" />
             </div>
           </Example>
         </Section>

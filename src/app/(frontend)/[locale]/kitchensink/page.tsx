@@ -15,7 +15,7 @@ import { FooterLink } from "@/components/ui/footer-link";
 import { Icon, iconNames } from "@/components/ui/icon";
 import { Logo } from "@/components/ui/logo";
 import { NavLink } from "@/components/ui/nav-link";
-import { TextField } from "@/components/ui/text-field";
+import { TextAreaField, TextField } from "@/components/ui/text-field";
 import { TimePicker, type TimePickerDay } from "@/components/ui/time-picker";
 import truckPallet from "./assets/truck-pallet.png";
 import { type Mode, modes } from "./breakpoints";
@@ -757,7 +757,7 @@ export default function FoundationsPage() {
         <Section
           id="text-field"
           figma="8861:10820"
-          api="<TextField label number? error? success? …input>"
+          api="<TextField label number? error? success? …input> · <TextAreaField … rows?>"
           description='Ett input med etikett. Active är fokus; data-state="active" visar det utan fokus.'
         >
           <div className="grid grid-cols-[repeat(auto-fill,16.625rem)] items-start gap-6">
@@ -777,6 +777,9 @@ export default function FoundationsPage() {
             </Example>
             <Example label="success">
               <TextField number="01" label="Heading" defaultValue="Text" success />
+            </Example>
+            <Example label="<TextAreaField> (fyra rader)">
+              <TextAreaField number="01" label="Heading" placeholder="Supporting text" />
             </Example>
           </div>
         </Section>

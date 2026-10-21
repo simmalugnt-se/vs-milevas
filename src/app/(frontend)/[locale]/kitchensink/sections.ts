@@ -52,6 +52,7 @@ export const kitchensinkPages = [
           { id: "price-box", title: "Price box" },
           { id: "text-box", title: "Text box" },
           { id: "truck-column", title: "Truck column" },
+          { id: "contact-form", title: "Kontaktformulär" },
         ],
       },
     ],
