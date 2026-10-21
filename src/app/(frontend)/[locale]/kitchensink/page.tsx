@@ -10,8 +10,10 @@ import {
 } from "@/components/ui/button";
 import { Choice } from "@/components/ui/choice";
 import { type ColorMode, modeClass } from "@/components/ui/color-mode";
+import { FooterLink } from "@/components/ui/footer-link";
 import { Icon, iconNames } from "@/components/ui/icon";
 import { Logo } from "@/components/ui/logo";
+import { NavLink } from "@/components/ui/nav-link";
 import truckPallet from "./assets/truck-pallet.png";
 import { type Mode, modes } from "./breakpoints";
 import { ChoiceDemo } from "./choice-demo";
@@ -81,7 +83,11 @@ function TextStyleSpec({ style }: { style: TextStyle }) {
   );
 }
 
-const buttonVariants: ButtonVariant[] = ["primary", "secondary"];
+const buttonRows: { variant: ButtonVariant; border: boolean }[] = [
+  { variant: "primary", border: false },
+  { variant: "secondary", border: false },
+  { variant: "secondary", border: true },
+];
 const buttonSizes: ButtonSize[] = ["s", "m"];
 const buttonStates = ["default", "hover", "disabled"] as const;
 
@@ -503,21 +509,25 @@ export default function FoundationsPage() {
 
         <Section
           id="buttons"
-          figma="8268:3068"
-          api='<Button variant="primary|secondary" mode?="light|dark|tejp" size="s|m" iconLeft iconRight> · <ButtonLink href>'
+          figma="9207:21288"
+          api='<Button variant="primary|secondary" mode?="light|dark|tejp" border? size="s|m" iconLeft iconRight> · <ButtonLink href>'
           description={
             <>
               Färgerna kommer från läget runt knappen, eller från{" "}
               <code className="font-mono text-xs">mode</code>. Hover-kolumnen visas med{" "}
               <code className="font-mono text-xs">data-state=&quot;hover&quot;</code>; håll pekaren
-              över en knapp i Default-kolumnen för den riktiga övergången. iconRight är arrow-right
-              som standard.
+              över en knapp i Default-kolumnen för den riktiga övergången. iconRight är
+              keyboard-arrow-right som standard. Figma ritar border bara på Tejp secondary.
+              Tabellerna har en grå botten (primitiven neutral/400) så att alla knappar syns; Figma
+              visar dem på lila.
             </>
           }
         >
           {colorModes.map(({ mode, name }) => (
             <Example key={mode} label={`${name}: mode-${mode}`} className="overflow-x-auto">
-              <table className={`${modeClass[mode]} min-w-[36rem] bg-bg-fill text-left`}>
+              <table
+                className={`${modeClass[mode]} min-w-[36rem] bg-(--primitive-neutral-400-100) text-left`}
+              >
                 <thead className="text-xs text-ui-primary">
                   <tr>
                     <th className="p-4 font-medium" />
@@ -530,15 +540,17 @@ export default function FoundationsPage() {
                 </thead>
                 <tbody>
                   {buttonSizes.flatMap((size) =>
-                    buttonVariants.map((variant) => (
-                      <tr key={`${size}-${variant}`}>
+                    buttonRows.map(({ variant, border }) => (
+                      <tr key={`${size}-${variant}-${border}`}>
                         <th className="p-4 text-left font-mono text-xs font-normal text-ui-primary">
-                          {variant} · {size.toUpperCase()}
+                          {variant}
+                          {border ? " · border" : ""} · {size.toUpperCase()}
                         </th>
                         {buttonStates.map((state) => (
                           <td key={state} className="p-4">
                             <Button
                               variant={variant}
+                              border={border}
                               size={size}
                               disabled={state === "disabled"}
                               data-state={state === "hover" ? "hover" : undefined}
@@ -573,20 +585,83 @@ export default function FoundationsPage() {
           </div>
         </Section>
 
-        <Section id="links" figma="8309:3919" api="<TextLink href icon?>">
-          <div className="flex flex-wrap items-start gap-8">
-            <Example label="Default">
-              <TextLink href="/kitchensink#links">Label</TextLink>
+        <Section
+          id="links"
+          figma="8309:3919"
+          api="<TextLink href iconLeft? icon?> · <NavLink variant active? disabled?> · <FooterLink>"
+          description="Färgen följer läget: Figmas Color=White är Dark. Navlink och footerlink används inte av blocken än; de väntar på sin genomgång av navigationen och footern."
+        >
+          <h4 className="text-label-s text-ui-primary">
+            Link <span className="text-ui-tertiary">Figma 8309:3919</span>
+          </h4>
+          <div className="grid gap-2 tablet:grid-cols-2">
+            {(["light", "dark"] as const).map((mode) => (
+              <div
+                key={mode}
+                className={`${modeClass[mode]} flex flex-wrap items-start gap-x-8 gap-y-4 bg-bg-fill p-4`}
+              >
+                <Example label={`mode-${mode}`}>
+                  <TextLink href="/kitchensink#links">Label</TextLink>
+                </Example>
+                <Example label='data-state="hover"'>
+                  <TextLink href="/kitchensink#links" data-state="hover">
+                    Label
+                  </TextLink>
+                </Example>
+                <Example label='iconLeft="arrow-right" icon={null}'>
+                  <TextLink href="/kitchensink#links" iconLeft="arrow-right" icon={null}>
+                    Label
+                  </TextLink>
+                </Example>
+              </div>
+            ))}
+          </div>
+
+          <h4 className="text-label-s text-ui-primary">
+            Navlink <span className="text-ui-tertiary">Figma 9004:10878</span>
+          </h4>
+          <div className="grid gap-2 tablet:grid-cols-2">
+            {(["light", "dark"] as const).map((mode) => (
+              <div key={mode} className={`${modeClass[mode]} space-y-4 bg-bg-fill p-4`}>
+                <p className="font-mono text-xs text-ui-secondary">mode-{mode}</p>
+                <div className="flex flex-wrap gap-x-8">
+                  <Example label='variant="primary"'>
+                    <NavLink href="/kitchensink#links">Motviktstruckar</NavLink>
+                  </Example>
+                  <Example label="disabled">
+                    <NavLink href="/kitchensink#links" disabled>
+                      Motviktstruckar
+                    </NavLink>
+                  </Example>
+                </div>
+                <Example label='variant="secondary" · default, active, disabled'>
+                  <div>
+                    <NavLink href="/kitchensink#links" variant="secondary">
+                      Motviktstruckar
+                    </NavLink>
+                    <NavLink href="/kitchensink#links" variant="secondary" active>
+                      Motviktstruckar
+                    </NavLink>
+                    <NavLink href="/kitchensink#links" variant="secondary" disabled>
+                      Motviktstruckar
+                    </NavLink>
+                  </div>
+                </Example>
+              </div>
+            ))}
+          </div>
+
+          <h4 className="text-label-s text-ui-primary">
+            Footerlink <span className="text-ui-tertiary">Figma 9321:51222</span>
+          </h4>
+          <div className="flex flex-wrap gap-x-8 gap-y-4 bg-bg-fill p-4">
+            <Example label="Default (hovra från Desktop S)">
+              <FooterLink href="/kitchensink#links">Elektriska motviktstruckar</FooterLink>
             </Example>
-            <Example label='Hover (data-state="hover")'>
-              <TextLink href="/kitchensink#links" data-state="hover">
-                Label
-              </TextLink>
-            </Example>
-            <Example label="icon={null}">
-              <TextLink href="/kitchensink#links" icon={null}>
-                Utan ikon
-              </TextLink>
+            <Example label='data-state="hover"'>
+              <FooterLink href="/kitchensink#links" data-state="hover">
+                Elektriska motviktstruckar
+              </FooterLink>
             </Example>
           </div>
         </Section>

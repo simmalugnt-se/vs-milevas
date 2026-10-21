@@ -84,7 +84,7 @@ export const designQuestions: DesignQuestion[] = [
   {
     target: "colors",
     question:
-      "GRIDS-framen och knappkomponenten använder fortfarande `Color/UI/inv-primary`, `Color/BG/inv-fill`, `Color/BG/surface` och `Color/BTN/tejp|inverted/*`, som inte finns i `theme`-samlingen. Ska de ersättas med lägena (Dark `BG/fill`, Tejp `BG/fill` och så vidare) och den gamla samlingen tas bort? Koden använder redan lägena.",
+      "GRIDS-framen använder fortfarande `Color/UI/inv-primary`, `Color/BG/inv-fill` och `Color/BG/surface`, som inte finns i `theme`-samlingen. Ska de ersättas med lägena (Dark `BG/fill`, Tejp `BG/fill` och så vidare) och den gamla samlingen tas bort? Koden använder redan lägena.",
     figma: "6075:1689",
   },
   {
@@ -113,19 +113,25 @@ export const designQuestions: DesignQuestion[] = [
   {
     target: "buttons",
     question:
-      "I Dark har `BTN/primary/fill` (`#121212`) samma färg som `BG/fill`, så knappen syns bara genom ramen (`#f0f0f0`). Är den tänkt som en konturknapp?",
-    figma: "6073:1230",
+      "I Dark har `BTN/primary/fill` (`#121212`) samma färg som `BG/fill`, och knappkomponenten ritar ingen ram på primary, så en Dark primary syns inte på Dark-botten. Ska den ha `border=true` där, eller används den bara på ljus botten?",
+    figma: "9207:21288",
   },
   {
     target: "buttons",
     question:
-      "`BTN/*/border` finns på färgramen men inte på knappkomponenten. Ska knappen ha ramen? Koden ritar den som en 1px ring inuti knappen.",
-    figma: "8268:3068",
+      "Disabled i storlek M använder `btn/primary/text` (full färg), medan S använder `btn/primary/text-disabled`. Ska M också tonas ner? Koden tonar ner båda.",
+    figma: "9207:21288",
   },
   {
     target: "buttons",
     question:
-      "`BTN/secondary` disabled: Light har fill `#575757d9` (samma som hover) och ram `#57575799`, Dark det omvända (fill `#57575799`, ram `#575757d9`). Är Light ombytt? Komponenten har fill `#2b2b2b99`.",
+      "Färgen heter `primary` i storlek S men `black` i M, och `gray` (secondary) finns bara i S. Samma knapp, eller avsiktligt olika?",
+    figma: "9207:21288",
+  },
+  {
+    target: "buttons",
+    question:
+      "`BTN/secondary` disabled: Light har fill `#575757d9` (samma som hover) och ram `#57575799`, Dark det omvända (fill `#57575799`, ram `#575757d9`). Är Light ombytt? Knappen `gray` disabled ser därför likadan ut som hover.",
     figma: "6073:1230",
   },
   {
@@ -169,8 +175,15 @@ export const designQuestions: DesignQuestion[] = [
   },
   {
     target: "links",
-    question: "Link har hover-texten `black`, inte en färgvariabel. Koden följer Figma.",
-    figma: "8309:3919",
+    question:
+      "navlink Primary har lägena Default och disabled men inget Active. Navigationen visar i dag aktuell sida mörk och de andra gråa. Ska de andra vara `disabled`, eller ska Primary få ett Active?",
+    figma: "9004:10878",
+  },
+  {
+    target: "links",
+    question:
+      "footerlink Desktop har vikten Regular utan textstil (24px, radhöjd 1,2); Text L är Medium. Ska den vara Text L? Koden använder Text L.",
+    figma: "9321:51222",
   },
   {
     target: "choice",
@@ -484,6 +497,24 @@ export const figmaNotes: FigmaNote[] = [
 
   // Components
   {
+    target: "links",
+    topic: "footerlink Desktop och Mobile",
+    figma: "`Device=Desktop` och `Device=Mobile`, utan brytpunkt; raden är 38px hög",
+    code: "Mobile under Desktop S, Desktop från Desktop S där det finns hover; raden är texten plus `spacing/4xs`, ingen fast höjd",
+    why: "Hovern behöver en pekare; fasta höjder undviks",
+    status: "Antagande",
+    date: "2026-10-21",
+  },
+  {
+    target: "links",
+    topic: "Färg",
+    figma: "`Color=Black` och `Color=White`, båda `color/ui/primary`; hover byter inte färg",
+    code: "Ingen färg-prop: länken är `text-ui-primary` och följer läget (White är Dark)",
+    why: "Samma variabel i två lägen",
+    status: "Beslut (teknisk)",
+    date: "2026-10-21",
+  },
+  {
     target: "icons",
     topic: "Namn",
     figma: "Material-namn med understreck: `keyboard_arrow_down`, `open_in_new`, `arrow_up-right`",
@@ -510,14 +541,6 @@ export const figmaNotes: FigmaNote[] = [
     why: "Figmas motion-variabler; vilka som gäller för knappen är vårt val",
     status: "Antagande",
     date: "2026-10-21",
-  },
-  {
-    target: "buttons",
-    topic: "Ikoner",
-    figma: "Vissa varianter saknar vänsterikonen (bland annat disabled gray)",
-    code: "Alla varianter tar samma ikoner",
-    why: "Ser ut som rester i komponenten",
-    status: "Antagande",
   },
   {
     target: "choice",
@@ -584,9 +607,9 @@ export const figmaNotes: FigmaNote[] = [
     target: "buttons",
     topic: "Färger",
     figma:
-      "Färgramen har `BTN/primary` och `BTN/secondary` per läge; knappkomponenten har fortfarande fyra färger (primary, inverted, tejp, secondary)",
-    code: '`variant="primary|secondary"` och läget runt knappen, eller `mode`. Light primary är inverted, Dark primary är primary, Tejp primary är tejp och Light secondary är secondary',
-    why: "Färgramen är nyare, och värdena stämmer med komponentens",
+      "Komponenten (`9207:21288`) använder `BTN/primary` och `BTN/secondary` men heter efter färger: `primary`/`black`, `inverted`, `tejp`, `tejp` med `border=true` och `gray`",
+    code: '`variant="primary|secondary"` och läget runt knappen, eller `mode`: `primary`/`black` är Dark primary, `inverted` Light primary, `tejp` Tejp primary, `tejp` med ram Tejp secondary och `gray` Light secondary',
+    why: "Variablerna gäller; färgnamnen är lägen",
     status: "Beslut",
     date: "2026-10-21",
   },
@@ -602,10 +625,10 @@ export const figmaNotes: FigmaNote[] = [
   {
     target: "buttons",
     topic: "Ram",
-    figma: "`BTN/*/border` på färgramen, ingen ram på komponenten",
-    code: "1px ring inuti knappen (`ring-inset`), så storleken är oförändrad",
-    why: "Utan ramen syns Dark primary inte på Dark-botten",
-    status: "Antagande",
+    figma: "`border=true` (bara på Tejp secondary): `stroke/width` i `BTN/secondary/border`",
+    code: "`border`-prop för båda varianterna, ritad som en ring inuti knappen (`ring-inset`) så att storleken är oförändrad",
+    why: "Figmas ram ligger inuti; propen följer komponenten",
+    status: "Beslut",
     date: "2026-10-21",
   },
   {

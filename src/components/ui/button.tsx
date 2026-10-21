@@ -4,7 +4,7 @@ import { type ColorMode, modeClass } from "./color-mode";
 import { Icon, type IconName } from "./icon";
 
 /**
- * Button and Link from Figma "02 — Components" → "Buttons etc" (button 8268:3068, Link 8309:3919).
+ * Button and Link from Figma "02 — Components" → "Buttons & Links" (button 9207:21288, Link 8309:3919).
  *
  * Hover in Figma swaps a row of two identical icons from start to end inside a clipped box, so the
  * icon slides out and its copy slides in. Pass `data-state="hover"` to show the hover look without a
@@ -19,15 +19,25 @@ export type ButtonSize = "s" | "m";
 
 /**
  * Color/BTN/primary and Color/BTN/secondary; the mode around the button, or `mode`, picks the
- * colors. Figma's component still has four colors (primary, inverted, tejp, secondary): Light
- * primary is inverted, Dark primary is primary, Tejp primary is tejp and Light secondary is
- * secondary. The border is an inset ring, so it does not change the button's size.
+ * colors. Figma's component names its variants after colors: `primary` (S) and `black` (M) are
+ * Dark primary, `inverted` Light primary, `tejp` Tejp primary, `tejp` with `border=true` Tejp
+ * secondary and `gray` Light secondary.
  */
 const variantClasses: Record<ButtonVariant, string> = {
   primary:
-    "bg-btn-primary-fill text-btn-primary-text ring-1 ring-btn-primary-border ring-inset not-disabled:hover:bg-btn-primary-fill-hover data-[state=hover]:bg-btn-primary-fill-hover disabled:bg-btn-primary-fill-disabled disabled:text-btn-primary-text-disabled",
+    "bg-btn-primary-fill text-btn-primary-text not-disabled:hover:bg-btn-primary-fill-hover data-[state=hover]:bg-btn-primary-fill-hover disabled:bg-btn-primary-fill-disabled disabled:text-btn-primary-text-disabled",
   secondary:
-    "bg-btn-secondary-fill text-btn-secondary-text ring-1 ring-btn-secondary-border ring-inset not-disabled:hover:bg-btn-secondary-fill-hover not-disabled:hover:text-btn-secondary-text-hover data-[state=hover]:bg-btn-secondary-fill-hover data-[state=hover]:text-btn-secondary-text-hover disabled:bg-btn-secondary-fill-disabled disabled:text-btn-secondary-text-disabled disabled:ring-btn-secondary-border-disabled",
+    "bg-btn-secondary-fill text-btn-secondary-text not-disabled:hover:bg-btn-secondary-fill-hover not-disabled:hover:text-btn-secondary-text-hover data-[state=hover]:bg-btn-secondary-fill-hover data-[state=hover]:text-btn-secondary-text-hover disabled:bg-btn-secondary-fill-disabled disabled:text-btn-secondary-text-disabled",
+};
+
+/**
+ * Figma's `border=true`: a `stroke/width` line in the variant's border color, drawn inside (an inset
+ * ring), so the button keeps its size. Figma only draws it on Tejp secondary.
+ */
+const borderClasses: Record<ButtonVariant, string> = {
+  primary: "ring-(length:--stroke-width) ring-btn-primary-border ring-inset",
+  secondary:
+    "ring-(length:--stroke-width) ring-btn-secondary-border ring-inset disabled:ring-btn-secondary-border-disabled",
 };
 
 /** S: 12px padding and gap (`spacing/xs`), 40px high. M: 16px (`spacing/sm`), 48px high. */
@@ -61,23 +71,26 @@ type ButtonStyleProps = {
   variant?: ButtonVariant;
   /** Color mode for the button alone; the surrounding mode by default. */
   mode?: ColorMode;
+  /** Figma's `border=true`; no border by default. */
+  border?: boolean;
   size?: ButtonSize;
   /** Icon before the label; none by default. */
   iconLeft?: IconName;
-  /** Icon after the label; `arrow-right` by default, `null` for none. */
+  /** Icon after the label; `keyboard-arrow-right` by default, `null` for none. */
   iconRight?: IconName | null;
 };
 
 export const buttonClassName = ({
   variant = "primary",
   mode,
+  border,
   size = "s",
-}: Pick<ButtonStyleProps, "variant" | "mode" | "size">) =>
-  `group/slide inline-flex items-center justify-center whitespace-nowrap rounded-sm text-label-s transition-colors disabled:cursor-not-allowed ${mode ? modeClass[mode] : ""} ${variantClasses[variant]} ${sizeClasses[size]}`;
+}: Pick<ButtonStyleProps, "variant" | "mode" | "border" | "size">) =>
+  `group/slide inline-flex items-center justify-center whitespace-nowrap rounded-sm text-label-s transition-colors disabled:cursor-not-allowed ${mode ? modeClass[mode] : ""} ${variantClasses[variant]} ${border ? borderClasses[variant] : ""} ${sizeClasses[size]}`;
 
 function ButtonContent({
   iconLeft,
-  iconRight = "arrow-right",
+  iconRight = "keyboard-arrow-right",
   children,
 }: Pick<ButtonStyleProps, "iconLeft" | "iconRight"> & { children: ReactNode }) {
   return (
@@ -94,6 +107,7 @@ type ButtonProps = ButtonStyleProps & ButtonHTMLAttributes<HTMLButtonElement>;
 export function Button({
   variant,
   mode,
+  border,
   size,
   iconLeft,
   iconRight,
@@ -105,7 +119,7 @@ export function Button({
   return (
     <button
       type={type}
-      className={`${buttonClassName({ variant, mode, size })} ${className ?? ""}`}
+      className={`${buttonClassName({ variant, mode, border, size })} ${className ?? ""}`}
       {...props}
     >
       <ButtonContent iconLeft={iconLeft} iconRight={iconRight}>
@@ -121,6 +135,7 @@ type ButtonLinkProps = ButtonStyleProps & ComponentProps<typeof Link>;
 export function ButtonLink({
   variant,
   mode,
+  border,
   size,
   iconLeft,
   iconRight,
@@ -129,7 +144,10 @@ export function ButtonLink({
   ...props
 }: ButtonLinkProps) {
   return (
-    <Link className={`${buttonClassName({ variant, mode, size })} ${className ?? ""}`} {...props}>
+    <Link
+      className={`${buttonClassName({ variant, mode, border, size })} ${className ?? ""}`}
+      {...props}
+    >
       <ButtonContent iconLeft={iconLeft} iconRight={iconRight}>
         {children}
       </ButtonContent>
@@ -138,20 +156,30 @@ export function ButtonLink({
 }
 
 type TextLinkProps = ComponentProps<typeof Link> & {
+  /** Icon before the label (Figma's `showIconL`); none by default. */
+  iconLeft?: IconName;
   /** Icon after the label; `arrow-right` by default, `null` for none. */
   icon?: IconName | null;
 };
 
 /**
- * Figma "Link": Label S with the 16px `arrow_right`, 8px gap and vertical padding (`spacing/2xs`).
- * Hover text is `black` in Figma, not a colour variable.
+ * Figma "Link" (8309:3919): Label S in `ui-primary` with the 16px `arrow_right`, 8px gap and
+ * vertical padding (`spacing/2xs`). Hover only slides the icon. Figma's `Color=White` is the same
+ * variable in Dark mode, so the link follows the mode around it.
  */
-export function TextLink({ icon = "arrow-right", className, children, ...props }: TextLinkProps) {
+export function TextLink({
+  iconLeft,
+  icon = "arrow-right",
+  className,
+  children,
+  ...props
+}: TextLinkProps) {
   return (
     <Link
-      className={`group/slide inline-flex items-center gap-(--spacing-2xs) py-(--spacing-2xs) text-label-s whitespace-nowrap text-ui-primary hover:text-black data-[state=hover]:text-black ${className ?? ""}`}
+      className={`group/slide inline-flex items-center gap-(--spacing-2xs) py-(--spacing-2xs) text-label-s whitespace-nowrap text-ui-primary ${className ?? ""}`}
       {...props}
     >
+      {iconLeft ? <SlidingIcon name={iconLeft} /> : null}
       {children}
       {icon ? <SlidingIcon name={icon} /> : null}
     </Link>
