@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import { Card } from "@/components/ui/card";
+import { CheckboxChoice } from "@/components/ui/checkbox-choice";
 import { Choice } from "@/components/ui/choice";
 import { ColorImageCard } from "@/components/ui/color-image-card";
 import { ConfiguratorBox } from "@/components/ui/configurator-box";
@@ -39,6 +40,14 @@ const financingExamples = (["Financiering", "Financiering-02"] as const).flatMap
     (["Default", "active", "hover"] as const).map((state) => ({ type, state, bottom })),
   ),
 );
+
+/** configurator-box `Type=finance`: which choice is active, has the term and the residual value. */
+const financeBoxes = [
+  { state: "default", selected: -1, term: -1, residual: -1, addon: false },
+  { state: "click-01", selected: 0, term: -1, residual: -1, addon: true },
+  { state: "click-02", selected: 1, term: 1, residual: 1, addon: true },
+  { state: "click-03", selected: 2, term: 2, residual: -1, addon: false },
+];
 
 /** configurator-box's variants, in Figma's order. */
 const configuratorBoxes = [
@@ -288,8 +297,8 @@ export default function ComponentsPage() {
         <Section
           id="configurator-box"
           figma="9250:32719"
-          api='<ConfiguratorBox number label layout="grid|stack" mobileLayout?>{<Choice>…}</ConfiguratorBox>'
-          description="Figmas varianter med Standard, big image och small image, i Figmas bredd (469px)."
+          api='<ConfiguratorBox number label layout="grid|stack" mobileLayout? addon?>{<Choice> | <FinancingChoice>…}</ConfiguratorBox> · <CheckboxChoice label price? …input>'
+          description="Figmas varianter med Standard, big image, small image och finance, i Figmas bredd (469px)."
         >
           <div className="grid grid-cols-[repeat(auto-fill,29.3125rem)] items-start gap-6">
             {configuratorBoxes.map((box) => (
@@ -306,6 +315,37 @@ export default function ComponentsPage() {
                       text="Text"
                       image={box.image ? choiceImage : undefined}
                       imageSize={box.image}
+                    />
+                  ))}
+                </ConfiguratorBox>
+              </Example>
+            ))}
+            {financeBoxes.map((box) => (
+              <Example key={box.state} label={`finance · ${box.state}`}>
+                <ConfiguratorBox
+                  number="01"
+                  label="Label"
+                  layout="stack"
+                  addon={
+                    box.addon ? (
+                      <CheckboxChoice label="Lägg till serviceavtal" price="+2856 kr/år" />
+                    ) : null
+                  }
+                >
+                  {[0, 1, 2].map((choice) => (
+                    <FinancingChoice
+                      key={choice}
+                      title="Title"
+                      price="€€€€"
+                      selected={box.selected === choice}
+                      term={
+                        box.term === choice
+                          ? { label: "Avtalslängd", steps: [24, 36, 48, 60, 72, 84], value: 48 }
+                          : undefined
+                      }
+                      residual={
+                        box.residual === choice ? { label: "Restvärde", value: "10%" } : undefined
+                      }
                     />
                   ))}
                 </ConfiguratorBox>

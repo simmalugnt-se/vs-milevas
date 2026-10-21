@@ -249,12 +249,6 @@ export const designQuestions: DesignQuestion[] = [
     figma: "9207:25676",
   },
   {
-    target: "choice",
-    question:
-      "Reglaget för avtalslängd står mellan 48 och 60 i Figma. Går det bara att välja de sex stegen (24–84 månader), som koden gör, eller även värden mellan dem?",
-    figma: "9207:32222",
-  },
-  {
     target: "configurator-box",
     question:
       "Varje val har en egen ram, så linjen mellan två val, och mellan topbar och första raden, blir dubbelt så tjock. Avsiktligt? Tidigare drog koden en linje.",
@@ -1037,6 +1031,25 @@ export const figmaNotes: FigmaNote[] = [
     code: "Som Figma",
     why: "Inte ritat smalare än så; i ännu smalare val skulle bilden kunna gå utanför valet",
     status: "Lucka",
+    date: "2026-10-21",
+  },
+  {
+    target: "configurator-box",
+    topic: "Serviceavtalets kryssruta",
+    figma:
+      '`CheckboxChoice` ("Lägg till serviceavtal") är bara ritad omarkerad; ett dolt textlager finns under raden',
+    code: "En riktig kryssruta som ser likadan ut ikryssad som omarkerad; den dolda texten visas inte",
+    why: "Inte ritat; ett ikryssat läge behövs för att se valet, och kanske texten när avtalet är valt",
+    status: "Lucka",
+    date: "2026-10-21",
+  },
+  {
+    target: "configurator-box",
+    topic: "När serviceavtalet visas",
+    figma: "Under boxen i click-01 och click-02, inte i default och click-03",
+    code: "`addon` visar det som konfiguratorn skickar in; boxen avgör inte när",
+    why: "Vilka finansieringar som har serviceavtal bestäms i konfiguratorn",
+    status: "Beslut (teknisk)",
     date: "2026-10-21",
   },
   {

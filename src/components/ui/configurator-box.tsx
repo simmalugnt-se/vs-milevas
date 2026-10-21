@@ -6,7 +6,8 @@ import { ConfiguratorTopbar } from "./configurator-topbar";
  * configurator, a <ConfiguratorTopbar> over its <Choice> options, two per row (`grid`, Figma's
  * Grid) or one per row (`stack`, Figma's Stack). Each choice keeps its own frame, as in Figma, so
  * the lines between them are doubled. The box rounds the bottom corners of the last row; do not
- * pass `bottom` to choices inside it.
+ * pass `bottom` to choices inside it. Figma's finance box stacks <FinancingChoice> options, with
+ * a <CheckboxChoice> (the service agreement) `spacing/2xs` under the box as `addon`.
  */
 
 type ConfiguratorBoxProps = Omit<HTMLAttributes<HTMLDivElement>, "children"> & {
@@ -17,8 +18,10 @@ type ConfiguratorBoxProps = Omit<HTMLAttributes<HTMLDivElement>, "children"> & {
   layout?: "grid" | "stack";
   /** Below Tablet; `stack` when two choices per row would be too narrow, e.g. for long prices. */
   mobileLayout?: "grid" | "stack";
-  /** The step's <Choice> elements. */
+  /** The step's <Choice> or <FinancingChoice> elements. */
   children: ReactNode;
+  /** Under the box, e.g. a <CheckboxChoice>. */
+  addon?: ReactNode;
 };
 
 /** The last row's bottom corners, per layout. */
@@ -48,6 +51,7 @@ export function ConfiguratorBox({
   layout = "grid",
   mobileLayout = layout,
   children,
+  addon,
   className,
   ...props
 }: ConfiguratorBoxProps) {
@@ -55,17 +59,20 @@ export function ConfiguratorBox({
     <div
       role="group"
       aria-label={`${number} ${label}`}
-      className={`flex flex-col ${className ?? ""}`}
+      className={`flex flex-col gap-(--spacing-2xs) ${className ?? ""}`}
       {...props}
     >
-      <ConfiguratorTopbar aria-hidden number={number} label={label} />
-      <div
-        className={`w-full ${
-          layout === "grid" && mobileLayout === "stack" ? stackOnMobile : layoutClasses[layout]
-        }`}
-      >
-        {children}
+      <div className="flex flex-col">
+        <ConfiguratorTopbar aria-hidden number={number} label={label} />
+        <div
+          className={`w-full ${
+            layout === "grid" && mobileLayout === "stack" ? stackOnMobile : layoutClasses[layout]
+          }`}
+        >
+          {children}
+        </div>
       </div>
+      {addon}
     </div>
   );
 }
