@@ -146,7 +146,15 @@ export const designQuestions: DesignQuestion[] = [
   },
   {
     target: "icons",
-    question: "Ikonen `help` har egenskapen `Property 1=Default`, de andra `Variant=Default`.",
+    question:
+      "`close` har färgen `#1C1B1F` (Material-ikonernas standard), de andra `#121212`. Koden behandlar den som de andra.",
+    figma: "9321:33977",
+  },
+  {
+    target: "icons",
+    question:
+      "`globe` (språklänken i footern) finns inte längre på Icons-framen. Ska den läggas tillbaka, eller ska footern ha en annan ikon?",
+    figma: "9207:18160",
   },
   {
     target: "arrows",
@@ -471,12 +479,22 @@ export const figmaNotes: FigmaNote[] = [
   // Components
   {
     target: "icons",
-    topic: "`icon-sound-off`",
-    figma: "Finns två gånger med samma SVG",
-    code: "En `sound-off`",
-    why: "Dubblett",
-    status: "Beslut",
-    date: "2026-10-02",
+    topic: "Namn",
+    figma: "Material-namn med understreck: `keyboard_arrow_down`, `open_in_new`, `arrow_up-right`",
+    code: "Samma namn i kebab-case: `keyboard-arrow-down`, `open-in-new`, `arrow-up-right`",
+    why: "Som de andra namnen i koden",
+    status: "Beslut (teknisk)",
+    date: "2026-10-21",
+  },
+  {
+    target: "icons",
+    topic: "Borttagna",
+    figma:
+      "Den nya Icons-framen saknar `play`, `pause`, `skip-*`, `maximize`, `minimize`, `sound-*` och `globe`",
+    code: "Borttagna utom `globe`, som footern använder; den har den gamla SVG:n",
+    why: "Ingen annan använde dem",
+    status: "Antagande",
+    date: "2026-10-21",
   },
   {
     target: "buttons",
@@ -979,14 +997,7 @@ export const figmaNotes: FigmaNote[] = [
     status: "Beslut",
     date: "2026-10-05",
   },
-  {
-    target: "configurator",
-    topic: "Telefonikon",
-    figma: '`Phone` (12px) i "Boka samtal", saknas på "Icons"',
-    code: "Ikonen `phone` från samma SVG",
-    why: "Lucka i ikonerna",
-    status: "Beslut (teknisk)",
-  },
+
   {
     target: "configurator",
     topic: "Trucktyp",

@@ -14,7 +14,10 @@ if (!assets)
 
 const camel = (s) => s.replace(/-([a-z])/g, (_, c) => c.toUpperCase());
 
-/** Figma's SVG → { viewBox, JSX body }: #121212 becomes currentColor, ids, styles, empty masks and clip paths go. */
+/**
+ * Figma's SVG → { viewBox, JSX body }: #121212 becomes currentColor, ids, styles, empty masks and
+ * clip paths go. #1C1B1F, Material's default icon colour left on `close`, is themed too.
+ */
 const convert = (svg) => {
   const root = svg.match(/<svg([^>]*)>([\s\S]*)<\/svg>/);
   const viewBox = root[1].match(/viewBox="([^"]+)"/)[1];
@@ -22,7 +25,7 @@ const convert = (svg) => {
     .replace(/<defs>[\s\S]*?<\/defs>/g, "")
     .replace(/<mask[\s\S]*?<\/mask>/g, "")
     .replace(/\s(id|clip-path|mask|style|data-[a-z-]+)="[^"]*"/g, "")
-    .replace(/#121212/gi, "currentColor")
+    .replace(/#121212|#1c1b1f/gi, "currentColor")
     .replace(/\s([a-z]+(?:-[a-z]+)+)=/g, (_, a) => ` ${camel(a)}=`);
   while (/<g>/.test(body)) body = body.replace(/<g>\s*([\s\S]*?)\s*<\/g>/g, "$1");
   body = body.trim().replace(/\n\s*/g, "\n");

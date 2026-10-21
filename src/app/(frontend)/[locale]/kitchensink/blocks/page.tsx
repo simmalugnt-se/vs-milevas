@@ -252,7 +252,7 @@ export default function BlocksPage() {
               }
               contactText="Har du frågor eller önskar något annat av din konfiguration?"
               contact={
-                <Button mode="tejp" size="m" iconRight="phone" className="w-full">
+                <Button mode="tejp" size="m" iconRight="call" className="w-full">
                   Boka samtal
                 </Button>
               }

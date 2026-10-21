@@ -458,9 +458,9 @@ export default function FoundationsPage() {
 
         <Section
           id="icons"
-          figma="6075:2501"
-          api='<Icon name="plus" title?="…" />'
-          description="16px, utom arrow-* som är 12px. Med title får ikonen ett tillgängligt namn."
+          figma="9207:18160"
+          api='<Icon name="add" title?="…" />'
+          description="Alla 16px, med Figmas namn i kebab-case. Med title får ikonen ett tillgängligt namn."
         >
           <Example label="Alla ikoner, med namn">
             <ul className="grid grid-cols-2 gap-2 tablet:grid-cols-4 desktop-s:grid-cols-6">

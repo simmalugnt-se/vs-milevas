@@ -459,7 +459,7 @@ export function ConfiguratorClient({
           <Button
             mode="tejp"
             size="m"
-            iconRight="phone"
+            iconRight="call"
             className="w-full"
             disabled={!family}
             onClick={() => setCallOpen(true)}

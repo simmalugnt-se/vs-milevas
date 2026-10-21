@@ -39,17 +39,16 @@ const sizeClasses: Record<ButtonSize, string> = {
 const slide =
   "transition-transform duration-short ease-slow-out motion-reduce:transition-none group-[:not(:disabled):hover]/slide:-translate-x-(--slide) group-data-[state=hover]/slide:-translate-x-(--slide)";
 
-/** Two copies of the icon in a clipped box; hovering the parent (`group/slide`) slides to the second. */
-function SlidingIcon({ name, size }: { name: IconName; size: 12 | 16 }) {
-  const box = size === 16 ? "size-4" : "size-3";
+/**
+ * Two copies of the 16px icon, 4px apart, in a clipped box; hovering the parent (`group/slide`)
+ * slides to the second, as Figma's 20px step.
+ */
+function SlidingIcon({ name }: { name: IconName }) {
   return (
-    <span
-      className={`flex ${box} shrink-0 overflow-hidden`}
-      style={{ "--slide": `${(size + 4) / 16}rem` } as React.CSSProperties}
-    >
+    <span className="flex size-4 shrink-0 overflow-hidden [--slide:1.25rem]">
       <span className={`flex shrink-0 gap-1 ${slide}`}>
         {[0, 1].map((copy) => (
-          <span key={copy} className={`flex ${box} shrink-0 items-center justify-center`}>
+          <span key={copy} className="flex size-4 shrink-0 items-center justify-center">
             <Icon name={name} />
           </span>
         ))}
@@ -83,9 +82,9 @@ function ButtonContent({
 }: Pick<ButtonStyleProps, "iconLeft" | "iconRight"> & { children: ReactNode }) {
   return (
     <>
-      {iconLeft ? <SlidingIcon name={iconLeft} size={16} /> : null}
+      {iconLeft ? <SlidingIcon name={iconLeft} /> : null}
       {children}
-      {iconRight ? <SlidingIcon name={iconRight} size={16} /> : null}
+      {iconRight ? <SlidingIcon name={iconRight} /> : null}
     </>
   );
 }
@@ -139,13 +138,13 @@ export function ButtonLink({
 }
 
 type TextLinkProps = ComponentProps<typeof Link> & {
-  /** Icon after the label; `arrow-right` (12px) by default, `null` for none. */
+  /** Icon after the label; `arrow-right` by default, `null` for none. */
   icon?: IconName | null;
 };
 
 /**
- * Figma "Link": Label S with a 12px arrow, 8px gap and vertical padding (`spacing/2xs`). Hover text
- * is `black` in Figma, not a colour variable.
+ * Figma "Link": Label S with the 16px `arrow_right`, 8px gap and vertical padding (`spacing/2xs`).
+ * Hover text is `black` in Figma, not a colour variable.
  */
 export function TextLink({ icon = "arrow-right", className, children, ...props }: TextLinkProps) {
   return (
@@ -154,7 +153,7 @@ export function TextLink({ icon = "arrow-right", className, children, ...props }
       {...props}
     >
       {children}
-      {icon ? <SlidingIcon name={icon} size={12} /> : null}
+      {icon ? <SlidingIcon name={icon} /> : null}
     </Link>
   );
 }

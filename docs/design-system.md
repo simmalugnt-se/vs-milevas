@@ -89,9 +89,10 @@ Figma, och säg vilket nummer i backloggen det är.
   `8721:` mot `8389:`).
 - **Sidbredd:** `main` har full bredd utan padding; blocken har sin egen marginal. Kitchensinks
   sidmarginal är `--ks-gutter`, och blocken där går kant i kant med `-mx-(--ks-gutter)`.
-- **Nya ikoner:** lägg till namn och asset-hash i `scripts/figma-svgs/assets.json`, kör
+- **Nya ikoner:** markera Icons-framen, hämta asset-hasharna med `get_design_context`, lägg in
+  namn (Figmas namn i kebab-case) och hash i `scripts/figma-svgs/assets.json`, kör
   `node scripts/figma-svgs/to-tsx.mjs icon` med Figma öppet och klistra in resultatet i
-  `src/components/ui/icon.tsx`.
+  `src/components/ui/icon.tsx`. Behåll `globe`, som inte längre finns i Figma.
 
 ## Startsidan som Payload-block (2026-10-07)
 
