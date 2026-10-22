@@ -31,6 +31,10 @@ export type HeaderData = {
 export type FooterData = {
   copyright?: string | null;
   email?: string | null;
+  phone?: string | null;
+  location?: string | null;
+  contactHeading?: string | null;
+  linkGroups?: { id?: string | null; heading: string; links?: NavItem[] | null }[] | null;
   navItems?: NavItem[] | null;
 };
 

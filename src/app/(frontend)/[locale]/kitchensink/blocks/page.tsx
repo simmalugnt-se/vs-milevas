@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import type { ReactNode } from "react";
 import { ConfiguratorScreen } from "@/components/blocks/configurator-screen";
-import { Footer, type FooterLink } from "@/components/blocks/footer";
+import { Footer, type FooterGroup } from "@/components/blocks/footer";
 import { MilevasHero } from "@/components/blocks/milevas-hero";
 import { Navigation, type NavigationMenu } from "@/components/blocks/navigation";
 import { ProductGrid } from "@/components/blocks/product-grid";
@@ -75,10 +75,26 @@ const navigationLogin = {
   href: "/kitchensink/blocks#login",
 };
 
-const footerLinks: FooterLink[] = [
-  { label: "Modeller", href: "/kitchensink/blocks#footer" },
-  { label: "Finansiering", href: "/kitchensink/blocks#footer-finansiering" },
-  { label: "Kontakt", href: "/kitchensink/blocks#footer-kontakt" },
+/** Figma's footer columns, with its texts. */
+const footerGroups: FooterGroup[] = [
+  {
+    heading: "Produkter",
+    links: [
+      "Elektriska motviktstruckar",
+      "Skjutstativtruckar",
+      "Låglyftare",
+      "Ledstaplare",
+      "Elektriska pallyftare",
+      "Plocktruckar",
+    ].map((label, index) => ({ label, href: `/kitchensink/blocks#produkt-${index + 1}` })),
+  },
+  {
+    heading: "Tjänster",
+    links: ["Konfigurator", "Finansiering", "Bli återförsäljare"].map((label, index) => ({
+      label,
+      href: `/kitchensink/blocks#tjanst-${index + 1}`,
+    })),
+  },
 ];
 
 /** The six truck types in Figma's product-grid; two placeholder images take turns. */
@@ -323,11 +339,16 @@ export default function BlocksPage() {
         ))}
       </Block>
 
-      <Block id="footer" figma="6076:622">
+      <Block id="footer" figma="9264:22371">
         <Footer
-          links={footerLinks}
-          email={{ address: "hej@example.com", label: "E-post" }}
-          languageLabel="In English"
+          groups={footerGroups}
+          contact={{
+            heading: "Kontakt",
+            email: { address: "info@milevas.se" },
+            phone: { number: "08-123 45 67" },
+            location: "Stockholm, Sverige",
+          }}
+          copyright="Milevas AB. Alla rättigheter förbehållna."
         />
       </Block>
     </KitchensinkPage>

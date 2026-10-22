@@ -9,6 +9,7 @@ import * as migration_20261002_065231_boilerplate_sync from "./20261002_065231_b
 import * as migration_20261005_081141_header_cta_footer_email from "./20261005_081141_header_cta_footer_email";
 import * as migration_20261005_094932_configurator_step_help from "./20261005_094932_configurator_step_help";
 import * as migration_20261022_123131_header_menus_login from "./20261022_123131_header_menus_login";
+import * as migration_20261022_125150_footer_columns_contact from "./20261022_125150_footer_columns_contact";
 
 export const migrations = [
   {
@@ -65,5 +66,10 @@ export const migrations = [
     up: migration_20261022_123131_header_menus_login.up,
     down: migration_20261022_123131_header_menus_login.down,
     name: "20261022_123131_header_menus_login",
+  },
+  {
+    up: migration_20261022_125150_footer_columns_contact.up,
+    down: migration_20261022_125150_footer_columns_contact.down,
+    name: "20261022_125150_footer_columns_contact",
   },
 ];

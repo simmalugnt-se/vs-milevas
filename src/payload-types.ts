@@ -1750,7 +1750,47 @@ export interface Header {
  */
 export interface Footer {
   id: string;
+  /**
+   * Figma: "Produkter" and "Tjänster". The contact column follows them.
+   */
+  linkGroups?:
+    | {
+        heading: string;
+        links?:
+          | {
+              link: {
+                type?: ('internal' | 'external') | null;
+                reference?: {
+                  relationTo: 'pages';
+                  value: string | Page;
+                } | null;
+                url?: string | null;
+                label: string;
+                newTab?: boolean | null;
+              };
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  contactHeading?: string | null;
+  email?: string | null;
+  /**
+   * Shown as written, e.g. "08-123 45 67"; it links to the number.
+   */
+  phone?: string | null;
+  /**
+   * Plain text, e.g. "Stockholm, Sverige".
+   */
+  location?: string | null;
+  /**
+   * After "© year" at the bottom.
+   */
   copyright?: string | null;
+  /**
+   * The old footer's links. Figma's footer has link columns instead, so they are not shown.
+   */
   navItems?:
     | {
         link: {
@@ -1766,10 +1806,6 @@ export interface Footer {
         id?: string | null;
       }[]
     | null;
-  /**
-   * The mail icon links to this address.
-   */
-  email?: string | null;
   _status?: ('draft' | 'published') | null;
   updatedAt?: string | null;
   createdAt?: string | null;
@@ -1887,6 +1923,30 @@ export interface HeaderSelect<T extends boolean = true> {
  * via the `definition` "footer_select".
  */
 export interface FooterSelect<T extends boolean = true> {
+  linkGroups?:
+    | T
+    | {
+        heading?: T;
+        links?:
+          | T
+          | {
+              link?:
+                | T
+                | {
+                    type?: T;
+                    reference?: T;
+                    url?: T;
+                    label?: T;
+                    newTab?: T;
+                  };
+              id?: T;
+            };
+        id?: T;
+      };
+  contactHeading?: T;
+  email?: T;
+  phone?: T;
+  location?: T;
   copyright?: T;
   navItems?:
     | T
@@ -1902,7 +1962,6 @@ export interface FooterSelect<T extends boolean = true> {
             };
         id?: T;
       };
-  email?: T;
   _status?: T;
   updatedAt?: T;
   createdAt?: T;

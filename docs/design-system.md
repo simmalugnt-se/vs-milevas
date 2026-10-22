@@ -115,10 +115,12 @@ bildfält, länkar och markörer för visual editing. Boilerplatens block är kv
   `pnpm seed:homepage -- --publish-local` publicerar testet enbart lokalt. Kommandot kräver
   `SERVICES=local`, körs aldrig automatiskt och ersätter inte en startsida som redan har Milevas Hero.
   Figma-bilderna finns i `scripts/figma-homepage-assets` och laddas upp till Payload av scriptet.
-- `pnpm seed:header -- --publish-local` fyller bara i Header-globalen med Figmas menyer (Modeller med
-  truckbilderna, Tjänster, Om oss) och login-länken, utan att röra startsidan. Samma krav som ovan.
+- `pnpm seed:globals -- --publish-local` fyller bara i Header- och Footer-globalerna efter Figma
+  (menyerna med truckbilderna och login; footerns kolumner, kontakt och copyright), utan att röra
+  startsidan. Samma krav som ovan.
 - Ingen ny SQL-migrering behövs för blocken: `blocksAsJSON` lagrar block och relationer i sidans
-  JSON. Header-globalens menyer och login har en egen migrering (`20261022_123131_header_menus_login`).
+  JSON. Header- och Footer-globalernas nya fält har egna migreringar (`20261022_123131_header_menus_login`,
+  `20261022_125150_footer_columns_contact`).
 - `pnpm test:milevas-blocks` provar sparande, relationer, lokaliserad text och upprepad seed i
   en egen tillfällig databas. Befintliga migrationsfiler bygger hela schemat.
 

@@ -9,20 +9,23 @@ if (
   !url ||
   !["localhost", "127.0.0.1"].includes(new URL(url).hostname)
 ) {
-  throw new Error("Headern får bara fyllas i med SERVICES=local på den lokala databasen.");
+  throw new Error("Globalerna får bara fyllas i med SERVICES=local på den lokala databasen.");
 }
 process.argv.push("migrate");
-/** The Header global as Figma's navigation, without touching the start page. */
+/** The Header and Footer globals as Figma's navigation and footer, without touching the start page. */
 async function main() {
   const { getPayload } = await import("payload");
   const { default: config } = await import("../src/payload.config");
-  const { seedMilevasHeader } = await import("../src/payload/seed/milevasHomepage");
+  const { seedMilevasFooter, seedMilevasHeader } = await import(
+    "../src/payload/seed/milevasHomepage"
+  );
   const payload = await getPayload({ config, disableOnInit: true });
   try {
     const publish = process.argv.includes("--publish-local");
     await seedMilevasHeader(payload, publish);
+    await seedMilevasFooter(payload, publish);
     console.log(
-      `Headern ifylld: ${publish ? "publicerad lokalt" : "som utkast"} /admin/globals/header`,
+      `Header och footer ifyllda: ${publish ? "publicerad lokalt" : "som utkast"} /admin/globals`,
     );
   } finally {
     await payload.destroy();

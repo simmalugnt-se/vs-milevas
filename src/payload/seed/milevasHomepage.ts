@@ -85,6 +85,40 @@ export async function seedMilevasHeader(payload: Payload, publish = false) {
   });
 }
 
+/** The Footer global as Figma's footer: Produkter, Tjänster and Kontakt, and the copyright line. */
+export async function seedMilevasFooter(payload: Payload, publish = false) {
+  const links = (rows: (readonly [string, string])[]) =>
+    rows.map(([label, url]) => ({ link: externalLink(label, url) }));
+  await payload.updateGlobal({
+    slug: "footer",
+    locale: "sv",
+    draft: !publish,
+    context: { disableRevalidate: true },
+    data: {
+      linkGroups: [
+        {
+          heading: "Produkter",
+          links: links(productDefinitions.map(([, name]) => [name, "/#modeller"] as const)),
+        },
+        {
+          heading: "Tjänster",
+          links: links([
+            ["Konfigurator", "/configurator"],
+            ["Finansiering", "/#finansiering"],
+            ["Bli återförsäljare", "/#kontakt"],
+          ]),
+        },
+      ],
+      contactHeading: "Kontakt",
+      email: "info@milevas.se",
+      phone: "08-123 45 67",
+      location: "Stockholm, Sverige",
+      copyright: "Milevas AB. Alla rättigheter förbehållna.",
+      _status: publish ? "published" : "draft",
+    },
+  });
+}
+
 /** Explicit local seed, never run by onInit. Existing Milevas content survives repeated runs. */
 export async function seedMilevasHomepage(payload: Payload, publish = false) {
   const context = { disableRevalidate: true };
@@ -203,20 +237,7 @@ export async function seedMilevasHomepage(payload: Payload, publish = false) {
     _status: publish ? ("published" as const) : ("draft" as const),
   };
   await seedMilevasHeader(payload, publish);
-  await payload.updateGlobal({
-    slug: "footer",
-    locale: "sv",
-    draft: !publish,
-    context,
-    data: {
-      navItems: [
-        { link: externalLink("Modeller", "/#modeller") },
-        { link: externalLink("Finansiering", "/#finansiering") },
-        { link: externalLink("Kontakt", "/#kontakt") },
-      ],
-      _status: publish ? "published" : "draft",
-    },
-  });
+  await seedMilevasFooter(payload, publish);
   const page = existing.docs[0]
     ? await payload.update({
         collection: "pages",
