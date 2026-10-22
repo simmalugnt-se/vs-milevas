@@ -1172,10 +1172,19 @@ export const figmaNotes: FigmaNote[] = [
     topic: "Data",
     figma:
       'Menyerna Modeller, Tjänster och Om oss, med länkar och en bild, och länken "Dealer login"',
-    code: 'Header-globalens `navItems` blir menyer utan länkar, alltså vanliga länkar. Globalen har inga fält för menyernas länkar och bilder eller för login; `cta` ("Bygg din truck"), `siteName` och `siteTagline` visas inte',
-    why: "Globalens fält behöver ändras, med en migrering",
+    code: 'Header-globalens `navItems` är menyerna: etikett, länkar (med en bild per länk) och en bild; utan länkar är menyn en vanlig länk. `login` är login-länken med en kort etikett. `cta` ("Bygg din truck") finns kvar i globalen men visas inte, och inte heller `siteName` och `siteTagline`',
+    why: "Fälten följer Figma; `cta` tas bort ur globalen först när innehållet inte behövs",
+    status: "Beslut (teknisk)",
+    date: "2026-10-22",
+  },
+  {
+    target: "navigation",
+    topic: "Testinnehållet",
+    figma: "Länkar till sidor som modellerna, tjänsterna och login",
+    code: "`pnpm seed:header` fyller i Figmas menyer och truckbilder lokalt; länkarna går till startsidans sektioner och login till `/login`, som inte finns än",
+    why: "Sidorna finns inte än",
     status: "Platshållare",
-    date: "2026-10-21",
+    date: "2026-10-22",
   },
   {
     target: "navigation",

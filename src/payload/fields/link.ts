@@ -1,6 +1,18 @@
 import type { Field } from "payload";
 
-export const link = ({ name = "link" }: { name?: string } = {}): Field => ({
+/**
+ * `required: false` lets the link's target be left empty, e.g. a menu that only opens its links;
+ * `labelRequired` defaults to `required`.
+ */
+export const link = ({
+  name = "link",
+  required = true,
+  labelRequired = required,
+}: {
+  name?: string;
+  required?: boolean;
+  labelRequired?: boolean;
+} = {}): Field => ({
   name,
   type: "group",
   admin: {
@@ -23,7 +35,7 @@ export const link = ({ name = "link" }: { name?: string } = {}): Field => ({
       name: "reference",
       type: "relationship",
       relationTo: ["pages"],
-      required: true,
+      required,
       label: "Document to link to",
       admin: {
         condition: (_, siblingData) => siblingData?.type === "internal",
@@ -33,7 +45,7 @@ export const link = ({ name = "link" }: { name?: string } = {}): Field => ({
       name: "url",
       type: "text",
       label: "URL",
-      required: true,
+      required,
       admin: {
         condition: (_, siblingData) => siblingData?.type === "external",
       },
@@ -43,7 +55,7 @@ export const link = ({ name = "link" }: { name?: string } = {}): Field => ({
       type: "text",
       label: "Label",
       localized: true,
-      required: true,
+      required: labelRequired,
     },
     {
       name: "newTab",

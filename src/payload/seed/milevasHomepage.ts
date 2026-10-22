@@ -13,6 +13,78 @@ const productDefinitions = [
 
 const externalLink = (label: string, url: string) => ({ type: "external" as const, label, url });
 
+/** A Figma image from `scripts/figma-homepage-assets`, uploaded once. */
+async function uploadImage(payload: Payload, name: string, alt: string) {
+  const filename = `milevas-home-${name}.png`;
+  const found = await payload.find({
+    collection: "images",
+    locale: "sv",
+    limit: 1,
+    where: { filename: { equals: filename } },
+  });
+  if (found.docs[0]) return found.docs[0].id;
+  const { readFile } = await import("node:fs/promises");
+  const data = await readFile(path.resolve("scripts/figma-homepage-assets", `${name}.png`));
+  const uploaded = await payload.create({
+    collection: "images",
+    locale: "sv",
+    data: { alt },
+    file: { data, name: filename, size: data.length, mimetype: "image/png" },
+    context: { disableRevalidate: true },
+  });
+  return uploaded.id;
+}
+
+/**
+ * The Header global as Figma's navigation: the menus Modeller (the trucks, each with its image),
+ * Tjänster and Om oss, and the login link. The links point at the start page's sections until the
+ * pages exist; the login link at `/login`, where Figma's Login block will go.
+ */
+export async function seedMilevasHeader(payload: Payload, publish = false) {
+  const links = (rows: (readonly [string, string])[]) =>
+    rows.map(([label, url]) => ({ link: externalLink(label, url) }));
+  const trucks = [];
+  for (const [, name, , asset] of productDefinitions) {
+    trucks.push({
+      link: externalLink(name, "/#modeller"),
+      image: await uploadImage(payload, asset, name),
+    });
+  }
+  await payload.updateGlobal({
+    slug: "header",
+    locale: "sv",
+    draft: !publish,
+    context: { disableRevalidate: true },
+    data: {
+      navItems: [
+        {
+          link: { label: "Modeller" },
+          links: trucks,
+          image: await uploadImage(payload, "stacker", "Ledstaplare"),
+        },
+        {
+          link: { label: "Tjänster" },
+          links: links([
+            ["Hur det fungerar", "/#hur-det-fungerar"],
+            ["Finansiering", "/#finansiering"],
+            ["Bli återförsäljare", "/#kontakt"],
+          ]),
+        },
+        {
+          link: { label: "Om oss" },
+          links: links([
+            ["Om Baoli", "/#kontakt"],
+            ["Service & eftermarknad", "/#kontakt"],
+            ["Kontakt", "/#kontakt"],
+          ]),
+        },
+      ],
+      login: { link: externalLink("Dealer login", "/login"), shortLabel: "Login" },
+      _status: publish ? "published" : "draft",
+    },
+  });
+}
+
 /** Explicit local seed, never run by onInit. Existing Milevas content survives repeated runs. */
 export async function seedMilevasHomepage(payload: Payload, publish = false) {
   const context = { disableRevalidate: true };
@@ -36,26 +108,7 @@ export async function seedMilevasHomepage(payload: Payload, publish = false) {
   });
   const familyIDs = new Map(families.docs.map((family) => [family.key, family.id]));
 
-  async function image(name: string, alt: string) {
-    const filename = `milevas-home-${name}.png`;
-    const found = await payload.find({
-      collection: "images",
-      locale: "sv",
-      limit: 1,
-      where: { filename: { equals: filename } },
-    });
-    if (found.docs[0]) return found.docs[0].id;
-    const { readFile } = await import("node:fs/promises");
-    const data = await readFile(path.resolve("scripts/figma-homepage-assets", `${name}.png`));
-    const uploaded = await payload.create({
-      collection: "images",
-      locale: "sv",
-      data: { alt },
-      file: { data, name: filename, size: data.length, mimetype: "image/png" },
-      context,
-    });
-    return uploaded.id;
-  }
+  const image = (name: string, alt: string) => uploadImage(payload, name, alt);
 
   const products = [];
   for (const [key, name, capacity, asset] of productDefinitions) {
@@ -149,22 +202,7 @@ export async function seedMilevasHomepage(payload: Payload, publish = false) {
     layout,
     _status: publish ? ("published" as const) : ("draft" as const),
   };
-  await payload.updateGlobal({
-    slug: "header",
-    locale: "sv",
-    draft: !publish,
-    context,
-    data: {
-      navItems: [
-        { link: externalLink("Modeller", "/#modeller") },
-        { link: externalLink("Hur det fungerar", "/#hur-det-fungerar") },
-        { link: externalLink("Finansiering", "/#finansiering") },
-        { link: externalLink("Om Baoli", "/#kontakt") },
-      ],
-      cta: externalLink("Bygg din truck", "/configurator"),
-      _status: publish ? "published" : "draft",
-    },
-  });
+  await seedMilevasHeader(payload, publish);
   await payload.updateGlobal({
     slug: "footer",
     locale: "sv",

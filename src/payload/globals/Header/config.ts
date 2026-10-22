@@ -31,19 +31,75 @@ export const Header: GlobalConfig = {
     {
       name: "navItems",
       type: "array",
+      label: "Menus",
       localized: false,
-      fields: [link()],
+      fields: [
+        {
+          ...(link({ required: false, labelRequired: true }) as GroupField),
+          admin: {
+            hideGutter: true,
+            description:
+              'The menu\'s label, e.g. "Modeller". The link is used only when the menu has no links.',
+          },
+        },
+        {
+          name: "links",
+          type: "array",
+          label: "Links in the menu",
+          fields: [
+            link(),
+            {
+              name: "image",
+              type: "upload",
+              relationTo: "images",
+              label: "Image while pointed at",
+              admin: {
+                description: "Desktop: replaces the menu's image while the link is pointed at.",
+              },
+            },
+          ],
+          admin: { initCollapsed: true },
+        },
+        {
+          name: "image",
+          type: "upload",
+          relationTo: "images",
+          label: "Image",
+          admin: {
+            description: "The square image beside the open menu (Desktop and Tablet).",
+          },
+        },
+      ],
       maxRows: 8,
       admin: {
         initCollapsed: true,
       },
     },
     {
-      ...(link({ name: "cta" }) as GroupField),
-      label: "Button",
+      name: "login",
+      type: "group",
+      label: "Login link",
+      admin: { hideGutter: true },
+      fields: [
+        link({ required: false }),
+        {
+          name: "shortLabel",
+          type: "text",
+          label: "Short label",
+          localized: true,
+          admin: {
+            description: 'Below Desktop S, e.g. "Login" for "Dealer login".',
+          },
+        },
+      ],
+    },
+    {
+      ...(link({ name: "cta", required: false }) as GroupField),
+      label: "Button (not shown)",
       admin: {
         hideGutter: true,
-        description: 'The button at the end of the navigation, e.g. "Bygg din truck".',
+        description:
+          "The old navigation's button (\"Bygg din truck\"). Figma's navigation has none, so it is not shown.",
       },
     },
     {

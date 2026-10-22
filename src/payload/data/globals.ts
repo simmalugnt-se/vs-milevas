@@ -4,17 +4,25 @@ import { getPayloadDbReady } from "@/payload/data/db-ready";
 import { getPayloadClient } from "@/payload/get-payload";
 import type { LinkFieldValue } from "@/payload/utilities/link-field";
 import { resolveLinkField, resolveLinkFieldHref } from "@/payload/utilities/link-field";
+import type { Image } from "@/payload-types";
 
 export type NavItem = {
   id?: string | null;
   link: LinkFieldValue;
 };
 
+/** A Header menu: its label (and link without `links`), its links and its image. */
+export type HeaderNavItem = NavItem & {
+  links?: (NavItem & { image?: Image | string | null })[] | null;
+  image?: Image | string | null;
+};
+
 export type HeaderData = {
   announcement?: string | null;
   announcementLink?: LinkFieldValue | null;
   cta?: LinkFieldValue | null;
-  navItems?: NavItem[] | null;
+  login?: { link?: LinkFieldValue | null; shortLabel?: string | null } | null;
+  navItems?: HeaderNavItem[] | null;
   siteName?: string | null;
   showAnnouncement?: boolean | null;
   siteTagline?: string | null;

@@ -100,8 +100,12 @@ function MenuLinks({
 }) {
   return (
     <ul className={`flex flex-col ${className ?? ""}`} onMouseLeave={() => onHover?.(undefined)}>
-      {links.map((link) => (
-        <li key={link.href} onMouseEnter={() => onHover?.(link.image ? link : undefined)}>
+      {links.map((link, index) => (
+        // Links may share an address (several to one section), so the key has the position too.
+        <li
+          key={`${index}-${link.href}`}
+          onMouseEnter={() => onHover?.(link.image ? link : undefined)}
+        >
           <NavLink
             variant="secondary"
             href={link.href}

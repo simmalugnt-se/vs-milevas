@@ -1660,6 +1660,9 @@ export interface Header {
   siteTagline?: string | null;
   navItems?:
     | {
+        /**
+         * The menu's label, e.g. "Modeller". The link is used only when the menu has no links.
+         */
         link: {
           type?: ('internal' | 'external') | null;
           reference?: {
@@ -1670,20 +1673,59 @@ export interface Header {
           label: string;
           newTab?: boolean | null;
         };
+        links?:
+          | {
+              link: {
+                type?: ('internal' | 'external') | null;
+                reference?: {
+                  relationTo: 'pages';
+                  value: string | Page;
+                } | null;
+                url?: string | null;
+                label: string;
+                newTab?: boolean | null;
+              };
+              /**
+               * Desktop: replaces the menu's image while the link is pointed at.
+               */
+              image?: (string | null) | Image;
+              id?: string | null;
+            }[]
+          | null;
+        /**
+         * The square image beside the open menu (Desktop and Tablet).
+         */
+        image?: (string | null) | Image;
         id?: string | null;
       }[]
     | null;
+  login?: {
+    link?: {
+      type?: ('internal' | 'external') | null;
+      reference?: {
+        relationTo: 'pages';
+        value: string | Page;
+      } | null;
+      url?: string | null;
+      label?: string | null;
+      newTab?: boolean | null;
+    };
+    /**
+     * Below Desktop S, e.g. "Login" for "Dealer login".
+     */
+    shortLabel?: string | null;
+  };
   /**
-   * The button at the end of the navigation, e.g. "Bygg din truck".
+   * The old navigation's button ("Bygg din truck"). Figma's navigation has none, so it is not shown.
    */
-  cta: {
+  cta?: {
     type?: ('internal' | 'external') | null;
     reference?: {
       relationTo: 'pages';
       value: string | Page;
     } | null;
     url?: string | null;
-    label: string;
+    label?: string | null;
     newTab?: boolean | null;
   };
   showAnnouncement?: boolean | null;
@@ -1783,7 +1825,37 @@ export interface HeaderSelect<T extends boolean = true> {
               label?: T;
               newTab?: T;
             };
+        links?:
+          | T
+          | {
+              link?:
+                | T
+                | {
+                    type?: T;
+                    reference?: T;
+                    url?: T;
+                    label?: T;
+                    newTab?: T;
+                  };
+              image?: T;
+              id?: T;
+            };
+        image?: T;
         id?: T;
+      };
+  login?:
+    | T
+    | {
+        link?:
+          | T
+          | {
+              type?: T;
+              reference?: T;
+              url?: T;
+              label?: T;
+              newTab?: T;
+            };
+        shortLabel?: T;
       };
   cta?:
     | T

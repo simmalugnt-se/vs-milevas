@@ -8,6 +8,7 @@ import * as migration_20260811_122754_r2_documents_prefix from "./20260811_12275
 import * as migration_20261002_065231_boilerplate_sync from "./20261002_065231_boilerplate_sync";
 import * as migration_20261005_081141_header_cta_footer_email from "./20261005_081141_header_cta_footer_email";
 import * as migration_20261005_094932_configurator_step_help from "./20261005_094932_configurator_step_help";
+import * as migration_20261022_123131_header_menus_login from "./20261022_123131_header_menus_login";
 
 export const migrations = [
   {
@@ -59,5 +60,10 @@ export const migrations = [
     up: migration_20261005_094932_configurator_step_help.up,
     down: migration_20261005_094932_configurator_step_help.down,
     name: "20261005_094932_configurator_step_help",
+  },
+  {
+    up: migration_20261022_123131_header_menus_login.up,
+    down: migration_20261022_123131_header_menus_login.down,
+    name: "20261022_123131_header_menus_login",
   },
 ];
