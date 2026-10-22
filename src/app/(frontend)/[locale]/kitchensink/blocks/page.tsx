@@ -12,6 +12,11 @@ import { Button } from "@/components/ui/button";
 import { Choice } from "@/components/ui/choice";
 import { ConfiguratorBox, choiceLayout } from "@/components/ui/configurator-box";
 import type { ProductCardProps } from "@/components/ui/product-card";
+import heroCounterbalance from "../../../../../../scripts/figma-homepage-assets/hero-counterbalance.png";
+import heroLowLift from "../../../../../../scripts/figma-homepage-assets/hero-low-lift.png";
+import heroPalletTruck from "../../../../../../scripts/figma-homepage-assets/hero-pallet-truck.png";
+import heroReachTruck from "../../../../../../scripts/figma-homepage-assets/hero-reach-truck.png";
+import heroStacker from "../../../../../../scripts/figma-homepage-assets/hero-stacker.png";
 import navigationTruck from "../assets/navigation-truck.png";
 import truckCounterbalance from "../assets/truck-counterbalance.png";
 import truckPallet from "../assets/truck-pallet.png";
@@ -197,6 +202,15 @@ function Block({ id, figma, children }: { id: SectionId; figma: string; children
   );
 }
 
+/** The hero's trucks, from its Figma Make prototype. */
+const heroTrucks = [
+  ["Elektriska motviktstruckar", heroCounterbalance],
+  ["Skjutstativtruckar", heroReachTruck],
+  ["Låglyftare", heroLowLift],
+  ["Ledstaplare", heroStacker],
+  ["Elektriska pallyftare", heroPalletTruck],
+] as const;
+
 export default function BlocksPage() {
   return (
     <KitchensinkPage href="/kitchensink/blocks" fullWidth>
@@ -227,16 +241,29 @@ export default function BlocksPage() {
 
       <Block id="hero" figma="8550:12778">
         <MilevasHero
-          heading="Bygg din truck med Milevas"
-          columns={Array.from({ length: 5 }, (_, index) => ({
+          heading="Bygg din baoli"
+          highlight="På typ 30 sekunder"
+          prompt="Välj trucktyp för att börja"
+          activeColumn={5}
+          columns={heroTrucks.map(([name, image], index) => ({
             id: String(index),
+            name,
             heading: "Bygg din truck:",
-            label: `Bygg din truck, kolumn ${index + 1}`,
+            label: `Bygg din truck: ${name}`,
             href: "/configurator",
             rows: [
               { label: "Från", value: "169 000 kr" },
               { label: "Leasing från:", value: "3 326 kr/mån" },
             ],
+            image: (
+              <Image
+                src={image}
+                alt=""
+                fill
+                sizes="(min-width: 1024px) 26.25rem, 75vw"
+                className="object-contain object-bottom"
+              />
+            ),
           }))}
         />
       </Block>

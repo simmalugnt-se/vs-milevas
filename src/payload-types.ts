@@ -348,15 +348,30 @@ export interface Page {
              */
             anchor?: string | null;
             /**
-             * Sidans h1, läses av skärmläsare men visas inte i kolumnerna.
+             * Sidans h1, introts vita rad. Exempel: Bygg din baoli.
              */
             heading: string;
+            /**
+             * Efter rubriken, i gult. Exempel: På typ 30 sekunder.
+             */
+            highlight?: string | null;
+            /**
+             * Under rubriken. Exempel: Välj trucktyp för att börja.
+             */
+            prompt?: string | null;
+            /**
+             * På desktop glider truckarna dit efter introt.
+             */
             activeColumn?: number | null;
             columns: {
               /**
                * Valfritt. Hämtar namn, bild och priser från konfiguratorn.
                */
               family?: (string | null) | TruckFamily;
+              /**
+               * Frilagd truck, nederkanten mot marken. Utan bild används truckfamiljens bild.
+               */
+              image?: (string | null) | Image;
               heading: string;
               link?: {
                 type?: ('internal' | 'external') | null;
@@ -1176,11 +1191,14 @@ export interface PagesSelect<T extends boolean = true> {
           | {
               anchor?: T;
               heading?: T;
+              highlight?: T;
+              prompt?: T;
               activeColumn?: T;
               columns?:
                 | T
                 | {
                     family?: T;
+                    image?: T;
                     heading?: T;
                     link?:
                       | T

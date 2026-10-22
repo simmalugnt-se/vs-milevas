@@ -37,11 +37,11 @@ Genomgånget i Figma 2026-10-05: bara blocken i den första tabellen har innehå
 
 ### Väntar på designen
 
-Grid och Image & Text byggs inte förrän Figma är klar. Hero har en första testversion från Page Template, med antaganden för mindre skärmar noterade på kitchensink.
+Image & Text byggs inte förrän Figma är klar. Hero är byggd 2026-10-22 efter Figmas Start- och Collumns-lägen och beteendet i Figma Make-prototypen ("Recreate interactive hero section"); skillnaderna står på kitchensink.
 
 | # | Block | Figma | Läget i Figma | Bygger på |
 |---|---|---|---|---|
-| 7 | Hero ✓ testkomponent, ✓ Payload | `8539:7103` | Desktop L och S: mörka kolumner (fem, inte fyra) med en gul aktiv kolumn, ingen bild; Tablet och Mobile är svarta ytor | TruckColumn, som också är ett utkast |
+| 7 | Hero ✓ (2026-10-22), ✓ Payload | `8539:7103` | Start (rubrik och uppmaning) och Collumns (fem kolumner, en gul) i alla fyra bredder; rörelsen och truckbilderna finns i Figma Make-prototypen | TruckColumn (styrd av blocket), Icon |
 | 8 | Grid ✓ (2026-10-22) | `8389:4440` | Inget eget block: platserna (2, 3, 4) som blocken lägger innehåll i; i koden `card-grid-2/3/4` | Card grid |
 | 9 | Image & Text | `8721:19164` | Grå ytor i alla fyra lägen | Okänt |
 

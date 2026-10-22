@@ -52,6 +52,30 @@ export const designQuestions: DesignQuestion[] = [
     figma: "8539:7103",
   },
   {
+    target: "hero",
+    question:
+      'Den aktiva kolumnen visar i Figma "Bygg din Truck:" i Display XS och priserna i Text XS/S på rader, men i Make-prototypen rubriken och priserna i 24px bredvid varandra. Vilken gäller? Koden följer Figma.',
+    figma: "8539:7104",
+  },
+  {
+    target: "hero",
+    question:
+      "Introt stannar på den sista kolumnen i Make-prototypen, men Figma visar den tredje gul. Vilken kolumn ska vara aktiv efter introt? Koden låter Payload välja (testet: den sista).",
+    figma: "8539:7104",
+  },
+  {
+    target: "hero",
+    question:
+      "Mobile: den första kolumnen är 283px bred och de andra 299 (Tablet 482 och 498), och prototypen använder 314. Vilken bredd gäller? Koden ger alla Figmas 299 respektive 498.",
+    figma: "8539:7128",
+  },
+  {
+    target: "hero",
+    question:
+      "Navigationen (Dark, ljus text) ligger över heron, och över en gul kolumn syns texten knappt. Prototypen döljer navigationen. Ska den byta färg, eller få en bakgrund, över heron?",
+    figma: "8539:7104",
+  },
+  {
     target: "general",
     question:
       'Ramen "blabla" på "02 — Components" (text-box, truck-column): när är den klar, och vad ska den heta?',
@@ -361,40 +385,99 @@ export const figmaNotes: FigmaNote[] = [
   },
   {
     target: "hero",
-    topic: "Mindre skärmar",
+    topic: "Figma och prototypen",
     figma:
-      "Page Template har tomma blockytor på Desktop S, Tablet och Mobile; hero-blocket är inte färdigritat under desktop",
-    code: "Fem kolumner på desktop; horisontell snap-lista under Desktop S, 85 % kortbredd på Mobile och 55 % på Tablet, alla val synliga",
-    why: "Första testversionen behöver fungerande länkar även utan hover",
-    status: "Antagande",
-    date: "2026-10-07",
-  },
-  {
-    target: "hero",
-    topic: "Höjd på desktop",
-    figma: "Hero-ramen har proportionen 1440:832",
-    code: "Från Desktop S är heron 100svh hög utan aspektförhållande. Kolumnernas text ligger längst ner inom den synliga höjden",
-    why: "På breda skärmar blev den breddstyrda höjden större än viewporten och dolde texten. Anpassat till viewportens höjd efter användarens granskning",
+      'Hero-ramen har lägena Start och Collumns per bredd; beteendet, truckbilderna och etiketterna finns bara i Figma Make-prototypen "Recreate interactive hero section"',
+    code: "Färger, typografi, kolumner och texter följer Figma; rörelsen, tiderna, truckarnas placering och etiketterna följer prototypen",
+    why: "Användaren gav prototypen som beskrivning av hur heron ska bete sig",
     status: "Beslut",
-    date: "2026-10-07",
+    date: "2026-10-22",
   },
   {
     target: "hero",
-    topic: "Aktiv kolumn",
-    figma: "Den tredje av fem kolumner är gul",
-    code: "Startkolumnen väljs i Payload; hover och tangentbordsfokus aktiverar en annan kolumn",
-    why: "Figma visar ett läge men ingen regel för startkolumnen",
+    topic: "Introt",
+    figma:
+      "Prototypen: rubriken visas i 1,2s, ett svep (0,85s) eller en scroll till slutet och tillbaka (0,85 och 0,95s), och 2s senare lyfts raderna ut på 0,5s med `cubic-bezier(0.65, 0, 0.35, 1)`, 0,12s mellan dem. Prototypens rubrik är 130px högt upp; Figmas Start har Display L mitt på höjden",
+    code: "Prototypens förlopp med Figmas Start-layout. Under Desktop S radbryts rubriken som i Figma och lyfts ut i ett stycke, sedan uppmaningen. Med reducerad rörelse hoppas introt över",
+    why: "Prototypen lyfter två textblock på mobil; Figmas rubrik bryts mitt i den gula delen",
+    status: "Beslut (teknisk)",
+    date: "2026-10-22",
+  },
+  {
+    target: "hero",
+    topic: "Truckarna på Desktop",
+    figma:
+      "Prototypen: varje kolumn klipper sin egen truck i en ruta på 420 × 420 med nederkanten 190px under punkten. Truckarna följer punkten med eftersläpning (9 % per bildruta, 5 % när de glider in eller tillbaka); kolumnen under punkten blir aktiv när punkten är 8px in i den",
+    code: "Som prototypen, i rem (26,25 och 11,875rem). Lämnar pekaren heron går truckarna tillbaka till mitten av sina kolumner och ingen kolumn är aktiv; byter pekaren kolumn hoppar truckarna till den",
+    why: "Så gör prototypen",
+    status: "Beslut (teknisk)",
+    date: "2026-10-22",
+  },
+  {
+    target: "hero",
+    topic: "Etiketten vid pekaren",
+    figma:
+      "Prototypen: truckens namn i en mörk etikett med gul 1px ram och en 12px pil, 14px höger om och 200px under pekaren; den blir bara bredare. Muspekaren döljs",
+    code: "Label S med ikonen `arrow-up-right` (16px) från Icons, `rounded-sm`, `spacing/xs` runt; bredden är det längsta namnet från början. Muspekaren döljs över heron",
+    why: "Prototypens pil finns inte bland Figmas ikoner; samma bredd hela tiden ger samma resultat utan mätning",
+    status: "Beslut (teknisk)",
+    date: "2026-10-22",
+  },
+  {
+    target: "hero",
+    topic: "Tablet och Mobile",
+    figma:
+      'Figma: kolumner i en rad som går utanför bilden, den första gul med "Skrolla". Prototypen: en snappande lista där trucken, namnet, priserna och tipset står still på skärmen medan kolumnerna glider under dem, och kolumnen som syns är gul',
+    code: 'Som prototypen, med Figmas kolumnbredder (299 av 375 och 498 av 800). Trucken och namnet har prototypens storlek och höjd i förhållande till skärmen; "Skrolla" visas tills listan har rört sig 12 % av en kolumn',
+    why: "Figma visar bara utgångsläget",
+    status: "Beslut (teknisk)",
+    date: "2026-10-22",
+  },
+  {
+    target: "hero",
+    topic: "Höjd",
+    figma: "1440 × 832, 1280 × 832, 800 × 1000 och 375 × 800",
+    code: "`100svh` i alla bredder, minst 37,5rem (600px), som prototypen",
+    why: "Heron fyller skärmen; på breda skärmar blev den breddstyrda höjden för hög (beslut 2026-10-07)",
+    status: "Beslut",
+    date: "2026-10-22",
+  },
+  {
+    target: "hero",
+    topic: "Truckbilder",
+    figma: "Inga bilder i Figma; prototypen har fem frilagda truckar i samma skala",
+    code: "Varje kolumn har ett eget bildfält i Payload, annars truckfamiljens bild. Testet använder prototypens bilder (`scripts/figma-homepage-assets/hero-*.png`)",
+    why: "Familjernas bilder har olika utsnitt och marginaler",
+    status: "Beslut (teknisk)",
+    date: "2026-10-22",
+  },
+  {
+    target: "hero",
+    topic: "Aktiv kolumn efter introt",
+    figma: "Figma visar den tredje kolumnen gul; prototypen stannar på den sista",
+    code: '"Kolumnen introt stannar på" i Payload (standard 3, testet 5 som prototypen)',
+    why: "Se frågan",
     status: "Antagande",
-    date: "2026-10-07",
+    date: "2026-10-22",
   },
   {
     target: "hero",
     topic: "Rubrik och priser",
-    figma: "Bygg din truck: med exempelpriser, ingen sidrubrik",
-    code: "En redigerbar h1 för skärmläsare; pris och leasing från vald truckfamilj och konfiguratorns finansieringsinställningar",
+    figma:
+      'Start: "Bygg din baoli" och "På typ 30 sekunder" i gult, och "Välj trucktyp för att börja"; kolumnerna har exempelpriser',
+    code: "Rubriken är sidans h1 och finns kvar för skärmläsare när introt har gått; den gula raden och uppmaningen är egna fält. Pris och leasing från vald truckfamilj och konfiguratorns finansieringsinställningar",
     why: "Riktigt CMS-innehåll och priser som följer konfiguratorn",
     status: "Beslut (teknisk)",
-    date: "2026-10-07",
+    date: "2026-10-22",
+  },
+  {
+    target: "hero",
+    topic: "Tangentbord och pekskärm",
+    figma: "Prototypen följer bara musen",
+    code: "Kolumnerna är länkar till konfiguratorn; tangentbordsfokus och pekskärmar på Desktop-bredd aktiverar ingen kolumn",
+    why: "Inte ritat",
+    status: "Lucka",
+    date: "2026-10-22",
   },
   {
     target: "product-grid",
@@ -1131,6 +1214,15 @@ export const figmaNotes: FigmaNote[] = [
   },
   {
     target: "truck-column",
+    topic: "Styrd av blocket",
+    figma: "Default och Active; inget om vem som bestämmer läget",
+    code: '`controlled`: aktiv bara med `data-state="active"`, i alla bredder och utan hover. Heron använder det och lägger sin truck under innehållet',
+    why: "Heron väljer aktiv kolumn efter pekaren eller scrollen, som prototypen",
+    status: "Beslut (teknisk)",
+    date: "2026-10-22",
+  },
+  {
+    target: "truck-column",
     topic: "Under Desktop S",
     figma: "Inget beteende utan hover",
     code: "Alltid aktiv, med gul bakgrund och innehåll",
@@ -1286,7 +1378,8 @@ export const figmaNotes: FigmaNote[] = [
   {
     target: "navigation",
     topic: "Avstånd i den andra kolumnen",
-    figma: "I Modeller har den andra kolumnen 8px mellan länkarna, den första ingen, så raderna inte står i linje",
+    figma:
+      "I Modeller har den andra kolumnen 8px mellan länkarna, den första ingen, så raderna inte står i linje",
     code: "Ingen i båda kolumnerna, som i den första och i menyerna med en kolumn",
     why: "Ett misstag i Figma enligt användaren",
     status: "Beslut",

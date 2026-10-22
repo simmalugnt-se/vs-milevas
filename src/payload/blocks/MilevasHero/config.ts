@@ -12,15 +12,30 @@ export const MilevasHeroBlock: Block = {
       type: "text",
       required: true,
       localized: true,
-      admin: { description: "Sidans h1, läses av skärmläsare men visas inte i kolumnerna." },
+      admin: { description: "Sidans h1, introts vita rad. Exempel: Bygg din baoli." },
+    },
+    {
+      name: "highlight",
+      label: "Gul rad",
+      type: "text",
+      localized: true,
+      admin: { description: "Efter rubriken, i gult. Exempel: På typ 30 sekunder." },
+    },
+    {
+      name: "prompt",
+      label: "Uppmaning",
+      type: "text",
+      localized: true,
+      admin: { description: "Under rubriken. Exempel: Välj trucktyp för att börja." },
     },
     {
       name: "activeColumn",
-      label: "Aktiv kolumn från start",
+      label: "Kolumnen introt stannar på",
       type: "number",
       defaultValue: 3,
       min: 1,
       max: 6,
+      admin: { description: "På desktop glider truckarna dit efter introt." },
     },
     {
       name: "columns",
@@ -31,6 +46,16 @@ export const MilevasHeroBlock: Block = {
       maxRows: 6,
       fields: [
         familyField,
+        {
+          name: "image",
+          label: "Truckbild",
+          type: "upload",
+          relationTo: "images",
+          admin: {
+            description:
+              "Frilagd truck, nederkanten mot marken. Utan bild används truckfamiljens bild.",
+          },
+        },
         { name: "heading", label: "Rubrik", type: "text", required: true, localized: true },
         editorialLink(),
         {

@@ -258,6 +258,19 @@ const icons = {
       </>
     ),
   },
+  /** Figma's `icon-arrow-right-down`, not on the Icons frame: the hero's "Välj trucktyp" link. */
+  "arrow-right-down": {
+    viewBox: "0 0 16 16",
+    body: (
+      <>
+        <path
+          d="M4.17169 5.17157L9.82854 10.8284M4.17169 10.8284H9.82854V5.17157"
+          strokeWidth="2"
+          stroke="currentColor"
+        />
+      </>
+    ),
+  },
   /** Figma's old 12px `icon-arrow-right`, which the Form calendar still uses (turned for left). */
   "arrow-right-s": {
     viewBox: "0 0 12 12",

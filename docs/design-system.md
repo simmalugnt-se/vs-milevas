@@ -111,8 +111,10 @@ bildfält, länkar och markörer för visual editing. Boilerplatens block är kv
 - Den publika sidlayouten är global: fullbredd utan yttre padding, sammanhängande CMS-block
   och navigation ovanpå innehållet som följer med vid scroll. Blocken ansvarar för sin egen spacing;
   layouten beror inte på vilket block som ligger först.
-- Hero är `100svh` hög från Desktop S så texten längst ner ryms även på breda skärmar.
-  Mobile och Tablet använder sina tidigare aspektförhållanden i snap-listan.
+- Hero är `100svh` hög i alla bredder. Introt, trucksen som följer pekaren och snap-listan under
+  Desktop S följer Figma Make-prototypen; varje kolumn kan ha en egen truckbild, annars används
+  truckfamiljens. `pnpm seed:homepage -- --hero --publish-local` byter bara heron på en befintlig
+  lokal startsida mot Figmas texter och prototypens truckbilder (`hero-*.png`).
 - Hero och produktkort kan kopplas till truckfamiljer: namn, bild och priser kan hämtas från
   konfiguratorn. Produktkortens bildutsnitt kan styras i Payload; testet använder Figmas utsnitt.
 - `pnpm seed:homepage` skapar startsidan (`home`) samt navigation/footer som lokala utkast.
@@ -128,14 +130,14 @@ bildfält, länkar och markörer för visual editing. Boilerplatens block är kv
 - `pnpm test:milevas-blocks` provar sparande, relationer, lokaliserad text och upprepad seed i
   en egen tillfällig databas. Befintliga migrationsfiler bygger hela schemat.
 
-Hero på mindre skärmar, plocktruckens kontaktlänk, specifikationerna och kvarvarande
+Heron, plocktruckens kontaktlänk, specifikationerna och kvarvarande
 text-platshållare är dokumenterade vid blocken i `figma-notes.ts`. Clash Grotesk Variable används
 för Display, Text och sajtens standardtext; Label använder Geist Mono.
 
 ## Nästa steg
 
 1. **Offertsidan** (`/configurator/quote`, orderformuläret) i designsystemets stil; Figma har ingen
-   skiss. Hero, Grid och Image & Text väntar på designen, och text-box och truck-column är utkast
+   skiss. Image & Text väntar på designen, och text-box och truck-column är utkast
    tills ramen "blabla" är klar.
 2. **Väntar på designen eller på dig:**
    - en genomgång av posterna med status Antagande och frågorna till designen, på `/kitchensink/notes`

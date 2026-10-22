@@ -531,3 +531,20 @@ html[data-grid-overlay-visible] [data-layout-block] {
     cursor: pointer;
   }
 }
+
+/**
+ * The hero's motion from its Figma Make prototype: the active column's prices rise into place, and
+ * the truck name under the pointer fades in when it changes.
+ */
+@keyframes hero-info-in {
+  from {
+    translate: 0 1.125rem;
+    opacity: 0;
+  }
+}
+
+@keyframes hero-fade-in {
+  from {
+    opacity: 0;
+  }
+}

@@ -119,8 +119,39 @@ export async function seedMilevasFooter(payload: Payload, publish = false) {
   });
 }
 
-/** Explicit local seed, never run by onInit. Existing Milevas content survives repeated runs. */
-export async function seedMilevasHomepage(payload: Payload, publish = false) {
+/** The hero as Figma's Hero and its Figma Make prototype: the intro text and five truck types. */
+async function milevasHeroBlock(payload: Payload, familyIDs: Map<string, string>) {
+  const columns = [
+    ["electric-counterbalance", "counterbalance", "Elektriska motviktstruckar"],
+    ["reach-truck", "reach-truck", "Skjutstativtruckar"],
+    ["low-lift-pallet-truck", "low-lift", "Låglyftare"],
+    ["pedestrian-stacker", "stacker", "Ledstaplare"],
+    ["electric-pallet-truck", "pallet-truck", "Elektriska pallyftare"],
+  ] as const;
+  const items = [];
+  for (const [key, asset, name] of columns) {
+    items.push({
+      heading: "Bygg din truck:",
+      family: familyIDs.get(key),
+      image: await uploadImage(payload, `hero-${asset}`, name),
+      ...(!familyIDs.has(key) ? { link: externalLink(name, "/configurator") } : {}),
+    });
+  }
+  return {
+    blockType: "milevasHero" as const,
+    heading: "Bygg din baoli",
+    highlight: "På typ 30 sekunder",
+    prompt: "Välj trucktyp för att börja",
+    activeColumn: 5,
+    columns: items,
+  };
+}
+
+/**
+ * Explicit local seed, never run by onInit. Existing Milevas content survives repeated runs;
+ * `updateHero` replaces only the hero of an existing start page.
+ */
+export async function seedMilevasHomepage(payload: Payload, publish = false, updateHero = false) {
   const context = { disableRevalidate: true };
   const existing = await payload.find({
     collection: "pages",
@@ -130,9 +161,6 @@ export async function seedMilevasHomepage(payload: Payload, publish = false) {
     limit: 1,
     overrideAccess: true,
   });
-  if (existing.docs[0]?.layout?.some((block) => block.blockType === "milevasHero")) {
-    return { page: existing.docs[0], seeded: false };
-  }
   const families = await payload.find({
     collection: "truck-families",
     locale: "sv",
@@ -141,6 +169,25 @@ export async function seedMilevasHomepage(payload: Payload, publish = false) {
     overrideAccess: false,
   });
   const familyIDs = new Map(families.docs.map((family) => [family.key, family.id]));
+  const seededPage = existing.docs[0];
+  if (seededPage?.layout?.some((block) => block.blockType === "milevasHero")) {
+    if (!updateHero) return { page: seededPage, seeded: false };
+    const hero = await milevasHeroBlock(payload, familyIDs);
+    const page = await payload.update({
+      collection: "pages",
+      id: seededPage.id,
+      locale: "sv",
+      draft: !publish,
+      data: {
+        layout: seededPage.layout.map((block) =>
+          block.blockType === "milevasHero" ? { ...hero, id: block.id } : block,
+        ),
+        _status: publish ? "published" : "draft",
+      },
+      context,
+    });
+    return { page, seeded: true };
+  }
 
   const image = (name: string, alt: string) => uploadImage(payload, name, alt);
 
@@ -177,22 +224,7 @@ export async function seedMilevasHomepage(payload: Payload, publish = false) {
     await image("night", "En truck arbetar vid containrar på kvällen"),
   ];
   const layout: NonNullable<Page["layout"]> = [
-    {
-      blockType: "milevasHero",
-      heading: "Bygg din truck med Milevas",
-      activeColumn: 3,
-      columns: [
-        "reach-truck",
-        "pedestrian-stacker",
-        "electric-counterbalance",
-        "low-lift-pallet-truck",
-        "electric-pallet-truck",
-      ].map((key) => ({
-        heading: "Bygg din truck:",
-        family: familyIDs.get(key),
-        ...(!familyIDs.has(key) ? { link: externalLink("Bygg din truck", "/configurator") } : {}),
-      })),
-    },
+    await milevasHeroBlock(payload, familyIDs),
     {
       blockType: "productGrid",
       anchor: "modeller",

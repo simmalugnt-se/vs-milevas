@@ -19,7 +19,11 @@ async function main() {
   const payload = await getPayload({ config, disableOnInit: true });
   try {
     const publish = process.argv.includes("--publish-local");
-    const { page, seeded } = await seedMilevasHomepage(payload, publish);
+    const { page, seeded } = await seedMilevasHomepage(
+      payload,
+      publish,
+      process.argv.includes("--hero"),
+    );
     console.log(
       `${seeded ? "Skapad" : "Finns redan"}: ${publish ? "lokal startsida" : "startsida som utkast"} /admin/collections/pages/${page.id}`,
     );
