@@ -279,6 +279,12 @@ export const designQuestions: DesignQuestion[] = [
     figma: "9321:51222",
   },
   {
+    target: "grids",
+    question:
+      "Grid med 4 platser visar bara 3 platser på Mobile. Ska alla 4 ligga under varandra, som koden gör?",
+    figma: "8389:4739",
+  },
+  {
     target: "contact-form",
     question:
       "order numrerar fälten 01, 02, 04 och 05. Saknas fält 03, och ska det finnas ett meddelandefält som i call och contact?",
@@ -578,12 +584,13 @@ export const figmaNotes: FigmaNote[] = [
   },
   {
     target: "grids",
-    topic: "Card grid under Desktop S",
-    figma: 'Framen "Grids" visar bara Desktop L',
-    code: "Tablet 2 kort per rad, Mobile 1, för alla tre varianterna",
-    why: "Inget ritat",
-    status: "Beslut",
-    date: "2026-10-02",
+    topic: "Card grid per läge",
+    figma:
+      'Komponenten Grid på "04 — Blocks" (8389:4440): 2 platser i bredd utom på Mobile, 3 i bredd från Desktop S och annars under varandra, 4 i bredd från Desktop S, 2 × 2 på Tablet och under varandra på Mobile',
+    code: "`card-grid-2`, `card-grid-3` och `card-grid-4` likadant. Tidigare hade Tablet 2 per rad för alla tre, ett eget beslut innan Grid fanns; Product-Grid behåller sina 2 per rad på Tablet tills det blocket gås igenom",
+    why: "Grid visar nu Tablet och Mobile",
+    status: "Beslut (teknisk)",
+    date: "2026-10-22",
   },
   {
     target: "grids",

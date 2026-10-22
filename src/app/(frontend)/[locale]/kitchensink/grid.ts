@@ -1,6 +1,7 @@
 /**
- * Figma "01 — Foundations" → "GRIDS" and the `layout/grid/*` and `layout/shape/*` variables.
- * `tests/design-tokens.test.mts` checks these lists against `src/styles/site-theme.css`.
+ * Figma "01 — Foundations" → "GRIDS" and the `layout/grid/*` and `layout/shape/*` variables, and
+ * "04 — Blocks" → "Grid" (8389:4440) for the card grids per mode. `tests/design-tokens.test.mts`
+ * checks these lists against `src/styles/site-theme.css`.
  */
 import type { ModeName } from "./breakpoints";
 
@@ -17,18 +18,10 @@ export const radii = { sm: 8, lg: 16 } as const;
 export type CardGrid = {
   name: string;
   className: string;
-  /** Cards per row. Desktop follows Figma; Tablet and Mobile are our own decision (see `fromFigma`). */
+  /** Cards per row, as Figma's Grid component (`count=2|3|4`) in each mode. */
   perRow: Record<ModeName, number>;
   /** Slot height in the Figma frame, px. */
   slotHeight: number;
-};
-
-/** Which modes the Figma frame shows. Tablet and Mobile were decided by us on 2026-10-02. */
-export const fromFigma: Record<ModeName, boolean> = {
-  "Desktop L": true,
-  "Desktop S": true,
-  Tablet: false,
-  Mobile: false,
 };
 
 export const cardGrids: CardGrid[] = [
@@ -41,7 +34,7 @@ export const cardGrids: CardGrid[] = [
   {
     name: "3 Columns",
     className: "card-grid-3",
-    perRow: { "Desktop L": 3, "Desktop S": 3, Tablet: 2, Mobile: 1 },
+    perRow: { "Desktop L": 3, "Desktop S": 3, Tablet: 1, Mobile: 1 },
     slotHeight: 520,
   },
   {

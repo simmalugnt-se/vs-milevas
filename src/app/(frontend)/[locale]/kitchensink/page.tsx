@@ -17,7 +17,7 @@ import { TextAreaField, TextField } from "@/components/ui/text-field";
 import { TimePicker, type TimePickerDay } from "@/components/ui/time-picker";
 import { type Mode, modes } from "./breakpoints";
 import { type ColorToken, colorGroups, colorModes } from "./colors";
-import { cardGrids, fromFigma, grid, radii } from "./grid";
+import { cardGrids, grid, radii } from "./grid";
 import { durations, easings } from "./motion";
 import { primitiveGroups } from "./primitives";
 import { spacing, strokes } from "./spacing";
@@ -275,16 +275,9 @@ export default function FoundationsPage() {
         </Section>
 
         <Section id="grids">
-          {/*
-          Own decision, not in Figma (2026-10-02): the Grids frame only shows Desktop L. Desktop S has
-          the same 12 columns, so it follows the frame; Tablet (2 per row) and Mobile (1 per row) were
-          decided by us. Update `card-grid-*` in site-theme.css and `cardGrids` in grid.ts if Figma
-          gets frames for them.
-        */}
           <p className="border-l-4 border-status-info bg-bg-fill px-4 py-3 text-sm text-ui-primary">
-            <strong>Eget beslut, framgår inte i Figma (2026-10-02):</strong> Figma visar card grid
-            bara för Desktop L. Desktop S har också 12 kolumner och följer samma uppdelning. På
-            Tablet visas 2 kort per rad och på Mobile 1, för alla tre varianterna.
+            Uppdelningen per läge kommer från komponenten Grid på "04 — Blocks" (8389:4440), som
+            blocken lägger sitt innehåll i: 2, 3 eller 4 platser. Höjden bestäms av innehållet.
           </p>
 
           <div className="overflow-x-auto">
@@ -317,7 +310,6 @@ export default function FoundationsPage() {
                     {modes.map((mode) => (
                       <td key={mode.name} className="py-2 pr-4">
                         {cardGrid.perRow[mode.name]} per rad
-                        {fromFigma[mode.name] ? "" : " (eget beslut)"}
                       </td>
                     ))}
                   </tr>

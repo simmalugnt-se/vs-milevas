@@ -4,7 +4,7 @@ import { ProductCard, type ProductCardProps } from "@/components/ui/product-card
 /**
  * Product-Grid from Figma "04 — Blocks" (8365:8988): product-cards on Dark `bg-fill`, with
  * `grid/margin` around and `grid/gap` between.
- * - Desktop L and S: three per row (`card-grid-3`, each card 4 of the 12 columns).
+ * - Desktop L and S: three per row (each card 4 of the 12 columns).
  * - Tablet: two per row.
  * - Mobile: a horizontal slider (Figma "product-slider"); a card is the width less
  *   `spacing/md`, so the next one shows at the edge.
@@ -27,7 +27,7 @@ export function ProductGrid({ products, label, ...attributes }: ProductGridProps
       className="mode-dark bg-bg-fill py-(--grid-margin) [overflow-anchor:none]"
     >
       {/* The slider runs to the screen edge; its padding keeps the first card on the margin. */}
-      <ul className="flex snap-x snap-mandatory scroll-px-(--grid-margin) gap-(--grid-gap) overflow-x-auto px-(--grid-margin) [scrollbar-width:none] tablet:card-grid-3 tablet:overflow-visible">
+      <ul className="flex snap-x snap-mandatory scroll-px-(--grid-margin) gap-(--grid-gap) overflow-x-auto px-(--grid-margin) [scrollbar-width:none] tablet:grid tablet:grid-cols-2 tablet:overflow-visible desktop-s:grid-cols-3">
         {products.map((product) => (
           <li
             key={String(product.href)}

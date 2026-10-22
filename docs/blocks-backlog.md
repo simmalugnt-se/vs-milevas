@@ -42,7 +42,7 @@ Grid och Image & Text byggs inte förrän Figma är klar. Hero har en första te
 | # | Block | Figma | Läget i Figma | Bygger på |
 |---|---|---|---|---|
 | 7 | Hero ✓ testkomponent, ✓ Payload | `8539:7103` | Desktop L och S: mörka kolumner (fem, inte fyra) med en gul aktiv kolumn, ingen bild; Tablet och Mobile är svarta ytor | TruckColumn, som också är ett utkast |
-| 8 | Grid | `8389:4440` | Bara grå platser för 2, 3 och 4 (`count`) i varje läge; kanske en layouthjälp snarare än ett block | Card grid |
+| 8 | Grid ✓ (2026-10-22) | `8389:4440` | Inget eget block: platserna (2, 3, 4) som blocken lägger innehåll i; i koden `card-grid-2/3/4` | Card grid |
 | 9 | Image & Text | `8721:19164` | Grå ytor i alla fyra lägen | Okänt |
 
 Komponenterna text-box och truck-column (ramen "blabla" på "02 — Components") är också utkast:
