@@ -13,6 +13,7 @@ import { cmsPlugins } from "./payload/plugins/index.ts";
 import { seedDefaultSiteIfEmpty } from "./payload/seed/defaultSite.ts";
 import { buildPublicMediaURL } from "./payload/utilities/public-file-url.ts";
 import { databaseUrls, describeServices, objectStorage } from "./utilities/services.mjs";
+import { trustedOrigins } from "./utilities/trusted-origins.ts";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -104,6 +105,9 @@ export default buildConfig({
     },
   },
   collections: payloadCollections,
+  // Without it, any site may send requests with an editor's login cookie, and password reset
+  // emails get no address. Not `serverURL`: Admin would call that one address from every deployment.
+  csrf: trustedOrigins(),
   globals: payloadGlobals,
   jobs: {
     access: {

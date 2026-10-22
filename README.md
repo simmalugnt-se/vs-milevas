@@ -134,6 +134,7 @@ since every deploy runs migrations.
 | `AWS_ENDPOINT_URL_S3`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_REGION`, `S3_BUCKET` | Neon Storage, as Neon shows them |
 | `AI_PROVIDER`, `AI_MODEL` | `gateway` and a gateway model that reads images. No `AI_GATEWAY_API_KEY` is needed on Vercel, but the team needs AI Gateway credits. |
 | `NEXT_PUBLIC_SITE_URL` | optional, the public origin |
+| `PAYLOAD_TRUSTED_ORIGINS` | optional, more origins for Admin's login cookie, comma-separated |
 | `ENABLE_SEARCH_INDEXING` | optional, opt in to indexing |
 | `PAYLOAD_MUX_ENABLED`, `PAYLOAD_MCP_ENABLED` | `false` when you don't use them |
 
