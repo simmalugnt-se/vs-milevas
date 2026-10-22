@@ -1282,6 +1282,16 @@ export const figmaNotes: FigmaNote[] = [
   },
   {
     target: "footer",
+    topic: "Logotypen",
+    figma:
+      "Logotypens ruta går ut till kortets högra kant, men vektorn slutar `spacing/sm` (16px) innan och är då hoptryckt på bredden (811 × 95,7 i en ruta på 827 × 95,7 vid 1440)",
+    code: "Logotypen `spacing/sm` från högerkanten i sina rätta proportioner, alltså 93,8 i stället för 95,7 hög; kortet blir 2px lägre",
+    why: "Samma marginal som i Figma utan att logotypen förvrängs",
+    status: "Beslut (teknisk)",
+    date: "2026-10-22",
+  },
+  {
+    target: "footer",
     topic: "Språkbyte",
     figma: "Ingen globe-ikon eller annat språkbyte, varken i footern eller i navigationen",
     code: "Inget språkbyte på sajten. Tidigare bytte globe-ikonen i footern mellan svenska och engelska; den engelska sajten nås nu bara via adressen (`/en`)",

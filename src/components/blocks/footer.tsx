@@ -11,7 +11,8 @@ import { Logo } from "@/components/ui/logo";
  *   Desktop S and L: five, four and three of the 12 columns; Tablet: two each of six; Mobile: one
  *   under the other. Only the first column is `spacing/sm` in from Tablet; on Mobile all are.
  * - The copyright line (Text XS) bottom left and the wordmark across the last seven columns
- *   (three on Tablet); on Mobile the wordmark across the width with the line `spacing/sm` under.
+ *   (three on Tablet), `spacing/sm` from the right edge as the text is from the left; on Mobile the
+ *   wordmark across the width with the line `spacing/sm` under.
  *
  * The Footer global feeds it on the site (`src/payload/globals/Footer/Component.tsx`).
  */
@@ -130,7 +131,9 @@ export function Footer({ groups, contact, copyright, attributes }: FooterProps) 
 
         {/* Mobile: the wordmark, then the line under it; from Tablet two cells, the line first. */}
         <div className="flex flex-col gap-(--spacing-sm) px-(--spacing-sm) tablet:contents">
-          <Logo className="h-auto w-full tablet:order-2 tablet:col-span-3 desktop-s:col-span-7" />
+          <div className="tablet:order-2 tablet:col-span-3 tablet:pr-(--spacing-sm) desktop-s:col-span-7">
+            <Logo className="block h-auto w-full" />
+          </div>
           {copyright ? (
             <p className="text-text-xs text-black tablet:order-1 tablet:col-span-3 tablet:flex tablet:items-end tablet:px-(--spacing-sm) desktop-s:col-span-5">
               © {new Date().getFullYear()} {copyright}
