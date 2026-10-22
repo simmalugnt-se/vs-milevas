@@ -6,11 +6,14 @@ import { Icon, type IconName } from "./icon";
 /**
  * Button and Link from Figma "02 — Components" → "Buttons & Links" (button 9207:21288, Link 8309:3919).
  *
- * Hover in Figma shifts a row of two identical icons from start to end inside a clipped box. Figma
- * shows the two states but no animation between them, so there is none here (a question for the
- * designer). Pass `data-state="hover"` to show the hover look without a pointer (the kitchensink
- * does).
+ * Hover in Figma shifts a row of two identical icons from start to end inside a clipped box. The
+ * button's prototype (Hover → Change to) moves the icons and fades the colors in 0.18s with
+ * `cubic-bezier(0.76, 0, 0.26, 1)`; Link has no transition in the prototype, so its icon jumps.
+ * Pass `data-state="hover"` to show the hover look without a pointer (the kitchensink does).
  */
+
+/** The button prototype's timing, for its colors and icons. */
+const motion = "duration-[180ms] ease-[cubic-bezier(0.76,0,0.26,1)] motion-reduce:transition-none";
 
 export type ButtonVariant = "primary" | "secondary";
 export type ButtonSize = "s" | "m";
@@ -51,10 +54,12 @@ const slide =
  * Two copies of the 16px icon, 4px apart, in a clipped box; hovering the parent (`group/slide`)
  * shifts to the second, Figma's 20px step.
  */
-function SlidingIcon({ name }: { name: IconName }) {
+function SlidingIcon({ name, animated = false }: { name: IconName; animated?: boolean }) {
   return (
     <span className="flex size-4 shrink-0 overflow-hidden [--slide:1.25rem]">
-      <span className={`flex shrink-0 gap-1 ${slide}`}>
+      <span
+        className={`flex shrink-0 gap-1 ${slide} ${animated ? `transition-[translate] ${motion}` : ""}`}
+      >
         {[0, 1].map((copy) => (
           <span key={copy} className="flex size-4 shrink-0 items-center justify-center">
             <Icon name={name} />
@@ -84,7 +89,7 @@ export const buttonClassName = ({
   border,
   size = "s",
 }: Pick<ButtonStyleProps, "variant" | "mode" | "border" | "size">) =>
-  `group/slide inline-flex items-center justify-center whitespace-nowrap rounded-sm text-label-s disabled:cursor-not-allowed ${mode ? modeClass[mode] : ""} ${variantClasses[variant]} ${border ? borderClasses[variant] : ""} ${sizeClasses[size]}`;
+  `group/slide inline-flex items-center justify-center whitespace-nowrap rounded-sm text-label-s transition-colors ${motion} disabled:cursor-not-allowed ${mode ? modeClass[mode] : ""} ${variantClasses[variant]} ${border ? borderClasses[variant] : ""} ${sizeClasses[size]}`;
 
 function ButtonContent({
   iconLeft,
@@ -93,9 +98,9 @@ function ButtonContent({
 }: Pick<ButtonStyleProps, "iconLeft" | "iconRight"> & { children: ReactNode }) {
   return (
     <>
-      {iconLeft ? <SlidingIcon name={iconLeft} /> : null}
+      {iconLeft ? <SlidingIcon name={iconLeft} animated /> : null}
       {children}
-      {iconRight ? <SlidingIcon name={iconRight} /> : null}
+      {iconRight ? <SlidingIcon name={iconRight} animated /> : null}
     </>
   );
 }

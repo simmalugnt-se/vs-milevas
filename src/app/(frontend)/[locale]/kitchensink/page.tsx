@@ -276,7 +276,7 @@ export default function FoundationsPage() {
 
         <Section id="grids">
           <p className="border-l-4 border-status-info bg-bg-fill px-4 py-3 text-sm text-ui-primary">
-            Uppdelningen per läge kommer från komponenten Grid på "04 — Blocks" (8389:4440), som
+            Uppdelningen per läge kommer från komponenten Grid på 04 — Blocks (8389:4440), som
             blocken lägger sitt innehåll i: 2, 3 eller 4 platser. Höjden bestäms av innehållet.
           </p>
 

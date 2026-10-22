@@ -122,7 +122,7 @@ export const designQuestions: DesignQuestion[] = [
   {
     target: "buttons",
     question:
-      "Knappens och länkens hover flyttar pilen ett steg, och footerlänkens byter till texten under. Ska bytet animeras? Figmas `motion`-samling har tider och kurvor, men komponenterna visar inte vilka. Koden byter direkt.",
+      "Knappens hover rör sig på 0,18 s med `cubic-bezier(0.76, 0, 0.26, 1)` i prototypen, footerlänkens med `cubic-bezier(0.688, 0, 0.33, 1)`; ingen av dem använder `motion`-variablerna. Ska de? Och ska Link-pilen glida som knappens? Den har ingen övergång i prototypen.",
     figma: "9207:21288",
   },
   {
@@ -271,12 +271,6 @@ export const designQuestions: DesignQuestion[] = [
     question:
       "Var ska man byta till engelska? Globe-ikonen finns inte längre i footern, och navigationen har inget språkbyte.",
     figma: "9264:22371",
-  },
-  {
-    target: "links",
-    question:
-      "footerlinks rullning i prototypen tar 0,18 s med `cubic-bezier(0.688, 0, 0.33, 1)`, inte motion-variablerna (`duration/short` 300 ms, `slow-out`). Ska den använda dem?",
-    figma: "9321:51222",
   },
   {
     target: "grids",
@@ -730,19 +724,20 @@ export const figmaNotes: FigmaNote[] = [
   {
     target: "buttons",
     topic: "Animation vid hover",
-    figma: "Default och hover (pilraden ett steg åt vänster), ingen rörelse mellan dem",
-    code: "Byts direkt. Tidigare gled pilen 300 ms (`duration-short`, `ease-slow-out`) och fyllningen tonade över 150 ms (`transition-colors`)",
-    why: "Figma visar lägena men inte rörelsen; se frågan om animation",
-    status: "Lucka",
-    date: "2026-10-21",
+    figma:
+      "Prototypen (Dev Mode, Hover → Change to): färgerna tonar och pilraden flyttas 20px på 0,18 s med `cubic-bezier(0.76, 0, 0.26, 1)`, i alla varianter",
+    code: "Som prototypen, utan rörelse när användaren valt reducerad rörelse",
+    why: "Prototypens interaktioner syns bara i Dev Mode",
+    status: "Beslut (teknisk)",
+    date: "2026-10-22",
   },
   {
     target: "links",
     topic: "Animation vid hover",
     figma:
-      "Link: pilraden ett steg, ingen rörelse i designfilen. footerlink: prototypen rullar texten upp på 0,18 s med `cubic-bezier(0.688, 0, 0.33, 1)` (Dev Mode, Hover → Change to)",
+      "Link: pilraden ett steg, ingen övergång i prototypen. footerlink: prototypen rullar texten upp på 0,18 s med `cubic-bezier(0.688, 0, 0.33, 1)` (Dev Mode, Hover → Change to)",
     code: "Link byts direkt; tidigare gled pilen 300 ms. footerlink rullar som prototypen, utan rörelse när användaren valt reducerad rörelse",
-    why: "Prototypens interaktioner syns bara i Dev Mode, inte i designkontexten; Links prototyp är inte läst än",
+    why: "Link saknar övergång i prototypen, till skillnad från knappen",
     status: "Lucka",
     date: "2026-10-22",
   },
