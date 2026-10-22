@@ -273,6 +273,12 @@ export const designQuestions: DesignQuestion[] = [
     figma: "9264:22371",
   },
   {
+    target: "links",
+    question:
+      "footerlinks rullning i prototypen tar 0,18 s med `cubic-bezier(0.688, 0, 0.33, 1)`, inte motion-variablerna (`duration/short` 300 ms, `slow-out`). Ska den använda dem?",
+    figma: "9321:51222",
+  },
+  {
     target: "contact-form",
     question:
       "order numrerar fälten 01, 02, 04 och 05. Saknas fält 03, och ska det finnas ett meddelandefält som i call och contact?",
@@ -726,11 +732,21 @@ export const figmaNotes: FigmaNote[] = [
   {
     target: "links",
     topic: "Animation vid hover",
-    figma: "Link: pilraden ett steg; footerlink: texten utrullad. Ingen rörelse mellan lägena",
-    code: "Byts direkt. Tidigare gled länkens pil och footerlänkens text rullade 300 ms (`duration-short`, `ease-slow-out`), och footerlänken visade hover-läget även vid tangentbordsfokus",
-    why: "Figma visar lägena men inte rörelsen eller fokus; se frågorna",
+    figma:
+      "Link: pilraden ett steg, ingen rörelse i designfilen. footerlink: prototypen rullar texten upp på 0,18 s med `cubic-bezier(0.688, 0, 0.33, 1)` (Dev Mode, Hover → Change to)",
+    code: "Link byts direkt; tidigare gled pilen 300 ms. footerlink rullar som prototypen, utan rörelse när användaren valt reducerad rörelse",
+    why: "Prototypens interaktioner syns bara i Dev Mode, inte i designkontexten; Links prototyp är inte läst än",
     status: "Lucka",
-    date: "2026-10-21",
+    date: "2026-10-22",
+  },
+  {
+    target: "links",
+    topic: "footerlinks rullning",
+    figma: "Hover-varianten är 48px hög och raderna flyttas 28px, så kopian hamnar längst ner",
+    code: "Rutan behåller sina 38px och raderna flyttas en hel rad, så kopian hamnar exakt där texten var",
+    why: "Samma slutläge utan att raden växer och flyttar länkarna under den",
+    status: "Beslut (teknisk)",
+    date: "2026-10-22",
   },
   {
     target: "alternative",
@@ -854,11 +870,12 @@ export const figmaNotes: FigmaNote[] = [
   {
     target: "links",
     topic: "footerlink Desktop och Mobile",
-    figma: "`Device=Desktop` och `Device=Mobile`, utan brytpunkt; raden är 38px hög",
-    code: "Mobile under Desktop S, Desktop från Desktop S där det finns hover; raden är texten plus `spacing/4xs`, ingen fast höjd",
-    why: "Hovern behöver en pekare; fasta höjder undviks",
+    figma:
+      "`Device=Desktop` och `Device=Mobile`, utan brytpunkt; raden är 38px respektive 25px hög",
+    code: "Mobile under Desktop S, Desktop från Desktop S där det finns hover; samma höjder i rem med texten centrerad",
+    why: "Hovern behöver en pekare; höjden är fast i Figma",
     status: "Antagande",
-    date: "2026-10-21",
+    date: "2026-10-22",
   },
   {
     target: "links",
@@ -1296,16 +1313,6 @@ export const figmaNotes: FigmaNote[] = [
     figma: "Ingen globe-ikon eller annat språkbyte, varken i footern eller i navigationen",
     code: "Inget språkbyte på sajten. Tidigare bytte globe-ikonen i footern mellan svenska och engelska; den engelska sajten nås nu bara via adressen (`/en`)",
     why: "Inte ritat; ett språkbyte behöver en plats i designen",
-    status: "Lucka",
-    date: "2026-10-22",
-  },
-  {
-    target: "footer",
-    topic: "Hover",
-    figma:
-      "Footerlänkarna rullar fram en kopia vid hover på Desktop; e-post och telefon är footerlänkar, orten vanlig text",
-    code: "Som Figma; ingen övergång mellan lägena och inget fokusläge",
-    why: "Inte ritat",
     status: "Lucka",
     date: "2026-10-22",
   },

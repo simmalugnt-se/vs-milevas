@@ -1,15 +1,18 @@
 import type { ComponentProps } from "react";
 import { Link } from "@/i18n/navigation";
 
+/**
+ * The roll from Figma's prototype (Hover → Change to hover): both lines move up in 0.18s with
+ * `cubic-bezier(0.688, 0, 0.33, 1)`, and back when the pointer leaves.
+ */
 const roll =
-  "desktop-s:group-hover/roll:-translate-y-full desktop-s:group-data-[state=hover]/roll:-translate-y-full";
+  "desktop-s:transition-[translate] desktop-s:duration-[180ms] desktop-s:ease-[cubic-bezier(0.688,0,0.33,1)] motion-reduce:transition-none desktop-s:group-hover/roll:-translate-y-full desktop-s:group-data-[state=hover]/roll:-translate-y-full";
 
 /**
  * footerlink from Figma "02 — Components" → "Buttons & Links" (9321:51222), in `ui-primary`, with
  * the text centred in Figma's fixed height: 25px on Mobile (Text M), 38px from Desktop S (Text L).
- * From Desktop S, where there is a pointer, hover shows the copy below the text in its place, as
- * Figma's hover state. Figma has no animation between them, so there is none here. Pass
- * `data-state="hover"` to show the hover look without a pointer.
+ * From Desktop S, where there is a pointer, hover rolls the text up and a copy in after it, as
+ * Figma's prototype does. Pass `data-state="hover"` to show the hover look without a pointer.
  */
 export function FooterLink({ className, children, ...props }: ComponentProps<typeof Link>) {
   return (
