@@ -119,7 +119,10 @@ export async function seedMilevasFooter(payload: Payload, publish = false) {
   });
 }
 
-/** The hero as Figma's Hero and its Figma Make prototype: the intro text and five truck types. */
+/**
+ * The hero as Figma's Hero and its Figma Make prototype: the intro text and six truck types, two
+ * more than the text block after it, so their lines can move from six columns to four.
+ */
 async function milevasHeroBlock(payload: Payload, familyIDs: Map<string, string>) {
   const columns = [
     ["electric-counterbalance", "counterbalance", "Elektriska motviktstruckar"],
@@ -127,14 +130,16 @@ async function milevasHeroBlock(payload: Payload, familyIDs: Map<string, string>
     ["low-lift-pallet-truck", "low-lift", "Låglyftare"],
     ["pedestrian-stacker", "stacker", "Ledstaplare"],
     ["electric-pallet-truck", "pallet-truck", "Elektriska pallyftare"],
+    [null, "order-picker", "Plocktruckar"],
   ] as const;
   const items = [];
   for (const [key, asset, name] of columns) {
+    const family = key ? familyIDs.get(key) : undefined;
     items.push({
       heading: "Bygg din truck:",
-      family: familyIDs.get(key),
+      family,
       image: await uploadImage(payload, `hero-${asset}`, name),
-      ...(!familyIDs.has(key) ? { link: externalLink(name, "/configurator") } : {}),
+      ...(!family ? { link: externalLink(name, key ? "/configurator" : "/#kontakt") } : {}),
     });
   }
   return {

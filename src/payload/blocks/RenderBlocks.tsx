@@ -35,18 +35,19 @@ export function RenderBlocks({ className, editable = false, layout }: RenderBloc
     );
   };
 
-  // Milevas: the hero and a text block right after it share their column lines.
+  // Milevas: the hero and a text block right after it share their column lines, when the hero
+  // has two more columns (six and four, as Figma's prototype).
   const items: ReactNode[] = [];
   for (let index = 0; index < layout.length; index++) {
     const block = layout[index];
     const next = layout[index + 1];
-    if (block.blockType === "milevasHero" && next?.blockType === "textColumns") {
+    if (
+      block.blockType === "milevasHero" &&
+      next?.blockType === "textColumns" &&
+      block.columns.length === next.logos.length + 2
+    ) {
       items.push(
-        <LinkedColumns
-          key={`linked-${block.id || index}`}
-          from={block.columns.length}
-          to={next.logos.length}
-        >
+        <LinkedColumns key={`linked-${block.id || index}`} columns={block.columns.length}>
           {render(block, index)}
           {render(next, index + 1)}
         </LinkedColumns>,

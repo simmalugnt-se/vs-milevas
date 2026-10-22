@@ -48,7 +48,7 @@ export const designQuestions: DesignQuestion[] = [
   {
     target: "hero",
     question:
-      "Startsidan har fem hero-kolumner och sex produktkort. Testet kopplar en kolumn till varje befintlig truckfamilj; är det rätt indelning?",
+      "Heron har nu sex kolumner, en per trucktyp som produktkorten, men Figmas hero-ramar visar fem. Ska ramarna ritas om med sex? Plocktruckar behöver också en större frilagd bild.",
     figma: "8539:7103",
   },
   {
@@ -68,12 +68,6 @@ export const designQuestions: DesignQuestion[] = [
     question:
       "Mobile: den första kolumnen är 283px bred och de andra 299 (Tablet 482 och 498), och prototypen använder 314. Vilken bredd gäller? Koden ger alla Figmas 299 respektive 498.",
     figma: "8539:7128",
-  },
-  {
-    target: "text-block-columns",
-    question:
-      "Heron har fem kolumner och text blocket fyra, så ett streck blir över när de flyttas (prototypen visar den gamla heron med sex kolumner). Koden för det sista strecket till högerkanten. Var ska det ta vägen?",
-    figma: "9321:52167",
   },
   {
     target: "text-block-columns",
@@ -406,8 +400,8 @@ export const figmaNotes: FigmaNote[] = [
     topic: "Strecken efter heron",
     figma:
       "Startsidesprototypen (Pages, MacBook Air 109 → 110): ett lager med kolumner står kvar medan innehållet glider upp, och ändrar bredderna från heronas till text blockets. On click → Smart animate, 2600 ms, `cubic-bezier(0.82, 0, 0.22, 1)`; i 111 följer strecken med text blocket upp",
-    code: "Två block i Payload. Ligger text blocket direkt efter heron delar de ett lager streck (`LinkedColumns`) som följer scrollen med prototypens kurva, från att text blocket syns i underkant tills det når toppen, och sedan går upp med det. Blockens egna streck döljs då från Desktop S",
-    why: "Användarens val 2026-10-22: blocken ska kunna användas var för sig, och på en riktig sida scrollar man i stället för att klicka",
+    code: "Två block i Payload. Ligger text blocket direkt efter heron, och heron har två kolumner fler (sex och fyra), delar de ett lager streck (`LinkedColumns`) som följer scrollen med prototypens kurva, från att text blocket syns i underkant tills det når toppen, och sedan går upp med det. Heronas kolumner byter bredd i samma takt: den första och sista krymper till inget och de andra blir text blockets, så en gul kolumn växer med sina streck. Med andra antal kopplas blocken inte ihop. Blockens egna streck döljs från Desktop S",
+    why: "Användarens val 2026-10-22: blocken ska kunna användas var för sig, antalet kolumner ska stämma så att övergången blir naturlig, och på en riktig sida scrollar man i stället för att klicka",
     status: "Beslut",
     date: "2026-10-22",
   },
@@ -446,6 +440,16 @@ export const figmaNotes: FigmaNote[] = [
     code: "Rubriken avstavas automatiskt under Tablet (`hyphens-auto`), så texten skrivs utan bindestreck",
     why: "Samma text i alla bredder",
     status: "Beslut (teknisk)",
+    date: "2026-10-22",
+  },
+  {
+    target: "hero",
+    topic: "Sex kolumner",
+    figma:
+      "Hero-ramarna och Make-prototypen har fem kolumner; startsidesprototypen sex, som blir text blockets fyra när man scrollar",
+    code: "Testet har sex: prototypens fem truckar och Plocktruckar, med bilden från Figmas product-grid (512px, beskuren)",
+    why: "Användarens val 2026-10-22: sex kolumner går naturligt till fyra, och det finns sex trucktyper",
+    status: "Beslut",
     date: "2026-10-22",
   },
   {
@@ -510,7 +514,8 @@ export const figmaNotes: FigmaNote[] = [
   {
     target: "hero",
     topic: "Truckbilder",
-    figma: "Inga bilder i Figma; prototypen har fem frilagda truckar i samma skala",
+    figma:
+      "Inga bilder i Figma; prototypen har fem frilagda truckar i samma skala, och Plocktruckar finns bara i product-grid (512px)",
     code: "Varje kolumn har ett eget bildfält i Payload, annars truckfamiljens bild. Testet använder prototypens bilder (`scripts/figma-homepage-assets/hero-*.png`)",
     why: "Familjernas bilder har olika utsnitt och marginaler",
     status: "Beslut (teknisk)",

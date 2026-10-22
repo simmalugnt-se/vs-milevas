@@ -15,6 +15,7 @@ import { ConfiguratorBox, choiceLayout } from "@/components/ui/configurator-box"
 import type { ProductCardProps } from "@/components/ui/product-card";
 import heroCounterbalance from "../../../../../../scripts/figma-homepage-assets/hero-counterbalance.png";
 import heroLowLift from "../../../../../../scripts/figma-homepage-assets/hero-low-lift.png";
+import heroOrderPicker from "../../../../../../scripts/figma-homepage-assets/hero-order-picker.png";
 import heroPalletTruck from "../../../../../../scripts/figma-homepage-assets/hero-pallet-truck.png";
 import heroReachTruck from "../../../../../../scripts/figma-homepage-assets/hero-reach-truck.png";
 import heroStacker from "../../../../../../scripts/figma-homepage-assets/hero-stacker.png";
@@ -207,13 +208,14 @@ function Block({ id, figma, children }: { id: SectionId; figma: string; children
   );
 }
 
-/** The hero's trucks, from its Figma Make prototype. */
+/** The hero's trucks, from its Figma Make prototype; Plocktruckar from Figma's product-grid. */
 const heroTrucks = [
   ["Elektriska motviktstruckar", heroCounterbalance],
   ["Skjutstativtruckar", heroReachTruck],
   ["Låglyftare", heroLowLift],
   ["Ledstaplare", heroStacker],
   ["Elektriska pallyftare", heroPalletTruck],
+  ["Plocktruckar", heroOrderPicker],
 ] as const;
 
 /** Text block Collumns' logos and their Desktop widths, from Figma. */

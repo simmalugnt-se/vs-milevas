@@ -42,7 +42,7 @@ Image & Text byggs inte förrän Figma är klar. Hero är byggd 2026-10-22 efter
 
 | # | Block | Figma | Läget i Figma | Bygger på |
 |---|---|---|---|---|
-| 7 | Hero ✓ (2026-10-22), ✓ Payload | `8539:7103` | Start (rubrik och uppmaning) och Collumns (fem kolumner, en gul) i alla fyra bredder; rörelsen och truckbilderna finns i Figma Make-prototypen | TruckColumn (styrd av blocket), Icon |
+| 7 | Hero ✓ (2026-10-22), ✓ Payload | `8539:7103` | Start (rubrik och uppmaning) och Collumns (fem kolumner, en gul) i alla fyra bredder; rörelsen och truckbilderna finns i Figma Make-prototypen. Sajten har sex kolumner, så att strecken kan gå till text blockets fyra (beslut 2026-10-22) | TruckColumn (styrd av blocket), Icon |
 | 8 | Grid ✓ (2026-10-22) | `8389:4440` | Inget eget block: platserna (2, 3, 4) som blocken lägger innehåll i; i koden `card-grid-2/3/4` | Card grid |
 | 9 | Image & Text | `8721:19164` | Grå ytor i alla fyra lägen | Okänt |
 

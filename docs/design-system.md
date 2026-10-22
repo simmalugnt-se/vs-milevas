@@ -116,9 +116,11 @@ bildfält, länkar och markörer för visual editing. Boilerplatens block är kv
   truckfamiljens. `pnpm seed:homepage -- --hero --publish-local` byter bara heron på en befintlig
   lokal startsida mot Figmas texter och prototypens truckbilder (`hero-*.png`).
 - `textColumns` (Text block Collumns) direkt efter `milevasHero` renderas i `LinkedColumns`
-  (`RenderBlocks.tsx`): ett lager streck som står still på skärmen och går från heronas kolumner
-  till text blockets medan man scrollar, som i Figmas startsidesprototyp. Blocken döljer då sina
-  egna streck från Desktop S. `--hero` till `seed:homepage` lägger in text blocket efter heron.
+  (`RenderBlocks.tsx`) när heron har två kolumner fler (sex och fyra): ett lager streck som står
+  still på skärmen medan man scrollar, och heronas kolumner som byter bredd med det. Den första och
+  sista krymper till inget och de andra blir text blockets, som i Figmas startsidesprototyp.
+  Blocken döljer då sina egna streck från Desktop S. `--hero` till `seed:homepage` lägger in text
+  blocket efter heron.
 - Hero och produktkort kan kopplas till truckfamiljer: namn, bild och priser kan hämtas från
   konfiguratorn. Produktkortens bildutsnitt kan styras i Payload; testet använder Figmas utsnitt.
 - `pnpm seed:homepage` skapar startsidan (`home`) samt navigation/footer som lokala utkast.

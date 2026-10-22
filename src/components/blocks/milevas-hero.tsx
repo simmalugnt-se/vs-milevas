@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  type CSSProperties,
   type HTMLAttributes,
   type ReactNode,
   useEffect,
@@ -43,7 +44,8 @@ type MilevasHeroProps = {
 /**
  * Hero from Figma "04 — Blocks" (8539:7103), moving as its Figma Make prototype ("Recreate
  * interactive hero section"). Figma draws two states per width: Start, the heading and prompt on
- * Dark, and Collumns, five truck-columns with one active. The prototype goes from one to the other:
+ * Dark, and Collumns, truck-columns with one active (five in Figma; the site uses six, so that the
+ * text block's four can follow, see `LinkedColumns`). The prototype goes from one to the other:
  *
  * 1. The heading, the yellow highlight and the prompt show over the empty columns for 1.2s.
  * 2. Desktop S and L: a point sweeps from the first column to the last in 0.85s and the trucks
@@ -252,6 +254,8 @@ export function MilevasHero({
 
     measure();
     window.addEventListener("resize", measure);
+    // Linked to the next block, the columns change width as the page scrolls.
+    window.addEventListener("scroll", measure, { passive: true });
     section.addEventListener("pointermove", onMove);
     section.addEventListener("pointerleave", onLeave);
     items.forEach((item) => item?.addEventListener("pointerenter", onColumn));
@@ -275,6 +279,7 @@ export function MilevasHero({
       window.cancelAnimationFrame(frame);
       timers.forEach((timer) => window.clearTimeout(timer));
       window.removeEventListener("resize", measure);
+      window.removeEventListener("scroll", measure);
       section.removeEventListener("pointermove", onMove);
       section.removeEventListener("pointerleave", onLeave);
       items.forEach((item) => item?.removeEventListener("pointerenter", onColumn));
@@ -351,6 +356,20 @@ export function MilevasHero({
   const rise = "duration-500 ease-[cubic-bezier(0.65,0,0.35,1)] motion-reduce:transition-none";
   const name = active === null ? undefined : columns[active]?.name;
 
+  // From Desktop S the columns share the width. Linked to a block with two fewer columns
+  // (`LinkedColumns`, which sets `--lines` from 0 to 1 as it scrolls in), the first and last
+  // shrink to nothing and the others grow to that block's columns, with the lines.
+  const columnWidth = (index: number) => {
+    const share = 100 / columns.length;
+    const end =
+      columns.length < 3
+        ? share
+        : index === 0 || index === columns.length - 1
+          ? 0
+          : 100 / (columns.length - 2);
+    return `calc(${share}% + ${end - share}% * var(--lines, 0))`;
+  };
+
   return (
     <section
       ref={sectionRef}
@@ -369,7 +388,8 @@ export function MilevasHero({
             ref={(element) => {
               itemRefs.current[index] = element;
             }}
-            className="h-full w-[79.73%] shrink-0 snap-start snap-always tablet:w-[62.28%] desktop-s:w-0 desktop-s:flex-1"
+            className="h-full w-[79.73%] shrink-0 snap-start snap-always tablet:w-[62.28%] desktop-s:w-(--column-width)"
+            style={{ "--column-width": columnWidth(index) } as CSSProperties}
           >
             <TruckColumn
               {...column.attributes}
