@@ -11,6 +11,7 @@ import { Users } from "./payload/collections/Users/config.ts";
 import { payloadGlobals } from "./payload/globals/registry.ts";
 import { cmsPlugins } from "./payload/plugins/index.ts";
 import { seedDefaultSiteIfEmpty } from "./payload/seed/defaultSite.ts";
+import { getPayloadEmailAdapter } from "./payload/utilities/email.ts";
 import { buildPublicMediaURL } from "./payload/utilities/public-file-url.ts";
 import { databaseUrls, describeServices, objectStorage } from "./utilities/services.mjs";
 import { trustedOrigins } from "./utilities/trusted-origins.ts";
@@ -138,6 +139,7 @@ export default buildConfig({
     push,
   }),
   editor: lexicalEditor(),
+  email: getPayloadEmailAdapter(),
   plugins: [
     ...cmsPlugins,
     s3Storage({
