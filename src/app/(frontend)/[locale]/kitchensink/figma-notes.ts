@@ -106,6 +106,11 @@ export const designQuestions: DesignQuestion[] = [
       "Exporten av `motion` har bara läget Fast. Finns det fler lägen, och när ska de gälla?",
   },
   {
+    target: "motion",
+    question:
+      "Prototypens tider och kurvor skiljer sig per komponent: knappen 0,18 s `cubic-bezier(0.76, 0, 0.26, 1)`, footerlink 0,18 s `cubic-bezier(0.688, 0, 0.33, 1)`, product-card 0,2 s `cubic-bezier(0.81, 0, 0.28, 0.99)`, color-image-card 0,3 s `cubic-bezier(0.796, 0, 0.3, 1)`, Financiering 0,18 s `ease-out` och navigation 0,6 s `cubic-bezier(0.9, 0, 0.17, 1.01)`. Ingen använder `motion`-variablerna. Ska de, eller gäller prototypens värden?",
+  },
+  {
     target: "colors",
     question:
       "`BORDER/secondary` är `#121212` i Dark, samma som `BG/fill`, så ramen syns inte. Ska den vara ljus i Dark?",
@@ -117,12 +122,6 @@ export const designQuestions: DesignQuestion[] = [
     target: "buttons",
     question:
       "I Dark har `BTN/primary/fill` (`#121212`) samma färg som `BG/fill`, och knappkomponenten ritar ingen ram på primary, så en Dark primary syns inte på Dark-botten. Ska den ha `border=true` där, eller används den bara på ljus botten?",
-    figma: "9207:21288",
-  },
-  {
-    target: "buttons",
-    question:
-      "Knappens hover rör sig på 0,18 s med `cubic-bezier(0.76, 0, 0.26, 1)` i prototypen, footerlänkens med `cubic-bezier(0.688, 0, 0.33, 1)`; ingen av dem använder `motion`-variablerna. Ska de? Och ska Link-pilen glida som knappens? Den har ingen övergång i prototypen.",
     figma: "9207:21288",
   },
   {
@@ -239,8 +238,20 @@ export const designQuestions: DesignQuestion[] = [
   {
     target: "product-card",
     question:
-      "När är ett kort Active på Mobile, till exempel det som syns i slidern? Det avgör blocket som använder kortet.",
+      "När är ett kort Active på Mobile, till exempel det som syns i slidern? Prototypen byter till Active vid Mouse enter och tillbaka vid Mouse leave, men en pekskärm har ingen pekare. Det avgör blocket som använder kortet.",
     figma: "9425:31341",
+  },
+  {
+    target: "product-card",
+    question:
+      "Prototypen har en Mouse leave från `State=Default, Device=tablet` till ett läge utan pil och priser, fast Tablet annars alltid visar dem. Ska Tablet ha hover, eller är övergången en rest?",
+    figma: "8268:2970",
+  },
+  {
+    target: "color-image-card",
+    question:
+      "Vid hover krymper fotot på White och Tejp från 609 × 456 till kortets storlek medan det tonar in; på gray tonar det bara in. Ska gray göra som de andra?",
+    figma: "8825:10793",
   },
   {
     target: "price-box",
@@ -298,12 +309,6 @@ export const designQuestions: DesignQuestion[] = [
   },
 
   // Blocks
-  {
-    target: "navigation",
-    question:
-      "I Modeller har den andra kolumnen med länkar 8px mellan länkarna, den första ingen. Avsiktligt?",
-    figma: "9051:12686",
-  },
   {
     target: "navigation",
     question: "Chevronen i dragspelet är 1px på Mobile och 2px på Tablet. Vilken gäller?",
@@ -661,11 +666,21 @@ export const figmaNotes: FigmaNote[] = [
   {
     target: "color-image-card",
     topic: "Hover på gray",
-    figma: "gray har bara Default",
-    code: "Inget hover-läge för gray",
-    why: "Inte ritat",
-    status: "Lucka",
-    date: "2026-10-21",
+    figma: "gray har bara Default, men prototypen byter gray till Tejps hover-läge vid hover",
+    code: "gray får samma bildläge vid hover; fotot tonar bara in, som i prototypen",
+    why: "Så gör prototypen",
+    status: "Beslut (teknisk)",
+    date: "2026-10-22",
+  },
+  {
+    target: "color-image-card",
+    topic: "Rörelse vid hover",
+    figma:
+      "Prototypen (While hovering → Change to): 0,3 s med `cubic-bezier(0.796, 0, 0.3, 1)` (gray `0.8`). Fotot tonar in och krymper från 609 × 456 till 527 × 394 kring mitten, texten under rubriken öppnas och tonar in och rubrikens färg tonar; taggen och kortets färg byts direkt",
+    code: "Som prototypen, och samma väg tillbaka. Utan rörelse när användaren valt reducerad rörelse",
+    why: "Prototypens interaktioner syns bara i Dev Mode",
+    status: "Beslut (teknisk)",
+    date: "2026-10-22",
   },
   {
     target: "color-image-card",
@@ -735,10 +750,10 @@ export const figmaNotes: FigmaNote[] = [
     target: "links",
     topic: "Animation vid hover",
     figma:
-      "Link: pilraden ett steg, ingen övergång i prototypen. footerlink: prototypen rullar texten upp på 0,18 s med `cubic-bezier(0.688, 0, 0.33, 1)` (Dev Mode, Hover → Change to)",
-    code: "Link byts direkt; tidigare gled pilen 300 ms. footerlink rullar som prototypen, utan rörelse när användaren valt reducerad rörelse",
-    why: "Link saknar övergång i prototypen, till skillnad från knappen",
-    status: "Lucka",
+      "Link: hover flyttar pilraden ett steg, men raden har två likadana pilar och prototypen har ingen övergång, så inget syns. footerlink: prototypen rullar texten upp på 0,18 s med `cubic-bezier(0.688, 0, 0.33, 1)` (Dev Mode, Hover → Change to)",
+    code: "Link-pilen glider som knappens, 0,18 s med `cubic-bezier(0.76, 0, 0.26, 1)`. footerlink rullar som prototypen. Utan rörelse när användaren valt reducerad rörelse",
+    why: "Utan rörelsen syns ingen hover på Link (till exempel Dealer login); pilraden är byggd som knappens",
+    status: "Beslut",
     date: "2026-10-22",
   },
   {
@@ -798,12 +813,13 @@ export const figmaNotes: FigmaNote[] = [
   },
   {
     target: "product-card",
-    topic: "Färgövergång vid hover",
-    figma: "Default och hover, ingen rörelse mellan dem",
-    code: "Byts direkt. Tidigare tonade färgen över 150 ms (`transition-colors`)",
-    why: "Figma visar inte rörelsen",
-    status: "Lucka",
-    date: "2026-10-21",
+    topic: "Rörelse vid hover",
+    figma:
+      "Prototypen (Dev Mode, Mouse enter och Mouse leave → Change to): 0,2 s med `cubic-bezier(0.81, 0, 0.28, 0.99)`. Bilden krymper och pilens rad och priserna öppnas; pilen och priserna tonar in men är borta direkt på vägen ut. Färgerna har ingen övergång",
+    code: "Som prototypen, på Desktop vid hover och på Mobile när kortet är Active; färgerna byts direkt. Utan rörelse när användaren valt reducerad rörelse",
+    why: "Prototypens interaktioner syns bara i Dev Mode",
+    status: "Beslut (teknisk)",
+    date: "2026-10-22",
   },
   {
     target: "truck-column",
@@ -816,12 +832,13 @@ export const figmaNotes: FigmaNote[] = [
   },
   {
     target: "choice",
-    topic: "Färgövergång",
-    figma: "Default och active, ingen rörelse mellan dem",
-    code: "Byts direkt. Tidigare tonade färgen över 150 ms (`transition-colors`)",
-    why: "Figma visar inte rörelsen",
+    topic: "Övergångar",
+    figma:
+      "Prototypen: choice byter läge direkt (Instant) vid hover och klick. Financiering tonar färgerna och fäller ut panelen, som tonar in, på 0,18 s `ease-out` när den klickas från Default; vägen tillbaka till Default är inte ritad",
+    code: "Choice byts direkt. FinancingChoice tonar och fälls ut när den väljs och stängs direkt när ett annat val väljs; utan rörelse när användaren valt reducerad rörelse",
+    why: "Prototypen visar bara övergången till valt",
     status: "Lucka",
-    date: "2026-10-21",
+    date: "2026-10-22",
   },
   {
     target: "navigation",
@@ -1220,8 +1237,9 @@ export const figmaNotes: FigmaNote[] = [
   {
     target: "navigation",
     topic: "Stänga menyn",
-    figma: "Öppen meny med en mörk overlay över resten av sidan; inget om hur den stängs",
-    code: 'Ett nytt klick på menyn (på Desktop) eller på "[Meny]" stänger den; klick på overlayn eller Escape gör inget',
+    figma:
+      "Prototypen stänger Desktop-menyn när pekaren lämnar raden (Mouse leave); inget om overlayn, Escape eller hur mobilmenyn stängs",
+    code: 'På Desktop stänger pekaren som lämnar raden menyn, och ett nytt klick på den; "[Meny]" stänger med ett klick. Klick på overlayn eller Escape gör inget',
     why: "Inte ritat",
     status: "Lucka",
     date: "2026-10-21",
@@ -1230,20 +1248,31 @@ export const figmaNotes: FigmaNote[] = [
     target: "navigation",
     topic: "Truckbilderna",
     figma:
-      "`Truck=1` till `6`: på Desktop S och L blir länken man pekar på `ui-brand`, de andra `ui-tertiary`, och trucken visas i rutan",
-    code: "Bara vid hover med pekaren, inte vid tangentbordsfokus, och inte i dragspelet på Tablet och Mobile; en länk utan egen bild ändrar ingenting",
-    why: "Inte ritat för fokus eller mindre skärmar",
+      "`Truck=1` till `6`: på Desktop S och L blir länken man pekar på `ui-brand`, de andra `ui-tertiary`, och trucken visas i rutan. Bara ritat för Modeller",
+    code: "Färgerna gäller länkarna i alla menyer (beslut 2026-10-22); en länk med egen bild visar den. Bara vid hover med pekaren, inte vid tangentbordsfokus, och inte i dragspelet på Tablet och Mobile",
+    why: "Inte ritat för fokus, mindre skärmar eller de andra menyerna; användaren ville ha samma hover i Tjänster och Om oss",
     status: "Lucka",
     date: "2026-10-21",
   },
   {
     target: "navigation",
     topic: "Öppna med hover",
-    figma: "Öppna lägen, men inte om de öppnas med klick eller hover",
-    code: "Klick",
-    why: "Inte ritat",
+    figma:
+      'Prototypen: Mouse enter på en meny öppnar den på Desktop S och L; "[Meny]" öppnas med Click',
+    code: "Som prototypen, med musen; ett klick öppnar och stänger också, för tangentbord och pekskärm",
+    why: "Tangentbord och pekskärm har ingen hover",
+    status: "Beslut (teknisk)",
+    date: "2026-10-22",
+  },
+  {
+    target: "navigation",
+    topic: "Rörelse",
+    figma:
+      "Prototypen: öppna och stänga tar 0,6 s med `cubic-bezier(0.9, 0, 0.17, 1.01)`. Panelen växer, länkarna och bilden tonar in och de andra menyernas etiketter tonar till `ui-tertiary`; stängd krymper panelen över innehållet. Byte mellan öppna menyer tar 0,18 s",
+    code: "Som prototypen; fyllningen och overlayn går när panelen har stängts. Mobilmenyn öppnas likadant men stängs direkt, och truckbilderna och dragspelet byts direkt. Utan rörelse när användaren valt reducerad rörelse",
+    why: "Stängningen av mobilmenyn, dragspelet och truckbilderna har ingen övergång i prototypen",
     status: "Lucka",
-    date: "2026-10-21",
+    date: "2026-10-22",
   },
   {
     target: "navigation",
@@ -1253,6 +1282,15 @@ export const figmaNotes: FigmaNote[] = [
     why: "Inte ritat; panelen (`navigation-fill`) är mörk",
     status: "Lucka",
     date: "2026-10-21",
+  },
+  {
+    target: "navigation",
+    topic: "Avstånd i den andra kolumnen",
+    figma: "I Modeller har den andra kolumnen 8px mellan länkarna, den första ingen, så raderna inte står i linje",
+    code: "Ingen i båda kolumnerna, som i den första och i menyerna med en kolumn",
+    why: "Ett misstag i Figma enligt användaren",
+    status: "Beslut",
+    date: "2026-10-22",
   },
   {
     target: "navigation",

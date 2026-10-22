@@ -1,6 +1,6 @@
 "use client";
 
-import { type ReactNode, useId, useState } from "react";
+import { type ReactNode, useEffect, useId, useState } from "react";
 import { TextLink } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { Logo } from "@/components/ui/logo";
@@ -23,13 +23,21 @@ import { Link, usePathname } from "@/i18n/navigation";
  * and `navigation-overlay` over the rest of the screen. It is Dark, the only open look Figma draws.
  * - Desktop S and L: the open menu's label stays `ui-primary` and the others turn `ui-tertiary`.
  *   Its links in Text XL sit at the bottom of five columns, or of five and four when there are
- *   more than three, and a square image fills the last three columns (empty without `image`).
- *   Pointing at a link with its own `image` (Figma's `Truck=1` to `6`) turns it `ui-brand`, the
- *   others `ui-tertiary`, and shows its image instead.
+ *   more than three, the two columns with the same spacing, and a square image fills the last
+ *   three columns (empty without `image`). Pointing at a link turns it `ui-brand` and the others
+ *   `ui-tertiary` (Figma's `Truck=1` to `6`, in every menu), and a link with its own `image` shows
+ *   it instead.
  * - Tablet and Mobile: "[Meny]" opens an accordion of the menus between lines, the open one's label
  *   `ui-brand` with its links in Text XL, the others `ui-tertiary`. Tablet has the open menu's
  *   square image in the last two columns, cut at the edge.
  * A menu without links is a plain link (`href`).
+ *
+ * Motion, from Figma's prototype: on Desktop S and L pointing at a menu opens it (Mouse enter) and
+ * leaving the row closes it (Mouse leave); a click toggles it too. Opening, the panel grows in 0.6s
+ * with `cubic-bezier(0.9, 0, 0.17, 1.01)` while the links and image fade in and the other menus'
+ * labels fade to `ui-tertiary`; closing, it shrinks the same way over its content, and the panel's
+ * look goes when it is shut. Moving to another menu fades the labels in 0.18s and swaps the content
+ * at once. Below Desktop S, "[Meny]" opens the accordion the same way and closes it at once.
  *
  * The Header global feeds it on the site (`src/payload/globals/Header/Component.tsx`).
  */
@@ -76,6 +84,13 @@ type NavigationProps = {
   attributes?: Attributes;
 };
 
+/** The prototype's curve; the open and close take `openTime`, a move between menus 0.18s. */
+const ease = "ease-[cubic-bezier(0.9,0,0.17,1.01)] motion-reduce:transition-none";
+const openTime = 600;
+
+/** A row that opens from nothing as the prototype's panels: a grid row from `0fr`, faded in. */
+const growing = `grid-cols-subgrid transition-[grid-template-rows,opacity] duration-[600ms] ${ease} starting:grid-rows-[0fr] starting:opacity-0`;
+
 /** A line above and below each accordion, inside it as Figma's strokes are. */
 const accordionLines =
   "shadow-[inset_0_1px_var(--color-border-primary),inset_0_-1px_var(--color-border-primary)]";
@@ -93,7 +108,7 @@ function MenuLinks({
 }: {
   links: NavigationLink[];
   isCurrent: (link: NavigationLink) => boolean;
-  /** The link pointed at, `ui-brand` with the others `ui-tertiary` (Desktop's truck images). */
+  /** The link pointed at, `ui-brand` with the others `ui-tertiary` (Desktop). */
   hovered?: NavigationLink;
   onHover?: (link: NavigationLink | undefined) => void;
   className?: string;
@@ -102,10 +117,7 @@ function MenuLinks({
     <ul className={`flex flex-col ${className ?? ""}`} onMouseLeave={() => onHover?.(undefined)}>
       {links.map((link, index) => (
         // Links may share an address (several to one section), so the key has the position too.
-        <li
-          key={`${index}-${link.href}`}
-          onMouseEnter={() => onHover?.(link.image ? link : undefined)}
-        >
+        <li key={`${index}-${link.href}`} onMouseEnter={() => onHover?.(link)}>
           <NavLink
             variant="secondary"
             href={link.href}
@@ -136,6 +148,10 @@ export function Navigation({
 }: NavigationProps) {
   const [active, setActive] = useState<number | null>(defaultActive ?? null);
   const [open, setOpen] = useState(defaultActive !== undefined);
+  // Desktop: the menu still shown while its panel closes, and whether the last change moved to
+  // another open menu (the quicker fade).
+  const [closing, setClosing] = useState<number | null>(null);
+  const [moved, setMoved] = useState(false);
   const id = useId();
   const pathname = usePathname();
   const isCurrent = (link: NavigationLink) => link.current ?? isCurrentPath(link.href, pathname);
@@ -145,23 +161,45 @@ export function Navigation({
     defaultHovered === undefined ? undefined : activeMenu?.links?.[defaultHovered],
   );
   const desktopOpen = Boolean(activeMenu?.links?.length);
+  // The menu in the Desktop panel: the open one, or the one closing.
+  const shownMenu = desktopOpen ? activeMenu : closing === null ? undefined : menus[closing];
+  const desktopLook = desktopOpen || closing !== null;
+
+  useEffect(() => {
+    if (closing === null) return;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const timer = window.setTimeout(() => setClosing(null), reduce ? 0 : openTime);
+    return () => window.clearTimeout(timer);
+  }, [closing]);
+
+  const openMenu = (index: number) => {
+    if (desktopOpen && active === index) return;
+    setMoved(desktopOpen);
+    setActive(index);
+    setClosing(null);
+    setHovered(undefined);
+  };
+  const closeMenu = () => {
+    if (!desktopOpen) return;
+    setMoved(false);
+    setClosing(active);
+    setActive(null);
+    setHovered(undefined);
+  };
   const toggle = (index: number) => {
     setActive((value) => (value === index ? null : index));
     setHovered(undefined);
   };
 
-  // Figma's open look, per width: below Desktop S when "[Meny]" is open, from it when a menu is.
+  // Figma's open look, per width: below Desktop S when "[Meny]" is open, from it when a menu is
+  // open or closing.
   const openLook = [
     open ? "max-desktop-s:mode-dark max-desktop-s:min-h-svh" : "",
-    desktopOpen ? "desktop-s:mode-dark desktop-s:min-h-svh" : "",
+    desktopLook ? "desktop-s:mode-dark desktop-s:min-h-svh" : "",
   ].join(" ");
   const fill = [
-    open
-      ? "max-desktop-s:bg-navigation-fill max-desktop-s:pb-(--spacing-xl) max-desktop-s:backdrop-blur-[0.625rem]"
-      : "",
-    desktopOpen
-      ? "desktop-s:bg-navigation-fill desktop-s:pb-(--spacing-lg) desktop-s:backdrop-blur-[0.625rem]"
-      : "",
+    open ? "max-desktop-s:bg-navigation-fill max-desktop-s:backdrop-blur-[0.625rem]" : "",
+    desktopLook ? "desktop-s:bg-navigation-fill desktop-s:backdrop-blur-[0.625rem]" : "",
   ].join(" ");
 
   const columns = (links: NavigationLink[]) =>
@@ -175,7 +213,10 @@ export function Navigation({
       {...attributes}
     >
       <div
-        className={`grid grid-cols-6 gap-x-(--grid-gap) gap-y-(--spacing-2xl) overflow-hidden px-(--grid-gap) py-(--spacing-sm) text-ui-primary desktop-s:grid-cols-12 ${fill}`}
+        onPointerLeave={(event) => {
+          if (event.pointerType === "mouse" && !open) closeMenu();
+        }}
+        className={`grid grid-cols-6 gap-x-(--grid-gap) overflow-hidden px-(--grid-gap) py-(--spacing-sm) text-ui-primary desktop-s:grid-cols-12 ${fill}`}
       >
         <div className="col-span-3 flex items-center pl-(--spacing-sm) tablet:col-span-4 tablet:items-start">
           <Link href="/" aria-label="Milevas">
@@ -184,7 +225,9 @@ export function Navigation({
         </div>
 
         {menus.map((menu, index) => {
-          const tone = desktopOpen && active !== index ? "text-ui-tertiary" : "text-ui-primary";
+          const tone = `transition-colors ${moved ? "duration-[180ms]" : "duration-[600ms]"} ${ease} ${
+            desktopOpen && active !== index ? "text-ui-tertiary" : "text-ui-primary"
+          }`;
           return (
             <div key={index} className="hidden items-center desktop-s:flex">
               {menu.links?.length ? (
@@ -192,7 +235,10 @@ export function Navigation({
                   type="button"
                   aria-expanded={active === index}
                   aria-controls={`${id}-panel`}
-                  onClick={() => toggle(index)}
+                  onClick={() => (active === index ? closeMenu() : openMenu(index))}
+                  onPointerEnter={(event) => {
+                    if (event.pointerType === "mouse") openMenu(index);
+                  }}
                   className={`py-(--spacing-2xs) text-label-s whitespace-nowrap ${tone}`}
                   {...menu.attributes}
                 >
@@ -255,26 +301,36 @@ export function Navigation({
           </button>
         </div>
 
-        {/* Desktop S and L: the open menu's links and image. */}
-        {desktopOpen && activeMenu?.links ? (
-          <div id={`${id}-panel`} className="col-span-full hidden grid-cols-subgrid desktop-s:grid">
-            {columns(activeMenu.links).map((links, column) => (
-              <MenuLinks
-                key={column}
-                links={links}
-                isCurrent={isCurrent}
-                hovered={hovered}
-                onHover={setHovered}
-                className={`justify-end ${
-                  column === 0
-                    ? `pl-(--spacing-sm) ${activeMenu.links && activeMenu.links.length > 3 ? "col-span-5" : "col-span-9"}`
-                    : "col-span-4 gap-(--spacing-2xs)"
-                }`}
-              />
-            ))}
-            <div className="col-span-3 flex items-center pr-(--spacing-sm)">
-              <div className="relative aspect-square flex-1">
-                {hovered?.image ?? activeMenu.image}
+        {/* Desktop S and L: the open menu's links and image; shut while it closes. */}
+        {shownMenu?.links?.length ? (
+          <div
+            id={`${id}-panel`}
+            inert={!desktopOpen}
+            className={`col-span-full hidden desktop-s:grid ${growing} ${
+              desktopOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+            }`}
+          >
+            <div className="col-span-full grid min-h-0 grid-cols-subgrid overflow-hidden">
+              <div className="col-span-full grid grid-cols-subgrid pt-(--spacing-2xl) pb-[calc(var(--spacing-lg)-var(--spacing-sm))]">
+                {columns(shownMenu.links).map((links, column) => (
+                  <MenuLinks
+                    key={column}
+                    links={links}
+                    isCurrent={isCurrent}
+                    hovered={hovered}
+                    onHover={setHovered}
+                    className={`justify-end ${
+                      column === 0
+                        ? `pl-(--spacing-sm) ${shownMenu.links && shownMenu.links.length > 3 ? "col-span-5" : "col-span-9"}`
+                        : "col-span-4"
+                    }`}
+                  />
+                ))}
+                <div className="col-span-3 flex items-center pr-(--spacing-sm)">
+                  <div className="relative aspect-square flex-1">
+                    {hovered?.image ?? shownMenu.image}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -282,66 +338,70 @@ export function Navigation({
 
         {/* Tablet and Mobile: the accordion, and on Tablet the open menu's image. */}
         {open ? (
-          <>
-            <div
-              id={`${id}-accordion`}
-              className="col-span-6 flex flex-col px-(--grid-margin) tablet:col-span-4 tablet:px-0 tablet:pl-(--spacing-sm) desktop-s:hidden"
-            >
-              {menus.map((menu, index) => {
-                const expanded = active === index;
-                return (
-                  <div
-                    key={index}
-                    className={`flex flex-col gap-(--spacing-2xs) ${accordionLines} ${
-                      expanded && menu.links?.length ? "pb-(--spacing-2xs)" : ""
-                    }`}
-                  >
-                    {menu.links?.length ? (
-                      <button
-                        type="button"
-                        aria-expanded={expanded}
-                        onClick={() => toggle(index)}
-                        className="flex w-full items-center justify-between py-(--spacing-2xs) text-left"
-                        {...menu.attributes}
+          <div className={`col-span-full grid grid-rows-[1fr] desktop-s:hidden ${growing}`}>
+            <div className="col-span-full grid min-h-0 grid-cols-subgrid overflow-hidden">
+              <div className="col-span-full grid grid-cols-subgrid pt-(--spacing-2xl) pb-[calc(var(--spacing-xl)-var(--spacing-sm))]">
+                <div
+                  id={`${id}-accordion`}
+                  className="col-span-6 flex flex-col px-(--grid-margin) tablet:col-span-4 tablet:px-0 tablet:pl-(--spacing-sm) desktop-s:hidden"
+                >
+                  {menus.map((menu, index) => {
+                    const expanded = active === index;
+                    return (
+                      <div
+                        key={index}
+                        className={`flex flex-col gap-(--spacing-2xs) ${accordionLines} ${
+                          expanded && menu.links?.length ? "pb-(--spacing-2xs)" : ""
+                        }`}
                       >
-                        <span
-                          className={`py-(--spacing-2xs) text-label-s whitespace-nowrap ${
-                            expanded ? "text-ui-brand" : "text-ui-tertiary"
-                          }`}
-                        >
-                          {menu.label}
-                        </span>
-                        <Icon name="chevron-down" className="tablet:[&_path]:stroke-2" />
-                      </button>
-                    ) : menu.href ? (
-                      <NavLink
-                        href={menu.href}
-                        rel={menu.rel}
-                        target={menu.target}
-                        className="my-(--spacing-2xs) text-ui-tertiary"
-                        {...menu.attributes}
-                      >
-                        {menu.label}
-                      </NavLink>
-                    ) : null}
-                    {expanded && menu.links?.length ? (
-                      <MenuLinks links={menu.links} isCurrent={isCurrent} />
-                    ) : null}
-                  </div>
-                );
-              })}
+                        {menu.links?.length ? (
+                          <button
+                            type="button"
+                            aria-expanded={expanded}
+                            onClick={() => toggle(index)}
+                            className="flex w-full items-center justify-between py-(--spacing-2xs) text-left"
+                            {...menu.attributes}
+                          >
+                            <span
+                              className={`py-(--spacing-2xs) text-label-s whitespace-nowrap ${
+                                expanded ? "text-ui-brand" : "text-ui-tertiary"
+                              }`}
+                            >
+                              {menu.label}
+                            </span>
+                            <Icon name="chevron-down" className="tablet:[&_path]:stroke-2" />
+                          </button>
+                        ) : menu.href ? (
+                          <NavLink
+                            href={menu.href}
+                            rel={menu.rel}
+                            target={menu.target}
+                            className="my-(--spacing-2xs) text-ui-tertiary"
+                            {...menu.attributes}
+                          >
+                            {menu.label}
+                          </NavLink>
+                        ) : null}
+                        {expanded && menu.links?.length ? (
+                          <MenuLinks links={menu.links} isCurrent={isCurrent} />
+                        ) : null}
+                      </div>
+                    );
+                  })}
+                </div>
+                <div className="relative col-span-2 hidden self-stretch tablet:block desktop-s:hidden">
+                  <div className="absolute inset-y-0 left-0 aspect-square">{activeMenu?.image}</div>
+                </div>
+              </div>
             </div>
-            <div className="relative col-span-2 hidden self-stretch tablet:block desktop-s:hidden">
-              <div className="absolute inset-y-0 left-0 aspect-square">{activeMenu?.image}</div>
-            </div>
-          </>
+          </div>
         ) : null}
       </div>
 
       <div
         aria-hidden
         className={`flex-1 bg-navigation-overlay ${open ? "max-desktop-s:block" : "max-desktop-s:hidden"} ${
-          desktopOpen ? "desktop-s:block" : "desktop-s:hidden"
+          desktopLook ? "desktop-s:block" : "desktop-s:hidden"
         }`}
       />
     </nav>

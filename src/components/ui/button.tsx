@@ -8,11 +8,12 @@ import { Icon, type IconName } from "./icon";
  *
  * Hover in Figma shifts a row of two identical icons from start to end inside a clipped box. The
  * button's prototype (Hover → Change to) moves the icons and fades the colors in 0.18s with
- * `cubic-bezier(0.76, 0, 0.26, 1)`; Link has no transition in the prototype, so its icon jumps.
+ * `cubic-bezier(0.76, 0, 0.26, 1)`. Link has no transition in the prototype; its icon slides as the
+ * button's (decided 2026-10-22).
  * Pass `data-state="hover"` to show the hover look without a pointer (the kitchensink does).
  */
 
-/** The button prototype's timing, for its colors and icons. */
+/** The button prototype's timing, for its colors and the icons of buttons and links. */
 const motion = "duration-[180ms] ease-[cubic-bezier(0.76,0,0.26,1)] motion-reduce:transition-none";
 
 export type ButtonVariant = "primary" | "secondary";
@@ -54,12 +55,10 @@ const slide =
  * Two copies of the 16px icon, 4px apart, in a clipped box; hovering the parent (`group/slide`)
  * shifts to the second, Figma's 20px step.
  */
-function SlidingIcon({ name, animated = false }: { name: IconName; animated?: boolean }) {
+function SlidingIcon({ name }: { name: IconName }) {
   return (
     <span className="flex size-4 shrink-0 overflow-hidden [--slide:1.25rem]">
-      <span
-        className={`flex shrink-0 gap-1 ${slide} ${animated ? `transition-[translate] ${motion}` : ""}`}
-      >
+      <span className={`flex shrink-0 gap-1 ${slide} transition-[translate] ${motion}`}>
         {[0, 1].map((copy) => (
           <span key={copy} className="flex size-4 shrink-0 items-center justify-center">
             <Icon name={name} />
@@ -98,9 +97,9 @@ function ButtonContent({
 }: Pick<ButtonStyleProps, "iconLeft" | "iconRight"> & { children: ReactNode }) {
   return (
     <>
-      {iconLeft ? <SlidingIcon name={iconLeft} animated /> : null}
+      {iconLeft ? <SlidingIcon name={iconLeft} /> : null}
       {children}
-      {iconRight ? <SlidingIcon name={iconRight} animated /> : null}
+      {iconRight ? <SlidingIcon name={iconRight} /> : null}
     </>
   );
 }
@@ -167,8 +166,8 @@ type TextLinkProps = ComponentProps<typeof Link> & {
 
 /**
  * Figma "Link" (8309:3919): Label S in `ui-primary` with the 16px `arrow_right`, 8px gap and
- * vertical padding (`spacing/2xs`). Hover only shifts the icon. Figma's `Color=White` is the same
- * variable in Dark mode, so the link follows the mode around it.
+ * vertical padding (`spacing/2xs`). Hover only slides the icon, as on the button. Figma's
+ * `Color=White` is the same variable in Dark mode, so the link follows the mode around it.
  */
 export function TextLink({
   iconLeft,

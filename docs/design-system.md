@@ -47,7 +47,11 @@ Figma, och säg vilket nummer i backloggen det är.
    lucka och fråga i `figma-notes.ts` med komponenten eller blocket som `target` (`general` för hela
    sajten), gå igenom de äldre `Antagande`-posterna för samma komponent eller block, och bocka av
    blocket i `blocks-backlog.md`.
-5. `pnpm check`, `pnpm typecheck`, `pnpm lint` och `pnpm test` ska gå igenom. Committa när
+5. Rörelser (hover, klick, öppna och stänga) finns i prototypen, inte i `get_design_context`. Läs
+   dem i Dev Mode: markera ramen, öppna Motion → Transitions, fäll ut en rad och kopiera dess CSS.
+   Tider och kurvor följer prototypen; "Transitions (no code)" är Instant, alltså ingen rörelse.
+   Lägg till `motion-reduce:transition-none`.
+6. `pnpm check`, `pnpm typecheck`, `pnpm lint` och `pnpm test` ska gå igenom. Committa när
    användaren ber om det, och aldrig till `main`.
 
 ## Bra att veta

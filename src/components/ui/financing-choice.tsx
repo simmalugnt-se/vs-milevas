@@ -33,7 +33,11 @@ type FinancingChoiceProps = Omit<HTMLAttributes<HTMLDivElement>, "title"> & {
  * The slider steps between `term.steps` (Figma: 24 to 84 months); the track is `ui-secondary`,
  * the part up to the thumb and the 16px thumb `ui-primary`. An invisible range input on top gives
  * it pointer and keyboard.
+ * Selecting it moves as Figma's prototype (Click → Change to): in 0.18s `ease-out` the colors fade
+ * and the panel opens and fades in. Hover, and going back to Default, change at once.
  */
+const motion = "duration-[180ms] ease-out motion-reduce:transition-none";
+
 export function FinancingChoice({
   title,
   price,
@@ -52,7 +56,7 @@ export function FinancingChoice({
   return (
     <div
       className={`flex w-full flex-col bg-bg-fill text-ui-primary wrap-break-word ring-(length:--stroke-width) ring-border-primary ring-inset hover:mode-tejp data-[state=hover]:mode-tejp ${
-        selected ? "mode-tejp" : ""
+        selected ? `mode-tejp transition-[color,background-color,box-shadow] ${motion}` : ""
       } ${bottom ? "rounded-b-sm" : ""} ${className ?? ""}`}
       {...props}
     >
@@ -66,49 +70,55 @@ export function FinancingChoice({
         {price ? <span className="shrink-0 whitespace-nowrap text-text-l">{price}</span> : null}
       </button>
       {selected && (term || residual) ? (
-        <div className="flex flex-col gap-(--spacing-md) border-t border-border-primary px-(--spacing-sm) py-(--spacing-md)">
-          {term ? (
-            <label className="flex flex-col gap-(--spacing-2xs)">
-              <span className="text-text-m">{term.label}</span>
-              <span className="flex flex-col gap-[0.3125rem]">
-                <span className="relative block h-4">
-                  <span className="absolute inset-x-0 top-1 h-2 rounded-sm bg-ui-secondary" />
-                  <span
-                    className="absolute top-1 left-0 h-2 rounded-sm bg-ui-primary"
-                    style={{ width: `calc(${thumbLeft} + 1rem)` }}
-                  />
-                  <span
-                    className="absolute top-0 size-4 rounded-sm bg-ui-primary"
-                    style={{ left: thumbLeft }}
-                  />
-                  <input
-                    type="range"
-                    min={0}
-                    max={term.steps.length - 1}
-                    step={1}
-                    value={index}
-                    aria-valuetext={String(term.steps[index])}
-                    readOnly={!term.onChange}
-                    onChange={(event) =>
-                      term.onChange?.(term.steps[Number(event.target.value)] ?? term.value)
-                    }
-                    className="absolute inset-0 m-0 h-full w-full cursor-pointer opacity-0"
-                  />
-                </span>
-                <span aria-hidden className="flex justify-between text-label-s">
-                  {term.steps.map((step) => (
-                    <span key={step}>{step}</span>
-                  ))}
-                </span>
-              </span>
-            </label>
-          ) : null}
-          {residual ? (
-            <p className="flex items-center gap-2 text-text-m">
-              <span className="min-w-0 flex-1">{residual.label}</span>
-              <span className="shrink-0 whitespace-nowrap">{residual.value}</span>
-            </p>
-          ) : null}
+        <div
+          className={`grid grid-rows-[1fr] transition-[grid-template-rows,opacity] starting:grid-rows-[0fr] starting:opacity-0 ${motion}`}
+        >
+          <div className="min-h-0 overflow-hidden">
+            <div className="flex flex-col gap-(--spacing-md) border-t border-border-primary px-(--spacing-sm) py-(--spacing-md)">
+              {term ? (
+                <label className="flex flex-col gap-(--spacing-2xs)">
+                  <span className="text-text-m">{term.label}</span>
+                  <span className="flex flex-col gap-[0.3125rem]">
+                    <span className="relative block h-4">
+                      <span className="absolute inset-x-0 top-1 h-2 rounded-sm bg-ui-secondary" />
+                      <span
+                        className="absolute top-1 left-0 h-2 rounded-sm bg-ui-primary"
+                        style={{ width: `calc(${thumbLeft} + 1rem)` }}
+                      />
+                      <span
+                        className="absolute top-0 size-4 rounded-sm bg-ui-primary"
+                        style={{ left: thumbLeft }}
+                      />
+                      <input
+                        type="range"
+                        min={0}
+                        max={term.steps.length - 1}
+                        step={1}
+                        value={index}
+                        aria-valuetext={String(term.steps[index])}
+                        readOnly={!term.onChange}
+                        onChange={(event) =>
+                          term.onChange?.(term.steps[Number(event.target.value)] ?? term.value)
+                        }
+                        className="absolute inset-0 m-0 h-full w-full cursor-pointer opacity-0"
+                      />
+                    </span>
+                    <span aria-hidden className="flex justify-between text-label-s">
+                      {term.steps.map((step) => (
+                        <span key={step}>{step}</span>
+                      ))}
+                    </span>
+                  </span>
+                </label>
+              ) : null}
+              {residual ? (
+                <p className="flex items-center gap-2 text-text-m">
+                  <span className="min-w-0 flex-1">{residual.label}</span>
+                  <span className="shrink-0 whitespace-nowrap">{residual.value}</span>
+                </p>
+              ) : null}
+            </div>
+          </div>
         </div>
       ) : null}
     </div>
