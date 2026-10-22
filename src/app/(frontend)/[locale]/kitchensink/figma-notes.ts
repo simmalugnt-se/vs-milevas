@@ -70,6 +70,24 @@ export const designQuestions: DesignQuestion[] = [
     figma: "8539:7128",
   },
   {
+    target: "text-block-columns",
+    question:
+      "Heron har fem kolumner och text blocket fyra, så ett streck blir över när de flyttas (prototypen visar den gamla heron med sex kolumner). Koden för det sista strecket till högerkanten. Var ska det ta vägen?",
+    figma: "9321:52167",
+  },
+  {
+    target: "text-block-columns",
+    question:
+      "Strecken i prototypen ligger på 372, 744 och 1068px, men Text block Collumns har fyra lika breda kolumner (360, 720, 1080). Koden följer blocket. Stämmer det?",
+    figma: "9321:52209",
+  },
+  {
+    target: "text-block-columns",
+    question:
+      "Ska strecken flyttas på Tablet och Mobile också? Där är heron en lista man scrollar i sidled, och prototypen finns bara för desktop.",
+    figma: "8982:9918",
+  },
+  {
     target: "hero",
     question:
       "Navigationen (Dark, ljus text) ligger över heron, och över en gul kolumn syns texten knappt. Prototypen döljer navigationen. Ska den byta färg, eller få en bakgrund, över heron?",
@@ -382,6 +400,53 @@ export const figmaNotes: FigmaNote[] = [
     why: "Användarens önskemål att behålla proportionerna från 1440px på större skärmar. Payload-admin har en separat root-layout och omfattas inte",
     status: "Beslut",
     date: "2026-10-07",
+  },
+  {
+    target: "text-block-columns",
+    topic: "Strecken efter heron",
+    figma:
+      "Startsidesprototypen (Pages, MacBook Air 109 → 110): ett lager med kolumner står kvar medan innehållet glider upp, och ändrar bredderna från heronas till text blockets. On click → Smart animate, 2600 ms, `cubic-bezier(0.82, 0, 0.22, 1)`; i 111 följer strecken med text blocket upp",
+    code: "Två block i Payload. Ligger text blocket direkt efter heron delar de ett lager streck (`LinkedColumns`) som följer scrollen med prototypens kurva, från att text blocket syns i underkant tills det når toppen, och sedan går upp med det. Blockens egna streck döljs då från Desktop S",
+    why: "Användarens val 2026-10-22: blocken ska kunna användas var för sig, och på en riktig sida scrollar man i stället för att klicka",
+    status: "Beslut",
+    date: "2026-10-22",
+  },
+  {
+    target: "text-block-columns",
+    topic: "Strecken på Tablet och Mobile",
+    figma: "Prototypen finns bara för desktop",
+    code: "Under Desktop S har varje block sina egna streck, utan rörelse",
+    why: "Inte ritat; se frågan",
+    status: "Lucka",
+    date: "2026-10-22",
+  },
+  {
+    target: "text-block-columns",
+    topic: "Rubrikens läge och höjden",
+    figma: "Rubriken börjar 191, 220, 331 och 226px ner i ramarna 832, 832, 1000 och 800 höga",
+    code: "Samma andel av höjden (23, 26, 33 och 28 %), och blocket är `100svh` högt, minst 37,5rem, som heron",
+    why: "Ramarna är skärmhöga och blocket ska fylla skärmen när strecken flyttas",
+    status: "Beslut (teknisk)",
+    date: "2026-10-22",
+  },
+  {
+    target: "text-block-columns",
+    topic: "Logotyperna",
+    figma:
+      "Desktop: KION 116, STILL 131, Linde 147 och Baoli 108px breda; Tablet 90 och Mobile 60px alla. Lindes bild är beskuren upptill",
+    code: "Bredden på desktop är ett fält per logotyp i Payload (Figmas bredder i testet); Tablet och Mobile som Figma. Lindes bild visas hel, nederkanten i linje som i Figma",
+    why: "Logotyperna har olika form och Figma ger dem egna bredder",
+    status: "Beslut (teknisk)",
+    date: "2026-10-22",
+  },
+  {
+    target: "text-block-columns",
+    topic: "Avstavning på Mobile",
+    figma: '"Ett varu-märke inom" på Mobile',
+    code: "Rubriken avstavas automatiskt under Tablet (`hyphens-auto`), så texten skrivs utan bindestreck",
+    why: "Samma text i alla bredder",
+    status: "Beslut (teknisk)",
+    date: "2026-10-22",
   },
   {
     target: "hero",

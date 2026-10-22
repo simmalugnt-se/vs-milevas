@@ -6,6 +6,7 @@ import { Footer, type FooterGroup } from "@/components/blocks/footer";
 import { MilevasHero } from "@/components/blocks/milevas-hero";
 import { Navigation, type NavigationMenu } from "@/components/blocks/navigation";
 import { ProductGrid } from "@/components/blocks/product-grid";
+import { TextBlockColumns } from "@/components/blocks/text-block-columns";
 import { TextBoxinfo } from "@/components/blocks/text-boxinfo";
 import { TextGrid, type TextGridCard } from "@/components/blocks/text-grid";
 import { Button } from "@/components/ui/button";
@@ -17,6 +18,10 @@ import heroLowLift from "../../../../../../scripts/figma-homepage-assets/hero-lo
 import heroPalletTruck from "../../../../../../scripts/figma-homepage-assets/hero-pallet-truck.png";
 import heroReachTruck from "../../../../../../scripts/figma-homepage-assets/hero-reach-truck.png";
 import heroStacker from "../../../../../../scripts/figma-homepage-assets/hero-stacker.png";
+import logoBaoli from "../../../../../../scripts/figma-homepage-assets/logo-baoli.png";
+import logoKion from "../../../../../../scripts/figma-homepage-assets/logo-kion.png";
+import logoLinde from "../../../../../../scripts/figma-homepage-assets/logo-linde.png";
+import logoStill from "../../../../../../scripts/figma-homepage-assets/logo-still.png";
 import navigationTruck from "../assets/navigation-truck.png";
 import truckCounterbalance from "../assets/truck-counterbalance.png";
 import truckPallet from "../assets/truck-pallet.png";
@@ -211,6 +216,14 @@ const heroTrucks = [
   ["Elektriska pallyftare", heroPalletTruck],
 ] as const;
 
+/** Text block Collumns' logos and their Desktop widths, from Figma. */
+const textBlockLogos = [
+  ["KION", logoKion, 116],
+  ["STILL", logoStill, 131],
+  ["Linde", logoLinde, 147],
+  ["Baoli", logoBaoli, 108],
+] as const;
+
 export default function BlocksPage() {
   return (
     <KitchensinkPage href="/kitchensink/blocks" fullWidth>
@@ -264,6 +277,19 @@ export default function BlocksPage() {
                 className="object-contain object-bottom"
               />
             ),
+          }))}
+        />
+      </Block>
+
+      {/* On its own; right after the hero on a page the two share their lines (LinkedColumns). */}
+      <Block id="text-block-columns" figma="8982:9898">
+        <TextBlockColumns
+          heading="Ett varumärke inom"
+          highlight="KION Group"
+          text="Baoli är en del av KION Group – samma koncern som står bakom Linde och STILL. Det gör Baoli till det praktiska instegsvalet inom en global industrikoncern med över 100 års erfarenhet av materialhantering."
+          logos={textBlockLogos.map(([alt, image, width]) => ({
+            width,
+            image: <Image src={image} alt={alt} sizes="10rem" className="block h-auto w-full" />,
           }))}
         />
       </Block>

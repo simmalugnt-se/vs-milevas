@@ -396,6 +396,36 @@ export interface Page {
              * Valfritt, för länkar inom sidan. Exempel: modeller (utan #).
              */
             anchor?: string | null;
+            /**
+             * Vit del. Exempel: Ett varumärke inom.
+             */
+            heading: string;
+            /**
+             * Efter rubriken, i gult. Exempel: KION Group.
+             */
+            highlight?: string | null;
+            text?: string | null;
+            /**
+             * En kolumn per logotyp. Direkt efter Milevas: Hero delar blocken streck, som flyttas när man scrollar.
+             */
+            logos: {
+              image: string | Image;
+              name: string;
+              /**
+               * I px vid 1440 bred skärm. Mobil och surfplatta använder 60 och 90.
+               */
+              width?: number | null;
+              id?: string | null;
+            }[];
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'textColumns';
+          }
+        | {
+            /**
+             * Valfritt, för länkar inom sidan. Exempel: modeller (utan #).
+             */
+            anchor?: string | null;
             label: string;
             brand?: string | null;
             category?: string | null;
@@ -1211,6 +1241,24 @@ export interface PagesSelect<T extends boolean = true> {
                         };
                     price?: T;
                     leasing?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        textColumns?:
+          | T
+          | {
+              anchor?: T;
+              heading?: T;
+              highlight?: T;
+              text?: T;
+              logos?:
+                | T
+                | {
+                    image?: T;
+                    name?: T;
+                    width?: T;
                     id?: T;
                   };
               id?: T;

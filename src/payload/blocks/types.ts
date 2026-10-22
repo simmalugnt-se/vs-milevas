@@ -23,3 +23,5 @@ export type ProductGridBlock = Extract<LayoutBlock, { blockType: "productGrid" }
 export type TextGridBlock = Extract<LayoutBlock, { blockType: "textGrid" }>;
 
 export type TextBoxinfoBlock = Extract<LayoutBlock, { blockType: "textBoxinfo" }>;
+
+export type TextColumnsBlock = Extract<LayoutBlock, { blockType: "textColumns" }>;

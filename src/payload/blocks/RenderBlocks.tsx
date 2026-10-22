@@ -1,5 +1,6 @@
 import { editableBlock } from "@simmalugnt-se/payload-visual-editing/frontend";
 import type { ReactNode } from "react";
+import { LinkedColumns } from "@/components/blocks/linked-columns";
 import { blockComponents, type LayoutBlock } from "./definitions.ts";
 
 type RenderBlocksProps = {
@@ -16,25 +17,45 @@ export function RenderBlocks({ className, editable = false, layout }: RenderBloc
     return null;
   }
 
-  return (
-    <div className={className}>
-      {layout.map((block, index) => {
-        const BlockComponent = renderers[block.blockType];
+  const render = (block: LayoutBlock, index: number) => {
+    const BlockComponent = renderers[block.blockType];
 
-        if (!BlockComponent) {
-          return null;
-        }
+    if (!BlockComponent) {
+      return null;
+    }
 
-        return (
-          <div
-            data-layout-block={block.blockType}
-            key={block.id || `${block.blockType}-${index}`}
-            {...(editable ? editableBlock(block) : {})}
-          >
-            <BlockComponent block={block} />
-          </div>
-        );
-      })}
-    </div>
-  );
+    return (
+      <div
+        data-layout-block={block.blockType}
+        key={block.id || `${block.blockType}-${index}`}
+        {...(editable ? editableBlock(block) : {})}
+      >
+        <BlockComponent block={block} />
+      </div>
+    );
+  };
+
+  // Milevas: the hero and a text block right after it share their column lines.
+  const items: ReactNode[] = [];
+  for (let index = 0; index < layout.length; index++) {
+    const block = layout[index];
+    const next = layout[index + 1];
+    if (block.blockType === "milevasHero" && next?.blockType === "textColumns") {
+      items.push(
+        <LinkedColumns
+          key={`linked-${block.id || index}`}
+          from={block.columns.length}
+          to={next.logos.length}
+        >
+          {render(block, index)}
+          {render(next, index + 1)}
+        </LinkedColumns>,
+      );
+      index++;
+    } else {
+      items.push(render(block, index));
+    }
+  }
+
+  return <div className={className}>{items}</div>;
 }

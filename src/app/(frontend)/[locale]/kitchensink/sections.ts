@@ -71,6 +71,7 @@ export const kitchensinkPages = [
         sections: [
           { id: "navigation", title: "Navigation" },
           { id: "hero", title: "Milevas Hero" },
+          { id: "text-block-columns", title: "Text block Collumns" },
           { id: "product-grid", title: "Product-Grid" },
           { id: "text-grid", title: "Text+Grid" },
           { id: "text-boxinfo", title: "Text & boxinfo" },

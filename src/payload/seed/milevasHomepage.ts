@@ -147,9 +147,30 @@ async function milevasHeroBlock(payload: Payload, familyIDs: Map<string, string>
   };
 }
 
+/** Text block Collumns as Figma: the KION Group text and the four logos. */
+async function milevasTextColumnsBlock(payload: Payload) {
+  const logos = [
+    ["kion", "KION", 116],
+    ["still", "STILL", 131],
+    ["linde", "Linde", 147],
+    ["baoli", "Baoli", 108],
+  ] as const;
+  const items = [];
+  for (const [asset, name, width] of logos) {
+    items.push({ image: await uploadImage(payload, `logo-${asset}`, name), name, width });
+  }
+  return {
+    blockType: "textColumns" as const,
+    heading: "Ett varumärke inom",
+    highlight: "KION Group",
+    text: "Baoli är en del av KION Group – samma koncern som står bakom Linde och STILL. Det gör Baoli till det praktiska instegsvalet inom en global industrikoncern med över 100 års erfarenhet av materialhantering.",
+    logos: items,
+  };
+}
+
 /**
  * Explicit local seed, never run by onInit. Existing Milevas content survives repeated runs;
- * `updateHero` replaces only the hero of an existing start page.
+ * `updateHero` replaces only the hero of an existing start page, and the text block after it.
  */
 export async function seedMilevasHomepage(payload: Payload, publish = false, updateHero = false) {
   const context = { disableRevalidate: true };
@@ -173,15 +194,20 @@ export async function seedMilevasHomepage(payload: Payload, publish = false, upd
   if (seededPage?.layout?.some((block) => block.blockType === "milevasHero")) {
     if (!updateHero) return { page: seededPage, seeded: false };
     const hero = await milevasHeroBlock(payload, familyIDs);
+    const textColumns = await milevasTextColumnsBlock(payload);
+    const layout = seededPage.layout.flatMap((block, index, all): NonNullable<Page["layout"]> => {
+      if (block.blockType === "textColumns") return [{ ...textColumns, id: block.id }];
+      if (block.blockType !== "milevasHero") return [block];
+      const replaced = { ...hero, id: block.id };
+      return all[index + 1]?.blockType === "textColumns" ? [replaced] : [replaced, textColumns];
+    });
     const page = await payload.update({
       collection: "pages",
       id: seededPage.id,
       locale: "sv",
       draft: !publish,
       data: {
-        layout: seededPage.layout.map((block) =>
-          block.blockType === "milevasHero" ? { ...hero, id: block.id } : block,
-        ),
+        layout,
         _status: publish ? "published" : "draft",
       },
       context,
@@ -225,6 +251,7 @@ export async function seedMilevasHomepage(payload: Payload, publish = false, upd
   ];
   const layout: NonNullable<Page["layout"]> = [
     await milevasHeroBlock(payload, familyIDs),
+    await milevasTextColumnsBlock(payload),
     {
       blockType: "productGrid",
       anchor: "modeller",

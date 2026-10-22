@@ -385,7 +385,7 @@ export function MilevasHero({
               }
               data-state={lit && active === index ? "active" : undefined}
               contentClassName="max-desktop-s:translate-x-(--shift) desktop-s:group-data-[state=active]/column:animate-[hero-info-in_380ms_cubic-bezier(0.23,1,0.32,1)_both]"
-              className="min-w-0 desktop-s:cursor-none [&_span]:break-words"
+              className="min-w-0 desktop-s:cursor-none desktop-s:group-data-[linked]/linked:border-transparent [&_span]:break-words"
             >
               <span
                 aria-hidden

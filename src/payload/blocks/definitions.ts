@@ -24,6 +24,8 @@ import { RichTextBlockComponent } from "./RichText/Component";
 import { RichTextBlock } from "./RichText/config";
 import { TextBoxinfoBlockComponent } from "./TextBoxinfo/Component";
 import { TextBoxinfoBlock } from "./TextBoxinfo/config";
+import { TextColumnsBlockComponent } from "./TextColumns/Component";
+import { TextColumnsBlock } from "./TextColumns/config";
 import { TextGridBlockComponent } from "./TextGrid/Component";
 import { TextGridBlock } from "./TextGrid/config";
 import type { LayoutBlock } from "./types";
@@ -66,6 +68,7 @@ export const layoutBlocks: Block[] = [
   ColumnsBlock,
   ConfiguratorBlock,
   MilevasHeroBlock,
+  TextColumnsBlock,
   ProductGridBlock,
   TextGridBlock,
   TextBoxinfoBlock,
@@ -89,6 +92,9 @@ export const blockComponents = {
   columns: renderTypedBlock("columns", ({ block }) => ColumnsBlockComponent({ block })),
   milevasHero: renderTypedBlock("milevasHero", ({ block }) =>
     createElement(MilevasHeroBlockComponent, { block }),
+  ),
+  textColumns: renderTypedBlock("textColumns", ({ block }) =>
+    createElement(TextColumnsBlockComponent, { block }),
   ),
   productGrid: renderTypedBlock("productGrid", ({ block }) =>
     createElement(ProductGridBlockComponent, { block }),

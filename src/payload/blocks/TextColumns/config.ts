@@ -1,0 +1,53 @@
+import type { Block } from "payload";
+import { sectionID } from "../milevas-fields";
+
+export const TextColumnsBlock: Block = {
+  slug: "textColumns",
+  labels: { singular: "Milevas: Text och logotyper", plural: "Milevas: Text och logotyper" },
+  fields: [
+    sectionID,
+    {
+      name: "heading",
+      label: "Rubrik",
+      type: "text",
+      required: true,
+      localized: true,
+      admin: { description: "Vit del. Exempel: Ett varumärke inom." },
+    },
+    {
+      name: "highlight",
+      label: "Gul del",
+      type: "text",
+      localized: true,
+      admin: { description: "Efter rubriken, i gult. Exempel: KION Group." },
+    },
+    { name: "text", label: "Text", type: "textarea", localized: true },
+    {
+      name: "logos",
+      label: "Logotyper",
+      type: "array",
+      required: true,
+      minRows: 1,
+      maxRows: 6,
+      admin: {
+        description:
+          "En kolumn per logotyp. Direkt efter Milevas: Hero delar blocken streck, som flyttas när man scrollar.",
+      },
+      fields: [
+        { name: "image", label: "Bild", type: "upload", relationTo: "images", required: true },
+        { name: "name", label: "Namn", type: "text", required: true },
+        {
+          name: "width",
+          label: "Bredd på desktop",
+          type: "number",
+          defaultValue: 120,
+          min: 40,
+          max: 400,
+          admin: {
+            description: "I px vid 1440 bred skärm. Mobil och surfplatta använder 60 och 90.",
+          },
+        },
+      ],
+    },
+  ],
+};
