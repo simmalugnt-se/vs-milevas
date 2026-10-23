@@ -105,8 +105,8 @@ Figma, och säg vilket nummer i backloggen det är.
 
 ## Startsidan som Payload-block (2026-10-07)
 
-Sju egna block finns i `src/payload/blocks`: `MilevasHero`, `TextColumns`, `ImageText`,
-`ProductGrid`, `TextGrid`, `TextBoxinfo` och `CardSlider`. De återanvänder kitchensinks komponenter, har lokaliserade innehållsfält,
+Nio egna block finns i `src/payload/blocks`: `MilevasHero`, `TextColumns`, `TextBlock`,
+`ImageText`, `ProductGrid`, `TextGrid`, `TextBoxinfo`, `CardSlider` och `Contact`. De återanvänder kitchensinks komponenter, har lokaliserade innehållsfält,
 bildfält, länkar och markörer för visual editing. Boilerplatens block är kvar.
 
 - Den publika sidlayouten är global: fullbredd utan yttre padding, sammanhängande CMS-block
@@ -124,7 +124,11 @@ bildfält, länkar och markörer för visual editing. Boilerplatens block är kv
   blocket efter heron.
 - `pnpm seed:homepage -- --image-text --publish-local` lägger in Image & Text efter text blocket på
   en befintlig lokal startsida, om sidan inte redan har det; `--card-slider` lägger in Card Slider
-  efter Text & boxinfo.
+  efter Text & boxinfo, `--text-block` Text-block efter text blocket och `--contact` Contact sist.
+- **Contact** visar sidfotens e-post, telefon och sociala länkar (`socialLinks` i Footer-globalen),
+  så de ändras på ett ställe. Formuläret sparar i samlingen Kontaktförfrågningar
+  (`contact-requests`) och mejlas via Resend till `CONTACT_REQUEST_EMAIL`, annars
+  `CONFIGURATOR_SALES_EMAIL`.
 - **Truckfamiljerna är det enda stället för en trucktyp** ([`truck-data-schema.md`](./truck-data-schema.md)):
   heron, produktgriden, navigationens Modeller och sidfotens Produkter (`source: truckFamilies`)
   hämtar namn, huvudbild, specifikationer, priser och länk därifrån. Produktkorten bestämmer bara
@@ -141,7 +145,8 @@ bildfält, länkar och markörer för visual editing. Boilerplatens block är kv
   startsidan. Samma krav som ovan.
 - Ingen ny SQL-migrering behövs för blocken: `blocksAsJSON` lagrar block och relationer i sidans
   JSON. Header- och Footer-globalernas nya fält har egna migreringar (`20261022_123131_header_menus_login`,
-  `20261022_125150_footer_columns_contact`), och truckdatan sin (`20261023_091729_truck_catalog`).
+  `20261022_125150_footer_columns_contact`), truckdatan sin (`20261023_091729_truck_catalog`) och
+  kontaktförfrågningarna och de sociala länkarna sin (`20261023_115840_contact_requests`).
 - `pnpm test:milevas-blocks` provar sparande, relationer, lokaliserad text och upprepad seed i
   en egen tillfällig databas. Befintliga migrationsfiler bygger hela schemat.
 
@@ -151,7 +156,8 @@ för Display, Text och sajtens standardtext; Label använder Geist Mono.
 
 ## Nästa steg
 
-1. **Blocken i [`blocks-backlog.md`](./blocks-backlog.md)**, i Figmas ordning: Text-block är
-   nästa. Configurator, Popup och Card Slider är byggda.
+1. **Blocken i [`blocks-backlog.md`](./blocks-backlog.md)**, i Figmas ordning: Login är
+   nästa, när det är bestämt vad inloggningen ska ge åtkomst till. Configurator, Popup, Card Slider,
+   Text-block och Contact är byggda.
 2. **Väntar på designen eller på dig:**
    - en genomgång av posterna med status Antagande och frågorna till designen, på `/kitchensink/notes`

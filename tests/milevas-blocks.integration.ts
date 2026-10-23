@@ -69,11 +69,13 @@ async function main() {
       [
         "milevasHero",
         "textColumns",
+        "textBlock",
         "imageText",
         "productGrid",
         "textGrid",
         "textBoxinfo",
         "cardSlider",
+        "contact",
       ],
     );
     const grid = saved.layout?.find((block) => block.blockType === "productGrid");
@@ -134,7 +136,7 @@ async function main() {
       }
     }
     console.log(
-      "PASS: seven CMS blocks, cards and columns pointing at their truck families, three distinct photos, localized copy and repeat-safe seed.",
+      "PASS: nine CMS blocks, cards and columns pointing at their truck families, three distinct photos, localized copy and repeat-safe seed.",
     );
   } finally {
     try {

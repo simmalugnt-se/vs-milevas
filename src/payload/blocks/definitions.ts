@@ -10,6 +10,8 @@ import { ColumnsBlockComponent } from "./Columns/Component";
 import { ColumnsBlock } from "./Columns/config";
 import { ConfiguratorBlockComponent } from "./Configurator/Component";
 import { ConfiguratorBlock } from "./Configurator/config";
+import { ContactBlockComponent } from "./Contact/Component";
+import { ContactBlock } from "./Contact/config";
 import { FAQBlockComponent } from "./FAQ/Component";
 import { FAQBlock } from "./FAQ/config";
 import { GalleryBlockComponent } from "./Gallery/Component";
@@ -26,6 +28,8 @@ import { ProductGridBlockComponent } from "./ProductGrid/Component";
 import { ProductGridBlock } from "./ProductGrid/config";
 import { RichTextBlockComponent } from "./RichText/Component";
 import { RichTextBlock } from "./RichText/config";
+import { TextBlockBlockComponent } from "./TextBlock/Component";
+import { TextBlockBlock } from "./TextBlock/config";
 import { TextBoxinfoBlockComponent } from "./TextBoxinfo/Component";
 import { TextBoxinfoBlock } from "./TextBoxinfo/config";
 import { TextColumnsBlockComponent } from "./TextColumns/Component";
@@ -78,6 +82,8 @@ export const layoutBlocks: Block[] = [
   TextGridBlock,
   TextBoxinfoBlock,
   CardSliderBlock,
+  TextBlockBlock,
+  ContactBlock,
 
   // sl-cli:layout-blocks (do not remove)
 ];
@@ -116,6 +122,12 @@ export const blockComponents = {
   ),
   cardSlider: renderTypedBlock("cardSlider", ({ block }) =>
     createElement(CardSliderBlockComponent, { block }),
+  ),
+  textBlock: renderTypedBlock("textBlock", ({ block }) =>
+    createElement(TextBlockBlockComponent, { block }),
+  ),
+  contact: renderTypedBlock("contact", ({ block }) =>
+    createElement(ContactBlockComponent, { block }),
   ),
   // sl-cli:block-components-map (do not remove)
 } satisfies Record<string, LayoutBlockRenderer>;

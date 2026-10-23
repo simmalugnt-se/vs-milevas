@@ -1,5 +1,6 @@
 import type { CollectionConfig } from "payload";
 import { ConfiguratorRequests } from "./ConfiguratorRequests/config.ts";
+import { ContactRequests } from "./ContactRequests/config.ts";
 import { Documents } from "./Documents/config.ts";
 import { Images } from "./Images/config.ts";
 import { Pages } from "./Pages/config.ts";
@@ -16,6 +17,7 @@ export const payloadCollections: CollectionConfig[] = [
   TruckFamilies,
   TruckSpecs,
   ConfiguratorRequests,
+  ContactRequests,
   Users,
   // sl-cli:array (do not remove)
 ];

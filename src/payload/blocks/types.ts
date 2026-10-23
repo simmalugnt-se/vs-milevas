@@ -29,3 +29,7 @@ export type TextColumnsBlock = Extract<LayoutBlock, { blockType: "textColumns" }
 export type ImageTextBlock = Extract<LayoutBlock, { blockType: "imageText" }>;
 
 export type CardSliderBlock = Extract<LayoutBlock, { blockType: "cardSlider" }>;
+
+export type TextBlockBlock = Extract<LayoutBlock, { blockType: "textBlock" }>;
+
+export type ContactBlock = Extract<LayoutBlock, { blockType: "contact" }>;

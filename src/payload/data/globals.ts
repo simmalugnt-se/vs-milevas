@@ -38,6 +38,7 @@ export type FooterData = {
   phone?: string | null;
   location?: string | null;
   contactHeading?: string | null;
+  socialLinks?: { id?: string | null; label: string; url: string }[] | null;
   linkGroups?:
     | {
         id?: string | null;

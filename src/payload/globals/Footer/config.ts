@@ -78,6 +78,19 @@ export const Footer: GlobalConfig = {
           localized: true,
           admin: { description: 'Plain text, e.g. "Stockholm, Sverige".' },
         },
+        {
+          name: "socialLinks",
+          type: "array",
+          label: "Social links",
+          admin: {
+            description:
+              "Shown in the Contact block after the e-mail and phone, which also come from here.",
+          },
+          fields: [
+            { name: "label", type: "text", required: true, admin: { width: "50%" } },
+            { name: "url", type: "text", required: true, admin: { width: "50%" } },
+          ],
+        },
       ],
     },
     {

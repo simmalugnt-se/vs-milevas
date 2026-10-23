@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import type { ReactNode } from "react";
+import { Fragment, type ReactNode } from "react";
 import { CardSlider, type CardSliderCard } from "@/components/blocks/card-slider";
 import { ConfiguratorQuote } from "@/components/blocks/configurator-quote";
 import { ConfiguratorScreen } from "@/components/blocks/configurator-screen";
@@ -9,11 +9,13 @@ import {
   type ConfiguratorStepDisplay,
 } from "@/components/blocks/configurator-step";
 import { ConfiguratorThanks } from "@/components/blocks/configurator-thanks";
+import { Contact, ContactLink } from "@/components/blocks/contact";
 import { Footer, type FooterGroup } from "@/components/blocks/footer";
 import { ImageText } from "@/components/blocks/image-text";
 import { MilevasHero } from "@/components/blocks/milevas-hero";
 import { Navigation, type NavigationMenu } from "@/components/blocks/navigation";
 import { ProductGrid } from "@/components/blocks/product-grid";
+import { TextBlock } from "@/components/blocks/text-block";
 import { TextBlockColumns } from "@/components/blocks/text-block-columns";
 import { TextBoxinfo } from "@/components/blocks/text-boxinfo";
 import { TextGrid, type TextGridCard } from "@/components/blocks/text-grid";
@@ -38,6 +40,7 @@ import truckCounterbalance from "../assets/truck-counterbalance.png";
 import truckPallet from "../assets/truck-pallet.png";
 import truckProductCard from "../assets/truck-product-card.png";
 import warehouse from "../assets/warehouse.jpg";
+import { ContactFormDemo } from "../contact-form-demo";
 import { FigmaNotes } from "../figma-notes-list";
 import { type SectionId, sectionTitle } from "../sections";
 import { KitchensinkPage } from "../ui";
@@ -623,6 +626,38 @@ export default function BlocksPage() {
       {/* Hover a card from Desktop S; below it the first card shows the image look. */}
       <Block id="card-slider" figma="8946:8317">
         <CardSlider cards={sliderCards} label="Lager, leverans och service" />
+      </Block>
+
+      <Block id="text-block" figma="8946:10622">
+        <TextBlock text="Det betyder att du får en trucktillverkare med industriell tyngd, europeisk ingenjörskonst och över 100 års samlad erfarenhet av materialhantering i ryggen." />
+        <TextBlock
+          text="Det betyder att du får en trucktillverkare med industriell tyngd, europeisk ingenjörskonst och över 100 års samlad erfarenhet av materialhantering i ryggen."
+          paragraph="Baoli erbjuder smarta och prisvärda brukstruckar utan krussiduller. Pålitlig och lättanvänd utrustning, enkel att underhålla, till ett rimligt pris. Milevas är generalagent för Baoli i Sverige, Finland, Estland, Lettland och Litauen och står för försäljning, leverans och service med samma enkla principer: tydliga priser, rätt utrustning och truckar som gör jobbet."
+        />
+      </Block>
+
+      {/* Figma's placeholders in the form; the CMS block has the real fields and sends. */}
+      <Block id="contact" figma="9098:22568">
+        <Contact
+          heading="Kontakt"
+          items={[
+            <ContactLink key="email" href="mailto:info@milevas.se">
+              info@milevas.se
+            </ContactLink>,
+            <ContactLink key="phone" href="tel:081234567">
+              08-123 45 67
+            </ContactLink>,
+            <Fragment key="social">
+              <ContactLink underline href="https://www.facebook.com/">
+                Facebook
+              </ContactLink>
+              <ContactLink underline href="https://www.linkedin.com/">
+                Linkedin
+              </ContactLink>
+            </Fragment>,
+          ]}
+          form={<ContactFormDemo type="contact" />}
+        />
       </Block>
 
       <Block id="footer" figma="9264:22371">

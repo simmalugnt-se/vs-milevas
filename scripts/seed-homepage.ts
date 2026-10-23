@@ -24,6 +24,8 @@ async function main() {
       products: process.argv.includes("--products"),
       imageText: process.argv.includes("--image-text"),
       cardSlider: process.argv.includes("--card-slider"),
+      textBlock: process.argv.includes("--text-block"),
+      contact: process.argv.includes("--contact"),
     });
     console.log(
       `${seeded ? "Skapad" : "Finns redan"}: ${publish ? "lokal startsida" : "startsida som utkast"} /admin/collections/pages/${page.id}`,

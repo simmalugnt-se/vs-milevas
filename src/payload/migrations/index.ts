@@ -13,6 +13,7 @@ import * as migration_20261022_125150_footer_columns_contact from "./20261022_12
 import * as migration_20261023_091729_truck_catalog from "./20261023_091729_truck_catalog";
 import * as migration_20261023_094032_request_name_optional from "./20261023_094032_request_name_optional";
 import * as migration_20261023_094139_spec_in_quote from "./20261023_094139_spec_in_quote";
+import * as migration_20261023_115840_contact_requests from "./20261023_115840_contact_requests";
 
 export const migrations = [
   {
@@ -89,5 +90,10 @@ export const migrations = [
     up: migration_20261023_094139_spec_in_quote.up,
     down: migration_20261023_094139_spec_in_quote.down,
     name: "20261023_094139_spec_in_quote",
+  },
+  {
+    up: migration_20261023_115840_contact_requests.up,
+    down: migration_20261023_115840_contact_requests.down,
+    name: "20261023_115840_contact_requests",
   },
 ];

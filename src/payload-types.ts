@@ -74,6 +74,7 @@ export interface Config {
     'truck-families': TruckFamily;
     'truck-specs': TruckSpec;
     'configurator-requests': ConfiguratorRequest;
+    'contact-requests': ContactRequest;
     users: User;
     videos: Video;
     redirects: Redirect;
@@ -92,6 +93,7 @@ export interface Config {
     'truck-families': TruckFamiliesSelect<false> | TruckFamiliesSelect<true>;
     'truck-specs': TruckSpecsSelect<false> | TruckSpecsSelect<true>;
     'configurator-requests': ConfiguratorRequestsSelect<false> | ConfiguratorRequestsSelect<true>;
+    'contact-requests': ContactRequestsSelect<false> | ContactRequestsSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     videos: VideosSelect<false> | VideosSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
@@ -544,6 +546,36 @@ export interface Page {
             blockName?: string | null;
             blockType: 'cardSlider';
           }
+        | {
+            /**
+             * Valfritt, för länkar inom sidan. Exempel: modeller (utan #).
+             */
+            anchor?: string | null;
+            /**
+             * Den stora texten bredvid pilen.
+             */
+            text: string;
+            /**
+             * Valfri, under texten.
+             */
+            paragraph?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'textBlock';
+          }
+        | {
+            /**
+             * Valfritt, för länkar inom sidan. Exempel: modeller (utan #).
+             */
+            anchor?: string | null;
+            /**
+             * E-post, telefon och sociala länkar hämtas från sidfoten (Globals → Footer), så de bara ändras på ett ställe. Formuläret skickas till Kontaktförfrågningar.
+             */
+            heading: string;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'contact';
+          }
       )[]
     | null;
   meta?: {
@@ -887,6 +919,28 @@ export interface ConfiguratorRequest {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "contact-requests".
+ */
+export interface ContactRequest {
+  id: string;
+  reference: string;
+  idempotencyKey: string;
+  status: 'new' | 'answered' | 'closed';
+  locale: 'sv' | 'en';
+  sourceUrl?: string | null;
+  name: string;
+  company?: string | null;
+  email: string;
+  phone?: string | null;
+  message: string;
+  emailStatus: 'pending' | 'sent' | 'failed' | 'notConfigured';
+  emailId?: string | null;
+  emailError?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users".
  */
 export interface User {
@@ -1151,6 +1205,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'configurator-requests';
         value: string | ConfiguratorRequest;
+      } | null)
+    | ({
+        relationTo: 'contact-requests';
+        value: string | ContactRequest;
       } | null)
     | ({
         relationTo: 'users';
@@ -1502,6 +1560,23 @@ export interface PagesSelect<T extends boolean = true> {
               id?: T;
               blockName?: T;
             };
+        textBlock?:
+          | T
+          | {
+              anchor?: T;
+              text?: T;
+              paragraph?: T;
+              id?: T;
+              blockName?: T;
+            };
+        contact?:
+          | T
+          | {
+              anchor?: T;
+              heading?: T;
+              id?: T;
+              blockName?: T;
+            };
       };
   meta?:
     | T
@@ -1722,6 +1797,27 @@ export interface ConfiguratorRequestsSelect<T extends boolean = true> {
   emailStatus?: T;
   salesEmailId?: T;
   customerEmailId?: T;
+  emailError?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "contact-requests_select".
+ */
+export interface ContactRequestsSelect<T extends boolean = true> {
+  reference?: T;
+  idempotencyKey?: T;
+  status?: T;
+  locale?: T;
+  sourceUrl?: T;
+  name?: T;
+  company?: T;
+  email?: T;
+  phone?: T;
+  message?: T;
+  emailStatus?: T;
+  emailId?: T;
   emailError?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -2040,6 +2136,16 @@ export interface Footer {
    */
   location?: string | null;
   /**
+   * Shown in the Contact block after the e-mail and phone, which also come from here.
+   */
+  socialLinks?:
+    | {
+        label: string;
+        url: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
    * After "© year" at the bottom.
    */
   copyright?: string | null;
@@ -2218,6 +2324,13 @@ export interface FooterSelect<T extends boolean = true> {
   email?: T;
   phone?: T;
   location?: T;
+  socialLinks?:
+    | T
+    | {
+        label?: T;
+        url?: T;
+        id?: T;
+      };
   copyright?: T;
   navItems?:
     | T
