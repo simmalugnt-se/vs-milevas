@@ -157,15 +157,29 @@ export function MilevasHero({
     let point: Point = { x: 0, y: 0 };
     let target: Point = { x: 0, y: 0 };
     let pointer: Point | null = null;
-    // Whether the pointer counts as in: not during the sweep, where it only steers the trucks.
+    // Whether the pointer counts as in: not during the intro.
     let inside = false;
-    // The sweep is running; the pointer counts as in from its end, also while the trucks glide.
+    // The intro runs to its end whatever the pointer does: the sweep, the trucks gliding to the
+    // active column and the text leaving. Then a pointer already in the hero takes over.
     let intro = true;
+    let introGlided = false;
+    let introTimed = false;
     let each: Point[] = [];
     let started = 0;
     let settling = true;
     let frame = 0;
     const timers: number[] = [];
+
+    const release = () => {
+      if (!intro || !introGlided || !introTimed) return;
+      intro = false;
+      if (!pointer) return;
+      inside = true;
+      setPointerIn(true);
+      each = cols.map(() => ({ ...point }));
+      target = pointer;
+      mode = "glide";
+    };
 
     const tick = (now: number) => {
       if (mode === "sweep") {
@@ -180,16 +194,17 @@ export function MilevasHero({
         follow(point.x);
         if (t >= 1) {
           each = cols.map(() => ({ ...point }));
-          target = pointer ?? home(settleIndex);
+          target = home(settleIndex);
           mode = "glide";
           setPhase("settling");
-          intro = false;
-          // A pointer that came in during the sweep (as after a reload) is in from here.
-          if (pointer) {
-            inside = true;
-            setPointerIn(true);
-          }
           timers.push(window.setTimeout(() => setText("leaving"), 2000));
+          // The text is gone 0.74s after it starts leaving.
+          timers.push(
+            window.setTimeout(() => {
+              introTimed = true;
+              release();
+            }, 2740),
+          );
         }
       } else if (mode === "glide" || mode === "return") {
         let settled = true;
@@ -201,16 +216,18 @@ export function MilevasHero({
           return next;
         });
         if (mode === "glide") follow(target.x);
-        if (settled && settling) {
-          settling = false;
-          setPhase("done");
-        }
         if (settled && mode === "return") {
           clear();
           mode = "idle";
         } else if (settled) {
           point = { ...target };
-          mode = pointer ? "follow" : "rest";
+          mode = pointer && !intro ? "follow" : "rest";
+          if (settling) {
+            settling = false;
+            setPhase("done");
+            introGlided = true;
+            release();
+          }
         }
       } else if (mode === "follow" && pointer) {
         point = { x: lerp(point.x, pointer.x, 0.09), y: lerp(point.y, pointer.y, 0.09) };
@@ -230,8 +247,9 @@ export function MilevasHero({
       section.style.setProperty("--cx", `${at.x}px`);
       section.style.setProperty("--cy", `${at.y}px`);
       pointer = at;
+      if (intro) return;
       if (mode === "glide") target = at;
-      if (inside || intro) return;
+      if (inside) return;
       inside = true;
       setPointerIn(true);
       // From rest the trucks start from their own columns and glide to the pointer.
