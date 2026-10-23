@@ -122,9 +122,10 @@ bildfält, länkar och markörer för visual editing. Boilerplatens block är kv
   sista krymper till inget och de andra blir text blockets, som i Figmas startsidesprototyp.
   Blocken döljer då sina egna streck från Desktop S. `--hero` till `seed:homepage` lägger in text
   blocket efter heron.
-- `pnpm seed:homepage -- --image-text --publish-local` lägger in Image & Text efter text blocket på
-  en befintlig lokal startsida, om sidan inte redan har det; `--card-slider` lägger in Card Slider
-  efter Text & boxinfo, `--text-block` Text-block efter text blocket och `--contact` Contact sist.
+- **Sidorna följer Figmas mallar ("05 — Pages"):** startsidan har Hero, Text block Collumns,
+  Product-Grid, Text+Grid och Text & boxinfo; Om oss (`om-oss`) har Text block Collumns,
+  Text-block, Card Slider, Image & Text (ankaret `service`) och Contact (ankaret `kontakt`).
+  `pnpm seed:homepage -- --about --publish-local` skapar Om oss lokalt om den inte finns.
 - **Contact** visar sidfotens e-post, telefon och sociala länkar (`socialLinks` i Footer-globalen),
   så de ändras på ett ställe. Formuläret sparar i samlingen Kontaktförfrågningar
   (`contact-requests`) och mejlas via Resend till `CONTACT_REQUEST_EMAIL`, annars
@@ -135,7 +136,7 @@ bildfält, länkar och markörer för visual editing. Boilerplatens block är kv
   bildens utsnitt. `pnpm seed:configurator` fyller katalogen (specifikationer, familjer med modeller
   och val, inställningar) med Figmas exempel och uppdaterar varje familj på dess nyckel, så sidorna
   som pekar på den fortsätter göra det. `--products` till `seed:homepage` byter produktgriden.
-- `pnpm seed:homepage` skapar startsidan (`home`) samt navigation/footer som lokala utkast.
+- `pnpm seed:homepage` skapar startsidan (`home`) och Om oss samt navigation/footer som lokala utkast.
   `pnpm seed:homepage -- --publish-local` publicerar testet enbart lokalt. Kommandot kräver
   `SERVICES=local`, körs aldrig automatiskt och ersätter inte en startsida som redan har Milevas Hero.
   Figma-bilderna finns i `scripts/figma-homepage-assets` och laddas upp till Payload av scriptet.

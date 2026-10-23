@@ -10,7 +10,9 @@ import { Link, usePathname } from "@/i18n/navigation";
 /**
  * navigation from Figma "04 — Blocks" (9051:12518): a row over the page in the page grid (12
  * columns from Desktop S, 6 below) with `grid/gap` at the sides and `spacing/sm` above and below.
- * `color` is Figma's Dark or Light: the text and logo in `ui-primary` of that mode.
+ * `color` is Figma's Dark or Light: the text and logo in `ui-primary` of that mode. A page with a
+ * `data-navigation="light"` block (the configurator and Login, as on Figma's page templates) turns a
+ * closed navigation Light.
  * - The full logo in the first four columns (three on Mobile), `spacing/sm` in: 24px high, 16px on
  *   Mobile.
  * - Desktop S and L: a column per menu (Label S), and over the last two columns the login link
@@ -209,7 +211,9 @@ export function Navigation({
 
   return (
     <nav
-      className={`flex flex-col ${color === "dark" ? "mode-dark" : "mode-light"} ${openLook}`}
+      className={`flex flex-col ${color === "dark" ? "mode-dark" : "mode-light"} ${openLook} ${
+        open || desktopLook ? "" : "[body:has(main_[data-navigation=light])_&]:mode-light"
+      }`}
       {...attributes}
     >
       <div

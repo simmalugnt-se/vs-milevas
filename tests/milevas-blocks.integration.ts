@@ -66,17 +66,18 @@ async function main() {
     });
     assert.deepEqual(
       saved.layout?.map((block) => block.blockType),
-      [
-        "milevasHero",
-        "textColumns",
-        "textBlock",
-        "imageText",
-        "productGrid",
-        "textGrid",
-        "textBoxinfo",
-        "cardSlider",
-        "contact",
-      ],
+      ["milevasHero", "textColumns", "productGrid", "textGrid", "textBoxinfo"],
+    );
+    // Om oss as Figma's page template, with the blocks the start page does not have.
+    const about = await payload.find({
+      collection: "pages",
+      locale: "sv",
+      where: { slug: { equals: "om-oss" } },
+      limit: 1,
+    });
+    assert.deepEqual(
+      about.docs[0]?.layout?.map((block) => block.blockType),
+      ["textColumns", "textBlock", "cardSlider", "imageText", "contact"],
     );
     const grid = saved.layout?.find((block) => block.blockType === "productGrid");
     assert.ok(grid);
@@ -136,7 +137,7 @@ async function main() {
       }
     }
     console.log(
-      "PASS: nine CMS blocks, cards and columns pointing at their truck families, three distinct photos, localized copy and repeat-safe seed.",
+      "PASS: nine CMS blocks on the start page and Om oss, cards and columns pointing at their truck families, three distinct photos, localized copy and repeat-safe seed.",
     );
   } finally {
     try {

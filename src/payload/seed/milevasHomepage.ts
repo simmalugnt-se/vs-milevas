@@ -68,15 +68,15 @@ export async function seedMilevasHeader(payload: Payload, publish = false) {
           links: links([
             ["Hur det fungerar", "/#hur-det-fungerar"],
             ["Finansiering", "/#finansiering"],
-            ["Bli återförsäljare", "/#kontakt"],
+            ["Bli återförsäljare", "/om-oss#kontakt"],
           ]),
         },
         {
           link: { label: "Om oss" },
           links: links([
-            ["Om Baoli", "/#kontakt"],
-            ["Service & eftermarknad", "/#kontakt"],
-            ["Kontakt", "/#kontakt"],
+            ["Om Baoli", "/om-oss"],
+            ["Service & eftermarknad", "/om-oss#service"],
+            ["Kontakt", "/om-oss#kontakt"],
           ]),
         },
       ],
@@ -106,7 +106,7 @@ export async function seedMilevasFooter(payload: Payload, publish = false) {
           links: links([
             ["Konfigurator", "/configurator"],
             ["Finansiering", "/#finansiering"],
-            ["Bli återförsäljare", "/#kontakt"],
+            ["Bli återförsäljare", "/om-oss#kontakt"],
           ]),
         },
       ],
@@ -190,6 +190,7 @@ async function milevasImageTextBlock(payload: Payload) {
       "Mekaniker som servar en truck i en verkstad",
       "jpg",
     ),
+    anchor: "service",
     heading: "Service du kan räkna med",
     text: "Baoli EMEA har ett av branschens största reservdelslager i Europa. Tillsammans med ett centralt produktlager i Italien med över 1 000 truckar redo för leverans ger det korta ledtider.",
     showButton: true,
@@ -237,9 +238,44 @@ function milevasTextBlock() {
   };
 }
 
-/** Contact at the end, where the footer's "Bli återförsäljare" (`/#kontakt`) leads. */
+/** Contact at the end of Om oss, where "Bli återförsäljare" and "Kontakt" (`/om-oss#kontakt`) lead. */
 function milevasContactBlock() {
   return { blockType: "contact" as const, anchor: "kontakt", heading: "Kontakt" };
+}
+
+/**
+ * Om oss as Figma's page template (05 — Pages): Text block Collumns, Text-block, Card Slider,
+ * Image & Text and Contact. Created once; an existing Om oss is left as it is.
+ */
+export async function seedMilevasAboutPage(payload: Payload, publish = false) {
+  const existing = await payload.find({
+    collection: "pages",
+    locale: "sv",
+    draft: true,
+    where: { slug: { equals: "om-oss" } },
+    limit: 1,
+    overrideAccess: true,
+  });
+  if (existing.docs[0]) return { page: existing.docs[0], seeded: false };
+  const page = await payload.create({
+    collection: "pages",
+    locale: "sv",
+    draft: !publish,
+    context: { disableRevalidate: true },
+    data: {
+      title: "Om oss",
+      slug: "om-oss",
+      layout: [
+        await milevasTextColumnsBlock(payload),
+        milevasTextBlock(),
+        await milevasCardSliderBlock(payload),
+        await milevasImageTextBlock(payload),
+        milevasContactBlock(),
+      ],
+      _status: publish ? "published" : "draft",
+    },
+  });
+  return { page, seeded: true };
 }
 
 /** What to change on a start page that already has Milevas content. */
@@ -248,14 +284,6 @@ type SeedUpdate = {
   hero?: boolean;
   /** Replace the product grid. */
   products?: boolean;
-  /** Add Image & Text after the text block, or after the hero, if the page has none. */
-  imageText?: boolean;
-  /** Add Card Slider after Text & boxinfo, or at the end, if the page has none. */
-  cardSlider?: boolean;
-  /** Add Text-block after the text block (Text block Collumns), if the page has none. */
-  textBlock?: boolean;
-  /** Add Contact at the end, if the page has none. */
-  contact?: boolean;
 };
 
 /**
@@ -286,14 +314,7 @@ export async function seedMilevasHomepage(
   const familyIDs = new Map(families.docs.map((family) => [family.key, family.id]));
   const seededPage = existing.docs[0];
   if (seededPage?.layout?.some((block) => block.blockType === "milevasHero")) {
-    if (
-      !update.hero &&
-      !update.products &&
-      !update.imageText &&
-      !update.cardSlider &&
-      !update.textBlock &&
-      !update.contact
-    ) {
+    if (!update.hero && !update.products) {
       return { page: seededPage, seeded: false };
     }
     let layout: NonNullable<Page["layout"]> = seededPage.layout;
@@ -312,24 +333,6 @@ export async function seedMilevasHomepage(
       layout = layout.map((block) =>
         block.blockType === "productGrid" ? { ...products, id: block.id } : block,
       );
-    }
-    if (update.imageText && !layout.some((block) => block.blockType === "imageText")) {
-      const after = layout.findIndex((block) => block.blockType === "textColumns");
-      const at = (after >= 0 ? after : layout.findIndex((b) => b.blockType === "milevasHero")) + 1;
-      layout = [...layout.slice(0, at), await milevasImageTextBlock(payload), ...layout.slice(at)];
-    }
-    if (update.textBlock && !layout.some((block) => block.blockType === "textBlock")) {
-      const after = layout.findIndex((block) => block.blockType === "textColumns");
-      const at = after >= 0 ? after + 1 : layout.length;
-      layout = [...layout.slice(0, at), milevasTextBlock(), ...layout.slice(at)];
-    }
-    if (update.contact && !layout.some((block) => block.blockType === "contact")) {
-      layout = [...layout, milevasContactBlock()];
-    }
-    if (update.cardSlider && !layout.some((block) => block.blockType === "cardSlider")) {
-      const after = layout.findIndex((block) => block.blockType === "textBoxinfo");
-      const at = after >= 0 ? after + 1 : layout.length;
-      layout = [...layout.slice(0, at), await milevasCardSliderBlock(payload), ...layout.slice(at)];
     }
     const page = await payload.update({
       collection: "pages",
@@ -355,8 +358,6 @@ export async function seedMilevasHomepage(
   const layout: NonNullable<Page["layout"]> = [
     milevasHeroBlock(familyIDs),
     await milevasTextColumnsBlock(payload),
-    milevasTextBlock(),
-    await milevasImageTextBlock(payload),
     milevasProductGridBlock(familyIDs),
     {
       blockType: "textGrid",
@@ -386,8 +387,6 @@ export async function seedMilevasHomepage(
       showButton: true,
       cta: externalLink("Bygg din truck", "/configurator"),
     },
-    await milevasCardSliderBlock(payload),
-    milevasContactBlock(),
   ];
   const data = {
     title: "Milevas",
@@ -397,6 +396,7 @@ export async function seedMilevasHomepage(
   };
   await seedMilevasHeader(payload, publish);
   await seedMilevasFooter(payload, publish);
+  await seedMilevasAboutPage(payload, publish);
   const page = existing.docs[0]
     ? await payload.update({
         collection: "pages",

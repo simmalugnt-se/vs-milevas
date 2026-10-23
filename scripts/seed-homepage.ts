@@ -15,18 +15,22 @@ process.argv.push("migrate");
 async function main() {
   const { getPayload } = await import("payload");
   const { default: config } = await import("../src/payload.config");
-  const { seedMilevasHomepage } = await import("../src/payload/seed/milevasHomepage");
+  const { seedMilevasAboutPage, seedMilevasHomepage } = await import(
+    "../src/payload/seed/milevasHomepage"
+  );
   const payload = await getPayload({ config, disableOnInit: true });
   try {
     const publish = process.argv.includes("--publish-local");
     const { page, seeded } = await seedMilevasHomepage(payload, publish, {
       hero: process.argv.includes("--hero"),
       products: process.argv.includes("--products"),
-      imageText: process.argv.includes("--image-text"),
-      cardSlider: process.argv.includes("--card-slider"),
-      textBlock: process.argv.includes("--text-block"),
-      contact: process.argv.includes("--contact"),
     });
+    if (process.argv.includes("--about")) {
+      const about = await seedMilevasAboutPage(payload, publish);
+      console.log(
+        `${about.seeded ? "Skapad" : "Finns redan"}: Om oss /admin/collections/pages/${about.page.id}`,
+      );
+    }
     console.log(
       `${seeded ? "Skapad" : "Finns redan"}: ${publish ? "lokal startsida" : "startsida som utkast"} /admin/collections/pages/${page.id}`,
     );

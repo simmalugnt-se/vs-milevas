@@ -14,10 +14,12 @@ type LoginProps = HTMLAttributes<HTMLElement> & {
  *   7–12, the form centred in the panel's columns 2–5 of 6.
  * - Tablet: the panel alone, the form in the same columns.
  * - Mobile: the panel alone, the form `spacing/md` from its sides.
+ * On the page the navigation lies over it in Light, as on Figma's Login page (`data-navigation`).
  */
 export function Login({ image, children, ...attributes }: LoginProps) {
   return (
     <section
+      data-navigation="light"
       {...attributes}
       className="grid min-h-svh grid-cols-[repeat(var(--grid-columns),minmax(0,1fr))] gap-(--grid-gap) mode-dark bg-bg-fill p-(--grid-margin)"
     >

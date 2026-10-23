@@ -153,6 +153,13 @@ export const designQuestions: DesignQuestion[] = [
     figma: "6073:1230",
   },
 
+  {
+    target: "general",
+    question:
+      'Sidmallarna i "05 — Pages" har 8px mellan sista blocket och sidfoten, där sidans bakgrund syns (mörk på Startsida, ljusgrå på Konfigurator). Koden har ingen lucka och vit sidbakgrund, som beslutades 2026-10-02. Ska luckan och bakgrunden per sida in?',
+    figma: "9321:56814",
+  },
+
   // Components
   {
     target: "buttons",
@@ -403,12 +410,6 @@ export const designQuestions: DesignQuestion[] = [
     question:
       "På Desktop L är raderna fast 684px breda, mellan kolumn 5 och 6; på Desktop S går de över kolumn 1–6. Ska de gå över kolumn 1–6 på Desktop L också, som koden har?",
     figma: "9098:22569",
-  },
-  {
-    target: "login",
-    question:
-      "Ska navigationen synas på inloggningssidan? Figma visar sidan utan den. På sajten ligger den ovanpå, och till höger hamnar Login och Meny i ljus text på den vita panelen, där de knappt syns.",
-    figma: "9170:26321",
   },
   {
     target: "login",
@@ -971,15 +972,6 @@ export const figmaNotes: FigmaNote[] = [
     date: "2026-10-23",
   },
   {
-    target: "text-block",
-    topic: "Plats på startsidan",
-    figma: "Inte ritat var blocket står",
-    code: "På testets startsida efter text blocket (KION Group), eftersom texten fortsätter dess",
-    why: 'Texten börjar "Det betyder att du får …"',
-    status: "Antagande",
-    date: "2026-10-23",
-  },
-  {
     target: "contact",
     topic: "Radernas bredd på Desktop L",
     figma: "Fast 684px, mellan kolumn 5 och 6 (Desktop S: kolumn 1–6)",
@@ -1025,12 +1017,13 @@ export const figmaNotes: FigmaNote[] = [
     date: "2026-10-23",
   },
   {
-    target: "contact",
-    topic: "Plats på startsidan",
-    figma: "Inte ritat var blocket står",
-    code: 'Sist på testets startsida, med ankaret `kontakt` som sidfotens "Bli återförsäljare" (`/#kontakt`) leder till',
-    why: "Länken fanns redan",
-    status: "Antagande",
+    target: "login",
+    topic: "Navigationen",
+    figma:
+      "Sidmallen Login (05 — Pages): navigationen i Light över fotot och panelen, och sidfoten under",
+    code: 'Samma: blocket har `data-navigation="light"`, som gör en stängd navigation Light på sidan',
+    why: "Som i sidmallen",
+    status: "Beslut (teknisk)",
     date: "2026-10-23",
   },
   {
@@ -1067,6 +1060,16 @@ export const figmaNotes: FigmaNote[] = [
     code: 'Fältfelen som i övriga formulär; ett meddelande i `status-error` ovanför knappen. Länkarna mellan lägena och "Jag har glömt mitt lösenord" är knappar på sidan',
     why: "Formuläret behöver säga vad som är fel",
     status: "Lucka",
+    date: "2026-10-23",
+  },
+  {
+    target: "configurator",
+    topic: "Konfiguratorsidan",
+    figma:
+      'Sidmallen "Konfigrator" (05 — Pages): skärmen från sidans topp under navigationen, 832px hög på Desktop, och navigationen i Light',
+    code: 'Inget utrymme ovanför skärmen; på Desktop S och L minst en skärm hög (minst 800px). Blocket har `data-navigation="light"`, som gör en stängd navigation Light på sidan',
+    why: "Som i sidmallen; tidigare låg skärmen 96px ner och knapparna hamnade under skärmkanten",
+    status: "Beslut (teknisk)",
     date: "2026-10-23",
   },
   {
@@ -1691,8 +1694,8 @@ export const figmaNotes: FigmaNote[] = [
     target: "navigation",
     topic: "Testinnehållet",
     figma: "Länkar till sidor som modellerna, tjänsterna och login",
-    code: "`pnpm seed:globals` fyller i Figmas menyer och truckbilder lokalt; länkarna går till startsidans sektioner och login till `/login`, som inte finns än",
-    why: "Sidorna finns inte än",
+    code: "`pnpm seed:globals` fyller i Figmas menyer och truckbilder lokalt. Tjänster går till startsidans sektioner, Om oss till `/om-oss` (Om Baoli), `/om-oss#service` (Service & eftermarknad) och `/om-oss#kontakt` (Kontakt, och Bli återförsäljare), och login till `/login`",
+    why: "Figma anger inga mål; sidorna och ankarna är de som finns",
     status: "Platshållare",
     date: "2026-10-22",
   },
