@@ -72,6 +72,7 @@ export function TextBoxinfo({
             target={cta.target}
             mode="tejp"
             size="m"
+            iconRight="arrow-right"
             className="w-full"
           >
             {cta.label}

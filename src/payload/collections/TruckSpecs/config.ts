@@ -16,7 +16,7 @@ export const TruckSpecs: CollectionConfig = {
     update: isAuthenticated,
   },
   admin: {
-    defaultColumns: ["label", "unit", "sortOrder", "onCard"],
+    defaultColumns: ["label", "unit", "sortOrder", "onCard", "inQuote"],
     group: "Configurator",
     useAsTitle: "label",
   },
@@ -47,6 +47,13 @@ export const TruckSpecs: CollectionConfig = {
       type: "checkbox",
       defaultValue: false,
       admin: { description: "Efter lyftkapaciteten, som batteriet i Figma." },
+    },
+    {
+      name: "inQuote",
+      label: "Visas i offerten",
+      type: "checkbox",
+      defaultValue: true,
+      admin: { description: "Under Tekniska specifikationer i offerten och i mejlen." },
     },
   ],
   hooks: { afterChange: [revalidateTruckSpec] },

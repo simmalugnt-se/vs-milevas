@@ -9,6 +9,8 @@ export type ConfiguratorSpec = {
   sortOrder: number;
   /** Shown on the product card after the lift capacity (Figma: the battery). */
   onCard: boolean;
+  /** Listed under Tekniska specifikationer in the quote. */
+  inQuote: boolean;
 };
 
 /** A value for a specification type, by its key. */

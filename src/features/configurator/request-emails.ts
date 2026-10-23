@@ -9,7 +9,7 @@ type EmailRequest = {
   contact: {
     company?: string;
     organizationNumber?: string;
-    name: string;
+    name?: string;
     email?: string;
     phone: string;
   };
@@ -71,7 +71,7 @@ function customerEmail(request: EmailRequest) {
       : "Vi har tagit emot din kontaktförfrågan";
   return emailDocument(
     heading,
-    `<p>Hej ${escapeHtml(request.contact.name)},</p><p>Tack för din förfrågan. Din referens är <strong>${escapeHtml(request.reference)}</strong>. En specialist återkommer till dig.</p><h2>${escapeHtml(request.quote.familyName)}</h2>${incompleteNote(request.quote)}<table style="border-collapse:collapse;width:100%">${quoteRows(request.quote)}</table><p>Totalpris: <strong>${escapeHtml(formatPrice(request.quote.totalPrice))}</strong></p><p>Alla priser anges exkl. moms.</p><p>Detta är en mottagningsbekräftelse, inte ett bindande avtal.</p>`,
+    `<p>${request.contact.name ? `Hej ${escapeHtml(request.contact.name)},` : "Hej,"}</p><p>Tack för din förfrågan. Din referens är <strong>${escapeHtml(request.reference)}</strong>. En specialist återkommer till dig.</p><h2>${escapeHtml(request.quote.familyName)}</h2>${incompleteNote(request.quote)}<table style="border-collapse:collapse;width:100%">${quoteRows(request.quote)}</table><p>Totalpris: <strong>${escapeHtml(formatPrice(request.quote.totalPrice))}</strong></p><p>Alla priser anges exkl. moms.</p><p>Detta är en mottagningsbekräftelse, inte ett bindande avtal.</p>`,
   );
 }
 

@@ -1,7 +1,13 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import type { ReactNode } from "react";
+import { ConfiguratorQuote } from "@/components/blocks/configurator-quote";
 import { ConfiguratorScreen } from "@/components/blocks/configurator-screen";
+import {
+  ConfiguratorStep,
+  type ConfiguratorStepDisplay,
+} from "@/components/blocks/configurator-step";
+import { ConfiguratorThanks } from "@/components/blocks/configurator-thanks";
 import { Footer, type FooterGroup } from "@/components/blocks/footer";
 import { ImageText } from "@/components/blocks/image-text";
 import { MilevasHero } from "@/components/blocks/milevas-hero";
@@ -10,9 +16,8 @@ import { ProductGrid } from "@/components/blocks/product-grid";
 import { TextBlockColumns } from "@/components/blocks/text-block-columns";
 import { TextBoxinfo } from "@/components/blocks/text-boxinfo";
 import { TextGrid, type TextGridCard } from "@/components/blocks/text-grid";
-import { Button } from "@/components/ui/button";
-import { Choice } from "@/components/ui/choice";
-import { ConfiguratorBox, choiceLayout } from "@/components/ui/configurator-box";
+import { Button, TextLink } from "@/components/ui/button";
+import { PriceBox } from "@/components/ui/price-box";
 import type { ProductCardProps } from "@/components/ui/product-card";
 import heroCounterbalance from "../../../../../../scripts/figma-homepage-assets/hero-counterbalance.png";
 import heroLowLift from "../../../../../../scripts/figma-homepage-assets/hero-low-lift.png";
@@ -156,38 +161,131 @@ const textGridCards: TextGridCard[] = ["Bygg din truck", "Få offert", "Leverans
 );
 
 /** The configurator's two steps in Figma: lift capacity (six, in a grid) and battery (two, stacked). */
-const configuratorSteps = [
+/** Figma's five step types (Configurator `9264:6653`, types 1–5), with the seed's content. */
+const configuratorSteps: Array<{
+  type: number;
+  label: string;
+  display: ConfiguratorStepDisplay;
+  pictured?: boolean;
+  options: Array<[title: string, price: string, text?: string]>;
+  help?: ReactNode;
+}> = [
   {
-    number: "01",
+    type: 1,
     label: "Lyftkapacitet",
-    choices: [
-      ["1.5 ton", "Från 169 tkr", "KBE 15 Li G1"],
-      ["1.8 ton", "Från 184 tkr", "KBE 18 Li G1"],
-      ["2.0 ton", "Från 196 tkr", "KBE 20 Li G1"],
-      ["2.5 ton", "Från 211 tkr", "KBE 25 Li G1"],
-      ["3.0 ton", "Från 246 tkr", "KBE 30 Li G1"],
-      ["3.5 ton", "Från 276 tkr", "KBE 35 Li G1"],
+    display: "grid",
+    options: [
+      ["1,5 ton", "169 000 kr", "Kompakt för trånga lager."],
+      ["1,8 ton", "179 900 kr", "Det vanligaste valet."],
+      ["2,0 ton", "196 000 kr", "För tyngre pallar."],
+      ["2,5 ton", "211 000 kr", "Fyrhjulig, för ute och inne."],
+      ["3,0 ton", "246 000 kr", "För terminal och industri."],
+      ["3,5 ton", "276 000 kr", "Den största i serien."],
     ],
   },
   {
-    number: "02",
-    label: "Batteri",
-    choices: [
-      ["Standard", "Ingår", "150 Ah — räcker gott för normal drift, upp till ett skift per dag."],
-      [
-        "Stort batteri",
-        "+8 000 kr",
-        "228 Ah — längre räckvidd utan laddning. Perfekt om ni kör flera skift eller vill undvika mellanladdning.",
-      ],
+    type: 2,
+    label: "Lyfthöjd",
+    display: "stack",
+    options: [
+      ["Lyfthöjd 4700 mm", "Ingår", "Bygghöjd 2130 mm."],
+      ["Lyfthöjd 6000 mm", "+3 500 kr", "Bygghöjd 2765 mm."],
     ],
     help: (
       <>
-        Behöver du hjälp med andra batterier?{" "}
+        Behöver du hjälp med andra mastalternativ?{" "}
         <span className="text-ui-primary underline">Kontakta oss</span> så löser vi det.
       </>
     ),
   },
-] as const;
+  {
+    type: 3,
+    label: "Gaffellängd",
+    display: "images",
+    pictured: true,
+    options: [
+      ["1150 mm", "Ingår", "För EU-pall."],
+      ["1500 mm", "+2 400 kr", "För långa laster."],
+      ["1800 mm", "+3 900 kr", "För två pallar."],
+      ["2000 mm", "+4 800 kr", "För skrymmande gods."],
+    ],
+  },
+  {
+    type: 4,
+    label: "Åkplatta",
+    display: "imageRows",
+    pictured: true,
+    options: [
+      ["Utan", "Ingår", "Föraren går bakom."],
+      ["Fällbar", "+4 200 kr", "För längre sträckor."],
+      ["Fast", "+6 900 kr", "Med sidoskydd."],
+    ],
+  },
+  {
+    type: 5,
+    label: "Finansiering",
+    display: "prices",
+    options: [
+      ["Köp", "205 400 kr"],
+      ["Leasing (48 mån)", "3 851 kr/mån"],
+      ["Långtidshyra (48 mån)", "3 937 kr/mån"],
+    ],
+  },
+];
+
+/** The quote's and the thank-you page's price box, with Figma's example. */
+const checkoutPrice = (
+  <PriceBox
+    variant="checkout"
+    totalLabel="Totalpris"
+    total="205 400 kr"
+    rows={[
+      { label: "Leasing (48 mån)", value: "3 851 kr/mån" },
+      { label: "Uppskattad leverans", value: "4–6 veckor" },
+    ]}
+    note={{
+      label: "Garanti",
+      value: "4 år",
+      text: "Omfattar fabrikationsfel på drivlina, elsystem och chassi. Slitdelar och handhavandefel ingår inte.",
+    }}
+  />
+);
+
+const quoteTables = [
+  {
+    heading: "Konfiguration",
+    action: (
+      <TextLink href="/kitchensink/blocks#configurator-1" iconLeft="arrow-left" icon={null}>
+        Tillbaka till konfigurator
+      </TextLink>
+    ),
+    rows: [
+      ["Elektriska motviktstruckar – bas (1,8 ton)", "179 900 kr"],
+      ["Stort batteri (Li-Ion)", "18 000 kr"],
+      ["4-hjulig (KBE)", "4 000 kr"],
+      ["Lyfthöjd 6000 mm", "3 500 kr"],
+      ["Sidoförskjutning", "0 kr"],
+    ].map(([label, value]) => ({ label, value })),
+  },
+  {
+    heading: "Tekniska specifikationer",
+    rows: [
+      ["Vändradie", "1870 / 1850 mm"],
+      ["Körhastighet (lastad/olastad)", "15 / 15 km/h"],
+      ["Batterikapacitet", "76,8 V · 150 / 228 Ah"],
+      ["Vikt", "3 293 kg"],
+      ["Truckens bygghöjd", "2765 mm"],
+    ].map(([label, value]) => ({ label, value })),
+  },
+];
+
+const nextSteps = [
+  ["Bekräftelse", "Du får en bekräftelse direkt via mejl."],
+  ["Personlig kontakt", "En säljare hör av sig inom kort."],
+  ["Plockning", "Din truck plockas ut från Baolis lager i Rolo, Italien."],
+  ["Avtal", "Du får ett digitalt avtal att signera (BankID)."],
+  ["Leverans", "Beräknad leverans 4–6 veckor."],
+].map(([heading, text]) => ({ heading, text }));
 
 /** One block: its title and notes within the page margin, then the block edge to edge. */
 function Block({ id, figma, children }: { id: SectionId; figma: string; children: ReactNode }) {
@@ -350,18 +448,28 @@ export default function BlocksPage() {
         />
       </Block>
 
-      <Block id="configurator" figma="8721:16450">
+      <Block id="configurator" figma="9264:6653">
         {configuratorSteps.map((step, index) => (
-          <div key={step.number} id={`configurator-${step.number}`}>
+          <div key={step.type} id={`configurator-${step.type}`}>
             <p className="px-(--ks-gutter) pt-(--spacing-sm) font-mono text-xs text-ui-secondary">
-              Steg {step.number}: {step.label}
+              Typ {step.type}: {step.label}
             </p>
             <ConfiguratorScreen
-              total="Totalt: 173 900 kr"
-              prices={[
-                { label: "Leasing (48 mån)", value: "3 261 kr/mån" },
-                { label: "Långtidshyra (48 mån)", value: "3 261 kr/mån" },
-              ]}
+              price={
+                <PriceBox
+                  totalLabel="Totalpris"
+                  total="205 400 kr"
+                  rows={[
+                    { label: "Leasing (48 mån)", value: "3 851 kr/mån" },
+                    { label: "Långtidshyra (48 mån)", value: "3 937 kr/mån" },
+                  ]}
+                />
+              }
+              contact={
+                <Button mode="dark" size="s" iconRight="call" className="w-full">
+                  Boka samtal
+                </Button>
+              }
               image={
                 <Image
                   src={truckCounterbalance}
@@ -372,45 +480,121 @@ export default function BlocksPage() {
                 />
               }
               step={
-                <ConfiguratorBox
-                  number={step.number}
+                <ConfiguratorStep
+                  number={String(index + 2).padStart(2, "0")}
                   label={step.label}
-                  {...choiceLayout(step.choices.map(([, price]) => price))}
-                >
-                  {step.choices.map(([title, price, text], choice) => (
-                    <Choice
-                      key={title}
-                      title={title}
-                      price={price}
-                      text={text}
-                      textSize={step.choices.length > 2 ? "m" : "s"}
-                      selected={choice === 1}
-                    />
-                  ))}
-                </ConfiguratorBox>
+                  display={step.display}
+                  options={step.options.map(([title, price, text], option) => ({
+                    key: title,
+                    title,
+                    price,
+                    text,
+                    selected: option === 1,
+                    image: step.pictured ? (
+                      <Image
+                        src={truckPallet}
+                        alt=""
+                        fill
+                        sizes="15rem"
+                        className="object-contain"
+                      />
+                    ) : undefined,
+                  }))}
+                />
               }
-              help={"help" in step ? step.help : undefined}
+              help={step.help}
               actions={
                 <>
-                  {index > 0 ? (
-                    <Button variant="secondary" size="m" iconLeft="arrow-left" iconRight={null}>
-                      Föregående
-                    </Button>
-                  ) : null}
-                  <Button mode="dark" size="m">
-                    Nästa
+                  <Button variant="secondary" size="s" iconLeft="arrow-left" iconRight={null}>
+                    Föregående
+                  </Button>
+                  <Button mode="dark" size="s" iconRight="arrow-right">
+                    {step.display === "prices" ? "Visa offert" : "Nästa"}
                   </Button>
                 </>
-              }
-              contactText="Har du frågor eller önskar något annat av din konfiguration?"
-              contact={
-                <Button mode="tejp" size="m" iconRight="call" className="w-full">
-                  Boka samtal
-                </Button>
               }
             />
           </div>
         ))}
+        <div id="configurator-offert">
+          <p className="px-(--ks-gutter) pt-(--spacing-sm) font-mono text-xs text-ui-secondary">
+            Offert
+          </p>
+          <ConfiguratorQuote
+            heading="Elektrisk motviktstruck"
+            back={
+              <TextLink href="/kitchensink/blocks#configurator-1" iconLeft="arrow-left" icon={null}>
+                Tillbaka till konfigurator
+              </TextLink>
+            }
+            price={checkoutPrice}
+            contact={
+              <Button mode="dark" size="s" iconRight="call" className="w-full">
+                Boka samtal
+              </Button>
+            }
+            image={
+              <Image
+                src={truckCounterbalance}
+                alt="Elektrisk motviktstruck"
+                fill
+                sizes="(width >= 64rem) 50vw, 100vw"
+                className="object-contain"
+              />
+            }
+            tables={quoteTables}
+            copy={
+              <div className="flex items-end gap-(--spacing-2xs)">
+                <label className="flex min-w-0 flex-1 flex-col gap-(--spacing-2xs)">
+                  <span className="text-text-m text-ui-primary">Skicka kopia till mig</span>
+                  <input
+                    type="email"
+                    placeholder="namn@foretag.se"
+                    className="h-10 w-full rounded-sm bg-bg-fill px-(--spacing-sm) text-text-xs text-ui-primary ring-(length:--stroke-width) ring-border-primary ring-inset placeholder:text-ui-tertiary"
+                  />
+                </label>
+                <Button variant="secondary" size="s" iconRight="mail">
+                  Skicka
+                </Button>
+              </div>
+            }
+            order={
+              <Button
+                mode="tejp"
+                size="m"
+                iconRight="shopping-cart"
+                className="w-full max-desktop-s:gap-(--spacing-xs) max-desktop-s:p-(--spacing-xs)"
+              >
+                Fortsätt beställning
+              </Button>
+            }
+          />
+        </div>
+        <div id="configurator-tack">
+          <p className="px-(--ks-gutter) pt-(--spacing-sm) font-mono text-xs text-ui-secondary">
+            Tack
+          </p>
+          <ConfiguratorThanks
+            heading="Tack för din beställning!"
+            price={checkoutPrice}
+            contact={
+              <Button mode="dark" size="s" iconRight="call" className="w-full">
+                Boka samtal
+              </Button>
+            }
+            image={
+              <Image
+                src={truckCounterbalance}
+                alt="Elektrisk motviktstruck"
+                fill
+                sizes="(width >= 64rem) 60vw, 100vw"
+                className="object-contain"
+              />
+            }
+            stepsHeading="Vad händer nu?"
+            steps={nextSteps}
+          />
+        </div>
       </Block>
 
       <Block id="footer" figma="9264:22371">

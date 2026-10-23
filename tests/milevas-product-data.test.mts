@@ -46,8 +46,8 @@ const contactOnly: ConfiguratorFamily = {
 const catalog: ConfiguratorCatalog = {
   quoteValidityDays: 14,
   specs: [
-    { key: "battery", label: "Batteri", sortOrder: 10, onCard: true },
-    { key: "weight", label: "Vikt", unit: "kg", sortOrder: 50, onCard: false },
+    { key: "battery", label: "Batteri", sortOrder: 10, onCard: true, inQuote: false },
+    { key: "weight", label: "Vikt", unit: "kg", sortOrder: 50, onCard: false, inQuote: true },
   ],
   nextSteps: [],
   financingMethods: [

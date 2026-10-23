@@ -16,9 +16,14 @@ type ContactFormProps = Omit<FormHTMLAttributes<HTMLFormElement>, "children"> & 
   children: ReactNode;
   /** The send button, full width under the fields. */
   submit: ReactNode;
-  /** Shows the cross top right (order, call; Figma has none on Mobile). */
+  /**
+   * Shows the cross top right (order, call). Figma has none on Mobile, but a popup needs one to
+   * close on a phone, so it shows there too.
+   */
   onClose?: () => void;
   closeLabel?: string;
+  /** Fill the parent's height instead of Figma's proportions, as in the popup. */
+  fill?: boolean;
 };
 
 /**
@@ -39,6 +44,7 @@ export function ContactForm({
   submit,
   onClose,
   closeLabel = "Stäng",
+  fill = false,
   className,
   ...props
 }: ContactFormProps) {
@@ -62,10 +68,12 @@ export function ContactForm({
 
   return (
     <form
-      className={`mode-light grid aspect-[375/816] grid-cols-6 gap-x-(--spacing-2xs) rounded-lg bg-bg-active px-(--spacing-md) tablet:aspect-[784/816] tablet:px-0 ${className ?? ""}`}
+      className={`mode-light grid grid-cols-6 gap-x-(--spacing-2xs) rounded-lg bg-bg-active px-(--spacing-md) tablet:px-0 ${
+        fill ? "h-full overflow-y-auto" : "aspect-[375/816] tablet:aspect-[784/816]"
+      } ${className ?? ""}`}
       {...props}
     >
-      <div className="col-span-full row-start-1 flex flex-col justify-center gap-(--spacing-lg) tablet:col-[2/span_4]">
+      <div className="col-span-full row-start-1 flex flex-col justify-center-safe gap-(--spacing-lg) py-(--spacing-xl) tablet:col-[2/span_4]">
         <div className="flex flex-col gap-(--spacing-2xs)">
           {heading ? <h2 className="text-text-xl text-ui-primary">{heading}</h2> : null}
           {text ? <p className="text-text-xs text-ui-tertiary">{text}</p> : null}
@@ -74,7 +82,7 @@ export function ContactForm({
         {submit}
       </div>
       {onClose ? (
-        <div className="col-start-6 row-start-1 hidden justify-end self-start p-(--spacing-sm) tablet:flex">
+        <div className="col-start-6 row-start-1 flex justify-end self-start p-(--spacing-sm) max-tablet:-mr-(--spacing-md)">
           <button
             type="button"
             aria-label={closeLabel}

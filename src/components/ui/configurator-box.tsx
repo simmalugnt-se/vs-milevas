@@ -34,17 +34,6 @@ const layoutClasses = {
 const stackOnMobile =
   "flex flex-col [&>:last-child]:rounded-b-sm tablet:grid tablet:grid-cols-2 tablet:[&>:last-child:nth-child(even)]:rounded-bl-none tablet:[&>:nth-last-child(2):nth-child(odd)]:rounded-bl-sm";
 
-/**
- * The layout for a step's choices: two per row when there are more than two (Figma's lift
- * capacity), stacked otherwise (battery, mast). Below Tablet a grid stacks too when a price is
- * longer than "+3500 kr", which would squeeze the titles in half the width.
- */
-export function choiceLayout(prices: string[]) {
-  const layout = prices.length > 2 ? "grid" : "stack";
-  const mobileLayout = prices.some((price) => price.length > 8) ? "stack" : layout;
-  return { layout, mobileLayout } as const;
-}
-
 export function ConfiguratorBox({
   number,
   label,

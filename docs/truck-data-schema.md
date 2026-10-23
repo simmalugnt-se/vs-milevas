@@ -220,8 +220,8 @@ Inga; frågorna är besvarade (se Beslut).
 
 ## 8. Ordning för bygget
 
-Steg 1–3 är byggda 2026-10-23 (migreringen `20261023_091729_truck_catalog`); konfiguratorn använder
-den nya modellen men har ännu inte Figmas nya utseende.
+Alla fyra stegen är byggda 2026-10-23 (migreringarna `20261023_091729_truck_catalog` och
+`20261023_094139_spec_in_quote`).
 
 1. `truck-specs`, familjen med modeller och val, inställningarna, migreringen och en ny seed.
 2. Motorn (`engine.ts`), URL:en och testerna på den nya modellen; offerten och förfrågningarna.

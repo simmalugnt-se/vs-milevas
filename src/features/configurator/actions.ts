@@ -133,7 +133,7 @@ async function submitRequest(
   const { name, phone, company, organizationNumber, email, preferredTime } = formValues;
   const fieldErrors: Record<string, string> = {};
 
-  if (!name) fieldErrors.name = "Ange kontaktperson.";
+  // Figma's forms ask for a name only in the call, and there it is optional.
   if (phone.length < 6) fieldErrors.phone = "Ange ett giltigt telefonnummer.";
   if (requestType === "order" && !company) fieldErrors.company = "Ange företagsnamn.";
   if (requestType === "order" && !organizationNumberPattern.test(organizationNumber)) {
@@ -146,10 +146,8 @@ async function submitRequest(
     fieldErrors.email = "Ange en giltig e-postadress.";
   }
 
-  const { callPreference } = formValues;
-  if (requestType === "call" && callPreference === "specific" && !preferredTime) {
-    fieldErrors.preferredTime = "Ange när du vill bli kontaktad.";
-  }
+  // A chosen time means a specific call; without one, as soon as possible.
+  const callPreference = preferredTime ? ("specific" as const) : ("asap" as const);
 
   if (Object.keys(fieldErrors).length > 0) {
     return {
@@ -184,7 +182,7 @@ async function submitRequest(
         contact: {
           company: company || undefined,
           organizationNumber: organizationNumber || undefined,
-          name,
+          name: name || undefined,
           email: email || undefined,
           phone,
         },
@@ -214,7 +212,7 @@ async function submitRequest(
     contact: {
       company: company || undefined,
       organizationNumber: organizationNumber || undefined,
-      name,
+      name: name || undefined,
       email: email || undefined,
       phone,
     },
@@ -224,7 +222,7 @@ async function submitRequest(
     quote,
   });
 
-  return { ok: true, reference };
+  return { ok: true, reference, formValues: { ...formValues, callPreference } };
 }
 
 export async function submitOrderRequest(

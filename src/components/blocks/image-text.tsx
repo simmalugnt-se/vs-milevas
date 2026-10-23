@@ -49,6 +49,7 @@ export function ImageText({ image, heading, text, cta, ...attributes }: ImageTex
             target={cta.target}
             mode="tejp"
             size="m"
+            iconRight="arrow-right"
           >
             {cta.label}
           </ButtonLink>

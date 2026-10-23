@@ -275,7 +275,7 @@ export function buildQuote(
           ]
         : []),
     ],
-    specifications: resolveSpecifications(catalog, [
+    specifications: resolveSpecifications({ specs: catalog.specs.filter((spec) => spec.inQuote) }, [
       family.specs,
       ...chosen.map(({ option }) => option.specs),
     ]),

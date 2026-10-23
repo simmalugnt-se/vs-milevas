@@ -130,6 +130,7 @@ function mapSpec(spec: TruckSpec): ConfiguratorSpec {
     unit: spec.unit || undefined,
     sortOrder: spec.sortOrder,
     onCard: spec.onCard === true,
+    inQuote: spec.inQuote !== false,
   };
 }
 
@@ -222,10 +223,15 @@ async function fetchConfiguratorCatalog(
   };
 }
 
+/** Bumped when the catalogue's shape changes, so a cache from before is not read as the new one. */
+const CATALOG_VERSION = "2026-10-23";
+
 const getCachedCatalog = (locale: TypedLocale) =>
-  unstable_cache(() => fetchConfiguratorCatalog(locale, false), ["configurator-catalog", locale], {
-    tags: ["truck-families", "configurator-settings"],
-  })();
+  unstable_cache(
+    () => fetchConfiguratorCatalog(locale, false),
+    ["configurator-catalog", CATALOG_VERSION, locale],
+    { tags: ["truck-families", "configurator-settings"] },
+  )();
 
 export async function getConfiguratorCatalog(
   locale: string,

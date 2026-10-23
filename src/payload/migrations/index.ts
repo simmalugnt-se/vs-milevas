@@ -11,6 +11,8 @@ import * as migration_20261005_094932_configurator_step_help from "./20261005_09
 import * as migration_20261022_123131_header_menus_login from "./20261022_123131_header_menus_login";
 import * as migration_20261022_125150_footer_columns_contact from "./20261022_125150_footer_columns_contact";
 import * as migration_20261023_091729_truck_catalog from "./20261023_091729_truck_catalog";
+import * as migration_20261023_094032_request_name_optional from "./20261023_094032_request_name_optional";
+import * as migration_20261023_094139_spec_in_quote from "./20261023_094139_spec_in_quote";
 
 export const migrations = [
   {
@@ -77,5 +79,15 @@ export const migrations = [
     up: migration_20261023_091729_truck_catalog.up,
     down: migration_20261023_091729_truck_catalog.down,
     name: "20261023_091729_truck_catalog",
+  },
+  {
+    up: migration_20261023_094032_request_name_optional.up,
+    down: migration_20261023_094032_request_name_optional.down,
+    name: "20261023_094032_request_name_optional",
+  },
+  {
+    up: migration_20261023_094139_spec_in_quote.up,
+    down: migration_20261023_094139_spec_in_quote.down,
+    name: "20261023_094139_spec_in_quote",
   },
 ];

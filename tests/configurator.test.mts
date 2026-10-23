@@ -101,8 +101,15 @@ const family: ConfiguratorFamily = {
 const catalog: ConfiguratorCatalog = {
   families: [family],
   specs: [
-    { key: "build-height", label: "Truckens bygghöjd", unit: "mm", sortOrder: 60, onCard: false },
-    { key: "weight", label: "Vikt", unit: "kg", sortOrder: 50, onCard: false },
+    {
+      key: "build-height",
+      label: "Truckens bygghöjd",
+      unit: "mm",
+      sortOrder: 60,
+      onCard: false,
+      inQuote: true,
+    },
+    { key: "weight", label: "Vikt", unit: "kg", sortOrder: 50, onCard: false, inQuote: true },
   ],
   financingMethods: [
     { key: "purchase", label: "Köp", kind: "purchase", serviceAgreementEligible: true },

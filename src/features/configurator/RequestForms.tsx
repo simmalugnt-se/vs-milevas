@@ -1,11 +1,23 @@
 "use client";
 
-import { useActionState, useId, useState } from "react";
+import { type ReactNode, useActionState, useEffect, useId, useMemo, useRef } from "react";
+import { Alternative } from "@/components/ui/alternative";
 import { Button } from "@/components/ui/button";
+import { ContactForm } from "@/components/ui/contact-form";
+import { TextAreaField, TextField } from "@/components/ui/text-field";
+import { TimePicker, type TimePickerDay } from "@/components/ui/time-picker";
 import { submitCallRequest, submitOrderRequest } from "./actions";
-import type { ConfiguratorActionState, ConfiguratorQuote, SelectionState } from "./types";
+import type { ConfiguratorActionState, SelectionState } from "./types";
 
 const initialActionState: ConfiguratorActionState = { ok: false };
+
+type Configuration = {
+  familyKey: string;
+  financingKey: string;
+  locale: string;
+  selections: SelectionState;
+  serviceAgreement?: boolean;
+};
 
 function HiddenConfiguration({
   familyKey,
@@ -14,14 +26,7 @@ function HiddenConfiguration({
   selections,
   serviceAgreement = false,
   submissionKey,
-}: {
-  familyKey: string;
-  financingKey: string;
-  locale: string;
-  selections: SelectionState;
-  serviceAgreement?: boolean;
-  submissionKey: string;
-}) {
+}: Configuration & { submissionKey: string }) {
   return (
     <>
       <input type="hidden" name="familyKey" value={familyKey} />
@@ -35,285 +40,272 @@ function HiddenConfiguration({
   );
 }
 
-function FieldError({ state, name }: { state: ConfiguratorActionState; name: string }) {
-  const error = state.fieldErrors?.[name];
-  return error ? (
-    <span className="mt-(--spacing-3xs) block text-text-xs text-status-error" role="alert">
-      {error}
-    </span>
+/** The form's own message, when the server rejects the whole request. */
+function FormMessage({ state }: { state: ConfiguratorActionState }) {
+  return state.message && !state.ok ? (
+    <p className="text-text-xs text-status-error" role="alert">
+      {state.message}
+    </p>
   ) : null;
 }
 
-const fieldClassName =
-  "mt-(--spacing-2xs) block min-h-11 w-full rounded-sm border border-border-primary bg-bg-active px-(--spacing-xs) py-(--spacing-2xs) text-text-m text-ui-primary outline-none focus:border-border-secondary focus:ring-1 focus:ring-border-secondary";
-const labelClassName = "block text-label-s text-ui-primary";
-
 /**
- * The call request ("Boka samtal"), shown in the configurator's dialog. It sends the configuration
- * as it is; the server marks it incomplete when steps remain.
+ * Figma's Popup (`04 — Blocks` → "Contact-popup", 8882:14589): a panel `grid/margin` from the
+ * screen's edges, the right half from Desktop S and the whole width below. Figma draws nothing
+ * behind it, so the page stays visible. Escape and the cross close it.
  */
-export function CallRequestForm({
-  familyKey,
-  financingKey,
-  locale,
-  selections,
-  serviceAgreement,
+export function RequestDialog({
+  open,
   onClose,
+  labelledBy,
+  children,
 }: {
-  familyKey: string;
-  financingKey: string;
-  locale: string;
-  selections: SelectionState;
-  serviceAgreement: boolean;
+  open: boolean;
   onClose: () => void;
+  labelledBy: string;
+  children: ReactNode;
 }) {
-  const [state, formAction, pending] = useActionState(submitCallRequest, initialActionState);
-  const submissionKey = useId();
-  const [preference, setPreference] = useState(state.formValues?.callPreference ?? "asap");
-
-  if (state.ok) {
-    return (
-      <div role="status" className="flex flex-col gap-(--spacing-sm)">
-        <p className="text-text-xl text-ui-primary">Tack, vi ringer upp.</p>
-        <p className="text-text-m text-ui-secondary">Referens: {state.reference}</p>
-        <Button mode="dark" size="m" iconRight={null} onClick={onClose}>
-          Stäng
-        </Button>
-      </div>
-    );
-  }
-
+  const dialog = useRef<HTMLDialogElement>(null);
+  useEffect(() => {
+    const element = dialog.current;
+    if (!element) return;
+    if (open && !element.open) element.showModal();
+    if (!open && element.open) element.close();
+  }, [open]);
   return (
-    <form action={formAction} className="flex flex-col gap-(--spacing-sm)">
-      <HiddenConfiguration
-        familyKey={familyKey}
-        financingKey={financingKey}
-        locale={locale}
-        selections={selections}
-        serviceAgreement={serviceAgreement}
-        submissionKey={submissionKey}
-      />
-      <label className={labelClassName}>
-        Namn *
-        <input
-          className={fieldClassName}
-          name="name"
-          autoComplete="name"
-          defaultValue={state.formValues?.name}
-          required
-        />
-        <FieldError state={state} name="name" />
-      </label>
-      <label className={labelClassName}>
-        Telefon *
-        <input
-          className={fieldClassName}
-          name="phone"
-          type="tel"
-          autoComplete="tel"
-          defaultValue={state.formValues?.phone}
-          required
-        />
-        <FieldError state={state} name="phone" />
-      </label>
-      <label className={labelClassName}>
-        Företag
-        <input
-          className={fieldClassName}
-          name="company"
-          autoComplete="organization"
-          defaultValue={state.formValues?.company}
-        />
-      </label>
-      <label className={labelClassName}>
-        E-post
-        <input
-          className={fieldClassName}
-          name="email"
-          type="email"
-          autoComplete="email"
-          defaultValue={state.formValues?.email}
-        />
-        <FieldError state={state} name="email" />
-      </label>
-      <fieldset className="flex flex-col gap-(--spacing-2xs)">
-        <legend className={`${labelClassName} mb-(--spacing-2xs)`}>När ska vi ringa?</legend>
-        {(
-          [
-            ["asap", "Så snart som möjligt"],
-            ["specific", "Jag önskar en särskild tid"],
-          ] as const
-        ).map(([value, label]) => (
-          <label key={value} className="flex items-center gap-(--spacing-2xs) text-text-m">
-            <input
-              className="size-4 accent-ui-primary"
-              type="radio"
-              name="callPreference"
-              value={value}
-              checked={preference === value}
-              onChange={() => setPreference(value)}
-            />
-            {label}
-          </label>
-        ))}
-      </fieldset>
-      {preference === "specific" ? (
-        <label className={labelClassName}>
-          Önskad tid *
-          <input
-            className={fieldClassName}
-            name="preferredTime"
-            placeholder="Till exempel vardagar efter 14"
-            defaultValue={state.formValues?.preferredTime}
-          />
-          <FieldError state={state} name="preferredTime" />
-        </label>
-      ) : null}
-      <label className={labelClassName}>
-        Meddelande
-        <textarea
-          className={`${fieldClassName} min-h-24 resize-y`}
-          name="message"
-          defaultValue={state.formValues?.message}
-        />
-      </label>
-      {state.message ? (
-        <p className="text-text-m text-status-error" role="alert">
-          {state.message}
-        </p>
-      ) : null}
-      <div className="flex gap-(--grid-gap) *:flex-1">
-        <Button variant="secondary" size="m" iconRight={null} onClick={onClose}>
-          Avbryt
-        </Button>
-        <Button type="submit" mode="dark" size="m" disabled={pending}>
-          {pending ? "Skickar…" : "Skicka"}
-        </Button>
-      </div>
-    </form>
+    <dialog
+      ref={dialog}
+      aria-labelledby={labelledBy}
+      onClose={onClose}
+      className="fixed inset-y-(--grid-margin) right-(--grid-margin) left-auto m-0 h-auto max-h-none w-[calc(100%-2*var(--grid-margin))] max-w-none bg-transparent p-0 backdrop:bg-transparent desktop-s:w-[calc(50%-0.75rem)]"
+    >
+      {open ? children : null}
+    </dialog>
   );
 }
 
-export function OrderRequestForm({ quote, locale }: { quote: ConfiguratorQuote; locale: string }) {
-  const [state, formAction, pending] = useActionState(submitOrderRequest, initialActionState);
+const dayFormat = new Intl.DateTimeFormat("sv-SE", { day: "numeric", month: "long" });
+const weekdayFormat = new Intl.DateTimeFormat("sv-SE", { weekday: "long" });
+const callTimes = ["09:00", "10:00", "11:00", "13:00", "14:00", "15:00", "16:00"];
+
+/** The next five weekdays, from today, with the times a seller can call. */
+function callDays(): TimePickerDay[] {
+  const days: TimePickerDay[] = [];
+  const date = new Date();
+  for (let offset = 0; days.length < 5 && offset < 10; offset++) {
+    const day = new Date(date.getFullYear(), date.getMonth(), date.getDate() + offset);
+    if (day.getDay() === 0 || day.getDay() === 6) continue;
+    const name = offset === 0 ? "Idag" : offset === 1 ? "Imorgon" : weekdayFormat.format(day);
+    days.push({
+      label: `${name[0].toUpperCase()}${name.slice(1)} ${dayFormat.format(day)}`,
+      times: callTimes,
+    });
+  }
+  return days;
+}
+
+/**
+ * The call request ("Boka samtal") as Figma's call popup: name, phone, company and e-mail, when
+ * to call (as soon as possible, or a time from the calendar) and a message. It sends the
+ * configuration as it is; the server marks it incomplete when steps remain. Sent, it shows
+ * Figma's call-booked: "Bokning bekräftad" and when and where the seller calls.
+ */
+export function CallRequestForm({
+  onClose,
+  headingId,
+  ...configuration
+}: Configuration & { onClose: () => void; headingId: string }) {
+  const [state, formAction, pending] = useActionState(submitCallRequest, initialActionState);
   const submissionKey = useId();
+  const days = useMemo(() => callDays(), []);
+  const values = state.formValues;
+  const errors = state.fieldErrors ?? {};
 
   if (state.ok) {
+    const when =
+      values?.callPreference === "specific" && values.preferredTime
+        ? values.preferredTime.toLowerCase()
+        : "så snart som möjligt";
     return (
-      <div role="status" className="border border-neutral-950 bg-neutral-50 p-6">
-        <p
-          className="mb-3 grid size-9 place-items-center border border-neutral-950 bg-neutral-950 text-white"
-          aria-hidden="true"
-        >
-          ✓
-        </p>
-        <h2 className="text-xl font-semibold">Orderförfrågan mottagen</h2>
-        <p className="mt-2 text-sm leading-6">
-          Din referens är {state.reference}. Vi återkommer med nästa steg.
-        </p>
-      </div>
+      <ContactForm
+        type="order"
+        fill
+        heading={<span id={headingId}>Bokning bekräftad</span>}
+        text={
+          <>
+            Vi ringer upp {values?.name ? <strong>{values.name}</strong> : null} {when} på{" "}
+            <strong>{values?.phone}</strong>.
+          </>
+        }
+        submit={
+          <Button type="button" mode="dark" size="s" iconRight={null} onClick={onClose}>
+            Stäng
+          </Button>
+        }
+      >
+        {null}
+      </ContactForm>
     );
   }
 
   return (
-    <form action={formAction} className="border border-neutral-300 bg-white">
-      <div className="border-b border-neutral-300 bg-neutral-50 px-5 py-4">
-        <p className="text-xs uppercase tracking-[0.16em] text-neutral-500">Nästa steg</p>
-        <h2 className="mt-1 text-xl font-semibold">Skicka orderförfrågan</h2>
-        <p className="mt-2 text-sm leading-6 text-neutral-600">
-          Fyll i företagets uppgifter så återkommer en säljare med en slutlig offert.
-        </p>
-      </div>
-      <div className="space-y-4 p-5">
-        <HiddenConfiguration
-          familyKey={quote.familyKey}
-          financingKey={quote.financing.key}
-          locale={locale}
-          selections={quote.selections}
-          serviceAgreement={Boolean(quote.serviceAgreement)}
-          submissionKey={submissionKey}
-        />
-        <label className={labelClassName}>
-          Företagsnamn *
-          <input
-            className={fieldClassName}
-            name="company"
-            autoComplete="organization"
-            defaultValue={state.formValues?.company}
-            required
-          />
-          <FieldError state={state} name="company" />
-        </label>
-        <label className={labelClassName}>
-          Organisationsnummer *
-          <input
-            className={fieldClassName}
-            name="organizationNumber"
-            placeholder="556000-0000"
-            defaultValue={state.formValues?.organizationNumber}
-            required
-          />
-          <FieldError state={state} name="organizationNumber" />
-        </label>
-        <label className={labelClassName}>
-          Kontaktperson *
-          <input
-            className={fieldClassName}
-            name="name"
-            autoComplete="name"
-            defaultValue={state.formValues?.name}
-            required
-          />
-          <FieldError state={state} name="name" />
-        </label>
-        <label className={labelClassName}>
-          E-post *
-          <input
-            className={fieldClassName}
-            name="email"
-            type="email"
-            autoComplete="email"
-            defaultValue={state.formValues?.email}
-            required
-          />
-          <FieldError state={state} name="email" />
-        </label>
-        <label className={labelClassName}>
-          Telefon *
-          <input
-            className={fieldClassName}
-            name="phone"
-            type="tel"
-            autoComplete="tel"
-            defaultValue={state.formValues?.phone}
-            required
-          />
-          <FieldError state={state} name="phone" />
-        </label>
-        <label className={labelClassName}>
-          Meddelande
-          <textarea
-            className={`${fieldClassName} min-h-28 resize-y`}
-            name="message"
-            defaultValue={state.formValues?.message}
-          />
-        </label>
-        {state.message ? (
-          <p className="text-sm text-red-700" role="alert">
-            {state.message}
-          </p>
-        ) : null}
-        <button
-          type="submit"
-          className="w-full border border-neutral-950 bg-neutral-950 px-4 py-3 text-sm font-medium text-white hover:bg-neutral-800 disabled:opacity-50"
-          disabled={pending}
+    <ContactForm
+      type="call"
+      fill
+      action={formAction}
+      heading={<span id={headingId}>Boka samtal</span>}
+      text="Välj tid som passar dig. En specialist ringer upp och går igenom din konfiguration."
+      onClose={onClose}
+      submit={
+        <div className="flex flex-col gap-(--spacing-2xs)">
+          <FormMessage state={state} />
+          <Button type="submit" mode="dark" size="m" iconRight="arrow-right" disabled={pending}>
+            {pending ? "Skickar…" : "Boka samtal"}
+          </Button>
+        </div>
+      }
+    >
+      <HiddenConfiguration {...configuration} submissionKey={submissionKey} />
+      <TextField
+        number="01"
+        label="Namn"
+        name="name"
+        autoComplete="name"
+        defaultValue={values?.name}
+        error={errors.name}
+      />
+      <TextField
+        number="02"
+        label="Telefon *"
+        name="phone"
+        type="tel"
+        autoComplete="tel"
+        required
+        defaultValue={values?.phone}
+        error={errors.phone}
+      />
+      <TextField
+        number="03"
+        label="Företag"
+        name="company"
+        autoComplete="organization"
+        defaultValue={values?.company}
+      />
+      <TextField
+        number="04"
+        label="E-post"
+        name="email"
+        type="email"
+        autoComplete="email"
+        defaultValue={values?.email}
+        error={errors.email}
+      />
+      <fieldset className="grid grid-cols-2 gap-x-(--spacing-2xs) tablet:col-span-2">
+        <legend className="sr-only">När ska vi ringa?</legend>
+        <Alternative
+          name="callPreference"
+          value="asap"
+          number="05"
+          label="När ska vi ringa?"
+          defaultChecked
         >
-          {pending ? "Skickar…" : "Skicka orderförfrågan"}
-        </button>
-        <p className="text-center text-xs leading-5 text-neutral-500">
-          Förfrågan är inte ett bindande avtal.
-        </p>
-      </div>
-    </form>
+          Så snart som möjligt
+        </Alternative>
+        <div className="flex flex-col justify-end">
+          <TimePicker name="preferredTime" days={days} placeholder="Välj tid i kalendern" />
+        </div>
+      </fieldset>
+      <TextAreaField
+        number="06"
+        label="Meddelande (valfritt)"
+        name="message"
+        defaultValue={values?.message}
+        className="tablet:col-span-2"
+      />
+    </ContactForm>
+  );
+}
+
+/**
+ * The order ("Fortsätt beställning") as Figma's order popup: company, organisation number, e-mail
+ * and phone, and "Skicka avtal för signering". Sent, it hands the reference to `onSent`, which
+ * shows the thank-you screen.
+ */
+export function OrderRequestForm({
+  onClose,
+  onSent,
+  headingId,
+  ...configuration
+}: Configuration & {
+  onClose: () => void;
+  onSent: (reference: string) => void;
+  headingId: string;
+}) {
+  const [state, formAction, pending] = useActionState(submitOrderRequest, initialActionState);
+  const submissionKey = useId();
+  const values = state.formValues;
+  const errors = state.fieldErrors ?? {};
+
+  useEffect(() => {
+    if (state.ok && state.reference) onSent(state.reference);
+  }, [state.ok, state.reference, onSent]);
+
+  return (
+    <ContactForm
+      type="order"
+      fill
+      action={formAction}
+      heading={<span id={headingId}>Fortsätt beställning</span>}
+      text="Fyll i företagsuppgifterna så skickar vi avtalet för digital signering. Därefter kontaktar en specialist dig, trucken förbereds för leverans och levereras normalt inom 4–6 veckor."
+      onClose={onClose}
+      submit={
+        <div className="flex flex-col gap-(--spacing-2xs)">
+          <FormMessage state={state} />
+          <Button type="submit" mode="dark" size="m" iconRight="arrow-right" disabled={pending}>
+            {pending ? "Skickar…" : "Skicka avtal för signering"}
+          </Button>
+        </div>
+      }
+    >
+      <HiddenConfiguration {...configuration} submissionKey={submissionKey} />
+      <TextField
+        number="01"
+        label="Företagsnamn *"
+        name="company"
+        autoComplete="organization"
+        required
+        defaultValue={values?.company}
+        error={errors.company}
+      />
+      <TextField
+        number="02"
+        label="Organisationsnummer *"
+        name="organizationNumber"
+        inputMode="numeric"
+        required
+        defaultValue={values?.organizationNumber}
+        error={errors.organizationNumber}
+      />
+      <TextField
+        number="03"
+        label="E-post *"
+        name="email"
+        type="email"
+        autoComplete="email"
+        required
+        defaultValue={values?.email}
+        error={errors.email}
+      />
+      <TextField
+        number="04"
+        label="Telefon *"
+        name="phone"
+        type="tel"
+        autoComplete="tel"
+        required
+        defaultValue={values?.phone}
+        error={errors.phone}
+      />
+    </ContactForm>
   );
 }

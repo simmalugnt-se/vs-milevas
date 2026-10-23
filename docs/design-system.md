@@ -150,8 +150,7 @@ för Display, Text och sajtens standardtext; Label använder Geist Mono.
 
 ## Nästa steg
 
-1. **Blocken i [`blocks-backlog.md`](./blocks-backlog.md)**, i Figmas ordning: Configurator är
-   nästa. Den är omritad i Figma (`9264:6653`) med fem stegtyper, offert och tack-sida, så
-   offertsidan (`/configurator/quote`) har nu en skiss.
+1. **Blocken i [`blocks-backlog.md`](./blocks-backlog.md)**, i Figmas ordning: Card Slider är
+   nästa. Configurator och Popup är byggda efter `9264:6653` och `8882:14589`.
 2. **Väntar på designen eller på dig:**
    - en genomgång av posterna med status Antagande och frågorna till designen, på `/kitchensink/notes`

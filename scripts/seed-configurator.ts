@@ -28,7 +28,7 @@ const brochureFilename = "produktbroschyr-placeholder.pdf";
 
 /** The specification types, in the quote's order; the battery also shows on the product card. */
 const specTypes = [
-  { key: "battery", label: "Batteri", sortOrder: 10, onCard: true },
+  { key: "battery", label: "Batteri", sortOrder: 10, onCard: true, inQuote: false },
   { key: "turning-radius", label: "Vändradie", unit: "mm", sortOrder: 20 },
   { key: "travel-speed", label: "Körhastighet (lastad/olastad)", unit: "km/h", sortOrder: 30 },
   { key: "battery-capacity", label: "Batterikapacitet", sortOrder: 40 },
@@ -327,7 +327,7 @@ async function upsertSpecs(payload: Payload) {
       overrideAccess: true,
       where: { key: { equals: spec.key } },
     });
-    const data = { unit: undefined, onCard: false, ...spec };
+    const data = { unit: undefined, onCard: false, inQuote: true, ...spec };
     const doc = existing.docs[0]
       ? await payload.update({
           collection: "truck-specs",

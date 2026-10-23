@@ -8,6 +8,8 @@ import type { HTMLAttributes, ReactNode } from "react";
  *   `configurator` pads them `spacing/2xs`, `checkout` `spacing/2xs` × `spacing/xs`.
  * - `checkout` adds a note: a row and a Text XS text in `ui-tertiary` (Figma: the warranty).
  * Lines are drawn inside, as Figma's strokes are, so the box is Figma's height (109 and 193).
+ * Figma's rows have no gap between label and value; here `spacing/2xs`, and the value stays on
+ * one line.
  */
 
 type PriceRow = { label: ReactNode; value: ReactNode };
@@ -31,7 +33,7 @@ function Row({ label, value }: PriceRow) {
   return (
     <>
       <dt className="text-text-xs text-ui-secondary">{label}</dt>
-      <dd className="text-right text-text-s text-ui-primary">{value}</dd>
+      <dd className="text-right whitespace-nowrap text-text-s text-ui-primary">{value}</dd>
     </>
   );
 }
@@ -62,7 +64,7 @@ export function PriceBox({
       {rows.map((row, index) => (
         <dl
           key={index}
-          className={`flex items-center justify-between gap-4 bg-bg-fill ${lines} ${rowPadding}`}
+          className={`flex items-center justify-between gap-(--spacing-2xs) bg-bg-fill ${lines} ${rowPadding}`}
         >
           <Row {...row} />
         </dl>

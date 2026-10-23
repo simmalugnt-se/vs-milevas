@@ -56,7 +56,7 @@ export const ConfiguratorRequests: CollectionConfig = {
       fields: [
         { name: "company", type: "text" },
         { name: "organizationNumber", type: "text" },
-        { name: "name", type: "text", required: true },
+        { name: "name", type: "text" },
         { name: "email", type: "email" },
         { name: "phone", type: "text", required: true },
       ],

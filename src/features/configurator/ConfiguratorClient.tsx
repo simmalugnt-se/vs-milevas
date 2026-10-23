@@ -2,14 +2,16 @@
 
 import Image from "next/image";
 import type { TypedLocale } from "payload";
-import { type ReactNode, useEffect, useReducer, useRef, useState } from "react";
+import { type ReactNode, useEffect, useReducer, useState } from "react";
 import { ConfiguratorScreen } from "@/components/blocks/configurator-screen";
+import { ConfiguratorStep } from "@/components/blocks/configurator-step";
 import { Button, ButtonLink } from "@/components/ui/button";
-import { Choice } from "@/components/ui/choice";
-import { ConfiguratorBox, choiceLayout } from "@/components/ui/configurator-box";
+import { CheckboxChoice } from "@/components/ui/checkbox-choice";
+import { PriceBox } from "@/components/ui/price-box";
 import { frontendPath } from "@/i18n/frontend-path";
 import {
   calculateFinancingPrice,
+  choiceDisplay,
   choiceSatisfied,
   estimateTotal,
   familySteps,
@@ -19,7 +21,7 @@ import {
   MODEL_CHOICE,
   sanitizeSelections,
 } from "./engine";
-import { CallRequestForm } from "./RequestForms";
+import { CallRequestForm, RequestDialog } from "./RequestForms";
 import type {
   ConfiguratorCatalog,
   ConfiguratorChoice,
@@ -110,52 +112,12 @@ const startPrice = (family: ConfiguratorFamily) =>
 
 const stepNumber = (index: number) => String(index + 1).padStart(2, "0");
 
-/** One step's choices in a <ConfiguratorBox>, laid out by `choiceLayout`. */
-function StepBox({
-  number,
-  label,
-  choices,
-}: {
-  number: string;
-  label: string;
-  choices: Array<{
-    key: string;
-    title: string;
-    price: string;
-    text?: ReactNode;
-    selected: boolean;
-    disabled?: boolean;
-    image?: ReactNode;
-    onSelect: () => void;
-  }>;
-}) {
-  return (
-    <ConfiguratorBox
-      number={number}
-      label={label}
-      {...choiceLayout(choices.map((choice) => choice.price))}
-    >
-      {choices.map((choice) => (
-        <Choice
-          key={choice.key}
-          title={choice.title}
-          price={choice.price}
-          text={choice.text}
-          textSize={choices.length > 2 ? "m" : "s"}
-          selected={choice.selected}
-          disabled={choice.disabled}
-          image={choice.image}
-          onClick={choice.onSelect}
-        />
-      ))}
-    </ConfiguratorBox>
-  );
-}
-
 /**
  * The truck configurator on Figma's step screen (`ConfiguratorScreen`): truck type, the family's
- * steps (its model, then its choices), then financing, one screen each, numbered `[01]`, `[02]` and so on. "Boka samtal" opens the
- * call request in a dialog from the first configuration step; "Visa offert" leads to the quote page.
+ * steps (its model, then its choices, each as its Figma step type), then financing, one screen
+ * each, numbered `[01]`, `[02]` and so on. The price box shows the total and the monthly prices;
+ * "Boka samtal" opens the call request in a dialog once a truck type is chosen; "Visa offert"
+ * leads to the quote page.
  */
 export function ConfiguratorClient({
   catalog,
@@ -166,7 +128,6 @@ export function ConfiguratorClient({
 }) {
   const [state, dispatch] = useReducer(reducer, initialState);
   const [callOpen, setCallOpen] = useState(false);
-  const dialog = useRef<HTMLDialogElement>(null);
   const families = catalog.families.filter((candidate) => familySteps(candidate).length > 0);
   const family = families.find((candidate) => candidate.key === state.familyKey);
   const steps = family ? familySteps(family) : [];
@@ -268,13 +229,6 @@ export function ConfiguratorClient({
     ? `${frontendPath("/configurator/quote", locale as TypedLocale)}?${quoteParams.toString()}`
     : "#";
 
-  useEffect(() => {
-    const element = dialog.current;
-    if (!element) return;
-    if (callOpen && !element.open) element.showModal();
-    if (!callOpen && element.open) element.close();
-  }, [callOpen]);
-
   if (!state.hydrated) {
     return (
       <p
@@ -298,10 +252,11 @@ export function ConfiguratorClient({
   let step: ReactNode;
   if (state.step === 0 || !family) {
     step = (
-      <StepBox
+      <ConfiguratorStep
         number={number}
         label="Trucktyp"
-        choices={families.map((candidate) => ({
+        display="imageRows"
+        options={families.map((candidate) => ({
           key: candidate.key,
           title: candidate.name,
           price: `Från ${formatPrice(startPrice(candidate))}`,
@@ -323,10 +278,11 @@ export function ConfiguratorClient({
   } else if (currentConfigStep) {
     const choice = currentConfigStep;
     step = (
-      <StepBox
+      <ConfiguratorStep
         number={number}
         label={choice.label}
-        choices={choice.options.map((option) => {
+        display={choiceDisplay(choice)}
+        options={choice.options.map((option) => {
           const available = isOptionAvailable(option, state.selections);
           return {
             key: option.key,
@@ -354,43 +310,35 @@ export function ConfiguratorClient({
   } else {
     const agreement = catalog.serviceAgreement;
     step = (
-      <>
-        <StepBox
-          number={number}
-          label="Finansiering"
-          choices={catalog.financingMethods.map((method) => ({
-            key: method.key,
-            title: method.months ? `${method.label} (${method.months} mån)` : method.label,
-            price: `${formatPrice(calculateFinancingPrice(totalPrice, method))}${
-              method.kind === "monthly" ? "/mån" : ""
-            }`,
-            text: method.description,
-            selected: state.financingKey === method.key,
-            onSelect: () =>
-              dispatch({
-                type: "selectFinancing",
-                key: method.key,
-                serviceAgreementEligible: method.serviceAgreementEligible,
-              }),
-          }))}
-        />
-        {selectedFinancing?.serviceAgreementEligible && agreement ? (
-          <StepBox
-            number={number}
-            label="Serviceavtal"
-            choices={[
-              {
-                key: "service-agreement",
-                title: `Lägg till ${agreement.label.toLowerCase()}`,
-                price: `+${formatPrice(agreement.annualPrice)}/år`,
-                text: agreement.description,
-                selected: state.serviceAgreement,
-                onSelect: () => dispatch({ type: "toggleServiceAgreement" }),
-              },
-            ]}
-          />
-        ) : null}
-      </>
+      <ConfiguratorStep
+        number={number}
+        label="Finansiering"
+        display="prices"
+        options={catalog.financingMethods.map((method) => ({
+          key: method.key,
+          title: method.months ? `${method.label} (${method.months} mån)` : method.label,
+          price: `${formatPrice(calculateFinancingPrice(totalPrice, method))}${
+            method.kind === "monthly" ? "/mån" : ""
+          }`,
+          selected: state.financingKey === method.key,
+          onSelect: () =>
+            dispatch({
+              type: "selectFinancing",
+              key: method.key,
+              serviceAgreementEligible: method.serviceAgreementEligible,
+            }),
+        }))}
+        addon={
+          selectedFinancing?.serviceAgreementEligible && agreement ? (
+            <CheckboxChoice
+              label={`Lägg till ${agreement.label.toLowerCase()}`}
+              price={`+${formatPrice(agreement.annualPrice)}/år`}
+              checked={state.serviceAgreement}
+              onChange={() => dispatch({ type: "toggleServiceAgreement" })}
+            />
+          ) : undefined
+        }
+      />
     );
   }
 
@@ -403,7 +351,8 @@ export function ConfiguratorClient({
         onClick={() => setCallOpen(true)}
       >
         Kontakta oss
-      </button>
+      </button>{" "}
+      så löser vi det.
     </>
   ) : financingStep ? (
     "Alla priser visas exkl. moms. Slutliga villkor bekräftas av säljare."
@@ -411,18 +360,19 @@ export function ConfiguratorClient({
 
   const next = financingStep ? (
     currentComplete ? (
-      <ButtonLink href={quoteHref} mode="dark" size="m">
+      <ButtonLink href={quoteHref} mode="dark" size="s" iconRight="arrow-right">
         Visa offert
       </ButtonLink>
     ) : (
-      <Button mode="dark" size="m" disabled>
+      <Button mode="dark" size="s" iconRight="arrow-right" disabled>
         Visa offert
       </Button>
     )
   ) : (
     <Button
       mode="dark"
-      size="m"
+      size="s"
+      iconRight="arrow-right"
       disabled={!currentComplete}
       onClick={() => dispatch({ type: "setStep", step: Math.min(maxStep, state.step + 1) })}
     >
@@ -433,11 +383,16 @@ export function ConfiguratorClient({
   return (
     <>
       <ConfiguratorScreen
-        total={family ? `Totalt: ${formatPrice(totalPrice)}` : `Från ${formatPrice(totalPrice)}`}
-        prices={monthlyMethods.map((method) => ({
-          label: method.months ? `${method.label} (${method.months} mån)` : method.label,
-          value: `${formatPrice(calculateFinancingPrice(totalPrice, method))}/mån`,
-        }))}
+        price={
+          <PriceBox
+            totalLabel={family ? "Totalpris" : "Från"}
+            total={formatPrice(totalPrice)}
+            rows={monthlyMethods.map((method) => ({
+              label: method.months ? `${method.label} (${method.months} mån)` : method.label,
+              value: `${formatPrice(calculateFinancingPrice(totalPrice, method))}/mån`,
+            }))}
+          />
+        }
         image={
           family?.image ? (
             <Image
@@ -457,7 +412,7 @@ export function ConfiguratorClient({
             {state.step > 0 ? (
               <Button
                 variant="secondary"
-                size="m"
+                size="s"
                 iconLeft="arrow-left"
                 iconRight={null}
                 onClick={() => dispatch({ type: "setStep", step: state.step - 1 })}
@@ -468,11 +423,10 @@ export function ConfiguratorClient({
             {next}
           </>
         }
-        contactText="Har du frågor eller önskar något annat av din konfiguration?"
         contact={
           <Button
-            mode="tejp"
-            size="m"
+            mode="dark"
+            size="s"
             iconRight="call"
             className="w-full"
             disabled={!family}
@@ -482,24 +436,14 @@ export function ConfiguratorClient({
           </Button>
         }
       />
-      <dialog
-        ref={dialog}
-        aria-labelledby="call-request-heading"
+      <RequestDialog
+        open={callOpen && Boolean(family)}
         onClose={() => setCallOpen(false)}
-        className="m-auto w-[min(100%-2*var(--grid-margin),32rem)] rounded-lg bg-bg-fill p-(--spacing-md) backdrop:mode-dark backdrop:bg-bg-fill/60"
+        labelledBy="call-request-heading"
       >
-        <div className="mb-(--spacing-md) flex items-start justify-between gap-(--spacing-sm)">
-          <div className="flex flex-col gap-(--spacing-2xs)">
-            <h2 id="call-request-heading" className="text-text-xl text-ui-primary">
-              Boka samtal
-            </h2>
-            <p className="text-text-xs text-ui-secondary">
-              Vi ringer upp om din konfiguration{family ? `, ${family.name}` : ""}.
-            </p>
-          </div>
-        </div>
-        {callOpen && family ? (
+        {family ? (
           <CallRequestForm
+            headingId="call-request-heading"
             familyKey={family.key}
             financingKey={previewFinancing ?? "purchase"}
             locale={locale}
@@ -508,7 +452,7 @@ export function ConfiguratorClient({
             onClose={() => setCallOpen(false)}
           />
         ) : null}
-      </dialog>
+      </RequestDialog>
     </>
   );
 }

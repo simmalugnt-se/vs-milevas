@@ -806,6 +806,10 @@ export interface TruckSpec {
    * Efter lyftkapaciteten, som batteriet i Figma.
    */
   onCard?: boolean | null;
+  /**
+   * Under Tekniska specifikationer i offerten och i mejlen.
+   */
+  inQuote?: boolean | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -824,7 +828,7 @@ export interface ConfiguratorRequest {
   contact: {
     company?: string | null;
     organizationNumber?: string | null;
-    name: string;
+    name?: string | null;
     email?: string | null;
     phone: string;
   };
@@ -1633,6 +1637,7 @@ export interface TruckSpecsSelect<T extends boolean = true> {
   unit?: T;
   sortOrder?: T;
   onCard?: T;
+  inQuote?: T;
   updatedAt?: T;
   createdAt?: T;
 }
