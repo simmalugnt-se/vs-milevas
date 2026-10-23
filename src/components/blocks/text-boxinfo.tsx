@@ -4,8 +4,8 @@ import { TextBox } from "@/components/ui/text-box";
 
 /**
  * Text & boxinfo from Figma "04 — Blocks" (8389:8524): on Dark `bg-fill`, a Display L heading in two
- * colours (the second part in `ui-brand`), Text XL below it, and a Light box of text-boxes with a
- * full-width Tejp button.
+ * colours (the second part in `ui-brand`) with Figma's 0.9 line height, Text XL below it, and a
+ * Light box of text-boxes with a full-width Tejp button.
  * - Desktop L and S: the text over 7 of the 12 columns, the box over the last 4, at the bottom.
  * - Tablet: the box under the text, over the last 4 of 6 columns.
  * - Mobile: the box under the text, full width.
@@ -52,7 +52,7 @@ export function TextBoxinfo({
       className="grid-layout gap-y-(--spacing-4xl) mode-dark bg-bg-fill py-(--spacing-xl) desktop-s:min-h-[50rem]"
     >
       <div className="col-span-full flex flex-col gap-(--spacing-md) px-(--spacing-sm) desktop-s:col-span-7 desktop-s:pr-0">
-        <h2 className="text-display-l text-ui-primary">
+        <h2 className="text-display-l leading-[0.9] text-ui-primary">
           {heading}
           {highlight ? <span className="block text-ui-brand">{highlight}</span> : null}
         </h2>

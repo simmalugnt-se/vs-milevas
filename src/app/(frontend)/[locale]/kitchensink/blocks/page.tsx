@@ -346,7 +346,7 @@ export default function BlocksPage() {
               text: "Enkel ansökningsprocess med svar inom 24h.",
             },
           ]}
-          cta={{ label: "Läs mer", href: "/kitchensink/blocks#text-boxinfo" }}
+          cta={{ label: "Bygg din truck", href: "/kitchensink/blocks#configurator" }}
         />
       </Block>
 

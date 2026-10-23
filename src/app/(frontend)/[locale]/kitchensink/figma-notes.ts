@@ -622,11 +622,11 @@ export const figmaNotes: FigmaNote[] = [
   {
     target: "text-boxinfo",
     topic: "Knappens mål",
-    figma: "Label med pil, inget mål angivet",
-    code: "Läs mer länkar till kontakt i teststartsidan; både text och mål går att ändra i Payload",
-    why: "Finansieringssidan finns inte än",
+    figma: '"Bygg din truck" med pil, inget mål angivet',
+    code: 'Samma text i testet, länkad till konfiguratorn; text och mål går att ändra i Payload. Den lokala startsidan har kvar "Läs mer" till kontakt tills den ändras där',
+    why: "Texten säger vart den leder",
     status: "Antagande",
-    date: "2026-10-07",
+    date: "2026-10-23",
   },
 
   // General
@@ -1664,11 +1664,11 @@ export const figmaNotes: FigmaNote[] = [
     target: "text-boxinfo",
     topic: "Typografi och radbrytning",
     figma:
-      "Desktop L (`8389:8525`): Clash Grotesk Variable, rubrik 96px med radavstånd 0.9 och fyra rader; brödtext 36px med radavstånd 1.1",
-    code: "Clash Grotesk Variable med samma storlekar och radavstånd som Figma.",
-    why: "Den tidigare Geist-platshållaren gav en extra rad vid 1440. Den officiella variabla fontfilen är nu inlagd; layoutmåtten och rem-skalningen är oförändrade.",
-    status: "Beslut",
-    date: "2026-10-07",
+      'Rubriken i Display L-storlek men med radavståndet 0,9, utom raden "390kr/mån" som har 1 (och 96px på Tablet och Mobile); brödtexten Text XL',
+    code: "Display L med radavståndet 0,9 för hela rubriken, Text XL. Rubriken blir 4–11px lägre än i Figma, och resten av blocket flyttas upp lika mycket; se frågan om 390kr/mån. Tidigare radavståndet 1, 24–30px för högt",
+    why: "Rubriken är en text i Payload; en rad med eget radavstånd ser ut som en rest i Figma",
+    status: "Antagande",
+    date: "2026-10-23",
   },
   {
     target: "text-boxinfo",
@@ -1683,7 +1683,7 @@ export const figmaNotes: FigmaNote[] = [
   {
     target: "text-boxinfo",
     topic: "Färger",
-    figma: "Rubrikens andra del `#e0ff3c` och brödtexten `#f5f5f5`, utan variabler",
+    figma: "Rubrikens andra del `#e0ff3c` utan variabel; brödtexten `ui-primary`",
     code: "Blocket i Dark: `ui-brand` och `ui-primary`",
     why: "Närmaste token, som för card",
     status: "Antagande",

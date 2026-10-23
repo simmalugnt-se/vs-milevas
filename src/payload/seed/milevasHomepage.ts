@@ -336,7 +336,7 @@ export async function seedMilevasHomepage(
         { heading: "Besked", label: "-24h", text: "Enkel ansökningsprocess med svar inom 24h." },
       ],
       showButton: true,
-      cta: externalLink("Läs mer", "/#kontakt"),
+      cta: externalLink("Bygg din truck", "/configurator"),
     },
   ];
   const data = {
