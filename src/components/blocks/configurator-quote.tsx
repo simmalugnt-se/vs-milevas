@@ -26,11 +26,14 @@ type ConfiguratorQuoteProps = {
   order?: ReactNode;
 };
 
-/** A line above and below, inside the row, as Figma's text-box strokes. */
-const lines =
-  "shadow-[inset_0_var(--stroke-width)_var(--color-border-primary),inset_0_calc(var(--stroke-width)*-1)_var(--color-border-primary)]";
+/** A line under each row but the last, inside it, as Figma draws the rows. */
+const divider =
+  "not-last:shadow-[inset_0_calc(var(--stroke-width)*-1)_var(--color-border-primary)]";
 
-/** Text L heading over rows of Text XS label and Text S value, as the checkout price box's. */
+/**
+ * Text L heading over rows of Text XS label and Text S value, as the checkout price box's: one box
+ * with a `border-primary` line around it (`radius-sm`) and one between the rows.
+ */
 function Table({ heading, action, rows }: QuoteTable) {
   return (
     <section className="flex flex-col gap-(--spacing-sm)">
@@ -38,11 +41,11 @@ function Table({ heading, action, rows }: QuoteTable) {
         <h2 className="text-text-l text-ui-primary">{heading}</h2>
         {action}
       </div>
-      <dl className="flex flex-col">
+      <dl className="flex flex-col overflow-hidden rounded-sm outline-solid outline-(length:--stroke-width) outline-offset-[calc(var(--stroke-width)*-1)] outline-border-primary">
         {rows.map((row, index) => (
           <div
             key={index}
-            className={`flex items-center justify-between gap-(--spacing-2xs) bg-bg-fill px-(--spacing-2xs) py-(--spacing-xs) first:rounded-t-sm last:rounded-b-sm ${lines}`}
+            className={`flex items-center justify-between gap-(--spacing-2xs) bg-bg-fill px-(--spacing-2xs) py-(--spacing-xs) ${divider}`}
           >
             <dt className="text-text-xs text-ui-secondary">{row.label}</dt>
             <dd className="text-right whitespace-nowrap text-text-s text-ui-primary">
@@ -59,7 +62,7 @@ function Table({ heading, action, rows }: QuoteTable) {
  * The quote from Figma "04 — Blocks" → "COnfigurator" (`type=offert`, 9264:10759), on
  * `bg-fill-secondary`:
  * - Desktop S and L: the heading, the two tables and the buttons on the left, spread over the
- *   height (832px at least); the truck on the right with the price box and "Boka samtal" top right
+ *   height (832px at least) and `spacing/sm` apart at least, as in Figma; the truck on the right with the price box and "Boka samtal" top right
  *   (304px). Desktop L gives the left 555px, Desktop S half.
  * - Tablet and Mobile: one column `spacing/md` apart: the heading and the back link, the price box,
  *   the tables (side by side on Tablet), and the buttons with "Boka samtal" between the copy field
@@ -79,7 +82,7 @@ export function ConfiguratorQuote({
 }: ConfiguratorQuoteProps) {
   return (
     <section className="bg-bg-fill-secondary px-(--spacing-md) py-(--spacing-xl) tablet:px-(--spacing-xl) desktop-s:grid desktop-s:min-h-[52rem] desktop-s:grid-cols-2 desktop-s:px-(--spacing-md) desktop-l:grid-cols-[34.6875rem_minmax(0,1fr)]">
-      <div className="flex flex-col gap-(--spacing-md) desktop-s:justify-between desktop-s:gap-0">
+      <div className="flex flex-col gap-(--spacing-md) desktop-s:justify-between desktop-s:gap-(--spacing-sm)">
         <div className="flex flex-col gap-(--spacing-2xs)">
           <h1 className="text-display-m text-ui-primary">{heading}</h1>
           {back ? <div className="desktop-s:hidden">{back}</div> : null}

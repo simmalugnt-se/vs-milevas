@@ -4,7 +4,7 @@ import type { HTMLAttributes, ReactNode } from "react";
  * pricebox from Figma "02 — Components" → "blabla" (9207:25676), in a `stroke/width` frame in
  * `border-primary` with `radius-sm`.
  * - The total: Label S label and Text L amount on `bg-active`, `spacing/2xs` × `spacing/xs`.
- * - Rows: Text XS label in `ui-secondary` and Text S value on `bg-fill`, a line above and below.
+ * - Rows: Text XS label in `ui-secondary` and Text S value on `bg-fill`, one line between each.
  *   `configurator` pads them `spacing/2xs`, `checkout` `spacing/2xs` × `spacing/xs`.
  * - `checkout` adds a note: a row and a Text XS text in `ui-tertiary` (Figma: the warranty).
  * Lines are drawn inside, as Figma's strokes are, so the box is Figma's height (109 and 193).
@@ -25,9 +25,8 @@ type PriceBoxProps = HTMLAttributes<HTMLDivElement> & {
   note?: PriceRow & { text: ReactNode };
 };
 
-/** A line above and below, inside the box. */
-const lines =
-  "shadow-[inset_0_var(--stroke-width)_var(--color-border-primary),inset_0_calc(var(--stroke-width)*-1)_var(--color-border-primary)]";
+/** A line above each row, inside it: one line between rows, the frame drawn around them all. */
+const line = "shadow-[inset_0_var(--stroke-width)_var(--color-border-primary)]";
 
 function Row({ label, value }: PriceRow) {
   return (
@@ -56,7 +55,7 @@ export function PriceBox({
       {...props}
     >
       <div
-        className={`flex items-center justify-between gap-4 bg-bg-active px-(--spacing-2xs) py-(--spacing-xs) text-ui-primary ${checkout ? "" : lines}`}
+        className={`flex items-center justify-between gap-4 bg-bg-active px-(--spacing-2xs) py-(--spacing-xs) text-ui-primary`}
       >
         <p className="text-label-s">{totalLabel}</p>
         <p className="text-text-l whitespace-nowrap">{total}</p>
@@ -64,13 +63,15 @@ export function PriceBox({
       {rows.map((row, index) => (
         <dl
           key={index}
-          className={`flex items-center justify-between gap-(--spacing-2xs) bg-bg-fill ${lines} ${rowPadding}`}
+          className={`flex items-center justify-between gap-(--spacing-2xs) bg-bg-fill ${line} ${rowPadding}`}
         >
           <Row {...row} />
         </dl>
       ))}
       {checkout && note ? (
-        <div className="flex flex-col gap-(--spacing-2xs) bg-bg-fill px-(--spacing-2xs) py-(--spacing-xs)">
+        <div
+          className={`flex flex-col gap-(--spacing-2xs) bg-bg-fill px-(--spacing-2xs) py-(--spacing-xs) ${line}`}
+        >
           <dl className="flex items-center justify-between gap-4">
             <Row label={note.label} value={note.value} />
           </dl>
