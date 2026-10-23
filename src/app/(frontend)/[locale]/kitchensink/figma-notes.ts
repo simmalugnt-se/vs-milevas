@@ -1626,20 +1626,22 @@ export const figmaNotes: FigmaNote[] = [
   {
     target: "text-grid",
     topic: "Pilens storlek",
-    figma: "64px (Desktop), 48px (Tablet), 32px (Mobile); ingen variabel",
-    code: "Samma storlekar per läge",
+    figma:
+      "64px (Desktop L), 56px (Desktop S), 48px (Tablet), 32px (Mobile); ingen variabel. Mitt på den första raden, `spacing/sm` före texten",
+    code: "Samma storlekar och läge. Tidigare 64px på Desktop S och på textens baslinje, 2–11px för högt",
     why: "Inget att ta från tokens",
     status: "Beslut (teknisk)",
+    date: "2026-10-23",
   },
   {
     target: "text-grid",
     topic: "Höjder",
     figma:
-      "Panelen 800px hög (Desktop), blocket 1000px (Tablet), korten 405px (Desktop) och 840px tillsammans (Mobile)",
-    code: "Inga fasta höjder: panelen är så hög som innehållet, korten har Figmas proportion per läge (327:275, 752:242, 1:1, 459:405), och avståndet under rubriken är `spacing/4xl` på Desktop, `spacing/lg` under",
-    why: "Samma mått som Figma vid 375, 800 och 1440; vid 1280 blir panelen 757px i stället för 800",
-    status: "Beslut",
-    date: "2026-10-05",
+      "Panelen 800px hög på Desktop L och S med korten i nederkant (459 × 405 och 405 × 430), 1000px på Tablet och 1088px på Mobile; inget ovanför eller under panelen",
+    code: "Korten har Figmas proportion per läge (327:274,67, 752:242,67, 405,33:430, 459:405). På desktop är panelen minst 800px hög med korten i nederkant och minst `spacing/3xl` under rubriken; under desktop `spacing/lg`. Samma mått som Figma vid 375, 800, 1280 och 1440",
+    why: "Desktop-ramarna är lika höga men korten olika, så avståndet under rubriken är det som blir över (107 och 114px). Tidigare `spacing/4xl` och luft ovanför och under panelen, som gav 757–837px",
+    status: "Beslut (teknisk)",
+    date: "2026-10-23",
   },
   {
     target: "text-grid",

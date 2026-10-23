@@ -144,7 +144,7 @@ för Display, Text och sajtens standardtext; Label använder Geist Mono.
 
 ## Nästa steg
 
-1. **Blocken i [`blocks-backlog.md`](./blocks-backlog.md)**, i Figmas ordning: Text+Grid är
+1. **Blocken i [`blocks-backlog.md`](./blocks-backlog.md)**, i Figmas ordning: Text & boxinfo är
    nästa, att jämföra med Figma som den ser ut nu. Configurator är omritad i Figma (`9264:6653`)
    med offert och tack-sida, så offertsidan (`/configurator/quote`) har nu en skiss.
 2. **Väntar på designen eller på dig:**

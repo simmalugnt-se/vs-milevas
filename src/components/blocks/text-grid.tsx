@@ -4,14 +4,15 @@ import { Card } from "@/components/ui/card";
 
 /**
  * Text+Grid from Figma "04 — Blocks" (8389:4705): on Dark `bg-fill`, a Light panel (`bg-fill`) with
- * a Display L heading led by the `round` arrow, and three cards.
- * - Desktop L and S: the cards in a row, `spacing/4xl` under the heading (128px on Desktop L, where
- *   Figma's 800px panel leaves 126px).
+ * a Display L heading led by the `round` arrow, and three cards; `grid/margin` at the sides and
+ * nothing above or below the panel.
+ * - Desktop L and S: the cards in a row at the bottom of a panel at least 800px high, as Figma's
+ *   frames, with at least `spacing/3xl` under the heading.
  * - Tablet and Mobile: the cards stacked, `spacing/lg` under the heading.
- * No fixed heights: the panel is as high as its content, and the cards keep the proportions Figma
- * gives them at each mode's design width (327:275, 752:242, 1:1 and 459:405).
- * The arrow is 32, 48 and 64px (Mobile, Tablet, Desktop). A line break in `heading` is kept, as in
- * Figma's two lines ("Så enkelt" / "fungerar det").
+ * The cards keep the proportions Figma gives them at each mode's design width (327:274.67,
+ * 752:242.67, 405.33:430 and 459:405).
+ * The arrow is 32, 48, 56 and 64px (Mobile, Tablet, Desktop S, Desktop L), centred on the first
+ * line. A line break in `heading` is kept, as in Figma's two lines ("Så enkelt" / "fungerar det").
  *
  * Reused by a Payload block with localized copy and visual editing markers.
  */
@@ -33,12 +34,13 @@ type TextGridProps = HTMLAttributes<HTMLElement> & {
 
 export function TextGrid({ heading, cards, headingAttributes, ...attributes }: TextGridProps) {
   return (
-    <section {...attributes} className="mode-dark bg-bg-fill p-(--grid-margin)">
-      <div className="flex flex-col gap-(--spacing-lg) mode-light rounded-lg bg-bg-fill px-(--spacing-sm) py-(--spacing-xl) desktop-s:gap-(--spacing-4xl)">
+    <section {...attributes} className="mode-dark bg-bg-fill px-(--grid-margin)">
+      <div className="flex flex-col gap-(--spacing-lg) mode-light rounded-lg bg-bg-fill px-(--spacing-sm) py-(--spacing-xl) desktop-s:min-h-[50rem] desktop-s:justify-between desktop-s:gap-(--spacing-3xl)">
         <h2 {...headingAttributes} className="whitespace-pre-line text-display-l text-ui-primary">
+          {/* Centred on the first line: half the line height (`sizes/3xl`) less half the arrow. */}
           <Arrow
             name="round"
-            className="mr-(--spacing-sm) inline-block size-8 align-baseline tablet:size-12 desktop-s:size-16"
+            className="mt-2 mr-(--spacing-sm) inline-block size-8 align-top tablet:size-12 desktop-s:mt-3 desktop-s:size-14 desktop-l:mt-4 desktop-l:size-16"
           />
           {heading}
         </h2>
@@ -47,7 +49,7 @@ export function TextGrid({ heading, cards, headingAttributes, ...attributes }: T
             <li
               key={index}
               {...attributes}
-              className="aspect-[327/275] tablet:aspect-[752/242] desktop-s:aspect-square desktop-l:aspect-[459/405]"
+              className="aspect-[327/274.67] tablet:aspect-[752/242.67] desktop-s:aspect-[405.33/430] desktop-l:aspect-[459/405]"
             >
               <Card {...card} className="size-full" />
             </li>
