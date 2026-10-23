@@ -74,7 +74,7 @@ async function main() {
     });
     assert.deepEqual(
       saved.layout?.map((block) => block.blockType),
-      ["milevasHero", "productGrid", "textGrid", "textBoxinfo"],
+      ["milevasHero", "textColumns", "imageText", "productGrid", "textGrid", "textBoxinfo"],
     );
     const grid = saved.layout?.find((block) => block.blockType === "productGrid");
     assert.ok(grid);
@@ -137,7 +137,7 @@ async function main() {
       }
     }
     console.log(
-      "PASS: four CMS blocks, populated truck and image relationships, six products, three distinct photos, localized copy and repeat-safe seed.",
+      "PASS: six CMS blocks, populated truck and image relationships, six products, three distinct photos, localized copy and repeat-safe seed.",
     );
   } finally {
     try {

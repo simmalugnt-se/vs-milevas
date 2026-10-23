@@ -426,6 +426,32 @@ export interface Page {
              * Valfritt, för länkar inom sidan. Exempel: modeller (utan #).
              */
             anchor?: string | null;
+            /**
+             * Fyller hela blocket under ett mörkt lager; beskärs efter skärmen.
+             */
+            image: string | Image;
+            heading: string;
+            text?: string | null;
+            showButton?: boolean | null;
+            cta: {
+              type?: ('internal' | 'external') | null;
+              reference?: {
+                relationTo: 'pages';
+                value: string | Page;
+              } | null;
+              url?: string | null;
+              label: string;
+              newTab?: boolean | null;
+            };
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'imageText';
+          }
+        | {
+            /**
+             * Valfritt, för länkar inom sidan. Exempel: modeller (utan #).
+             */
+            anchor?: string | null;
             label: string;
             brand?: string | null;
             category?: string | null;
@@ -1260,6 +1286,26 @@ export interface PagesSelect<T extends boolean = true> {
                     name?: T;
                     width?: T;
                     id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        imageText?:
+          | T
+          | {
+              anchor?: T;
+              image?: T;
+              heading?: T;
+              text?: T;
+              showButton?: T;
+              cta?:
+                | T
+                | {
+                    type?: T;
+                    reference?: T;
+                    url?: T;
+                    label?: T;
+                    newTab?: T;
                   };
               id?: T;
               blockName?: T;

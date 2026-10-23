@@ -104,8 +104,8 @@ Figma, och säg vilket nummer i backloggen det är.
 
 ## Startsidan som Payload-block (2026-10-07)
 
-Fem egna block finns i `src/payload/blocks`: `MilevasHero`, `TextColumns`, `ProductGrid`,
-`TextGrid` och `TextBoxinfo`. De återanvänder kitchensinks komponenter, har lokaliserade innehållsfält,
+Sex egna block finns i `src/payload/blocks`: `MilevasHero`, `TextColumns`, `ImageText`,
+`ProductGrid`, `TextGrid` och `TextBoxinfo`. De återanvänder kitchensinks komponenter, har lokaliserade innehållsfält,
 bildfält, länkar och markörer för visual editing. Boilerplatens block är kvar.
 
 - Den publika sidlayouten är global: fullbredd utan yttre padding, sammanhängande CMS-block
@@ -121,6 +121,8 @@ bildfält, länkar och markörer för visual editing. Boilerplatens block är kv
   sista krymper till inget och de andra blir text blockets, som i Figmas startsidesprototyp.
   Blocken döljer då sina egna streck från Desktop S. `--hero` till `seed:homepage` lägger in text
   blocket efter heron.
+- `pnpm seed:homepage -- --image-text --publish-local` lägger in Image & Text efter text blocket på
+  en befintlig lokal startsida, om sidan inte redan har det.
 - Hero och produktkort kan kopplas till truckfamiljer: namn, bild och priser kan hämtas från
   konfiguratorn. Produktkortens bildutsnitt kan styras i Payload; testet använder Figmas utsnitt.
 - `pnpm seed:homepage` skapar startsidan (`home`) samt navigation/footer som lokala utkast.
@@ -142,8 +144,8 @@ för Display, Text och sajtens standardtext; Label använder Geist Mono.
 
 ## Nästa steg
 
-1. **Blocken i [`blocks-backlog.md`](./blocks-backlog.md)**, i Figmas ordning: Image & Text är
-   nästa. Configurator är omritad i Figma (`9264:6653`) med offert och tack-sida, så offertsidan
-   (`/configurator/quote`) har nu en skiss.
+1. **Blocken i [`blocks-backlog.md`](./blocks-backlog.md)**, i Figmas ordning: Product-Grid är
+   nästa, att jämföra med Figma som den ser ut nu. Configurator är omritad i Figma (`9264:6653`)
+   med offert och tack-sida, så offertsidan (`/configurator/quote`) har nu en skiss.
 2. **Väntar på designen eller på dig:**
    - en genomgång av posterna med status Antagande och frågorna till designen, på `/kitchensink/notes`

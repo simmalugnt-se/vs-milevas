@@ -3,6 +3,7 @@ import Image from "next/image";
 import type { ReactNode } from "react";
 import { ConfiguratorScreen } from "@/components/blocks/configurator-screen";
 import { Footer, type FooterGroup } from "@/components/blocks/footer";
+import { ImageText } from "@/components/blocks/image-text";
 import { MilevasHero } from "@/components/blocks/milevas-hero";
 import { Navigation, type NavigationMenu } from "@/components/blocks/navigation";
 import { ProductGrid } from "@/components/blocks/product-grid";
@@ -19,6 +20,7 @@ import heroOrderPicker from "../../../../../../scripts/figma-homepage-assets/her
 import heroPalletTruck from "../../../../../../scripts/figma-homepage-assets/hero-pallet-truck.png";
 import heroReachTruck from "../../../../../../scripts/figma-homepage-assets/hero-reach-truck.png";
 import heroStacker from "../../../../../../scripts/figma-homepage-assets/hero-stacker.png";
+import imageTextService from "../../../../../../scripts/figma-homepage-assets/image-text-service.jpg";
 import logoBaoli from "../../../../../../scripts/figma-homepage-assets/logo-baoli.png";
 import logoKion from "../../../../../../scripts/figma-homepage-assets/logo-kion.png";
 import logoLinde from "../../../../../../scripts/figma-homepage-assets/logo-linde.png";
@@ -293,6 +295,23 @@ export default function BlocksPage() {
             width,
             image: <Image src={image} alt={alt} sizes="10rem" className="block h-auto w-full" />,
           }))}
+        />
+      </Block>
+
+      <Block id="image-text" figma="9098:16638">
+        <ImageText
+          image={
+            <Image
+              src={imageTextService}
+              alt="Mekaniker som servar en truck i en verkstad"
+              fill
+              sizes="100vw"
+              className="object-cover"
+            />
+          }
+          heading="Service du kan räkna med"
+          text="Baoli EMEA har ett av branschens största reservdelslager i Europa. Tillsammans med ett centralt produktlager i Italien med över 1 000 truckar redo för leverans ger det korta ledtider."
+          cta={{ label: "Bygg din truck", href: "/kitchensink/blocks#configurator" }}
         />
       </Block>
 

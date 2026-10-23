@@ -14,8 +14,8 @@ const productDefinitions = [
 const externalLink = (label: string, url: string) => ({ type: "external" as const, label, url });
 
 /** A Figma image from `scripts/figma-homepage-assets`, uploaded once. */
-async function uploadImage(payload: Payload, name: string, alt: string) {
-  const filename = `milevas-home-${name}.png`;
+async function uploadImage(payload: Payload, name: string, alt: string, extension = "png") {
+  const filename = `milevas-home-${name}.${extension}`;
   const found = await payload.find({
     collection: "images",
     locale: "sv",
@@ -24,12 +24,19 @@ async function uploadImage(payload: Payload, name: string, alt: string) {
   });
   if (found.docs[0]) return found.docs[0].id;
   const { readFile } = await import("node:fs/promises");
-  const data = await readFile(path.resolve("scripts/figma-homepage-assets", `${name}.png`));
+  const data = await readFile(
+    path.resolve("scripts/figma-homepage-assets", `${name}.${extension}`),
+  );
   const uploaded = await payload.create({
     collection: "images",
     locale: "sv",
     data: { alt },
-    file: { data, name: filename, size: data.length, mimetype: "image/png" },
+    file: {
+      data,
+      name: filename,
+      size: data.length,
+      mimetype: extension === "jpg" ? "image/jpeg" : "image/png",
+    },
     context: { disableRevalidate: true },
   });
   return uploaded.id;
@@ -173,11 +180,40 @@ async function milevasTextColumnsBlock(payload: Payload) {
   };
 }
 
+/** Image & Text as Figma: the service photo, its heading and text, and "Bygg din truck". */
+async function milevasImageTextBlock(payload: Payload) {
+  return {
+    blockType: "imageText" as const,
+    image: await uploadImage(
+      payload,
+      "image-text-service",
+      "Mekaniker som servar en truck i en verkstad",
+      "jpg",
+    ),
+    heading: "Service du kan räkna med",
+    text: "Baoli EMEA har ett av branschens största reservdelslager i Europa. Tillsammans med ett centralt produktlager i Italien med över 1 000 truckar redo för leverans ger det korta ledtider.",
+    showButton: true,
+    cta: externalLink("Bygg din truck", "/configurator"),
+  };
+}
+
+/** What to change on a start page that already has Milevas content. */
+type SeedUpdate = {
+  /** Replace the hero and the text block after it. */
+  hero?: boolean;
+  /** Add Image & Text after the text block, or after the hero, if the page has none. */
+  imageText?: boolean;
+};
+
 /**
- * Explicit local seed, never run by onInit. Existing Milevas content survives repeated runs;
- * `updateHero` replaces only the hero of an existing start page, and the text block after it.
+ * Explicit local seed, never run by onInit. Existing Milevas content survives repeated runs unless
+ * `update` names the blocks to replace or add.
  */
-export async function seedMilevasHomepage(payload: Payload, publish = false, updateHero = false) {
+export async function seedMilevasHomepage(
+  payload: Payload,
+  publish = false,
+  update: SeedUpdate = {},
+) {
   const context = { disableRevalidate: true };
   const existing = await payload.find({
     collection: "pages",
@@ -197,15 +233,23 @@ export async function seedMilevasHomepage(payload: Payload, publish = false, upd
   const familyIDs = new Map(families.docs.map((family) => [family.key, family.id]));
   const seededPage = existing.docs[0];
   if (seededPage?.layout?.some((block) => block.blockType === "milevasHero")) {
-    if (!updateHero) return { page: seededPage, seeded: false };
-    const hero = await milevasHeroBlock(payload, familyIDs);
-    const textColumns = await milevasTextColumnsBlock(payload);
-    const layout = seededPage.layout.flatMap((block, index, all): NonNullable<Page["layout"]> => {
-      if (block.blockType === "textColumns") return [{ ...textColumns, id: block.id }];
-      if (block.blockType !== "milevasHero") return [block];
-      const replaced = { ...hero, id: block.id };
-      return all[index + 1]?.blockType === "textColumns" ? [replaced] : [replaced, textColumns];
-    });
+    if (!update.hero && !update.imageText) return { page: seededPage, seeded: false };
+    let layout: NonNullable<Page["layout"]> = seededPage.layout;
+    if (update.hero) {
+      const hero = await milevasHeroBlock(payload, familyIDs);
+      const textColumns = await milevasTextColumnsBlock(payload);
+      layout = layout.flatMap((block, index, all): NonNullable<Page["layout"]> => {
+        if (block.blockType === "textColumns") return [{ ...textColumns, id: block.id }];
+        if (block.blockType !== "milevasHero") return [block];
+        const replaced = { ...hero, id: block.id };
+        return all[index + 1]?.blockType === "textColumns" ? [replaced] : [replaced, textColumns];
+      });
+    }
+    if (update.imageText && !layout.some((block) => block.blockType === "imageText")) {
+      const after = layout.findIndex((block) => block.blockType === "textColumns");
+      const at = (after >= 0 ? after : layout.findIndex((b) => b.blockType === "milevasHero")) + 1;
+      layout = [...layout.slice(0, at), await milevasImageTextBlock(payload), ...layout.slice(at)];
+    }
     const page = await payload.update({
       collection: "pages",
       id: seededPage.id,
@@ -257,6 +301,7 @@ export async function seedMilevasHomepage(payload: Payload, publish = false, upd
   const layout: NonNullable<Page["layout"]> = [
     await milevasHeroBlock(payload, familyIDs),
     await milevasTextColumnsBlock(payload),
+    await milevasImageTextBlock(payload),
     {
       blockType: "productGrid",
       anchor: "modeller",

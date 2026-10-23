@@ -14,6 +14,8 @@ import { GalleryBlockComponent } from "./Gallery/Component";
 import { GalleryBlock } from "./Gallery/config";
 import { HeroBlockComponent } from "./Hero/Component";
 import { HeroBlock } from "./Hero/config";
+import { ImageTextBlockComponent } from "./ImageText/Component";
+import { ImageTextBlock } from "./ImageText/config";
 import { MediaBlockComponent } from "./Media/Component";
 import { MediaBlock } from "./Media/config";
 import { MilevasHeroBlockComponent } from "./MilevasHero/Component";
@@ -69,6 +71,7 @@ export const layoutBlocks: Block[] = [
   ConfiguratorBlock,
   MilevasHeroBlock,
   TextColumnsBlock,
+  ImageTextBlock,
   ProductGridBlock,
   TextGridBlock,
   TextBoxinfoBlock,
@@ -95,6 +98,9 @@ export const blockComponents = {
   ),
   textColumns: renderTypedBlock("textColumns", ({ block }) =>
     createElement(TextColumnsBlockComponent, { block }),
+  ),
+  imageText: renderTypedBlock("imageText", ({ block }) =>
+    createElement(ImageTextBlockComponent, { block }),
   ),
   productGrid: renderTypedBlock("productGrid", ({ block }) =>
     createElement(ProductGridBlockComponent, { block }),

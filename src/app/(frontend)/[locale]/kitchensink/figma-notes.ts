@@ -82,6 +82,12 @@ export const designQuestions: DesignQuestion[] = [
     figma: "8982:9918",
   },
   {
+    target: "image-text",
+    question:
+      "Image & Text: Desktop L och S är 1424 och 1264px breda, 16px smalare än sidan, men Tablet och Mobile är hela bredden. Ska fotot gå kant i kant som de andra blocken, eller ha 8px marginal (`grid/margin`) på desktop?",
+    figma: "9098:16639",
+  },
+  {
     target: "hero",
     question:
       "Navigationen (Dark, ljus text) ligger över heron, och över en gul kolumn syns texten knappt. Prototypen döljer navigationen. Ska den byta färg, eller få en bakgrund, över heron?",
@@ -435,6 +441,43 @@ export const figmaNotes: FigmaNote[] = [
     why: "Samma text i alla bredder",
     status: "Beslut (teknisk)",
     date: "2026-10-22",
+  },
+  {
+    target: "image-text",
+    topic: "Bredden",
+    figma: "Desktop L 1424 och Desktop S 1264px breda, Tablet 800 och Mobile 375",
+    code: "Kant i kant i alla bredder, som de andra blocken; textens kolumner (3–10 av 12) räknas från den bredden",
+    why: "Tablet och Mobile är hela bredden, och ingen annan ram är smalare än sidan; se frågan",
+    status: "Antagande",
+    date: "2026-10-23",
+  },
+  {
+    target: "image-text",
+    topic: "Höjden",
+    figma: "800px i alla fyra lägen",
+    code: "Minst 50rem, och växer om texten blir längre",
+    why: "Redaktörens text kan bli längre än Figmas",
+    status: "Beslut (teknisk)",
+    date: "2026-10-23",
+  },
+  {
+    target: "image-text",
+    topic: "Lagret över fotot",
+    figma:
+      "Svart med 65 % opacitet, utan variabel; luften upptill och nedtill är `shape/radius-lg`",
+    code: "Samma svarta lager som ett fast värde; luften är `spacing/sm`, som har samma värde (16px)",
+    why: "Ingen färgvariabel finns för lagret, och en radie är inte ett avstånd",
+    status: "Beslut (teknisk)",
+    date: "2026-10-23",
+  },
+  {
+    target: "image-text",
+    topic: "Fotot",
+    figma: "Ett foto, 4096 × 2734px, beskuret med `object-cover` i alla lägen",
+    code: "Bildfält i Payload, beskuret likadant. Testets foto är Figmas, förminskat till 2880px",
+    why: "Samma utsnitt som Figma; 2880px räcker för Desktop L på skärmar med dubbel upplösning",
+    status: "Beslut (teknisk)",
+    date: "2026-10-23",
   },
   {
     target: "hero",
