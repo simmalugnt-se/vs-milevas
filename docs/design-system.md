@@ -142,8 +142,8 @@ för Display, Text och sajtens standardtext; Label använder Geist Mono.
 
 ## Nästa steg
 
-1. **Offertsidan** (`/configurator/quote`, orderformuläret) i designsystemets stil; Figma har ingen
-   skiss. Image & Text väntar på designen, och text-box och truck-column är utkast
-   tills ramen "blabla" är klar.
+1. **Blocken i [`blocks-backlog.md`](./blocks-backlog.md)**, i Figmas ordning: Image & Text är
+   nästa. Configurator är omritad i Figma (`9264:6653`) med offert och tack-sida, så offertsidan
+   (`/configurator/quote`) har nu en skiss.
 2. **Väntar på designen eller på dig:**
    - en genomgång av posterna med status Antagande och frågorna till designen, på `/kitchensink/notes`

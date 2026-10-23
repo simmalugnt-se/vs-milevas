@@ -95,12 +95,6 @@ export const designQuestions: DesignQuestion[] = [
   {
     target: "general",
     question:
-      "Image & Text (`8721:19164`): skärmdumpen av Desktop L är en grå yta. Platshållare, eller en bild som inte exporteras?",
-    figma: "8721:19164",
-  },
-  {
-    target: "general",
-    question:
       "Flera varianter heter `Device4`–`Device8` och `Variant2` i stället för Mobile och Desktop S. Det påverkar inte bygget, men namnen är otydliga.",
   },
 
