@@ -125,6 +125,8 @@ export function MilevasHero({
     const measure = () => {
       cols = items.map((item) => ({ left: item?.offsetLeft ?? 0, width: item?.offsetWidth ?? 0 }));
       height = section.offsetHeight;
+      section.style.setProperty("--hero-width", `${section.offsetWidth}px`);
+      section.style.setProperty("--hero-height", `${height}px`);
     };
     const home = (index: number): Point => ({
       x: cols[index].left + cols[index].width / 2,
@@ -155,8 +157,10 @@ export function MilevasHero({
     let point: Point = { x: 0, y: 0 };
     let target: Point = { x: 0, y: 0 };
     let pointer: Point | null = null;
-    // Whether the pointer counts as in: not during the intro, where it only steers the trucks.
+    // Whether the pointer counts as in: not during the sweep, where it only steers the trucks.
     let inside = false;
+    // The sweep is running; the pointer counts as in from its end, also while the trucks glide.
+    let intro = true;
     let each: Point[] = [];
     let started = 0;
     let settling = true;
@@ -179,6 +183,12 @@ export function MilevasHero({
           target = pointer ?? home(settleIndex);
           mode = "glide";
           setPhase("settling");
+          intro = false;
+          // A pointer that came in during the sweep (as after a reload) is in from here.
+          if (pointer) {
+            inside = true;
+            setPointerIn(true);
+          }
           timers.push(window.setTimeout(() => setText("leaving"), 2000));
         }
       } else if (mode === "glide" || mode === "return") {
@@ -191,21 +201,16 @@ export function MilevasHero({
           return next;
         });
         if (mode === "glide") follow(target.x);
+        if (settled && settling) {
+          settling = false;
+          setPhase("done");
+        }
         if (settled && mode === "return") {
           clear();
           mode = "idle";
         } else if (settled) {
           point = { ...target };
           mode = pointer ? "follow" : "rest";
-          if (settling) {
-            settling = false;
-            setPhase("done");
-            // A pointer that came in during the intro (as after a reload) is in from here.
-            if (pointer) {
-              inside = true;
-              setPointerIn(true);
-            }
-          }
         }
       } else if (mode === "follow" && pointer) {
         point = { x: lerp(point.x, pointer.x, 0.09), y: lerp(point.y, pointer.y, 0.09) };
@@ -226,7 +231,7 @@ export function MilevasHero({
       section.style.setProperty("--cy", `${at.y}px`);
       pointer = at;
       if (mode === "glide") target = at;
-      if (inside || settling) return;
+      if (inside || intro) return;
       inside = true;
       setPointerIn(true);
       // From rest the trucks start from their own columns and glide to the pointer.
@@ -241,11 +246,12 @@ export function MilevasHero({
       pointer = null;
       inside = false;
       setPointerIn(false);
-      if (settling) return;
+      if (intro) return;
       current = null;
       setActive(null);
+      // Gliding, each truck goes back from where it is; following, they share the point.
       if (mode === "follow" || mode === "glide") {
-        each = cols.map(() => ({ ...point }));
+        if (mode === "follow") each = cols.map(() => ({ ...point }));
         mode = "return";
       } else {
         clear();
@@ -270,6 +276,7 @@ export function MilevasHero({
     frame = window.requestAnimationFrame(tick);
     if (reduce) {
       settling = false;
+      intro = false;
       mode = "idle";
     } else {
       timers.push(
@@ -439,11 +446,11 @@ export function MilevasHero({
         <li aria-hidden className="w-[20.27%] shrink-0 tablet:w-[37.72%] desktop-s:hidden" />
       </ul>
 
-      {/* Desktop S and L: the truck name under the pointer. */}
+      {/* Desktop S and L: the truck name under the pointer, kept inside the hero near its bottom. */}
       {desktop && pointerIn && name ? (
         <div
           aria-hidden
-          className={`pointer-events-none absolute top-0 left-0 z-20 mt-[12.5rem] ml-[0.875rem] translate-x-(--cx) translate-y-(--cy) ${
+          className={`pointer-events-none absolute top-0 left-0 z-20 mt-[12.5rem] ml-[0.875rem] translate-x-[min(var(--cx),calc(var(--hero-width,100vw)-100%-1.75rem))] translate-y-[min(var(--cy),calc(var(--hero-height,100svh)-100%-13.25rem))] ${
             phase === "done"
               ? "transition-[translate] duration-[180ms] ease-[cubic-bezier(0.23,1,0.32,1)]"
               : ""
