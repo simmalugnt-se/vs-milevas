@@ -23,6 +23,7 @@ async function main() {
       hero: process.argv.includes("--hero"),
       products: process.argv.includes("--products"),
       imageText: process.argv.includes("--image-text"),
+      cardSlider: process.argv.includes("--card-slider"),
     });
     console.log(
       `${seeded ? "Skapad" : "Finns redan"}: ${publish ? "lokal startsida" : "startsida som utkast"} /admin/collections/pages/${page.id}`,

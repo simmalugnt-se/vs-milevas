@@ -27,3 +27,5 @@ export type TextBoxinfoBlock = Extract<LayoutBlock, { blockType: "textBoxinfo" }
 export type TextColumnsBlock = Extract<LayoutBlock, { blockType: "textColumns" }>;
 
 export type ImageTextBlock = Extract<LayoutBlock, { blockType: "imageText" }>;
+
+export type CardSliderBlock = Extract<LayoutBlock, { blockType: "cardSlider" }>;

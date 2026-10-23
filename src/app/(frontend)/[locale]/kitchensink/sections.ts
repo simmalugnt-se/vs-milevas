@@ -63,7 +63,7 @@ export const kitchensinkPages = [
     href: "/kitchensink/blocks",
     title: "Block",
     intro:
-      "Hela block som de ligger i sidlayouten, med platshållarinnehåll. Hero, Text block Collumns, Image & Text, Product-Grid, Text+Grid och Text & boxinfo finns också som redigerbara Payload-block.",
+      "Hela block som de ligger i sidlayouten, med platshållarinnehåll. Hero, Text block Collumns, Image & Text, Product-Grid, Text+Grid, Text & boxinfo och Card Slider finns också som redigerbara Payload-block.",
     groups: [
       {
         title: "Block",
@@ -77,6 +77,7 @@ export const kitchensinkPages = [
           { id: "text-grid", title: "Text+Grid" },
           { id: "text-boxinfo", title: "Text & boxinfo" },
           { id: "configurator", title: "Configurator" },
+          { id: "card-slider", title: "Card Slider" },
           { id: "footer", title: "Footer" },
         ],
       },

@@ -514,6 +514,36 @@ export interface Page {
             blockName?: string | null;
             blockType: 'textBoxinfo';
           }
+        | {
+            /**
+             * Valfritt, för länkar inom sidan. Exempel: modeller (utan #).
+             */
+            anchor?: string | null;
+            /**
+             * Läses av skärmläsare; syns inte. Exempel: Lager, leverans och service.
+             */
+            label?: string | null;
+            /**
+             * Numreras [01], [02] … i ordning.
+             */
+            cards: {
+              color: 'white' | 'tejp' | 'gray';
+              label: string;
+              heading: string;
+              /**
+               * Visas under rubriken i bildläget.
+               */
+              text?: string | null;
+              /**
+               * Visas i bildläget, under ett mörkt lager.
+               */
+              image: string | Image;
+              id?: string | null;
+            }[];
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'cardSlider';
+          }
       )[]
     | null;
   meta?: {
@@ -1450,6 +1480,24 @@ export interface PagesSelect<T extends boolean = true> {
                     url?: T;
                     label?: T;
                     newTab?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        cardSlider?:
+          | T
+          | {
+              anchor?: T;
+              label?: T;
+              cards?:
+                | T
+                | {
+                    color?: T;
+                    label?: T;
+                    heading?: T;
+                    text?: T;
+                    image?: T;
+                    id?: T;
                   };
               id?: T;
               blockName?: T;

@@ -369,6 +369,18 @@ export const designQuestions: DesignQuestion[] = [
     figma: "8365:8988",
   },
   {
+    target: "card-slider",
+    question:
+      "Hur bläddrar man i slidern med en mus? Figma visar inga pilar eller annan kontroll, och utan styrplatta går det bara med tangentbordet eller Skift och hjulet.",
+    figma: "8946:8317",
+  },
+  {
+    target: "card-slider",
+    question:
+      "På Tablet och Mobile visar det första kortet bildläget. Ska det vara så bara för det första, eller för kortet som syns, eller för alla på en pekskärm?",
+    figma: "8946:8350",
+  },
+  {
     target: "text-boxinfo",
     question:
       'Tablet och Mobile: "390kr/mån" i rubriken har storleken 96px, resten 64 och 48px. Det syns inte i skärmdumpen; koden använder rubrikens storlek för hela raden.',
@@ -861,6 +873,43 @@ export const figmaNotes: FigmaNote[] = [
     date: "2026-10-21",
   },
   {
+    target: "card-slider",
+    topic: "Kortens storlek",
+    figma:
+      "518,67 × 388 på Desktop L och S (samma bredd), 455 × 388 på Tablet och 310 × 312 på Mobile",
+    code: "Samma bredder och proportioner per läge (`--card-aspect`); höjden följer bredden",
+    why: "Kortet har samma storlek i båda desktop-ramarna",
+    status: "Beslut (teknisk)",
+    date: "2026-10-23",
+  },
+  {
+    target: "card-slider",
+    topic: "Rullning",
+    figma: "Raden går ut över skärmens högra kant; inget om hur den flyttas",
+    code: "Rullar i sidled och stannar vid varje kort, utan synlig rullningslist och utan pilar",
+    why: "Inte ritat; se frågan",
+    status: "Lucka",
+    date: "2026-10-23",
+  },
+  {
+    target: "card-slider",
+    topic: "Första kortet",
+    figma: "Tablet och Mobile visar det första kortet i bildläget, de andra i sina färger",
+    code: "Samma under Desktop S; från Desktop S visar alla korten bildläget vid hover",
+    why: "Följer Figma; se frågan",
+    status: "Antagande",
+    date: "2026-10-23",
+  },
+  {
+    target: "card-slider",
+    topic: "Bakgrund och plats",
+    figma: "Ingen bakgrund; Mobile-ramen är 385px bred",
+    code: "Dark `bg-fill` bakom korten, som Product-Grid. På testets startsida ligger slidern efter Text & boxinfo",
+    why: "Sidans vita bakgrund skulle synas mellan mörka block; platsen är inte ritad",
+    status: "Antagande",
+    date: "2026-10-23",
+  },
+  {
     target: "price-box",
     topic: "Mellanrum i raderna",
     figma: "Etikett och värde utan mellanrum, värdet på en rad",
@@ -882,7 +931,7 @@ export const figmaNotes: FigmaNote[] = [
     target: "color-image-card",
     topic: "Proportion",
     figma: "518,667 × 388 i alla lägen",
-    code: "Samma proportion (`aspect-[389/291]`); ingen fast storlek",
+    code: "Samma proportion (`aspect-[389/291]`), om inte blocket sätter en annan i `--card-aspect` (Card Slider gör per läge); ingen fast storlek",
     why: "Fasta höjder undviks",
     status: "Beslut (teknisk)",
     date: "2026-10-21",
@@ -910,7 +959,7 @@ export const figmaNotes: FigmaNote[] = [
     target: "color-image-card",
     topic: "Hover utan pekare",
     figma: "Bildläget visas vid hover; inget läge för pekskärmar eller tangentbord",
-    code: "Bara hover, och `static` för bildläget hela tiden",
+    code: "Bara hover; `static` för bildläget hela tiden, och `staticBelowDesktop` för bildläget under Desktop S (Card Sliders första kort)",
     why: "Inte ritat; på mobil syns bildläget bara som `static`",
     status: "Lucka",
     date: "2026-10-21",

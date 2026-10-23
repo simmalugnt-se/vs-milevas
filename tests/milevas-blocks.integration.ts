@@ -66,7 +66,15 @@ async function main() {
     });
     assert.deepEqual(
       saved.layout?.map((block) => block.blockType),
-      ["milevasHero", "textColumns", "imageText", "productGrid", "textGrid", "textBoxinfo"],
+      [
+        "milevasHero",
+        "textColumns",
+        "imageText",
+        "productGrid",
+        "textGrid",
+        "textBoxinfo",
+        "cardSlider",
+      ],
     );
     const grid = saved.layout?.find((block) => block.blockType === "productGrid");
     assert.ok(grid);
@@ -126,7 +134,7 @@ async function main() {
       }
     }
     console.log(
-      "PASS: six CMS blocks, cards and columns pointing at their truck families, three distinct photos, localized copy and repeat-safe seed.",
+      "PASS: seven CMS blocks, cards and columns pointing at their truck families, three distinct photos, localized copy and repeat-safe seed.",
     );
   } finally {
     try {

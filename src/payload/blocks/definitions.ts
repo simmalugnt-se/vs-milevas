@@ -2,6 +2,8 @@ import type { Block } from "payload";
 import { createElement, type ReactNode } from "react";
 import { CallToActionBlockComponent } from "./CallToAction/Component";
 import { CallToActionBlock } from "./CallToAction/config";
+import { CardSliderBlockComponent } from "./CardSlider/Component";
+import { CardSliderBlock } from "./CardSlider/config";
 import { CardsBlockComponent } from "./Cards/Component";
 import { CardsBlock } from "./Cards/config";
 import { ColumnsBlockComponent } from "./Columns/Component";
@@ -75,6 +77,7 @@ export const layoutBlocks: Block[] = [
   ProductGridBlock,
   TextGridBlock,
   TextBoxinfoBlock,
+  CardSliderBlock,
 
   // sl-cli:layout-blocks (do not remove)
 ];
@@ -110,6 +113,9 @@ export const blockComponents = {
   ),
   textBoxinfo: renderTypedBlock("textBoxinfo", ({ block }) =>
     createElement(TextBoxinfoBlockComponent, { block }),
+  ),
+  cardSlider: renderTypedBlock("cardSlider", ({ block }) =>
+    createElement(CardSliderBlockComponent, { block }),
   ),
   // sl-cli:block-components-map (do not remove)
 } satisfies Record<string, LayoutBlockRenderer>;

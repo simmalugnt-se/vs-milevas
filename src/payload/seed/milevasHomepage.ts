@@ -192,6 +192,36 @@ async function milevasImageTextBlock(payload: Payload) {
   };
 }
 
+/** Card Slider as Figma: six cards with Figma's headings and its two photos. */
+async function milevasCardSliderBlock(payload: Payload) {
+  const factory = await uploadImage(
+    payload,
+    "card-slider-factory",
+    "Produktlagret i Italien",
+    "jpg",
+  );
+  const parts = await uploadImage(payload, "card-slider-parts", "Reservdelslagret", "jpg");
+  const cards = [
+    ["white", "Över 1 000 truckar på lager", factory],
+    ["tejp", "Reservdels lager i Tjeckien", parts],
+    ["gray", "50+ länder, 350 återförsäljare", factory],
+    ["white", "CE-märkt och välkonstruerat", parts],
+    ["tejp", "Brukstruckar utan krussiduller", factory],
+    ["gray", "Snabb eftermarknad", parts],
+  ] as const;
+  return {
+    blockType: "cardSlider" as const,
+    label: "Lager, leverans och service",
+    cards: cards.map(([color, heading, image]) => ({
+      color,
+      label: "Lager, leverans och service",
+      heading,
+      text: "Baoli EMEA driver ett centralt produktlager i Italien med över 1 000 truckar redo för leverans.",
+      image,
+    })),
+  };
+}
+
 /** What to change on a start page that already has Milevas content. */
 type SeedUpdate = {
   /** Replace the hero and the text block after it. */
@@ -200,6 +230,8 @@ type SeedUpdate = {
   products?: boolean;
   /** Add Image & Text after the text block, or after the hero, if the page has none. */
   imageText?: boolean;
+  /** Add Card Slider after Text & boxinfo, or at the end, if the page has none. */
+  cardSlider?: boolean;
 };
 
 /**
@@ -230,7 +262,7 @@ export async function seedMilevasHomepage(
   const familyIDs = new Map(families.docs.map((family) => [family.key, family.id]));
   const seededPage = existing.docs[0];
   if (seededPage?.layout?.some((block) => block.blockType === "milevasHero")) {
-    if (!update.hero && !update.products && !update.imageText) {
+    if (!update.hero && !update.products && !update.imageText && !update.cardSlider) {
       return { page: seededPage, seeded: false };
     }
     let layout: NonNullable<Page["layout"]> = seededPage.layout;
@@ -254,6 +286,11 @@ export async function seedMilevasHomepage(
       const after = layout.findIndex((block) => block.blockType === "textColumns");
       const at = (after >= 0 ? after : layout.findIndex((b) => b.blockType === "milevasHero")) + 1;
       layout = [...layout.slice(0, at), await milevasImageTextBlock(payload), ...layout.slice(at)];
+    }
+    if (update.cardSlider && !layout.some((block) => block.blockType === "cardSlider")) {
+      const after = layout.findIndex((block) => block.blockType === "textBoxinfo");
+      const at = after >= 0 ? after + 1 : layout.length;
+      layout = [...layout.slice(0, at), await milevasCardSliderBlock(payload), ...layout.slice(at)];
     }
     const page = await payload.update({
       collection: "pages",
@@ -309,6 +346,7 @@ export async function seedMilevasHomepage(
       showButton: true,
       cta: externalLink("Bygg din truck", "/configurator"),
     },
+    await milevasCardSliderBlock(payload),
   ];
   const data = {
     title: "Milevas",

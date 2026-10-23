@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import type { ReactNode } from "react";
+import { CardSlider, type CardSliderCard } from "@/components/blocks/card-slider";
 import { ConfiguratorQuote } from "@/components/blocks/configurator-quote";
 import { ConfiguratorScreen } from "@/components/blocks/configurator-screen";
 import {
@@ -19,6 +20,8 @@ import { TextGrid, type TextGridCard } from "@/components/blocks/text-grid";
 import { Button, TextLink } from "@/components/ui/button";
 import { PriceBox } from "@/components/ui/price-box";
 import type { ProductCardProps } from "@/components/ui/product-card";
+import cardSliderFactory from "../../../../../../scripts/figma-homepage-assets/card-slider-factory.jpg";
+import cardSliderParts from "../../../../../../scripts/figma-homepage-assets/card-slider-parts.jpg";
 import heroCounterbalance from "../../../../../../scripts/figma-homepage-assets/hero-counterbalance.png";
 import heroLowLift from "../../../../../../scripts/figma-homepage-assets/hero-low-lift.png";
 import heroOrderPicker from "../../../../../../scripts/figma-homepage-assets/hero-order-picker.png";
@@ -286,6 +289,26 @@ const nextSteps = [
   ["Avtal", "Du får ett digitalt avtal att signera (BankID)."],
   ["Leverans", "Beräknad leverans 4–6 veckor."],
 ].map(([heading, text]) => ({ heading, text }));
+
+/** Card Slider's six cards, with Figma's headings and its two photos. */
+const sliderCards: CardSliderCard[] = (
+  [
+    ["white", "Över 1 000 truckar på lager", cardSliderFactory],
+    ["tejp", "Reservdels lager i Tjeckien", cardSliderParts],
+    ["gray", "50+ länder, 350 återförsäljare", cardSliderFactory],
+    ["white", "CE-märkt och välkonstruerat", cardSliderParts],
+    ["tejp", "Brukstruckar utan krussiduller", cardSliderFactory],
+    ["gray", "Snabb eftermarknad", cardSliderParts],
+  ] as const
+).map(([color, heading, photo]) => ({
+  color,
+  label: "Lager, leverans och service",
+  heading,
+  text: "Baoli EMEA driver ett centralt produktlager i Italien med över 1 000 truckar redo för leverans.",
+  image: (
+    <Image src={photo} alt="" fill sizes="(width >= 64rem) 36vw, 60vw" className="object-cover" />
+  ),
+}));
 
 /** One block: its title and notes within the page margin, then the block edge to edge. */
 function Block({ id, figma, children }: { id: SectionId; figma: string; children: ReactNode }) {
@@ -595,6 +618,11 @@ export default function BlocksPage() {
             steps={nextSteps}
           />
         </div>
+      </Block>
+
+      {/* Hover a card from Desktop S; below it the first card shows the image look. */}
+      <Block id="card-slider" figma="8946:8317">
+        <CardSlider cards={sliderCards} label="Lager, leverans och service" />
       </Block>
 
       <Block id="footer" figma="9264:22371">

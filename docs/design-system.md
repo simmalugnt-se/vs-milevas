@@ -105,8 +105,8 @@ Figma, och säg vilket nummer i backloggen det är.
 
 ## Startsidan som Payload-block (2026-10-07)
 
-Sex egna block finns i `src/payload/blocks`: `MilevasHero`, `TextColumns`, `ImageText`,
-`ProductGrid`, `TextGrid` och `TextBoxinfo`. De återanvänder kitchensinks komponenter, har lokaliserade innehållsfält,
+Sju egna block finns i `src/payload/blocks`: `MilevasHero`, `TextColumns`, `ImageText`,
+`ProductGrid`, `TextGrid`, `TextBoxinfo` och `CardSlider`. De återanvänder kitchensinks komponenter, har lokaliserade innehållsfält,
 bildfält, länkar och markörer för visual editing. Boilerplatens block är kvar.
 
 - Den publika sidlayouten är global: fullbredd utan yttre padding, sammanhängande CMS-block
@@ -123,7 +123,8 @@ bildfält, länkar och markörer för visual editing. Boilerplatens block är kv
   Blocken döljer då sina egna streck från Desktop S. `--hero` till `seed:homepage` lägger in text
   blocket efter heron.
 - `pnpm seed:homepage -- --image-text --publish-local` lägger in Image & Text efter text blocket på
-  en befintlig lokal startsida, om sidan inte redan har det.
+  en befintlig lokal startsida, om sidan inte redan har det; `--card-slider` lägger in Card Slider
+  efter Text & boxinfo.
 - **Truckfamiljerna är det enda stället för en trucktyp** ([`truck-data-schema.md`](./truck-data-schema.md)):
   heron, produktgriden, navigationens Modeller och sidfotens Produkter (`source: truckFamilies`)
   hämtar namn, huvudbild, specifikationer, priser och länk därifrån. Produktkorten bestämmer bara
@@ -150,7 +151,7 @@ för Display, Text och sajtens standardtext; Label använder Geist Mono.
 
 ## Nästa steg
 
-1. **Blocken i [`blocks-backlog.md`](./blocks-backlog.md)**, i Figmas ordning: Card Slider är
-   nästa. Configurator och Popup är byggda efter `9264:6653` och `8882:14589`.
+1. **Blocken i [`blocks-backlog.md`](./blocks-backlog.md)**, i Figmas ordning: Text-block är
+   nästa. Configurator, Popup och Card Slider är byggda.
 2. **Väntar på designen eller på dig:**
    - en genomgång av posterna med status Antagande och frågorna till designen, på `/kitchensink/notes`

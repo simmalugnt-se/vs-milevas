@@ -31,10 +31,20 @@ const photo = {
 /** The text under the heading opens (a grid row from `0fr` to `1fr`) and fades in. */
 const textRow = `grid grid-rows-[0fr] opacity-0 transition-[grid-template-rows,opacity] ${motion} group-hover/color-card:grid-rows-[1fr] group-hover/color-card:opacity-100 group-data-[state=hover]/color-card:grid-rows-[1fr] group-data-[state=hover]/color-card:opacity-100`;
 
-type ColorImageCardProps = HTMLAttributes<HTMLDivElement> & {
+/** `staticBelowDesktop`: the image look below Desktop S, over the default and its hover. */
+const belowDesktop = {
+  card: "max-desktop-s:mode-dark max-desktop-s:bg-bg-fill",
+  photo: "max-desktop-s:scale-100 max-desktop-s:opacity-100",
+  tag: "max-desktop-s:mode-tejp max-desktop-s:bg-bg-fill",
+  text: "max-desktop-s:grid-rows-[1fr] max-desktop-s:opacity-100",
+};
+
+export type ColorImageCardProps = HTMLAttributes<HTMLDivElement> & {
   color?: ColorImageCardColor;
   /** Figma's `Static`: the image look all the time, with no hover. */
   static?: boolean;
+  /** The image look below Desktop S and hover from it, as Card Slider's first card on Tablet and Mobile. */
+  staticBelowDesktop?: boolean;
   /** Number in the tag, shown as `[01]`. */
   number: ReactNode;
   label: ReactNode;
@@ -49,7 +59,7 @@ type ColorImageCardProps = HTMLAttributes<HTMLDivElement> & {
 
 /**
  * color-image-card from Figma "02 — Components" → "Cards" (8825:10793), in Figma's 518.667 × 388
- * proportion. Default is a colored card (White, Tejp or gray) with a Label S tag top left and a
+ * proportion, or the one a block sets in `--card-aspect` (Card Slider does). Default is a colored card (White, Tejp or gray) with a Label S tag top left and a
  * Text XL heading bottom left. Hover and Static turn it Dark: the photo under 50% black, the tag on
  * `ui-brand` (the tag in Tejp, as on card) and the Text M text under the heading. Figma draws hover
  * for White and Tejp; the prototype hovers gray into Tejp's. On hover the photo and the text fade
@@ -58,6 +68,7 @@ type ColorImageCardProps = HTMLAttributes<HTMLDivElement> & {
 export function ColorImageCard({
   color = "white",
   static: isStatic = false,
+  staticBelowDesktop = false,
   number,
   label,
   heading,
@@ -68,14 +79,16 @@ export function ColorImageCard({
 }: ColorImageCardProps) {
   return (
     <div
-      className={`group/color-card relative flex aspect-[389/291] flex-col justify-between overflow-hidden rounded-lg p-(--spacing-sm) ${
+      className={`group/color-card relative flex aspect-(--card-aspect,389/291) flex-col justify-between overflow-hidden rounded-lg p-(--spacing-sm) ${
         isStatic ? imageLook.static : `${colorClasses[color]} ${imageLook.hover}`
-      } ${className ?? ""}`}
+      } ${staticBelowDesktop ? belowDesktop.card : ""} ${className ?? ""}`}
       {...props}
     >
       <div
         aria-hidden
-        className={`absolute inset-0 ${isStatic ? "" : color === "gray" ? photo.fade : photo.zoom}`}
+        className={`absolute inset-0 ${isStatic ? "" : color === "gray" ? photo.fade : photo.zoom} ${
+          staticBelowDesktop ? belowDesktop.photo : ""
+        }`}
       >
         {image}
         <div className="absolute inset-0 bg-black/50" />
@@ -85,7 +98,7 @@ export function ColorImageCard({
           isStatic
             ? "mode-tejp bg-bg-fill"
             : "group-hover/color-card:mode-tejp group-hover/color-card:bg-bg-fill group-data-[state=hover]/color-card:mode-tejp group-data-[state=hover]/color-card:bg-bg-fill"
-        }`}
+        } ${staticBelowDesktop ? belowDesktop.tag : ""}`}
       >
         <span>[{number}]</span>
         <span aria-hidden>{"///"}</span>
@@ -93,7 +106,9 @@ export function ColorImageCard({
       </p>
       <div className="relative flex flex-col text-ui-primary">
         <p className={`text-text-xl ${isStatic ? "" : `transition-colors ${motion}`}`}>{heading}</p>
-        <div className={isStatic ? "" : textRow}>
+        <div
+          className={isStatic ? "" : `${textRow} ${staticBelowDesktop ? belowDesktop.text : ""}`}
+        >
           <div className="min-h-0 overflow-hidden">
             <p className="pt-(--spacing-sm) text-text-m">{text}</p>
           </div>
