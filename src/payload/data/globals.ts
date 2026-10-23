@@ -11,8 +11,12 @@ export type NavItem = {
   link: LinkFieldValue;
 };
 
-/** A Header menu: its label (and link without `links`), its links and its image. */
+/**
+ * A Header menu: its label (and link without `links`), its links and its image. With `source`
+ * `truckFamilies` its links are the truck families instead.
+ */
 export type HeaderNavItem = NavItem & {
+  source?: "links" | "truckFamilies" | null;
   links?: (NavItem & { image?: Image | string | null })[] | null;
   image?: Image | string | null;
 };
@@ -34,7 +38,14 @@ export type FooterData = {
   phone?: string | null;
   location?: string | null;
   contactHeading?: string | null;
-  linkGroups?: { id?: string | null; heading: string; links?: NavItem[] | null }[] | null;
+  linkGroups?:
+    | {
+        id?: string | null;
+        heading: string;
+        source?: "links" | "truckFamilies" | null;
+        links?: NavItem[] | null;
+      }[]
+    | null;
   navItems?: NavItem[] | null;
 };
 

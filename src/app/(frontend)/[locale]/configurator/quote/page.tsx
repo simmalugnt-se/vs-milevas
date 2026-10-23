@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import type { TypedLocale } from "payload";
 import { getConfiguratorCatalog } from "@/features/configurator/data";
-import { buildQuote } from "@/features/configurator/engine";
+import { buildQuote, familySteps } from "@/features/configurator/engine";
 import { OrderRequestForm } from "@/features/configurator/RequestForms";
 import {
   buildConfiguratorSearchParams,
@@ -79,7 +79,7 @@ export default async function QuotePage({ params, searchParams }: QuotePageProps
     selections: quote.selections,
     financingKey: quote.financing.key,
     serviceAgreement: Boolean(quote.serviceAgreement),
-    step: family ? family.steps.length + 1 : undefined,
+    step: family ? familySteps(family).length + 1 : undefined,
   });
 
   return (
@@ -95,7 +95,7 @@ export default async function QuotePage({ params, searchParams }: QuotePageProps
         <div>
           <p className="text-xs uppercase tracking-[0.18em] text-neutral-500">Offertöversikt</p>
           <h1 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">
-            {quote.familyName}
+            {quote.familySingularName ?? quote.familyName}
           </h1>
           {quote.sku ? (
             <p className="mt-2 font-mono text-xs text-neutral-500">Art.nr {quote.sku}</p>
@@ -182,6 +182,9 @@ export default async function QuotePage({ params, searchParams }: QuotePageProps
                 <dd className="text-right">{quote.warranty}</dd>
               </div>
             </dl>
+            {catalog.warrantyNote ? (
+              <p className="mt-2 text-xs leading-5 text-neutral-400">{catalog.warrantyNote}</p>
+            ) : null}
             <p className="mt-4 text-xs leading-5 text-neutral-400">
               Alla priser visas exkl. moms. Priset baseras på aktuellt lager och bekräftas av
               säljare.

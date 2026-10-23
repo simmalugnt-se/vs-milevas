@@ -21,6 +21,7 @@ async function main() {
     const publish = process.argv.includes("--publish-local");
     const { page, seeded } = await seedMilevasHomepage(payload, publish, {
       hero: process.argv.includes("--hero"),
+      products: process.argv.includes("--products"),
       imageText: process.argv.includes("--image-text"),
     });
     console.log(

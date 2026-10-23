@@ -2,13 +2,14 @@ import path from "node:path";
 import type { Payload } from "payload";
 import type { Page } from "@/payload-types";
 
-const productDefinitions = [
-  ["electric-counterbalance", "Elektriska motviktstruckar", "1.5 – 3.5 ton", "counterbalance"],
-  ["reach-truck", "Skjutstativtruckar", "1.4 – 2.0 ton", "reach-truck"],
-  ["low-lift-pallet-truck", "Låglyftare", "1.5 – 2.5 ton", "low-lift"],
-  ["pedestrian-stacker", "Ledstaplare", "1.2 – 2.0 ton", "stacker"],
-  ["electric-pallet-truck", "Elektriska pallyftare", "1.4 – 2.0 ton", "pallet-truck"],
-  [null, "Plocktruckar", "1.4 – 2.0 ton", "order-picker"],
+/** The truck families (`pnpm seed:configurator`) the hero and the product grid show, in order. */
+const familyKeys = [
+  "electric-counterbalance",
+  "reach-truck",
+  "low-lift-pallet-truck",
+  "pedestrian-stacker",
+  "electric-pallet-truck",
+  "order-picker",
 ] as const;
 
 const externalLink = (label: string, url: string) => ({ type: "external" as const, label, url });
@@ -50,13 +51,6 @@ async function uploadImage(payload: Payload, name: string, alt: string, extensio
 export async function seedMilevasHeader(payload: Payload, publish = false) {
   const links = (rows: (readonly [string, string])[]) =>
     rows.map(([label, url]) => ({ link: externalLink(label, url) }));
-  const trucks = [];
-  for (const [, name, , asset] of productDefinitions) {
-    trucks.push({
-      link: externalLink(name, "/#modeller"),
-      image: await uploadImage(payload, asset, name),
-    });
-  }
   await payload.updateGlobal({
     slug: "header",
     locale: "sv",
@@ -66,7 +60,7 @@ export async function seedMilevasHeader(payload: Payload, publish = false) {
       navItems: [
         {
           link: { label: "Modeller" },
-          links: trucks,
+          source: "truckFamilies" as const,
           image: await uploadImage(payload, "stacker", "Ledstaplare"),
         },
         {
@@ -105,7 +99,7 @@ export async function seedMilevasFooter(payload: Payload, publish = false) {
       linkGroups: [
         {
           heading: "Produkter",
-          links: links(productDefinitions.map(([, name]) => [name, "/#modeller"] as const)),
+          source: "truckFamilies" as const,
         },
         {
           heading: "Tjänster",
@@ -127,35 +121,36 @@ export async function seedMilevasFooter(payload: Payload, publish = false) {
 }
 
 /**
- * The hero as Figma's Hero and its Figma Make prototype: the intro text and six truck types, two
- * more than the text block after it, so their lines can move from six columns to four.
+ * The hero as Figma's Hero and its Figma Make prototype: the intro text and six truck families,
+ * two more than the text block after it, so their lines can move from six columns to four. Each
+ * column's name, image and prices come from its family.
  */
-async function milevasHeroBlock(payload: Payload, familyIDs: Map<string, string>) {
-  const columns = [
-    ["electric-counterbalance", "counterbalance", "Elektriska motviktstruckar"],
-    ["reach-truck", "reach-truck", "Skjutstativtruckar"],
-    ["low-lift-pallet-truck", "low-lift", "Låglyftare"],
-    ["pedestrian-stacker", "stacker", "Ledstaplare"],
-    ["electric-pallet-truck", "pallet-truck", "Elektriska pallyftare"],
-    [null, "order-picker", "Plocktruckar"],
-  ] as const;
-  const items = [];
-  for (const [key, asset, name] of columns) {
-    const family = key ? familyIDs.get(key) : undefined;
-    items.push({
-      heading: "Bygg din truck:",
-      family,
-      image: await uploadImage(payload, `hero-${asset}`, name),
-      ...(!family ? { link: externalLink(name, key ? "/configurator" : "/#kontakt") } : {}),
-    });
-  }
+function milevasHeroBlock(familyIDs: Map<string, string>) {
   return {
     blockType: "milevasHero" as const,
     heading: "Bygg din baoli",
     highlight: "På typ 30 sekunder",
     prompt: "Välj trucktyp för att börja",
     activeColumn: 5,
-    columns: items,
+    columns: familyKeys.flatMap((key) => {
+      const family = familyIDs.get(key);
+      return family ? [{ heading: "Bygg din truck:", family }] : [];
+    }),
+  };
+}
+
+/** Product-Grid: a card per family, its name, image, specs and prices from the family. */
+function milevasProductGridBlock(familyIDs: Map<string, string>) {
+  return {
+    blockType: "productGrid" as const,
+    anchor: "modeller",
+    label: "Modeller",
+    brand: "Baoli",
+    category: "Modeller",
+    products: familyKeys.flatMap((key) => {
+      const family = familyIDs.get(key);
+      return family ? [{ family, imageFit: "contain" as const }] : [];
+    }),
   };
 }
 
@@ -201,6 +196,8 @@ async function milevasImageTextBlock(payload: Payload) {
 type SeedUpdate = {
   /** Replace the hero and the text block after it. */
   hero?: boolean;
+  /** Replace the product grid. */
+  products?: boolean;
   /** Add Image & Text after the text block, or after the hero, if the page has none. */
   imageText?: boolean;
 };
@@ -233,10 +230,12 @@ export async function seedMilevasHomepage(
   const familyIDs = new Map(families.docs.map((family) => [family.key, family.id]));
   const seededPage = existing.docs[0];
   if (seededPage?.layout?.some((block) => block.blockType === "milevasHero")) {
-    if (!update.hero && !update.imageText) return { page: seededPage, seeded: false };
+    if (!update.hero && !update.products && !update.imageText) {
+      return { page: seededPage, seeded: false };
+    }
     let layout: NonNullable<Page["layout"]> = seededPage.layout;
     if (update.hero) {
-      const hero = await milevasHeroBlock(payload, familyIDs);
+      const hero = milevasHeroBlock(familyIDs);
       const textColumns = await milevasTextColumnsBlock(payload);
       layout = layout.flatMap((block, index, all): NonNullable<Page["layout"]> => {
         if (block.blockType === "textColumns") return [{ ...textColumns, id: block.id }];
@@ -244,6 +243,12 @@ export async function seedMilevasHomepage(
         const replaced = { ...hero, id: block.id };
         return all[index + 1]?.blockType === "textColumns" ? [replaced] : [replaced, textColumns];
       });
+    }
+    if (update.products) {
+      const products = milevasProductGridBlock(familyIDs);
+      layout = layout.map((block) =>
+        block.blockType === "productGrid" ? { ...products, id: block.id } : block,
+      );
     }
     if (update.imageText && !layout.some((block) => block.blockType === "imageText")) {
       const after = layout.findIndex((block) => block.blockType === "textColumns");
@@ -266,50 +271,16 @@ export async function seedMilevasHomepage(
 
   const image = (name: string, alt: string) => uploadImage(payload, name, alt);
 
-  const products = [];
-  for (const [key, name, capacity, asset] of productDefinitions) {
-    const family = key ? familyIDs.get(key) : undefined;
-    const cropByAsset: Record<
-      string,
-      { width: number; height: number; left: number; top: number }
-    > = {
-      counterbalance: { width: 107.77, height: 144.38, left: -7.77, top: -26.3 },
-      "low-lift": { width: 134, height: 100, left: -34, top: 0 },
-      "pallet-truck": { width: 93.21, height: 126.73, left: 3.21, top: -11.01 },
-      "order-picker": { width: 72.97, height: 97.75, left: 13.5, top: 2.25 },
-    };
-    products.push({
-      imageFit: cropByAsset[asset]
-        ? ("crop" as const)
-        : asset === "reach-truck"
-          ? ("cover" as const)
-          : ("contain" as const),
-      imageCrop: cropByAsset[asset],
-      family,
-      name,
-      capacity,
-      battery: "80 V 228 Ah",
-      image: await image(asset, name),
-      ...(!family ? { link: externalLink(name, key ? "/configurator" : "/#kontakt") } : {}),
-    });
-  }
   const photos = [
     await image("warehouse", "Truckar i en lagerlokal"),
     await image("loading", "En truck lastar i en lagerbyggnad"),
     await image("night", "En truck arbetar vid containrar på kvällen"),
   ];
   const layout: NonNullable<Page["layout"]> = [
-    await milevasHeroBlock(payload, familyIDs),
+    milevasHeroBlock(familyIDs),
     await milevasTextColumnsBlock(payload),
     await milevasImageTextBlock(payload),
-    {
-      blockType: "productGrid",
-      anchor: "modeller",
-      label: "Modeller",
-      brand: "Baoli",
-      category: "Modeller",
-      products,
-    },
+    milevasProductGridBlock(familyIDs),
     {
       blockType: "textGrid",
       anchor: "hur-det-fungerar",

@@ -1,3 +1,4 @@
+import { familySteps } from "./engine";
 import type { ConfiguratorFamily, SelectionState } from "./types";
 
 export type ParsedConfiguratorUrl = {
@@ -49,11 +50,9 @@ export function buildConfiguratorSearchParams({
   const params = new URLSearchParams();
   if (family) {
     params.set("family", family.key);
-    for (const configStep of family.steps) {
-      for (const group of configStep.groups) {
-        for (const optionKey of selections[group.key] ?? []) {
-          params.append("selection", `${group.key}.${optionKey}`);
-        }
+    for (const choice of familySteps(family)) {
+      for (const optionKey of selections[choice.key] ?? []) {
+        params.append("selection", `${choice.key}.${optionKey}`);
       }
     }
   }

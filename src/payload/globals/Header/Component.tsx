@@ -11,7 +11,9 @@ import {
   type NavigationLink,
   type NavigationMenu,
 } from "@/components/blocks/navigation";
+import { getConfiguratorCatalog } from "@/features/configurator/data";
 import { Link } from "@/i18n/navigation";
+import { familyLink } from "@/payload/blocks/milevas-data";
 import { getHeader, resolveNavItem } from "@/payload/data/globals";
 import { resolveLinkField } from "@/payload/utilities/link-field";
 import { getMediaImageURL } from "@/payload/utilities/media";
@@ -27,13 +29,18 @@ type HeaderComponentProps = {
  * boilerplate's optional announcement bar above it. `siteName` and `siteTagline` stay in the global
  * but are not shown, and neither is `cta`: Figma's navigation has no button. Each `navItems` row
  * is a menu: with `links` it opens them beside its `image` (each link's own image shows while it is
- * pointed at), without them its link is a plain link. `login` is the login link. Dark, since the
- * site's sections are dark.
+ * pointed at), without them its link is a plain link. A menu whose `source` is the truck families
+ * (Figma's Modeller) lists every published family in its order, with its name and main image.
+ * `login` is the login link. Dark, since the site's sections are dark.
  */
 
 /** A Header image in the menu's square: the menu's contained, a link's (a truck) covering it. */
-function menuImage(value: PayloadImage | string | null | undefined, fit: "contain" | "cover") {
-  const src = getMediaImageURL(value);
+function menuImage(
+  value: PayloadImage | string | null | undefined,
+  fit: "contain" | "cover",
+  url?: string,
+) {
+  const src = url ?? getMediaImageURL(value);
   if (!src) return undefined;
   return (
     <Image
@@ -48,6 +55,21 @@ function menuImage(value: PayloadImage | string | null | undefined, fit: "contai
 export async function HeaderComponent({ draft = false, locale }: HeaderComponentProps) {
   const header = await getHeader(locale, draft);
   const t = await getTranslations({ locale, namespace: "nav" });
+  const usesFamilies = (header.navItems ?? []).some((item) => item.source === "truckFamilies");
+  const catalog = usesFamilies ? await getConfiguratorCatalog(locale, draft) : undefined;
+  const familyLinks = (catalog?.families ?? []).flatMap((family): NavigationLink[] => {
+    const link = familyLink(family);
+    if (!link) return [];
+    return [
+      {
+        label: family.name,
+        href: link.href,
+        rel: "rel" in link ? link.rel : undefined,
+        target: "target" in link ? link.target : undefined,
+        image: menuImage(null, "contain", family.image?.url),
+      },
+    ];
+  });
 
   const announcementLink = resolveLinkField(header.announcementLink);
 
@@ -55,7 +77,8 @@ export async function HeaderComponent({ draft = false, locale }: HeaderComponent
   const mark = (attributes: ReturnType<typeof editableField>) => (draft ? attributes : {});
 
   const menus = (header.navItems ?? []).flatMap((item): NavigationMenu[] => {
-    const links = (item.links ?? []).flatMap((row): NavigationLink[] => {
+    const rows = item.source === "truckFamilies" ? [] : (item.links ?? []);
+    const ownLinks = rows.flatMap((row): NavigationLink[] => {
       const resolved = resolveNavItem(row);
       if (!resolved) return [];
       return [
@@ -69,6 +92,7 @@ export async function HeaderComponent({ draft = false, locale }: HeaderComponent
         },
       ];
     });
+    const links = item.source === "truckFamilies" ? familyLinks : ownLinks;
     const resolved = resolveNavItem(item);
     if (!item.link.label || (!links.length && !resolved)) return [];
     return [

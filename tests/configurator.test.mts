@@ -3,13 +3,16 @@ import { test } from "node:test";
 import {
   buildQuote,
   calculateFinancingPrice,
+  choiceDisplay,
   estimateTotal,
+  familySteps,
   firstIncompleteStep,
   firstInvalidSelectionStep,
   sanitizeSelections,
 } from "../src/features/configurator/engine.ts";
 import type {
   ConfiguratorCatalog,
+  ConfiguratorChoice,
   ConfiguratorFamily,
   ConfiguratorOption,
 } from "../src/features/configurator/types.ts";
@@ -19,75 +22,77 @@ import {
   parseSelectionReferences,
 } from "../src/features/configurator/url-state.ts";
 
-const baseOption = (overrides: Partial<ConfiguratorOption>): ConfiguratorOption => ({
+const option = (overrides: Partial<ConfiguratorOption>): ConfiguratorOption => ({
   key: "standard",
   label: "Standard",
-  priceMode: "included",
   price: 0,
-  defaultSelected: false,
-  conditions: { allOf: [], anyOf: [], noneOf: [] },
-  specifications: [],
+  default: false,
+  models: [],
+  requires: [],
+  excludes: [],
+  specs: [],
   ...overrides,
 });
 
 const family: ConfiguratorFamily = {
   key: "test-family",
-  name: "Testtruck",
-  basePrice: 100000,
+  name: "Testtruckar",
+  singularName: "Testtruck",
+  configurable: true,
   deliveryTime: "4 veckor",
   warranty: "1 år",
-  steps: [
+  specs: [
+    { spec: "weight", value: "3 000" },
+    { spec: "build-height", value: "2130" },
+  ],
+  modelChoice: { label: "Lyftkapacitet", heading: "Välj lyftkapacitet" },
+  models: [
     {
-      key: "model-step",
-      label: "Modell",
-      heading: "Välj modell",
-      groups: [
-        {
-          key: "model",
-          label: "Modell",
-          selectionMode: "single",
-          required: true,
-          options: [
-            baseOption({
-              key: "small",
-              label: "Liten",
-              priceMode: "replaceBase",
-              price: 120000,
-              defaultSelected: true,
-              sku: "SMALL",
-            }),
-            baseOption({
-              key: "large",
-              label: "Stor",
-              priceMode: "replaceBase",
-              price: 150000,
-              sku: "LARGE",
-            }),
-          ],
-        },
+      key: "small",
+      label: "Liten",
+      price: 120000,
+      capacityKg: 1500,
+      default: true,
+      sku: "SMALL",
+      specs: [],
+    },
+    {
+      key: "large",
+      label: "Stor",
+      price: 150000,
+      capacityKg: 2000,
+      default: false,
+      sku: "LARGE",
+      specs: [{ spec: "weight", value: "3 500" }],
+    },
+  ],
+  choices: [
+    {
+      key: "mast",
+      label: "Lyfthöjd",
+      heading: "Välj lyfthöjd",
+      selectionMode: "single",
+      required: true,
+      options: [
+        option({ key: "low", label: "Lyfthöjd 4700 mm", default: true }),
+        option({
+          key: "high",
+          label: "Lyfthöjd 6000 mm",
+          price: 3500,
+          specs: [{ spec: "build-height", value: "2765" }],
+        }),
       ],
     },
     {
-      key: "extras-step",
+      key: "extras",
       label: "Tillval",
       heading: "Välj tillval",
-      groups: [
-        {
-          key: "extras",
-          label: "Tillval",
-          selectionMode: "multiple",
-          required: false,
-          options: [
-            baseOption({ key: "alarm", label: "Larm", priceMode: "add", price: 5000 }),
-            baseOption({
-              key: "camera",
-              label: "Kamera",
-              priceMode: "add",
-              price: 10000,
-              conditions: { allOf: ["model.large"], anyOf: [], noneOf: [] },
-            }),
-          ],
-        },
+      selectionMode: "multiple",
+      required: false,
+      options: [
+        option({ key: "alarm", label: "Larm", price: 5000 }),
+        option({ key: "camera", label: "Kamera", price: 10000, models: ["large"] }),
+        option({ key: "guard", label: "Skydd", price: 2000, requires: ["mast.high"] }),
       ],
     },
   ],
@@ -95,6 +100,10 @@ const family: ConfiguratorFamily = {
 
 const catalog: ConfiguratorCatalog = {
   families: [family],
+  specs: [
+    { key: "build-height", label: "Truckens bygghöjd", unit: "mm", sortOrder: 60, onCard: false },
+    { key: "weight", label: "Vikt", unit: "kg", sortOrder: 50, onCard: false },
+  ],
   financingMethods: [
     { key: "purchase", label: "Köp", kind: "purchase", serviceAgreementEligible: true },
     {
@@ -110,24 +119,44 @@ const catalog: ConfiguratorCatalog = {
     annualPrice: 2856,
   },
   quoteValidityDays: 14,
+  nextSteps: [],
 };
 
-test("defaults, replacement price and additions produce a deterministic quote", () => {
+test("the model is the first step, then the choices in order", () => {
+  assert.deepEqual(
+    familySteps(family).map((choice) => choice.key),
+    ["model", "mast", "extras"],
+  );
+  assert.deepEqual(familySteps({ ...family, configurable: false }), []);
+});
+
+test("defaults, the model's price and additions produce a deterministic quote", () => {
   const selections = sanitizeSelections(family, { extras: ["alarm"] });
-  assert.deepEqual(selections, { model: ["small"], extras: ["alarm"] });
+  assert.deepEqual(selections, { model: ["small"], mast: ["low"], extras: ["alarm"] });
 
   const quote = buildQuote(catalog, family.key, selections, "leasing");
   assert.ok(quote);
   assert.equal(quote.totalPrice, 125000);
   assert.equal(quote.financingPrice, 2344);
   assert.equal(quote.sku, "SMALL");
+  assert.equal(quote.familySingularName, "Testtruck");
+  assert.equal(quote.modelKey, "small");
+});
+
+test("the quote's specifications layer the family, the model and the options", () => {
+  const quote = buildQuote(catalog, family.key, { model: ["large"], mast: ["high"] }, "purchase");
+  assert.ok(quote);
+  assert.deepEqual(quote.specifications, [
+    { label: "Vikt", value: "3 500 kg" },
+    { label: "Truckens bygghöjd", value: "2765 mm" },
+  ]);
 });
 
 test("the running total counts what is chosen so far, before every step is complete", () => {
-  assert.equal(estimateTotal(family, {}), 100000);
+  assert.equal(estimateTotal(family, {}), 0);
   assert.equal(estimateTotal(family, { model: ["large"] }), 150000);
   assert.equal(estimateTotal(family, { model: ["large"], extras: ["alarm", "camera"] }), 165000);
-  // An option whose condition is not met does not count, as in the quote.
+  // An option not offered for the model does not count, as in the quote.
   assert.equal(estimateTotal(family, { model: ["small"], extras: ["camera"] }), 120000);
 });
 
@@ -135,13 +164,7 @@ test("a call can carry an incomplete configuration, marked as such; an order can
   // Without the model's default, the required model step stays open.
   const open: ConfiguratorFamily = {
     ...family,
-    steps: family.steps.map((step) => ({
-      ...step,
-      groups: step.groups.map((group) => ({
-        ...group,
-        options: group.options.map((option) => ({ ...option, defaultSelected: false })),
-      })),
-    })),
+    models: family.models.map((model) => ({ ...model, default: false })),
   };
   const openCatalog = { ...catalog, families: [open] };
   const partial = { extras: ["alarm"] };
@@ -152,24 +175,59 @@ test("a call can carry an incomplete configuration, marked as such; an order can
   });
   assert.ok(quote);
   assert.equal(quote.complete, false);
-  assert.equal(quote.totalPrice, 105000);
+  assert.equal(quote.totalPrice, 5000);
 
   const complete = buildQuote(openCatalog, open.key, { model: ["small"] }, "purchase");
   assert.equal(complete?.complete, true);
 });
 
-test("changing an upstream option removes incompatible downstream selections", () => {
+test("an option is offered for its models and with what it requires", () => {
   const large = sanitizeSelections(family, { model: ["large"], extras: ["camera"] });
   assert.deepEqual(large.extras, ["camera"]);
 
   const changed = sanitizeSelections(family, { ...large, model: ["small"] });
-  assert.deepEqual(changed, { model: ["small"] });
-  assert.equal(firstInvalidSelectionStep(family, { ...large, model: ["small"] }, changed), 1);
+  assert.deepEqual(changed, { model: ["small"], mast: ["low"] });
+  assert.equal(firstInvalidSelectionStep(family, { ...large, model: ["small"] }, changed), 2);
+
+  assert.deepEqual(sanitizeSelections(family, { extras: ["guard"] }).extras, undefined);
+  assert.deepEqual(sanitizeSelections(family, { mast: ["high"], extras: ["guard"] }).extras, [
+    "guard",
+  ]);
+});
+
+test("a required choice with nothing offered does not block the configuration", () => {
+  const onlyLarge: ConfiguratorFamily = {
+    ...family,
+    choices: [
+      {
+        ...family.choices[0],
+        options: family.choices[0].options.map((item) => ({ ...item, models: ["large"] })),
+      },
+    ],
+  };
+  assert.equal(firstIncompleteStep(onlyLarge, sanitizeSelections(onlyLarge, {})), null);
 });
 
 test("missing required choices are reported when defaults are disabled", () => {
   const selections = sanitizeSelections(family, {}, false);
   assert.equal(firstIncompleteStep(family, selections), 0);
+});
+
+test("a step's type follows its content unless one is set", () => {
+  const choice = (options: ConfiguratorOption[], display?: ConfiguratorChoice["display"]) => ({
+    ...family.choices[1],
+    options,
+    display,
+  });
+  const titled = option({ key: "a" });
+  const described = option({ key: "b", description: "Text" });
+  const pictured = option({ key: "c", image: { alt: "", url: "/truck.png" } });
+  assert.equal(choiceDisplay(choice([titled, titled])), "stack");
+  assert.equal(choiceDisplay(choice([titled, titled, titled])), "prices");
+  assert.equal(choiceDisplay(choice([described, titled, titled])), "grid");
+  assert.equal(choiceDisplay(choice([pictured, pictured, pictured])), "imageRows");
+  assert.equal(choiceDisplay(choice([pictured, pictured, pictured, pictured])), "images");
+  assert.equal(choiceDisplay(choice([titled, titled], "images")), "images");
 });
 
 test("financing rounds to whole SEK", () => {
@@ -186,7 +244,8 @@ test("service agreement is separate from the financed truck price", () => {
   assert.deepEqual(
     quote.lines.map(({ label, price, kind }) => ({ label, price, kind })),
     [
-      { label: "Testtruck - bas (Liten)", price: 120000, kind: "base" },
+      { label: "Testtruckar – bas (Liten)", price: 120000, kind: "base" },
+      { label: "Lyfthöjd 4700 mm", price: 0, kind: "option" },
       { label: "Larm", price: 5000, kind: "option" },
       { label: "Serviceavtal", price: 2856, kind: "service" },
     ],
@@ -194,7 +253,7 @@ test("service agreement is separate from the financed truck price", () => {
 });
 
 test("shareable URL state round-trips and drops malformed references", () => {
-  const selections = { model: ["large"], extras: ["alarm", "camera"] };
+  const selections = { model: ["large"], mast: ["low"], extras: ["alarm", "camera"] };
   const params = buildConfiguratorSearchParams({
     family,
     selections,

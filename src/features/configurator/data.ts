@@ -1,12 +1,14 @@
 import { unstable_cache, unstable_noStore } from "next/cache";
 import type { TypedLocale } from "payload";
+import { resolveLinkField } from "@/payload/utilities/link-field";
 import { getMediaImageURL } from "@/payload/utilities/media";
-import type { ConfiguratorSetting, Document, TruckFamily } from "@/payload-types";
+import type { ConfiguratorSetting, Document, Image, TruckFamily, TruckSpec } from "@/payload-types";
 import type {
   ConfiguratorCatalog,
-  ConfiguratorCondition,
   ConfiguratorFamily,
   ConfiguratorOption,
+  ConfiguratorSpec,
+  SpecValue,
 } from "./types";
 
 const DEFAULT_FINANCING: ConfiguratorCatalog["financingMethods"] = [
@@ -35,35 +37,35 @@ const DEFAULT_SERVICE_AGREEMENT: NonNullable<ConfiguratorCatalog["serviceAgreeme
   annualPrice: 2856,
 };
 
-function references(
-  values: Array<{ reference: string; id?: string | null }> | null | undefined,
-): string[] {
-  return values?.map(({ reference }) => reference).filter(Boolean) ?? [];
+type FamilyChoice = NonNullable<TruckFamily["choices"]>[number];
+type SpecRows = NonNullable<TruckFamily["specs"]>;
+
+/** Values by specification key; a value whose type is not populated is left out. */
+function mapSpecs(rows: SpecRows | null | undefined): SpecValue[] {
+  return (rows ?? []).flatMap(({ spec, value }) =>
+    spec && typeof spec === "object" ? [{ spec: spec.key, value }] : [],
+  );
 }
 
-function mapConditions(
-  option: TruckFamily["steps"][number]["groups"][number]["options"][number],
-): ConfiguratorCondition {
-  return {
-    allOf: references(option.conditions?.allOf),
-    anyOf: references(option.conditions?.anyOf),
-    noneOf: references(option.conditions?.noneOf),
-  };
+function imageData(value: string | Image | null | undefined, alt: string) {
+  const image = value && typeof value === "object" ? value : null;
+  const url = getMediaImageURL(value);
+  return image && url ? { alt: image.alt || alt, url } : undefined;
 }
 
-function mapOption(
-  option: TruckFamily["steps"][number]["groups"][number]["options"][number],
-): ConfiguratorOption {
+function mapOption(option: FamilyChoice["options"][number]): ConfiguratorOption {
   return {
     key: option.key,
     label: option.label,
     description: option.description || undefined,
-    priceMode: option.priceMode,
+    image: imageData(option.image, option.label),
     price: option.price,
-    defaultSelected: option.defaultSelected === true,
+    default: option.defaultSelected === true,
     sku: option.sku || undefined,
-    conditions: mapConditions(option),
-    specifications: option.specifications?.map(({ label, value }) => ({ label, value })) ?? [],
+    models: option.models ?? [],
+    requires: option.requires ?? [],
+    excludes: option.excludes ?? [],
+    specs: mapSpecs(option.specs),
   };
 }
 
@@ -76,43 +78,74 @@ function brochureData(document: TruckFamily["brochure"]): ConfiguratorFamily["br
 }
 
 function mapFamily(family: TruckFamily): ConfiguratorFamily {
-  const image = family.image && typeof family.image === "object" ? family.image : null;
-  const imageUrl = getMediaImageURL(family.image);
-
+  const configurable = family.configurable !== false;
+  const contactLink = configurable ? null : resolveLinkField(family.contactLink);
   return {
     id: family.id,
     key: family.key,
     name: family.name,
+    singularName: family.singularName,
     description: family.description || undefined,
-    basePrice: family.basePrice,
-    sku: family.sku || undefined,
-    deliveryTime: family.deliveryTime,
-    warranty: family.warranty,
-    image: image && imageUrl ? { alt: image.alt || family.name, url: imageUrl } : undefined,
+    configurable,
+    contactLink: contactLink
+      ? { href: contactLink.href, rel: contactLink.rel, target: contactLink.target }
+      : undefined,
+    deliveryTime: family.deliveryTime ?? "",
+    warranty: family.warranty ?? "",
+    image: imageData(family.image, family.name),
     brochure: brochureData(family.brochure),
-    steps: family.steps.map((step) => ({
-      key: step.key,
-      label: step.label,
-      heading: step.heading,
-      description: step.description || undefined,
-      help: step.help || undefined,
-      groups: step.groups.map((group) => ({
-        key: group.key,
-        label: group.label,
-        description: group.description || undefined,
-        selectionMode: group.selectionMode,
-        required: group.required === true,
-        options: group.options.map(mapOption),
-      })),
-    })),
+    specs: mapSpecs(family.specs),
+    modelChoice: { label: family.modelChoice.label, heading: family.modelChoice.heading },
+    models: configurable
+      ? (family.models ?? []).map((model) => ({
+          key: model.key,
+          label: model.label,
+          description: model.description || undefined,
+          sku: model.sku || undefined,
+          price: model.price,
+          capacityKg: model.capacityKg ?? undefined,
+          default: model.defaultSelected === true,
+          specs: mapSpecs(model.specs),
+        }))
+      : [],
+    choices: configurable
+      ? (family.choices ?? []).map((choice) => ({
+          key: choice.key,
+          label: choice.label,
+          heading: choice.heading,
+          help: choice.help || undefined,
+          selectionMode: choice.selectionMode,
+          required: choice.required === true,
+          display: choice.display ?? undefined,
+          options: choice.options.map(mapOption),
+        }))
+      : [],
+  };
+}
+
+function mapSpec(spec: TruckSpec): ConfiguratorSpec {
+  return {
+    key: spec.key,
+    label: spec.label,
+    unit: spec.unit || undefined,
+    sortOrder: spec.sortOrder,
+    onCard: spec.onCard === true,
   };
 }
 
 function mapSettings(
   settings: ConfiguratorSetting | null,
-): Pick<ConfiguratorCatalog, "financingMethods" | "quoteValidityDays" | "serviceAgreement"> {
+): Omit<ConfiguratorCatalog, "families" | "specs"> {
+  const extras = {
+    warrantyNote: settings?.warrantyNote || undefined,
+    nextSteps: (settings?.nextSteps ?? []).map((step) => ({
+      heading: step.heading,
+      text: step.text || undefined,
+    })),
+  };
   if (!settings?.financingMethods?.length) {
     return {
+      ...extras,
       financingMethods: DEFAULT_FINANCING,
       quoteValidityDays: 14,
       serviceAgreement: DEFAULT_SERVICE_AGREEMENT,
@@ -120,6 +153,7 @@ function mapSettings(
   }
 
   return {
+    ...extras,
     quoteValidityDays: settings.quoteValidityDays || 14,
     serviceAgreement: settings.serviceAgreement
       ? {
@@ -151,17 +185,24 @@ async function fetchConfiguratorCatalog(
     import("@/payload/get-payload"),
   ]);
   if (!(await getPayloadDbReady()).ready) {
-    return { families: [], ...mapSettings(null) };
+    return { families: [], specs: [], ...mapSettings(null) };
   }
 
   const payload = await getPayloadClient();
-  const [families, settings] = await Promise.all([
+  const [families, specs, settings] = await Promise.all([
     payload.find({
       collection: "truck-families",
       locale,
       depth: 2,
       draft,
       overrideAccess: draft,
+      pagination: false,
+      sort: "sortOrder",
+    }),
+    payload.find({
+      collection: "truck-specs",
+      locale,
+      depth: 0,
       pagination: false,
       sort: "sortOrder",
     }),
@@ -176,6 +217,7 @@ async function fetchConfiguratorCatalog(
 
   return {
     families: families.docs.map(mapFamily),
+    specs: specs.docs.map(mapSpec),
     ...mapSettings(settings),
   };
 }

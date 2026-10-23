@@ -34,36 +34,28 @@ async function main() {
     payload.db.pool = new payload.db.pg.Pool(payload.db.poolOptions);
     await payload.db.connect();
     await payload.db.migrate();
-    await payload.create({
-      collection: "truck-families",
-      locale: "sv",
-      context: { disableRevalidate: true },
-      data: {
-        name: "Testtruck",
-        key: "electric-counterbalance",
-        sortOrder: 0,
-        basePrice: 169900,
-        deliveryTime: "1 vecka",
-        warranty: "Test",
-        _status: "published",
-        steps: [
-          {
-            key: "capacity",
-            label: "Kapacitet",
-            heading: "Välj kapacitet",
-            groups: [
-              {
-                key: "capacity",
-                label: "Kapacitet",
-                selectionMode: "single",
-                required: true,
-                options: [{ key: "small", label: "1.5 ton", priceMode: "included", price: 0 }],
-              },
-            ],
-          },
-        ],
-      },
-    });
+    for (const [key, configurable] of [
+      ["electric-counterbalance", true],
+      ["order-picker", false],
+    ] as const) {
+      await payload.create({
+        collection: "truck-families",
+        locale: "sv",
+        context: { disableRevalidate: true },
+        data: {
+          name: `Test ${key}`,
+          singularName: `Test ${key}`,
+          key,
+          sortOrder: 0,
+          configurable,
+          deliveryTime: "1 vecka",
+          warranty: "Test",
+          modelChoice: { label: "Modell", heading: "Välj modell" },
+          models: configurable ? [{ key: "small", label: "1,5 ton", price: 169900 }] : [],
+          _status: "published",
+        },
+      });
+    }
     const { page, seeded } = await seedMilevasHomepage(payload, true);
     assert.equal(seeded, true);
     const saved = await payload.findByID({
@@ -78,14 +70,11 @@ async function main() {
     );
     const grid = saved.layout?.find((block) => block.blockType === "productGrid");
     assert.ok(grid);
-    assert.equal(grid.products.length, 6);
-    assert.ok(grid.products[0].family && typeof grid.products[0].family === "object");
-    assert.equal(grid.products[0].family.key, "electric-counterbalance");
-    assert.ok(
-      grid.products.every((item) => item.image && typeof item.image === "object" && item.image.url),
+    // One card per family the seed knows that exists, each pointing at its family.
+    assert.deepEqual(
+      grid.products.map((item) => (typeof item.family === "object" ? item.family.key : null)),
+      ["electric-counterbalance", "order-picker"],
     );
-    assert.equal(grid.products[5].family, undefined);
-    assert.equal(grid.products[5].link?.url, "/#kontakt");
     const processBlock = saved.layout?.find((block) => block.blockType === "textGrid");
     assert.ok(processBlock);
     assert.equal(processBlock.cards.length, 3);
@@ -137,7 +126,7 @@ async function main() {
       }
     }
     console.log(
-      "PASS: six CMS blocks, populated truck and image relationships, six products, three distinct photos, localized copy and repeat-safe seed.",
+      "PASS: six CMS blocks, cards and columns pointing at their truck families, three distinct photos, localized copy and repeat-safe seed.",
     );
   } finally {
     try {

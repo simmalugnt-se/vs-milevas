@@ -1,5 +1,5 @@
 import type { Block } from "payload";
-import { editorialLink, familyField, sectionID } from "../milevas-fields";
+import { familyField, sectionID } from "../milevas-fields";
 
 export const MilevasHeroBlock: Block = {
   slug: "milevasHero",
@@ -44,33 +44,18 @@ export const MilevasHeroBlock: Block = {
       required: true,
       minRows: 1,
       maxRows: 6,
+      admin: {
+        description: "En kolumn per truckfamilj; namn, bild, priser och länk kommer från familjen.",
+      },
       fields: [
-        familyField,
+        { ...familyField, required: true },
         {
-          name: "image",
-          label: "Truckbild",
-          type: "upload",
-          relationTo: "images",
-          admin: {
-            description:
-              "Frilagd truck, nederkanten mot marken. Utan bild används truckfamiljens bild.",
-          },
-        },
-        { name: "heading", label: "Rubrik", type: "text", required: true, localized: true },
-        editorialLink(),
-        {
-          name: "price",
-          label: "Från-pris",
+          name: "heading",
+          label: "Rubrik",
           type: "text",
+          required: true,
           localized: true,
-          admin: { condition: (_, data) => !data?.family },
-        },
-        {
-          name: "leasing",
-          label: "Leasing per månad",
-          type: "text",
-          localized: true,
-          admin: { condition: (_, data) => !data?.family },
+          admin: { description: 'Före namnet när kolumnen pekas på. Exempel: "Bygg din truck:".' },
         },
       ],
     },

@@ -10,17 +10,20 @@ import { ConfiguratorBox, choiceLayout } from "@/components/ui/configurator-box"
 import { frontendPath } from "@/i18n/frontend-path";
 import {
   calculateFinancingPrice,
+  choiceSatisfied,
   estimateTotal,
+  familySteps,
   firstIncompleteStep,
   firstInvalidSelectionStep,
   isOptionAvailable,
+  MODEL_CHOICE,
   sanitizeSelections,
 } from "./engine";
 import { CallRequestForm } from "./RequestForms";
 import type {
   ConfiguratorCatalog,
+  ConfiguratorChoice,
   ConfiguratorFamily,
-  ConfiguratorGroup,
   SelectionState,
 } from "./types";
 import { buildConfiguratorSearchParams, parseConfiguratorSearchParams } from "./url-state";
@@ -37,7 +40,7 @@ type State = {
 type Action =
   | { type: "hydrate"; state: Omit<State, "hydrated"> }
   | { type: "selectFamily"; family: ConfiguratorFamily }
-  | { type: "toggleOption"; family: ConfiguratorFamily; group: ConfiguratorGroup; key: string }
+  | { type: "toggleOption"; family: ConfiguratorFamily; choice: ConfiguratorChoice; key: string }
   | { type: "selectFinancing"; key: string; serviceAgreementEligible: boolean }
   | { type: "toggleServiceAgreement" }
   | { type: "setStep"; step: number };
@@ -58,9 +61,9 @@ function reducer(state: State, action: Action): State {
         step: 0,
       };
     case "toggleOption": {
-      const selected = state.selections[action.group.key] ?? [];
-      const nextGroupSelection =
-        action.group.selectionMode === "single"
+      const selected = state.selections[action.choice.key] ?? [];
+      const nextChoiceSelection =
+        action.choice.selectionMode === "single"
           ? [action.key]
           : selected.includes(action.key)
             ? selected.filter((key) => key !== action.key)
@@ -69,7 +72,7 @@ function reducer(state: State, action: Action): State {
         ...state,
         selections: sanitizeSelections(
           action.family,
-          { ...state.selections, [action.group.key]: nextGroupSelection },
+          { ...state.selections, [action.choice.key]: nextChoiceSelection },
           true,
         ),
       };
@@ -95,15 +98,15 @@ function formatPrice(value: number) {
   }).format(value);
 }
 
-function groupComplete(group: ConfiguratorGroup, selections: SelectionState) {
-  return !group.required || (selections[group.key]?.length ?? 0) > 0;
+/** A model's price as it is; an option's as an addition, or "Ingår" when it adds nothing. */
+function priceLabel(choice: ConfiguratorChoice, price: number) {
+  if (choice.key === MODEL_CHOICE) return formatPrice(price);
+  return price === 0 ? "Ingår" : `+${formatPrice(price)}`;
 }
 
-function priceLabel(priceMode: "included" | "add" | "replaceBase", price: number) {
-  if (priceMode === "included") return "Ingår";
-  if (priceMode === "add") return `+${formatPrice(price)}`;
-  return formatPrice(price);
-}
+/** The price the configuration starts at: the defaults. */
+const startPrice = (family: ConfiguratorFamily) =>
+  estimateTotal(family, sanitizeSelections(family, {}));
 
 const stepNumber = (index: number) => String(index + 1).padStart(2, "0");
 
@@ -151,7 +154,7 @@ function StepBox({
 
 /**
  * The truck configurator on Figma's step screen (`ConfiguratorScreen`): truck type, the family's
- * steps, then financing, one screen each, numbered `[01]`, `[02]` and so on. "Boka samtal" opens the
+ * steps (its model, then its choices), then financing, one screen each, numbered `[01]`, `[02]` and so on. "Boka samtal" opens the
  * call request in a dialog from the first configuration step; "Visa offert" leads to the quote page.
  */
 export function ConfiguratorClient({
@@ -164,16 +167,20 @@ export function ConfiguratorClient({
   const [state, dispatch] = useReducer(reducer, initialState);
   const [callOpen, setCallOpen] = useState(false);
   const dialog = useRef<HTMLDialogElement>(null);
-  const family = catalog.families.find((candidate) => candidate.key === state.familyKey);
-  const maxStep = family ? family.steps.length + 1 : 0;
-  const currentConfigStep = family && state.step > 0 ? family.steps[state.step - 1] : undefined;
+  const families = catalog.families.filter((candidate) => familySteps(candidate).length > 0);
+  const family = families.find((candidate) => candidate.key === state.familyKey);
+  const steps = family ? familySteps(family) : [];
+  const maxStep = family ? steps.length + 1 : 0;
+  const currentConfigStep = family && state.step > 0 ? steps[state.step - 1] : undefined;
   const financingStep = Boolean(family && state.step === maxStep);
   const purchaseKey =
     catalog.financingMethods.find((method) => method.kind === "purchase")?.key ??
     catalog.financingMethods[0]?.key;
   useEffect(() => {
     const parsed = parseConfiguratorSearchParams(new URLSearchParams(window.location.search));
-    const parsedFamily = catalog.families.find((candidate) => candidate.key === parsed.familyKey);
+    const parsedFamily = catalog.families.find(
+      (candidate) => candidate.key === parsed.familyKey && familySteps(candidate).length > 0,
+    );
     if (!parsedFamily) {
       dispatch({
         type: "hydrate",
@@ -191,7 +198,7 @@ export function ConfiguratorClient({
     const selections = sanitizeSelections(parsedFamily, parsed.selections, true);
     const incomplete = firstIncompleteStep(parsedFamily, selections);
     const invalid = firstInvalidSelectionStep(parsedFamily, parsed.selections, selections);
-    const desiredStep = Math.min(parsed.step ?? 0, parsedFamily.steps.length + 1);
+    const desiredStep = Math.min(parsed.step ?? 0, familySteps(parsedFamily).length + 1);
     const earliestAffected = [incomplete, invalid]
       .filter((value): value is number => value !== null)
       .reduce<number | null>((earliest, value) => Math.min(earliest ?? value, value), null);
@@ -247,9 +254,7 @@ export function ConfiguratorClient({
       ? Boolean(family)
       : financingStep
         ? Boolean(state.financingKey)
-        : Boolean(
-            currentConfigStep?.groups.every((group) => groupComplete(group, state.selections)),
-          );
+        : Boolean(currentConfigStep && choiceSatisfied(currentConfigStep, state.selections));
 
   const quoteParams = family
     ? buildConfiguratorSearchParams({
@@ -281,11 +286,11 @@ export function ConfiguratorClient({
     );
   }
 
-  if (catalog.families.length === 0) {
+  if (families.length === 0) {
     return <p className="text-text-m">Det finns inga publicerade truckfamiljer ännu.</p>;
   }
 
-  const lowestPrice = Math.min(...catalog.families.map((candidate) => candidate.basePrice));
+  const lowestPrice = Math.min(...families.map(startPrice));
   const monthlyMethods = catalog.financingMethods.filter((method) => method.kind === "monthly");
   const totalPrice = total ?? lowestPrice;
   const number = stepNumber(state.step);
@@ -296,10 +301,10 @@ export function ConfiguratorClient({
       <StepBox
         number={number}
         label="Trucktyp"
-        choices={catalog.families.map((candidate) => ({
+        choices={families.map((candidate) => ({
           key: candidate.key,
           title: candidate.name,
-          price: `Från ${formatPrice(candidate.basePrice)}`,
+          price: `Från ${formatPrice(startPrice(candidate))}`,
           text: candidate.description,
           selected: family?.key === candidate.key,
           image: candidate.image ? (
@@ -316,27 +321,36 @@ export function ConfiguratorClient({
       />
     );
   } else if (currentConfigStep) {
-    step = currentConfigStep.groups.map((group) => (
+    const choice = currentConfigStep;
+    step = (
       <StepBox
-        key={group.key}
         number={number}
-        label={currentConfigStep.groups.length === 1 ? currentConfigStep.heading : group.label}
-        choices={group.options.map((option) => {
+        label={choice.label}
+        choices={choice.options.map((option) => {
           const available = isOptionAvailable(option, state.selections);
           return {
             key: option.key,
             title: option.label,
-            price: priceLabel(option.priceMode, option.price),
+            price: priceLabel(choice, option.price),
             text: available
               ? option.description
               : `${option.description ? `${option.description} ` : ""}Kräver ett annat tidigare val.`,
-            selected: (state.selections[group.key] ?? []).includes(option.key),
+            selected: (state.selections[choice.key] ?? []).includes(option.key),
             disabled: !available,
-            onSelect: () => dispatch({ type: "toggleOption", family, group, key: option.key }),
+            image: option.image ? (
+              <Image
+                src={option.image.url}
+                alt=""
+                fill
+                sizes="(width >= 64rem) 15vw, 40vw"
+                className="object-contain"
+              />
+            ) : undefined,
+            onSelect: () => dispatch({ type: "toggleOption", family, choice, key: option.key }),
           };
         })}
       />
-    ));
+    );
   } else {
     const agreement = catalog.serviceAgreement;
     step = (

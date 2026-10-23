@@ -5,9 +5,7 @@ import { getLocale } from "next-intl/server";
 import { ProductGrid } from "@/components/blocks/product-grid";
 import type { ProductCardProps } from "@/components/ui/product-card";
 import { getConfiguratorCatalog } from "@/features/configurator/data";
-import { resolveLinkField } from "@/payload/utilities/link-field";
-import { getMediaImageURL } from "@/payload/utilities/media";
-import { familyFromCatalog, familyPrices, formatTruckPrice } from "../milevas-data";
+import { familyCardSpecs, familyFromCatalog, familyLink, familyPrices } from "../milevas-data";
 import type { LayoutBlockComponentProps, ProductGridBlock } from "../types";
 
 export async function ProductGridBlockComponent({
@@ -18,18 +16,9 @@ export async function ProductGridBlockComponent({
   const catalog = await getConfiguratorCatalog(locale, draft);
   const products = block.products.flatMap((item): ProductCardProps[] => {
     const family = familyFromCatalog(item.family, catalog);
-    if (item.family && !family) return [];
-    const link = family
-      ? { href: `/configurator?family=${encodeURIComponent(family.key)}&step=1` }
-      : resolveLinkField(item.link);
-    if (!link) return [];
-    const src = getMediaImageURL(item.image) ?? family?.image?.url;
-    const prices = family
-      ? familyPrices(family, catalog)
-      : {
-          price: item.price != null ? formatTruckPrice(item.price) : undefined,
-          leasing: item.leasing != null ? formatTruckPrice(item.leasing) : undefined,
-        };
+    const link = family ? familyLink(family) : undefined;
+    if (!family || !link) return [];
+    const crop = item.imageFit === "crop" ? item.imageCrop : undefined;
     return [
       {
         href: link.href,
@@ -38,28 +27,22 @@ export async function ProductGridBlockComponent({
         ...editableBlock(item),
         brand: block.brand ?? "",
         category: block.category ?? "",
-        name: (
-          <span {...editableField("name")}>{item.name || family?.name || item.link?.label}</span>
-        ),
-        specs: [item.capacity, item.battery].filter(Boolean).map((spec, index) => (
-          <span key={index} {...editableField(spec === item.capacity ? "capacity" : "battery")}>
-            {spec}
-          </span>
-        )),
-        ...prices,
-        image: src ? (
-          <span className="absolute inset-0 block overflow-hidden" {...editableField("image")}>
+        name: family.name,
+        specs: familyCardSpecs(family, catalog),
+        ...familyPrices(family, catalog),
+        image: family.image ? (
+          <span className="absolute inset-0 block overflow-hidden" {...editableField("imageFit")}>
             <span
               className="absolute block"
               style={{
-                width: `${item.imageFit === "crop" ? (item.imageCrop?.width ?? 100) : 100}%`,
-                height: `${item.imageFit === "crop" ? (item.imageCrop?.height ?? 100) : 100}%`,
-                left: `${item.imageFit === "crop" ? (item.imageCrop?.left ?? 0) : 0}%`,
-                top: `${item.imageFit === "crop" ? (item.imageCrop?.top ?? 0) : 0}%`,
+                width: `${crop?.width ?? 100}%`,
+                height: `${crop?.height ?? 100}%`,
+                left: `${crop?.left ?? 0}%`,
+                top: `${crop?.top ?? 0}%`,
               }}
             >
               <Image
-                src={src}
+                src={family.image.url}
                 alt=""
                 fill
                 sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 90vw"

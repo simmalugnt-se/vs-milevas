@@ -18,6 +18,7 @@ omgångar: "01 — Foundations" och "02 — Components" är klara, och "04 — B
 | Test för tokens | `tests/design-tokens.test.mts` |
 | Ikoner, pilar och logotyp från Figmas SVG:er | `scripts/figma-svgs/` |
 | Backlog för blocken | [`blocks-backlog.md`](./blocks-backlog.md) |
+| Truckdatan i Payload: kartläggning och förslag på schema inför konfiguratorn | [`truck-data-schema.md`](./truck-data-schema.md) |
 | Avvikelser från Figma, egna beslut och frågor till designen | `src/app/(frontend)/[locale]/kitchensink/figma-notes.ts`; visas vid sin sektion, och alla samlat på `/kitchensink/notes` med det som gäller hela sajten |
 
 ## Kom igång på en annan dator
@@ -112,9 +113,9 @@ bildfält, länkar och markörer för visual editing. Boilerplatens block är kv
   och navigation ovanpå innehållet som följer med vid scroll. Blocken ansvarar för sin egen spacing;
   layouten beror inte på vilket block som ligger först.
 - Hero är `100svh` hög i alla bredder. Introt, trucksen som följer pekaren och snap-listan under
-  Desktop S följer Figma Make-prototypen; varje kolumn kan ha en egen truckbild, annars används
-  truckfamiljens. `pnpm seed:homepage -- --hero --publish-local` byter bara heron på en befintlig
-  lokal startsida mot Figmas texter och prototypens truckbilder (`hero-*.png`).
+  Desktop S följer Figma Make-prototypen; varje kolumn är en truckfamilj och visar dess namn,
+  huvudbild och priser. `pnpm seed:homepage -- --hero --publish-local` byter bara heron på en
+  befintlig lokal startsida mot Figmas texter och de sex familjerna.
 - `textColumns` (Text block Collumns) direkt efter `milevasHero` renderas i `LinkedColumns`
   (`RenderBlocks.tsx`) när heron har två kolumner fler (sex och fyra): ett lager streck som står
   still på skärmen medan man scrollar, och heronas kolumner som byter bredd med det. Den första och
@@ -123,18 +124,23 @@ bildfält, länkar och markörer för visual editing. Boilerplatens block är kv
   blocket efter heron.
 - `pnpm seed:homepage -- --image-text --publish-local` lägger in Image & Text efter text blocket på
   en befintlig lokal startsida, om sidan inte redan har det.
-- Hero och produktkort kan kopplas till truckfamiljer: namn, bild och priser kan hämtas från
-  konfiguratorn. Produktkortens bildutsnitt kan styras i Payload; testet använder Figmas utsnitt.
+- **Truckfamiljerna är det enda stället för en trucktyp** ([`truck-data-schema.md`](./truck-data-schema.md)):
+  heron, produktgriden, navigationens Modeller och sidfotens Produkter (`source: truckFamilies`)
+  hämtar namn, huvudbild, specifikationer, priser och länk därifrån. Produktkorten bestämmer bara
+  bildens utsnitt. `pnpm seed:configurator` fyller katalogen (specifikationer, familjer med modeller
+  och val, inställningar) med Figmas exempel och uppdaterar varje familj på dess nyckel, så sidorna
+  som pekar på den fortsätter göra det. `--products` till `seed:homepage` byter produktgriden.
 - `pnpm seed:homepage` skapar startsidan (`home`) samt navigation/footer som lokala utkast.
   `pnpm seed:homepage -- --publish-local` publicerar testet enbart lokalt. Kommandot kräver
   `SERVICES=local`, körs aldrig automatiskt och ersätter inte en startsida som redan har Milevas Hero.
   Figma-bilderna finns i `scripts/figma-homepage-assets` och laddas upp till Payload av scriptet.
 - `pnpm seed:globals -- --publish-local` fyller bara i Header- och Footer-globalerna efter Figma
-  (menyerna med truckbilderna och login; footerns kolumner, kontakt och copyright), utan att röra
+  (menyerna, där Modeller listar truckfamiljerna, och login; footerns kolumner, där Produkter listar
+  dem, kontakt och copyright), utan att röra
   startsidan. Samma krav som ovan.
 - Ingen ny SQL-migrering behövs för blocken: `blocksAsJSON` lagrar block och relationer i sidans
   JSON. Header- och Footer-globalernas nya fält har egna migreringar (`20261022_123131_header_menus_login`,
-  `20261022_125150_footer_columns_contact`).
+  `20261022_125150_footer_columns_contact`), och truckdatan sin (`20261023_091729_truck_catalog`).
 - `pnpm test:milevas-blocks` provar sparande, relationer, lokaliserad text och upprepad seed i
   en egen tillfällig databas. Befintliga migrationsfiler bygger hela schemat.
 

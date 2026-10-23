@@ -490,7 +490,7 @@ export const figmaNotes: FigmaNote[] = [
     topic: "Sex kolumner",
     figma:
       "Hero-ramarna och Make-prototypen har fem kolumner; startsidesprototypen sex, som blir text blockets fyra när man scrollar",
-    code: "Testet har sex: prototypens fem truckar och Plocktruckar, med bilden från Figmas product-grid (512px, beskuren)",
+    code: "Testet har sex, en per truckfamilj: prototypens fem truckar och Plocktruckar, med bilden från Figmas product-grid (512px, beskuren)",
     why: "Användarens val 2026-10-22: sex kolumner går naturligt till fyra, och det finns sex trucktyper",
     status: "Beslut",
     date: "2026-10-22",
@@ -559,10 +559,10 @@ export const figmaNotes: FigmaNote[] = [
     topic: "Truckbilder",
     figma:
       "Inga bilder i Figma; prototypen har fem frilagda truckar i samma skala, och Plocktruckar finns bara i product-grid (512px)",
-    code: "Varje kolumn har ett eget bildfält i Payload, annars truckfamiljens bild. Testet använder prototypens bilder (`scripts/figma-homepage-assets/hero-*.png`)",
-    why: "Familjernas bilder har olika utsnitt och marginaler",
-    status: "Beslut (teknisk)",
-    date: "2026-10-22",
+    code: "Kolumnen visar truckfamiljens huvudbild, nederkanten mot marken; testets familjer har prototypens bilder (`scripts/figma-homepage-assets/hero-*.png`). Tidigare hade varje kolumn ett eget bildfält",
+    why: "Användarens beslut 2026-10-23: en huvudbild per familj, som ändras på ett ställe",
+    status: "Beslut",
+    date: "2026-10-23",
   },
   {
     target: "hero",
@@ -595,11 +595,12 @@ export const figmaNotes: FigmaNote[] = [
   {
     target: "product-grid",
     topic: "Truckdata och plocktruck",
-    figma: "Sex kort med exempel på namn, specifikationer och bilder",
-    code: "Familjekopplade kort hämtar priser och länkar från konfiguratorn. Bild, namn, kapacitet och batteritext kan ersättas i blocket. Plocktruckar länkar tills vidare till kontakt utan priser",
-    why: "Plocktruckar finns inte i konfiguratorns katalog; specifikationerna i testet följer Figmas exempel och behöver innehållsgranskas",
-    status: "Antagande",
-    date: "2026-10-07",
+    figma:
+      'Sex kort med exempel på namn, specifikationer ("1.5 – 3.5 ton /// 80 V 228 Ah") och bilder',
+    code: 'Varje kort är en truckfamilj: namn, huvudbild, priser och länk därifrån; lyftkapaciteten som modellernas intervall ("1,5 – 3,5 ton", med decimalkomma) och specifikationerna markerade för produktkortet. Blocket bestämmer bara bildens utsnitt. Plocktruckar är en familj som inte går att konfigurera och länkar till kontakt utan priser',
+    why: "Användarens beslut 2026-10-23: kategorierna ändras på ett ställe. Testets data är Figmas exempel och platshållare",
+    status: "Beslut",
+    date: "2026-10-23",
   },
   {
     target: "product-grid",

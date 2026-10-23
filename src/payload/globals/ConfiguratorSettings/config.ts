@@ -66,6 +66,27 @@ export const ConfiguratorSettings: GlobalConfig = {
         { name: "annualPrice", type: "number", required: true, min: 0, defaultValue: 2856 },
       ],
     },
+    {
+      name: "warrantyNote",
+      label: "Garantins förklaring",
+      type: "textarea",
+      localized: true,
+      admin: {
+        description:
+          'Under garantin i offertens prisruta. Exempel: "Omfattar fabrikationsfel på drivlina, elsystem och chassi."',
+      },
+    },
+    {
+      name: "nextSteps",
+      label: "Vad händer nu?",
+      type: "array",
+      localized: false,
+      admin: { description: "Stegen på tacksidan efter en beställning." },
+      fields: [
+        { name: "heading", label: "Rubrik", type: "text", localized: true, required: true },
+        { name: "text", label: "Text", type: "textarea", localized: true },
+      ],
+    },
   ],
   hooks: { afterChange: [revalidateConfiguratorSettings] },
   versions: { drafts: { autosave: { interval: 300 }, schedulePublish: true }, max: 50 },

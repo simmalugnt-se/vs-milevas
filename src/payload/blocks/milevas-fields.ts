@@ -1,19 +1,13 @@
-import type { Field, GroupField } from "payload";
-import { link } from "../fields/link";
+import type { Field, RelationshipField } from "payload";
 
-/** A family supplies the name, image, prices and configurator link; editorial overrides are optional. */
-export const familyField: Field = {
+/** The truck family a block shows: its name, image, specifications, prices and link. */
+export const familyField: RelationshipField = {
   name: "family",
   label: "Truckfamilj",
   type: "relationship",
   relationTo: "truck-families",
-  admin: { description: "Valfritt. Hämtar namn, bild och priser från konfiguratorn." },
+  admin: { description: "Namn, bild och priser ändras i truckfamiljen." },
 };
-
-export const editorialLink = (): GroupField => ({
-  ...(link() as GroupField),
-  admin: { hideGutter: true, condition: (_, siblingData) => !siblingData?.family },
-});
 
 export const sectionID: Field = {
   name: "anchor",

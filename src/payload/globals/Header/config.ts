@@ -43,9 +43,27 @@ export const Header: GlobalConfig = {
           },
         },
         {
+          name: "source",
+          type: "select",
+          label: "The menu's links",
+          defaultValue: "links",
+          options: [
+            { label: "The links below", value: "links" },
+            { label: "The truck families", value: "truckFamilies" },
+          ],
+          admin: {
+            description:
+              "The truck families: every published family in its order, with its name and main image (Figma's Modeller).",
+          },
+        },
+        {
           name: "links",
           type: "array",
           label: "Links in the menu",
+          admin: {
+            initCollapsed: true,
+            condition: (_, siblingData) => siblingData?.source !== "truckFamilies",
+          },
           fields: [
             link(),
             {
@@ -58,7 +76,6 @@ export const Header: GlobalConfig = {
               },
             },
           ],
-          admin: { initCollapsed: true },
         },
         {
           name: "image",

@@ -1,5 +1,5 @@
 import type { Block } from "payload";
-import { editorialLink, familyField, sectionID } from "../milevas-fields";
+import { familyField, sectionID } from "../milevas-fields";
 
 export const ProductGridBlock: Block = {
   slug: "productGrid",
@@ -26,19 +26,14 @@ export const ProductGridBlock: Block = {
       name: "products",
       label: "Truckkort",
       type: "array",
+      admin: {
+        description:
+          "Ett kort per truckfamilj; namn, bild, specifikationer, priser och länk kommer från familjen.",
+      },
       required: true,
       minRows: 1,
       fields: [
-        familyField,
-        { name: "name", label: "Namn (ersätter familjens namn)", type: "text", localized: true },
-        {
-          name: "image",
-          label: "Bild (ersätter familjens bild)",
-          type: "upload",
-          relationTo: "images",
-        },
-        { name: "capacity", label: "Lyftkapacitet", type: "text", localized: true },
-        { name: "battery", label: "Batteri", type: "text", localized: true },
+        { ...familyField, required: true },
         {
           name: "imageFit",
           label: "Bildpassning",
@@ -89,21 +84,6 @@ export const ProductGridBlock: Block = {
               defaultValue: 0,
             },
           ],
-        },
-        editorialLink(),
-        {
-          name: "price",
-          label: "Från-pris",
-          type: "number",
-          min: 0,
-          admin: { condition: (_, data) => !data?.family },
-        },
-        {
-          name: "leasing",
-          label: "Leasing per månad",
-          type: "number",
-          min: 0,
-          admin: { condition: (_, data) => !data?.family },
         },
       ],
     },

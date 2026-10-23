@@ -4,9 +4,7 @@ import Image from "next/image";
 import { getLocale } from "next-intl/server";
 import { MilevasHero } from "@/components/blocks/milevas-hero";
 import { getConfiguratorCatalog } from "@/features/configurator/data";
-import { resolveLinkField } from "@/payload/utilities/link-field";
-import { getMediaImageURL } from "@/payload/utilities/media";
-import { familyFromCatalog, familyPrices } from "../milevas-data";
+import { familyFromCatalog, familyLink, familyPrices } from "../milevas-data";
 import type { LayoutBlockComponentProps, MilevasHeroBlock } from "../types";
 
 export async function MilevasHeroBlockComponent({
@@ -17,15 +15,9 @@ export async function MilevasHeroBlockComponent({
   const catalog = await getConfiguratorCatalog(locale, draft);
   const columns = block.columns.flatMap((item, index) => {
     const family = familyFromCatalog(item.family, catalog);
-    if (item.family && !family) return [];
-    const link = family
-      ? { href: `/configurator?family=${encodeURIComponent(family.key)}&step=1` }
-      : resolveLinkField(item.link);
-    if (!link) return [];
-    const prices = family
-      ? familyPrices(family, catalog)
-      : { price: item.price, leasing: item.leasing };
-    const src = getMediaImageURL(item.image) ?? family?.image?.url;
+    const link = family ? familyLink(family) : undefined;
+    if (!family || !link) return [];
+    const prices = familyPrices(family, catalog);
     return [
       {
         href: link.href,
@@ -33,16 +25,15 @@ export async function MilevasHeroBlockComponent({
         target: "target" in link ? link.target : undefined,
         id: item.id ?? String(index),
         attributes: editableBlock(item),
-        label: family ? `${item.heading} ${family.name}` : item.heading,
-        name: family?.name ?? item.link?.label ?? item.heading,
-        image: src ? (
+        label: `${item.heading} ${family.name}`,
+        name: family.name,
+        image: family.image ? (
           <Image
-            src={src}
+            src={family.image.url}
             alt=""
             fill
             sizes="(min-width: 1024px) 26.25rem, 75vw"
             className="object-contain object-bottom"
-            {...editableField("image")}
           />
         ) : undefined,
         heading: <span {...editableField("heading")}>{item.heading}</span>,

@@ -10,6 +10,7 @@ import * as migration_20261005_081141_header_cta_footer_email from "./20261005_0
 import * as migration_20261005_094932_configurator_step_help from "./20261005_094932_configurator_step_help";
 import * as migration_20261022_123131_header_menus_login from "./20261022_123131_header_menus_login";
 import * as migration_20261022_125150_footer_columns_contact from "./20261022_125150_footer_columns_contact";
+import * as migration_20261023_091729_truck_catalog from "./20261023_091729_truck_catalog";
 
 export const migrations = [
   {
@@ -71,5 +72,10 @@ export const migrations = [
     up: migration_20261022_125150_footer_columns_contact.up,
     down: migration_20261022_125150_footer_columns_contact.down,
     name: "20261022_125150_footer_columns_contact",
+  },
+  {
+    up: migration_20261023_091729_truck_catalog.up,
+    down: migration_20261023_091729_truck_catalog.down,
+    name: "20261023_091729_truck_catalog",
   },
 ];

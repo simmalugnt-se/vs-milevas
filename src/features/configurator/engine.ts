@@ -1,34 +1,79 @@
 import type {
+  ChoiceDisplay,
   ConfiguratorCatalog,
+  ConfiguratorChoice,
   ConfiguratorFamily,
   ConfiguratorOption,
   ConfiguratorQuote,
   ConfiguratorSpecification,
   FinancingMethod,
   SelectionState,
+  SpecValue,
 } from "./types";
 
-const selectionReference = (groupKey: string, optionKey: string) => `${groupKey}.${optionKey}`;
+/** The model is the first step; its selection is kept under this key, like a choice's. */
+export const MODEL_CHOICE = "model";
+
+const selectionReference = (choiceKey: string, optionKey: string) => `${choiceKey}.${optionKey}`;
 
 function selectedReferences(selections: SelectionState): Set<string> {
   return new Set(
-    Object.entries(selections).flatMap(([groupKey, optionKeys]) =>
-      optionKeys.map((optionKey) => selectionReference(groupKey, optionKey)),
+    Object.entries(selections).flatMap(([choiceKey, optionKeys]) =>
+      optionKeys.map((optionKey) => selectionReference(choiceKey, optionKey)),
     ),
   );
 }
 
-export function isOptionAvailable(option: ConfiguratorOption, selections: SelectionState): boolean {
-  const selected = selectedReferences(selections);
-  const { allOf, anyOf, noneOf } = option.conditions;
+/**
+ * The configurator's steps for a family: the models as the first choice, then the family's
+ * choices in order. A model's option carries its price, which the choices add to.
+ */
+export function familySteps(family: ConfiguratorFamily): ConfiguratorChoice[] {
+  if (!family.configurable || family.models.length === 0) return [];
+  const modelChoice: ConfiguratorChoice = {
+    key: MODEL_CHOICE,
+    label: family.modelChoice.label,
+    heading: family.modelChoice.heading,
+    selectionMode: "single",
+    required: true,
+    options: family.models.map((model) => ({
+      key: model.key,
+      label: model.label,
+      description: model.description,
+      price: model.price,
+      default: model.default,
+      sku: model.sku,
+      models: [],
+      requires: [],
+      excludes: [],
+      specs: model.specs,
+    })),
+  };
+  return [modelChoice, ...family.choices];
+}
 
-  if (allOf.some((reference) => !selected.has(reference))) {
+/** The step type: the choice's own, or one the content suggests. */
+export function choiceDisplay(choice: ConfiguratorChoice): ChoiceDisplay {
+  if (choice.display) return choice.display;
+  if (choice.options.some((option) => option.image)) {
+    return choice.options.length > 3 ? "images" : "imageRows";
+  }
+  if (choice.options.length > 2) {
+    return choice.options.some((option) => option.description) ? "grid" : "prices";
+  }
+  return "stack";
+}
+
+export function isOptionAvailable(option: ConfiguratorOption, selections: SelectionState): boolean {
+  const model = selections[MODEL_CHOICE]?.[0];
+  if (option.models.length > 0 && (!model || !option.models.includes(model))) {
     return false;
   }
-  if (anyOf.length > 0 && !anyOf.some((reference) => selected.has(reference))) {
+  const selected = selectedReferences(selections);
+  if (option.requires.some((reference) => !selected.has(reference))) {
     return false;
   }
-  return noneOf.every((reference) => !selected.has(reference));
+  return option.excludes.every((reference) => !selected.has(reference));
 }
 
 export function sanitizeSelections(
@@ -38,28 +83,24 @@ export function sanitizeSelections(
 ): SelectionState {
   const next: SelectionState = {};
 
-  for (const step of family.steps) {
-    for (const group of step.groups) {
-      const requested = input[group.key] ?? [];
-      const available = group.options.filter((option) => isOptionAvailable(option, next));
-      const availableKeys = new Set(available.map((option) => option.key));
-      const uniqueRequested = [...new Set(requested)].filter((key) => availableKeys.has(key));
-      const accepted =
-        group.selectionMode === "single" ? uniqueRequested.slice(0, 1) : uniqueRequested;
+  for (const choice of familySteps(family)) {
+    const requested = input[choice.key] ?? [];
+    const available = choice.options.filter((option) => isOptionAvailable(option, next));
+    const availableKeys = new Set(available.map((option) => option.key));
+    const uniqueRequested = [...new Set(requested)].filter((key) => availableKeys.has(key));
+    const accepted =
+      choice.selectionMode === "single" ? uniqueRequested.slice(0, 1) : uniqueRequested;
 
-      if (accepted.length > 0) {
-        next[group.key] = accepted;
-        continue;
-      }
+    if (accepted.length > 0) {
+      next[choice.key] = accepted;
+      continue;
+    }
 
-      if (applyDefaults) {
-        const defaults = available
-          .filter((option) => option.defaultSelected)
-          .map((option) => option.key);
-        const selectedDefaults = group.selectionMode === "single" ? defaults.slice(0, 1) : defaults;
-        if (selectedDefaults.length > 0) {
-          next[group.key] = selectedDefaults;
-        }
+    if (applyDefaults) {
+      const defaults = available.filter((option) => option.default).map((option) => option.key);
+      const selectedDefaults = choice.selectionMode === "single" ? defaults.slice(0, 1) : defaults;
+      if (selectedDefaults.length > 0) {
+        next[choice.key] = selectedDefaults;
       }
     }
   }
@@ -67,15 +108,24 @@ export function sanitizeSelections(
   return next;
 }
 
+/**
+ * Whether a step is done: it is optional, something is chosen, or nothing in it is offered for
+ * what is chosen before it (a required choice cannot then block the configuration).
+ */
+export function choiceSatisfied(choice: ConfiguratorChoice, selections: SelectionState): boolean {
+  return (
+    !choice.required ||
+    (selections[choice.key]?.length ?? 0) > 0 ||
+    !choice.options.some((option) => isOptionAvailable(option, selections))
+  );
+}
+
 export function firstIncompleteStep(
   family: ConfiguratorFamily,
   selections: SelectionState,
 ): number | null {
-  for (const [stepIndex, step] of family.steps.entries()) {
-    const incomplete = step.groups.some(
-      (group) => group.required && (selections[group.key]?.length ?? 0) === 0,
-    );
-    if (incomplete) {
+  for (const [stepIndex, choice] of familySteps(family).entries()) {
+    if (!choiceSatisfied(choice, selections)) {
       return stepIndex;
     }
   }
@@ -87,17 +137,15 @@ export function firstInvalidSelectionStep(
   input: SelectionState,
   sanitized: SelectionState,
 ): number | null {
-  const groupSteps = new Map(
-    family.steps.flatMap((step, stepIndex) => step.groups.map((group) => [group.key, stepIndex])),
-  );
+  const stepOf = new Map(familySteps(family).map((choice, stepIndex) => [choice.key, stepIndex]));
   let firstInvalid: number | null = null;
 
-  for (const [groupKey, requestedOptions] of Object.entries(input)) {
-    const stepIndex = groupSteps.get(groupKey);
+  for (const [choiceKey, requestedOptions] of Object.entries(input)) {
+    const stepIndex = stepOf.get(choiceKey);
     if (stepIndex === undefined) {
       return 0;
     }
-    const accepted = new Set(sanitized[groupKey] ?? []);
+    const accepted = new Set(sanitized[choiceKey] ?? []);
     if (requestedOptions.some((optionKey) => !accepted.has(optionKey))) {
       firstInvalid = firstInvalid === null ? stepIndex : Math.min(firstInvalid, stepIndex);
     }
@@ -106,25 +154,23 @@ export function firstInvalidSelectionStep(
   return firstInvalid;
 }
 
+/** Each chosen option that is available, step by step. */
+function chosenOptions(family: ConfiguratorFamily, selections: SelectionState) {
+  return familySteps(family).flatMap((choice) =>
+    (selections[choice.key] ?? []).flatMap((optionKey) => {
+      const option = choice.options.find((candidate) => candidate.key === optionKey);
+      return option && isOptionAvailable(option, selections) ? [{ choice, option }] : [];
+    }),
+  );
+}
+
 /**
- * The price of what is chosen so far, for the total shown while configuring: the base (or the
- * option that replaces it) plus the added options. Unlike `buildQuote` it does not need every step
- * complete; an option whose condition is not met does not count.
+ * The price of what is chosen so far, for the total shown while configuring: the model plus the
+ * options. Unlike `buildQuote` it does not need every step complete; an option that is not
+ * available does not count.
  */
 export function estimateTotal(family: ConfiguratorFamily, selections: SelectionState): number {
-  let basePrice = family.basePrice;
-  let additions = 0;
-  for (const step of family.steps) {
-    for (const group of step.groups) {
-      for (const optionKey of selections[group.key] ?? []) {
-        const option = group.options.find((candidate) => candidate.key === optionKey);
-        if (!option || !isOptionAvailable(option, selections)) continue;
-        if (option.priceMode === "replaceBase") basePrice = option.price;
-        if (option.priceMode === "add") additions += option.price;
-      }
-    }
-  }
-  return basePrice + additions;
+  return chosenOptions(family, selections).reduce((sum, { option }) => sum + option.price, 0);
 }
 
 export function calculateFinancingPrice(total: number, financing: FinancingMethod): number {
@@ -132,6 +178,28 @@ export function calculateFinancingPrice(total: number, financing: FinancingMetho
     return total;
   }
   return Math.round(total * (financing.monthlyFactor ?? 0));
+}
+
+/**
+ * The specifications as the quote lists them: the family's, overridden by the model's and then by
+ * the options', in the order of `truck-specs`, each value with its unit.
+ */
+export function resolveSpecifications(
+  catalog: Pick<ConfiguratorCatalog, "specs">,
+  layers: SpecValue[][],
+): ConfiguratorSpecification[] {
+  const values = new Map<string, string>();
+  for (const layer of layers) {
+    for (const { spec, value } of layer) values.set(spec, value);
+  }
+  return [...catalog.specs]
+    .sort((a, b) => a.sortOrder - b.sortOrder)
+    .flatMap((spec) => {
+      const value = values.get(spec.key);
+      if (!value) return [];
+      const withUnit = spec.unit && !value.endsWith(spec.unit) ? `${value} ${spec.unit}` : value;
+      return [{ label: spec.label, value: withUnit }];
+    });
 }
 
 export function buildQuote(
@@ -145,7 +213,7 @@ export function buildQuote(
 ): ConfiguratorQuote | null {
   const family = catalog.families.find((candidate) => candidate.key === familyKey);
   const financing = catalog.financingMethods.find((candidate) => candidate.key === financingKey);
-  if (!family || !financing) {
+  if (!family || !financing || familySteps(family).length === 0) {
     return null;
   }
 
@@ -155,59 +223,11 @@ export function buildQuote(
     return null;
   }
 
-  let basePrice = family.basePrice;
-  let baseLabel = family.name;
-  let sku = family.sku;
-  const additions: Array<{ key: string; label: string; price: number }> = [];
-  const optionLines: ConfiguratorQuote["lines"] = [];
-  const selectedOptions: ConfiguratorQuote["selectedOptions"] = [];
-  const specifications: ConfiguratorSpecification[] = [];
-
-  for (const step of family.steps) {
-    for (const group of step.groups) {
-      for (const optionKey of selections[group.key] ?? []) {
-        const option = group.options.find((candidate) => candidate.key === optionKey);
-        if (!option || !isOptionAvailable(option, selections)) {
-          return null;
-        }
-
-        if (option.priceMode === "replaceBase") {
-          basePrice = option.price;
-          baseLabel = option.label;
-        } else {
-          const price = option.priceMode === "included" ? 0 : option.price;
-          optionLines.push({
-            key: selectionReference(group.key, option.key),
-            label: option.label,
-            price,
-            kind: "option",
-          });
-        }
-
-        if (option.priceMode === "add") {
-          additions.push({
-            key: selectionReference(group.key, option.key),
-            label: option.label,
-            price: option.price,
-          });
-        }
-
-        if (option.sku) {
-          sku = option.sku;
-        }
-        specifications.push(...option.specifications);
-        selectedOptions.push({
-          groupKey: group.key,
-          optionKey: option.key,
-          label: option.label,
-          price: option.priceMode === "included" ? 0 : option.price,
-          priceMode: option.priceMode,
-        });
-      }
-    }
-  }
-
-  const totalPrice = basePrice + additions.reduce((sum, addition) => sum + addition.price, 0);
+  const chosen = chosenOptions(family, selections);
+  const model = family.models.find((candidate) => candidate.key === selections[MODEL_CHOICE]?.[0]);
+  const options = chosen.filter(({ choice }) => choice.key !== MODEL_CHOICE);
+  const sku = [...options].reverse().find(({ option }) => option.sku)?.option.sku ?? model?.sku;
+  const totalPrice = chosen.reduce((sum, { option }) => sum + option.price, 0);
   const serviceAgreement =
     includeServiceAgreement && financing.serviceAgreementEligible
       ? catalog.serviceAgreement
@@ -217,12 +237,33 @@ export function buildQuote(
     complete,
     familyKey: family.key,
     familyName: family.name,
+    familySingularName: family.singularName,
+    modelKey: model?.key,
     sku,
     selections,
-    selectedOptions,
+    selectedOptions: chosen.map(({ choice, option }) => ({
+      groupKey: choice.key,
+      optionKey: option.key,
+      label: option.label,
+      price: option.price,
+    })),
     lines: [
-      { key: "base", label: `${family.name} - bas (${baseLabel})`, price: basePrice, kind: "base" },
-      ...optionLines,
+      ...(model
+        ? [
+            {
+              key: "base",
+              label: `${family.name} – bas (${model.label})`,
+              price: model.price,
+              kind: "base" as const,
+            },
+          ]
+        : []),
+      ...options.map(({ choice, option }) => ({
+        key: selectionReference(choice.key, option.key),
+        label: option.label,
+        price: option.price,
+        kind: "option" as const,
+      })),
       ...(serviceAgreement
         ? [
             {
@@ -234,7 +275,10 @@ export function buildQuote(
           ]
         : []),
     ],
-    specifications,
+    specifications: resolveSpecifications(catalog, [
+      family.specs,
+      ...chosen.map(({ option }) => option.specs),
+    ]),
     totalPrice,
     financing,
     financingPrice: calculateFinancingPrice(totalPrice, financing),
@@ -243,8 +287,4 @@ export function buildQuote(
     warranty: family.warranty,
     quoteValidityDays: catalog.quoteValidityDays,
   };
-}
-
-export function familyGroups(family: ConfiguratorFamily) {
-  return family.steps.flatMap((step) => step.groups);
 }

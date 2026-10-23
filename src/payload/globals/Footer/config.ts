@@ -28,10 +28,27 @@ export const Footer: GlobalConfig = {
       fields: [
         { name: "heading", type: "text", localized: true, required: true },
         {
+          name: "source",
+          type: "select",
+          label: "The column's links",
+          defaultValue: "links",
+          options: [
+            { label: "The links below", value: "links" },
+            { label: "The truck families", value: "truckFamilies" },
+          ],
+          admin: {
+            description:
+              "The truck families: every published family in its order (Figma's Produkter).",
+          },
+        },
+        {
           name: "links",
           type: "array",
           fields: [link()],
-          admin: { initCollapsed: true },
+          admin: {
+            initCollapsed: true,
+            condition: (_, siblingData) => siblingData?.source !== "truckFamilies",
+          },
         },
       ],
     },
