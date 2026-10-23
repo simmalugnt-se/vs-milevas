@@ -40,7 +40,10 @@ export default async function QuotePage({ params, searchParams }: QuotePageProps
 
   if (!quote) {
     return (
-      <section className="mx-auto w-full max-w-2xl border border-neutral-300 bg-white p-6 sm:p-8">
+      <section
+        className="mx-auto w-full max-w-2xl border border-neutral-300 bg-white p-6 sm:p-8"
+        data-page-background="light"
+      >
         <p
           className="mb-5 grid size-10 place-items-center border border-neutral-950 text-xl"
           aria-hidden="true"
@@ -70,9 +73,14 @@ export default async function QuotePage({ params, searchParams }: QuotePageProps
     step: family ? familySteps(family).length + 1 : undefined,
   });
 
-  // Room for the site's overlaid navigation, as the configurator block has.
+  // Room for the site's overlaid navigation, Light here as on the configurator, and the page's
+  // light grey background around the footer, as the configurator page has.
   return (
-    <div className="bg-bg-fill-secondary pt-24">
+    <div
+      className="bg-bg-fill-secondary pt-24"
+      data-page-background="light"
+      data-navigation="light"
+    >
       <QuoteView
         quote={quote}
         locale={locale}
