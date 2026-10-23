@@ -80,6 +80,7 @@ export const kitchensinkPages = [
           { id: "card-slider", title: "Card Slider" },
           { id: "text-block", title: "Text-block" },
           { id: "contact", title: "Contact" },
+          { id: "login", title: "Login" },
           { id: "footer", title: "Footer" },
         ],
       },

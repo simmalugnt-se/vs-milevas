@@ -405,6 +405,24 @@ export const designQuestions: DesignQuestion[] = [
     figma: "9098:22569",
   },
   {
+    target: "login",
+    question:
+      "Ska navigationen synas på inloggningssidan? Figma visar sidan utan den. På sajten ligger den ovanpå, och till höger hamnar Login och Meny i ljus text på den vita panelen, där de knappt syns.",
+    figma: "9170:26321",
+  },
+  {
+    target: "login",
+    question:
+      'Skapa konto har knappen "Logga in" och frågar bara efter e-post och lösenord. Ska knappen heta "Skapa konto", och behövs fler fält (namn, företag)?',
+    figma: "9170:26943",
+  },
+  {
+    target: "login",
+    question:
+      'Vad händer efter inloggningen, vid fel lösenord och vid "Jag har glömt mitt lösenord"? Figma visar inga sådana lägen.',
+    figma: "9170:26321",
+  },
+  {
     target: "text-boxinfo",
     question:
       'Tablet och Mobile: "390kr/mån" i rubriken har storleken 96px, resten 64 och 48px. Det syns inte i skärmdumpen; koden använder rubrikens storlek för hela raden.',
@@ -1013,6 +1031,42 @@ export const figmaNotes: FigmaNote[] = [
     code: 'Sist på testets startsida, med ankaret `kontakt` som sidfotens "Bli återförsäljare" (`/#kontakt`) leder till',
     why: "Länken fanns redan",
     status: "Antagande",
+    date: "2026-10-23",
+  },
+  {
+    target: "login",
+    topic: "Inte kopplad",
+    figma: "Logga in och Skapa konto",
+    code: "En hårdkodad sida, `/login`, med Figmas foto i repot. Fälten kontrolleras i webbläsaren (e-post, lösenord, minst 8 tecken för ett nytt konto); ett giltigt formulär säger att inloggningen inte är kopplad än. `TODO(login)` i `LoginForm`",
+    why: "Hur inloggningen ska kopplas är inte bestämt; bild och text kan flyttas till admin senare",
+    status: "Platshållare",
+    date: "2026-10-23",
+  },
+  {
+    target: "login",
+    topic: "Fältens höjd",
+    figma: "Fälten är ritade 56px höga, fast rubriken, avståndet och rutan blir 60px",
+    code: "60px, som fälten överallt; formuläret blir 8px högre och centreras 4px högre upp",
+    why: "Samma fältkomponent som i övriga formulär",
+    status: "Beslut (teknisk)",
+    date: "2026-10-23",
+  },
+  {
+    target: "login",
+    topic: "Skapa konto",
+    figma: 'Knappen heter "Logga in", och texten "Har du redan ett kontp?"',
+    code: 'Knappen heter "Skapa konto" och texten "Har du redan ett konto?"; ingen "glömt lösenord"-länk, som i Figma',
+    why: "Ser ut som en kopia och ett stavfel",
+    status: "Antagande",
+    date: "2026-10-23",
+  },
+  {
+    target: "login",
+    topic: "Fel och meddelanden",
+    figma: "Inga fel- eller meddelandelägen",
+    code: 'Fältfelen som i övriga formulär; ett meddelande i `status-error` ovanför knappen. Länkarna mellan lägena och "Jag har glömt mitt lösenord" är knappar på sidan',
+    why: "Formuläret behöver säga vad som är fel",
+    status: "Lucka",
     date: "2026-10-23",
   },
   {

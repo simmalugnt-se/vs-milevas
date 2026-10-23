@@ -156,8 +156,8 @@ för Display, Text och sajtens standardtext; Label använder Geist Mono.
 
 ## Nästa steg
 
-1. **Blocken i [`blocks-backlog.md`](./blocks-backlog.md)**, i Figmas ordning: Login är
-   nästa, när det är bestämt vad inloggningen ska ge åtkomst till. Configurator, Popup, Card Slider,
-   Text-block och Contact är byggda.
+1. **Blocken i [`blocks-backlog.md`](./blocks-backlog.md)** är byggda. Login är en hårdkodad
+   sida, `/login` (`src/components/blocks/login.tsx`, `src/features/login/LoginForm.tsx`), med
+   mockad validering; den riktiga inloggningen kopplas på när det är bestämt hur.
 2. **Väntar på designen eller på dig:**
    - en genomgång av posterna med status Antagande och frågorna till designen, på `/kitchensink/notes`

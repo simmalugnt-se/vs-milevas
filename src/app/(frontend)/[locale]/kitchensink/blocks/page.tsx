@@ -12,6 +12,7 @@ import { ConfiguratorThanks } from "@/components/blocks/configurator-thanks";
 import { Contact, ContactLink } from "@/components/blocks/contact";
 import { Footer, type FooterGroup } from "@/components/blocks/footer";
 import { ImageText } from "@/components/blocks/image-text";
+import { Login } from "@/components/blocks/login";
 import { MilevasHero } from "@/components/blocks/milevas-hero";
 import { Navigation, type NavigationMenu } from "@/components/blocks/navigation";
 import { ProductGrid } from "@/components/blocks/product-grid";
@@ -22,6 +23,7 @@ import { TextGrid, type TextGridCard } from "@/components/blocks/text-grid";
 import { Button, TextLink } from "@/components/ui/button";
 import { PriceBox } from "@/components/ui/price-box";
 import type { ProductCardProps } from "@/components/ui/product-card";
+import { LoginForm } from "@/features/login/LoginForm";
 import cardSliderFactory from "../../../../../../scripts/figma-homepage-assets/card-slider-factory.jpg";
 import cardSliderParts from "../../../../../../scripts/figma-homepage-assets/card-slider-parts.jpg";
 import heroCounterbalance from "../../../../../../scripts/figma-homepage-assets/hero-counterbalance.png";
@@ -35,6 +37,7 @@ import logoBaoli from "../../../../../../scripts/figma-homepage-assets/logo-baol
 import logoKion from "../../../../../../scripts/figma-homepage-assets/logo-kion.png";
 import logoLinde from "../../../../../../scripts/figma-homepage-assets/logo-linde.png";
 import logoStill from "../../../../../../scripts/figma-homepage-assets/logo-still.png";
+import loginForklift from "../../login/login-forklift.jpg";
 import navigationTruck from "../assets/navigation-truck.png";
 import truckCounterbalance from "../assets/truck-counterbalance.png";
 import truckPallet from "../assets/truck-pallet.png";
@@ -352,6 +355,10 @@ const textBlockLogos = [
   ["Baoli", logoBaoli, 108],
 ] as const;
 
+const loginImage = (
+  <Image src={loginForklift} alt="" fill sizes="50vw" className="object-cover" placeholder="blur" />
+);
+
 export default function BlocksPage() {
   return (
     <KitchensinkPage href="/kitchensink/blocks" fullWidth>
@@ -658,6 +665,24 @@ export default function BlocksPage() {
           ]}
           form={<ContactFormDemo type="contact" />}
         />
+      </Block>
+
+      {/* The same as /login; the form checks its fields but sends nothing. */}
+      <Block id="login" figma="9170:26321">
+        <Login image={loginImage}>
+          <LoginForm />
+        </Login>
+        <Login image={loginImage}>
+          <LoginForm initialMode="create" />
+        </Login>
+        <Login image={loginImage}>
+          <LoginForm
+            initialErrors={{
+              email: "Ange en giltig e-postadress.",
+              password: "Ange ett lösenord.",
+            }}
+          />
+        </Login>
       </Block>
 
       <Block id="footer" figma="9264:22371">
