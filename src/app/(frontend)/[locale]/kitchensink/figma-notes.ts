@@ -363,6 +363,12 @@ export const designQuestions: DesignQuestion[] = [
     figma: "8389:569",
   },
   {
+    target: "product-grid",
+    question:
+      "Product-Grid har ingen bakgrund i Figma, så det som ligger bakom syns mellan korten. Ska det vara mörkt (Dark `bg-fill`), som koden har, eller sidans bakgrund?",
+    figma: "8365:8988",
+  },
+  {
     target: "text-boxinfo",
     question:
       'Tablet och Mobile: "390kr/mån" i rubriken har storleken 96px, resten 64 och 48px. Det syns inte i skärmdumpen; koden använder rubrikens storlek för hela raden.',
@@ -1193,10 +1199,10 @@ export const figmaNotes: FigmaNote[] = [
     topic: "Storlek",
     figma:
       "430 × 507 i alla komponentens lägen; instanserna i product-grid är 507px höga i andra bredder",
-    code: "Komponentens proportion, 430:507, i alla lägen och bredder. Tidigare product-grids instanser (339–469:507), som gjorde bilden för liten vid hover",
-    why: "Komponenten gäller; inga fasta höjder. Blockets bredder tas när product-grid gås igenom",
+    code: "Komponentens proportion, 430:507, om inte blocket sätter en annan (`--card-aspect`); Product-Grid sätter sina ramars, se där",
+    why: "Komponenten gäller för sig, blocket för sina kort; inga fasta höjder",
     status: "Beslut (teknisk)",
-    date: "2026-10-21",
+    date: "2026-10-23",
   },
   {
     target: "product-card",
@@ -1206,6 +1212,26 @@ export const figmaNotes: FigmaNote[] = [
     why: "Bilden ska ändra storlek enligt designen, medan innehållets storlek inte ska kunna ändra kortets höjd eller flytta nästa rad",
     status: "Beslut (teknisk)",
     date: "2026-10-07",
+  },
+  {
+    target: "product-grid",
+    topic: "Kortens höjd",
+    figma:
+      "507px höga i alla fyra ramar: 469 × 507 på Desktop L, 416 på Desktop S, 388 på Tablet och 339 på Mobile",
+    code: "Varje läge har sin rams proportion, så korten är 507px höga vid 1440, 1280, 800 och 375 och följer bredden däremellan. Tidigare product-cards 430:507, som gjorde korten 457–553px höga",
+    why: "Blocket följer Figmas ramar; fasta höjder blir fel mellan dem. Bilden blir mindre vid hover än i komponenten, som i Figmas Tablet",
+    status: "Beslut (teknisk)",
+    date: "2026-10-23",
+  },
+  {
+    target: "product-grid",
+    topic: "Luft och bakgrund",
+    figma:
+      "`grid/margin` vid sidorna och inget ovanför eller under korten (1022px höga på desktop); ramen har ingen fyllning",
+    code: "Samma luft; tidigare `grid/margin` även upptill och nedtill. Bakgrunden är Dark `bg-fill`, som Text+Grid",
+    why: "Mellan korten syns annars sidans vita bakgrund mellan två mörka block; se frågan",
+    status: "Antagande",
+    date: "2026-10-23",
   },
   {
     target: "product-grid",
@@ -1568,8 +1594,8 @@ export const figmaNotes: FigmaNote[] = [
   {
     target: "product-grid",
     topic: "Mobil",
-    figma: 'En "product-slider" med alla sex kort; kortet är 339px, ur sliderns fasta bredd',
-    code: "Horisontell slider med snap; kortet är bredden minus `spacing/md` (335px vid 375)",
+    figma: 'En "product-slider" med alla sex kort; kortet är 339 × 507, ur sliderns fasta bredd',
+    code: "Horisontell slider med snap; kortet är bredden minus `spacing/md` i proportionen 339:507 (335 × 501 vid 375)",
     why: "Närmaste token; nästa kort syns vid kanten som i Figma",
     status: "Antagande",
   },

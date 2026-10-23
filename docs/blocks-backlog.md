@@ -25,8 +25,8 @@ Beslutat 2026-10-02: full bredd med `grid/margin` för allt innehåll, även hea
 ## Blocken, i Figmas ordning
 
 Byggt betyder att komponenten finns på `/kitchensink/blocks`; Payload att den också är ett block
-eller en global. Block byggda 2026-10-07 har inte jämförts med Figma sedan dess, utom
-produktkortens rörelse (2026-10-22).
+eller en global. Text+Grid och Text & boxinfo byggdes 2026-10-07 och har inte jämförts med Figma
+sedan dess.
 
 | # | Block | Figma | Innehåll i Figma | I koden | Bygger på | Storlek |
 |---|---|---|---|---|---|---|
@@ -36,7 +36,7 @@ produktkortens rörelse (2026-10-22).
 | 4 | Hero | `8539:7103` | Start (rubrik och uppmaning) och Collumns (fem kolumner, en gul); rörelsen och truckbilderna finns i Figma Make-prototypen (länken står i Figma) | ✓ Byggt, ✓ Payload `milevasHero` (2026-10-22). Sex kolumner i stället för fem, så att strecken går till text blockets fyra (beslut 2026-10-22) | TruckColumn, Icon | L |
 | 5 | Text block Collumns | `8982:9898` | Mörk sektion med en kolumn per logotyp (KION, STILL, Linde, Baoli) och en centrerad rubrik med text. Direkt efter heron delar blocken streck som flyttas med scrollen ("05 — Pages": "prototyp (ish) startsida") | ✓ Byggt, ✓ Payload `textColumns` och `LinkedColumns` (2026-10-22) | LinkedColumns | M |
 | 6 | Image & Text | `9098:16638` | Foto över hela blocket med en centrerad Display-rubrik ("Service du kan räkna med"), brödtext och en Tejp-knapp ("Bygg din truck"); 800 hög i alla fyra lägen. Desktop L är 1424 och Desktop S 1264 bred, inte 1440 och 1280 | ✓ Byggt, ✓ Payload `imageText` (2026-10-23) | Button | M |
-| 7 | Product-Grid | `8365:8988` | Product-cards, 3 per rad på desktop, 2 på Tablet, en slider på Mobile | ✓ Byggt, ✓ Payload `productGrid` (2026-10-07), data från `TruckFamilies` | ProductCard | M |
+| 7 | Product-Grid | `8365:8988` | Product-cards, 3 per rad på desktop, 2 på Tablet, en slider på Mobile | ✓ Byggt, ✓ Payload `productGrid` (2026-10-07), data från `TruckFamilies`; jämförd med Figma 2026-10-23 | ProductCard | M |
 | 8 | Text+Grid | `8389:4705` | Rubrik med pil ("Så enkelt fungerar det") och cards i en ljus panel | ✓ Byggt, ✓ Payload `textGrid` (2026-10-07) | Arrow, Card, card grid | M |
 | 9 | Text & boxinfo | `8389:8524` | Mörk sektion: Display-rubrik i två färger, brödtext, en box med tre rader (rubrik, text, etikett) och en Tejp-knapp | ✓ Byggt, ✓ Payload `textBoxinfo` (2026-10-07) | TextBox, Button | M |
 | 10 | Configurator | `9264:6653` | Fem stegtyper i en configurator-box med "Föregående" och "Nästa": (1) sex val, två per rad, med titel, pris och text; (2) två val under varandra och "Behöver du hjälp …"; (3) fyra val med bild, två per rad; (4) tre val med bild till höger; (5) tre val med titel och pris. Price-box med Totalpris, Leasing och Långtidshyra, och "Boka samtal". Därtill **offert** (konfigurationen, tekniska specifikationer, "Skicka kopia till mig" och "Fortsätt beställning") och **TNX!** ("Tack för din beställning!" med fem steg) | Stegskärmen är byggd och kopplad till konfiguratorn (2026-10-05) efter ram 15 (`8721:16450`), som inte längre finns i Figma; den skiljer sig åtminstone i price-boxen och i valen med bild. Offert och TNX! finns inte: offertsidan `/configurator/quote` har inte designsystemets stil | ConfiguratorBox, Choice, PriceBox, Button | L |

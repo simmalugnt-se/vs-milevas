@@ -14,8 +14,9 @@ import { TruckInfo } from "./truck-info";
  * - Desktop (from Desktop S): Default as on Mobile; Hover is Tejp with the arrow in a 64 × 64 box
  *   and the prices. `loggedIn` is Figma's `hover-INLOGGAD`: "Ditt ÅF-pris:" and "Kundpris:" without
  *   "/mån", and the 48 × 64 arrow without the box.
- * It keeps the component's 430 × 507 proportion in every state and width; the image shrinks to make
- * room for the arrow and prices. Content sits inside the ratio box so its intrinsic size cannot
+ * It keeps the component's 430 × 507 proportion in every state and width, unless the block around it
+ * sets another in `--card-aspect` (Product-Grid does); the image shrinks to make room for the arrow
+ * and prices. Content sits inside the ratio box so its intrinsic size cannot
  * change the card's height or the grid rows. Pass `data-state="hover"` to show the Desktop hover
  * without a pointer. The name is the link and covers the card, so the info button (`info`, Figma's
  * truckinfo) can sit on top of it.
@@ -80,7 +81,7 @@ export function ProductCard({
   return (
     <div
       data-state={dataState}
-      className={`group/card relative block aspect-[430/507] mode-light rounded-lg bg-bg-fill max-tablet:data-[state=active]:mode-tejp desktop-s:hover:mode-tejp desktop-s:data-[state=hover]:mode-tejp ${className ?? ""}`}
+      className={`group/card relative block aspect-(--card-aspect,430/507) mode-light rounded-lg bg-bg-fill max-tablet:data-[state=active]:mode-tejp desktop-s:hover:mode-tejp desktop-s:data-[state=hover]:mode-tejp ${className ?? ""}`}
     >
       <span className="absolute inset-0 flex flex-col p-(--spacing-sm)">
         <span className="flex w-full items-start justify-between">
