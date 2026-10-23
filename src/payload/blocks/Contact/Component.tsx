@@ -5,13 +5,15 @@ import type { TypedLocale } from "payload";
 import { Fragment, type ReactNode } from "react";
 import { Contact, ContactLink } from "@/components/blocks/contact";
 import { ContactRequestForm } from "@/features/contact/ContactRequestForm";
-import { getFooter } from "@/payload/data/globals";
 import type { ContactBlock, LayoutBlockComponentProps } from "../types";
 
 /** Contact with the Footer global's e-mail, phone and social links, and the contact request form. */
 export async function ContactBlockComponent({ block }: LayoutBlockComponentProps<ContactBlock>) {
   const locale = (await getLocale()) as TypedLocale;
   const { isEnabled: draft } = await draftMode();
+  // Loaded here, not at the top: the globals import the Payload config, and a static import would
+  // close the cycle config → Pages → blocks → this file, as in the configurator's data.
+  const { getFooter } = await import("@/payload/data/globals");
   const footer = await getFooter(locale, draft);
 
   const items: ReactNode[] = [];
