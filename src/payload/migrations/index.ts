@@ -14,6 +14,7 @@ import * as migration_20261023_091729_truck_catalog from "./20261023_091729_truc
 import * as migration_20261023_094032_request_name_optional from "./20261023_094032_request_name_optional";
 import * as migration_20261023_094139_spec_in_quote from "./20261023_094139_spec_in_quote";
 import * as migration_20261023_115840_contact_requests from "./20261023_115840_contact_requests";
+import * as migration_20261023_140057_page_background from "./20261023_140057_page_background";
 
 export const migrations = [
   {
@@ -95,5 +96,10 @@ export const migrations = [
     up: migration_20261023_115840_contact_requests.up,
     down: migration_20261023_115840_contact_requests.down,
     name: "20261023_115840_contact_requests",
+  },
+  {
+    up: migration_20261023_140057_page_background.up,
+    down: migration_20261023_140057_page_background.down,
+    name: "20261023_140057_page_background",
   },
 ];

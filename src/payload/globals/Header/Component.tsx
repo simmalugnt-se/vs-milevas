@@ -30,7 +30,9 @@ type HeaderComponentProps = {
  * but are not shown, and neither is `cta`: Figma's navigation has no button. Each `navItems` row
  * is a menu: with `links` it opens them beside its `image` (each link's own image shows while it is
  * pointed at), without them its link is a plain link. A menu whose `source` is the truck families
- * (Figma's Modeller) lists every published family in its order, with its name and main image.
+ * (Figma's Modeller) lists every published family in its order, with its name and main image; its
+ * square stays empty until a family is pointed at, so no family is shown first and the image does
+ * not change size when the same truck's own image takes over.
  * `login` is the login link. Dark, since the site's sections are dark.
  */
 
@@ -102,7 +104,7 @@ export async function HeaderComponent({ draft = false, locale }: HeaderComponent
         href: resolved?.href,
         rel: resolved?.rel,
         target: resolved?.target,
-        image: menuImage(item.image, "contain"),
+        image: item.source === "truckFamilies" ? undefined : menuImage(item.image, "contain"),
         attributes: mark(editableBlock(item)),
       },
     ];

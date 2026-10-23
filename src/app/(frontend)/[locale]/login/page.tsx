@@ -10,6 +10,7 @@ export const metadata: Metadata = { title: "Logga in", robots: { index: false, f
 export default function LoginPage() {
   return (
     <Login
+      data-page-background="dark"
       image={
         <Image
           src={loginForklift}

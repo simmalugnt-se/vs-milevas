@@ -338,7 +338,8 @@ export function Navigation({
                     className={`justify-end ${
                       column === 0
                         ? `pl-(--spacing-sm) ${shownMenu.links && shownMenu.links.length > 3 ? "col-span-5" : "col-span-9"}`
-                        : "col-span-4"
+                        : // The gap belongs to this column, so the pointer never falls between them.
+                          "col-span-4 -ml-(--grid-gap) pl-(--grid-gap)"
                     }`}
                   />
                 ))}

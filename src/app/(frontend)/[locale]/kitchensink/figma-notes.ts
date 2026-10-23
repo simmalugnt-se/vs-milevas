@@ -153,13 +153,6 @@ export const designQuestions: DesignQuestion[] = [
     figma: "6073:1230",
   },
 
-  {
-    target: "general",
-    question:
-      'Sidmallarna i "05 — Pages" har 8px mellan sista blocket och sidfoten, där sidans bakgrund syns (mörk på Startsida, ljusgrå på Konfigurator). Koden har ingen lucka och vit sidbakgrund, som beslutades 2026-10-02. Ska luckan och bakgrunden per sida in?',
-    figma: "9321:56814",
-  },
-
   // Components
   {
     target: "buttons",
@@ -455,6 +448,16 @@ export const designQuestions: DesignQuestion[] = [
 ];
 
 export const figmaNotes: FigmaNote[] = [
+  {
+    target: "general",
+    topic: "Sidans bakgrund och luckorna",
+    figma:
+      "Sidmallarna (05 — Pages) har 8px mellan blocken och före sidfoten, där sidans bakgrund syns: mörk på Startsida, Om oss och Login, ljusgrå på Konfigurator",
+    code: "Samma. Varje sida i Payload har Background (Dark som standard, eller Light grey); Login är mörk i koden. Sidor utanför Payload, som kitchensink, är kvar på vit",
+    why: "Sidfotens kanter och luckorna fick annars fel färg",
+    status: "Beslut",
+    date: "2026-10-23",
+  },
   {
     target: "general",
     topic: "Global sidlayout",
@@ -1275,6 +1278,15 @@ export const figmaNotes: FigmaNote[] = [
     why: "Prototypen visar bara övergången till valt",
     status: "Lucka",
     date: "2026-10-22",
+  },
+  {
+    target: "navigation",
+    topic: "Modellers bild innan man pekar",
+    figma: "`State=Modeller, Truck=0` visar ledstaplaren innan någon truck är pekad",
+    code: "På sajten är rutan tom tills en truckfamilj pekas på; då visas familjens huvudbild. Kitchensink visar Figmas läge med bild",
+    why: "Ingen familj ska visas först, och menyns egen bild var en annan bild av ledstaplaren, så trucken hoppade när familjens bild tog över",
+    status: "Beslut",
+    date: "2026-10-23",
   },
   {
     target: "navigation",

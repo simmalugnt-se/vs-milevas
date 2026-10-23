@@ -53,6 +53,20 @@ export const Pages: CollectionConfig = {
     },
     slugField({ localized: false }),
     {
+      name: "background",
+      type: "select",
+      defaultValue: "dark",
+      options: [
+        { label: "Dark", value: "dark" },
+        { label: "Light grey", value: "light" },
+      ],
+      admin: {
+        position: "sidebar",
+        description:
+          "The page behind the blocks: it shows in the gaps between them and around the footer.",
+      },
+    },
+    {
       name: "layout",
       type: "blocks",
       blocks: layoutBlocks,

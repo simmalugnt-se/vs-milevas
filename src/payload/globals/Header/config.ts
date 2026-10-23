@@ -83,7 +83,8 @@ export const Header: GlobalConfig = {
           relationTo: "images",
           label: "Image",
           admin: {
-            description: "The square image beside the open menu (Desktop and Tablet).",
+            description:
+              "The square image beside the open menu (Desktop and Tablet). Not shown for the truck families: there the square is empty until a family is pointed at.",
           },
         },
       ],

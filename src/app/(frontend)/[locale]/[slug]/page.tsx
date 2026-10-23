@@ -62,7 +62,7 @@ export default async function Page({ params }: PageProps) {
   return (
     <>
       {draft ? <LivePreviewListener /> : null}
-      <PageLayout editable={draft} layout={page.layout} />
+      <PageLayout editable={draft} layout={page.layout} background={page.background} />
     </>
   );
 }

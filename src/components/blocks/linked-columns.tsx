@@ -32,7 +32,8 @@ type LinkedColumnsProps = {
  * the first and last columns shrink to nothing and the others share the width. The hero's columns
  * follow through `--lines` (0 to 1), so an active column's yellow grows with its lines. The lines
  * then leave with the second block. From Desktop S; below it each block keeps its own lines, and
- * the blocks hide theirs with `group-data-[linked]/linked:`.
+ * the blocks hide theirs with `group-data-[linked]/linked:`. The blocks are `grid/margin` apart, as
+ * all blocks on a page; the lines run through the gap.
  */
 export function LinkedColumns({ columns, children }: LinkedColumnsProps) {
   const ref = useRef<HTMLDivElement>(null);
@@ -68,7 +69,7 @@ export function LinkedColumns({ columns, children }: LinkedColumnsProps) {
   }));
 
   return (
-    <div ref={ref} data-linked className="group/linked relative">
+    <div ref={ref} data-linked className="group/linked relative flex flex-col gap-(--grid-margin)">
       {children}
       <div
         aria-hidden

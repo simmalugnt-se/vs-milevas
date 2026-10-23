@@ -535,6 +535,8 @@ async function seed() {
         data: {
           title: "Configurator",
           slug: "configurator",
+          // Light grey, as Figma's Konfigurator page.
+          background: "light",
           _status: "published",
           layout: [{ blockType: "configurator" }],
         },

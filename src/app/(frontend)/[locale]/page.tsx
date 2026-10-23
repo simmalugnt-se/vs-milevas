@@ -38,7 +38,7 @@ export default async function HomePage({ params }: HomePageProps) {
   return (
     <>
       {draft ? <LivePreviewListener /> : null}
-      <PageLayout editable={draft} layout={page.layout} />
+      <PageLayout editable={draft} layout={page.layout} background={page.background} />
     </>
   );
 }

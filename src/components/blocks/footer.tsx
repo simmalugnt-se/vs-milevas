@@ -4,8 +4,8 @@ import { Logo } from "@/components/ui/logo";
 
 /**
  * Footer from Figma "04 — Blocks" (9264:22371): a Tejp card (`bg-fill`, `radius-lg`) inside
- * `grid/margin` at the sides and `spacing/2xs` below, `spacing/md` above and below its content, and
- * 64px between its rows.
+ * `grid/margin` at the sides and `spacing/2xs` above and below (the gap after the last block on
+ * Figma's page templates), `spacing/md` above and below its content, and 64px between its rows.
  * - Columns with a Label S heading and, `spacing/sm` under it, footerlinks: Figma's Produkter and
  *   Tjänster (`groups`), then Kontakt (`contact`: e-mail, phone and a location as plain text).
  *   Desktop S and L: five, four and three of the 12 columns; Tablet: two each of six; Mobile: one
@@ -80,7 +80,7 @@ function Column({
 
 export function Footer({ groups, contact, copyright, attributes }: FooterProps) {
   return (
-    <footer className="px-(--grid-margin) pb-(--spacing-2xs)" {...attributes}>
+    <footer className="px-(--grid-margin) py-(--spacing-2xs)" {...attributes}>
       <div className="grid grid-cols-1 gap-x-(--grid-gap) gap-y-16 rounded-lg mode-tejp bg-bg-fill py-(--spacing-md) text-ui-primary tablet:grid-cols-6 desktop-s:grid-cols-12">
         {groups.map((group, index) => (
           <Column key={index} index={index} heading={group.heading} attributes={group.attributes}>

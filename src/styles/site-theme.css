@@ -517,6 +517,17 @@ html[data-grid-overlay-visible] [data-layout-block] {
 }
 
 /**
+ * A page's background (`data-page-background`: Pages → background, and the Login page), as on
+ * Figma's page templates: it shows in the gaps between the blocks and around the footer.
+ */
+.canvas:has([data-page-background="dark"]) {
+  background-color: var(--primitive-neutral-700-100);
+}
+.canvas:has([data-page-background="light"]) {
+  background-color: var(--primitive-neutral-300-100);
+}
+
+/**
  * Tailwind 4 gives buttons the default cursor; everything that reacts to a click gets the pointer
  * again, as in Tailwind's upgrade guide. Disabled controls keep the default (Button and Choice set
  * `not-allowed` themselves).

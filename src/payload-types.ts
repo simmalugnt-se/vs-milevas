@@ -182,6 +182,10 @@ export interface Page {
    * Auto-generated from the title on first save. Changing it on a published page adds a redirect from the old address when you publish.
    */
   slug: string;
+  /**
+   * The page behind the blocks: it shows in the gaps between them and around the footer.
+   */
+  background?: ('dark' | 'light') | null;
   layout?:
     | (
         | {
@@ -1286,6 +1290,7 @@ export interface PagesSelect<T extends boolean = true> {
   title?: T;
   publishedAt?: T;
   slug?: T;
+  background?: T;
   layout?:
     | T
     | {

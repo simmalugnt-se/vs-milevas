@@ -61,7 +61,6 @@ export async function seedMilevasHeader(payload: Payload, publish = false) {
         {
           link: { label: "Modeller" },
           source: "truckFamilies" as const,
-          image: await uploadImage(payload, "stacker", "Ledstaplare"),
         },
         {
           link: { label: "Tjänster" },
