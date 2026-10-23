@@ -188,6 +188,15 @@ export function Navigation({
     setActive(null);
     setHovered(undefined);
   };
+  // A link followed closes the menu, also to the same page (an anchor): on Desktop it fades out
+  // over the new page, below it the "[Meny]" panel closes.
+  const closeAll = () => {
+    setMoved(false);
+    setClosing(desktopOpen ? active : null);
+    setActive(null);
+    setOpen(false);
+    setHovered(undefined);
+  };
   const toggle = (index: number) => {
     setActive((value) => (value === index ? null : index));
     setHovered(undefined);
@@ -211,6 +220,9 @@ export function Navigation({
 
   return (
     <nav
+      onClickCapture={(event) => {
+        if ((event.target as Element).closest("a")) closeAll();
+      }}
       className={`flex flex-col ${color === "dark" ? "mode-dark" : "mode-light"} ${openLook} ${
         open || desktopLook ? "" : "[body:has(main_[data-navigation=light])_&]:mode-light"
       }`}
