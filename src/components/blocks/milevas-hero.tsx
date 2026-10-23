@@ -155,6 +155,8 @@ export function MilevasHero({
     let point: Point = { x: 0, y: 0 };
     let target: Point = { x: 0, y: 0 };
     let pointer: Point | null = null;
+    // Whether the pointer counts as in: not during the intro, where it only steers the trucks.
+    let inside = false;
     let each: Point[] = [];
     let started = 0;
     let settling = true;
@@ -198,6 +200,11 @@ export function MilevasHero({
           if (settling) {
             settling = false;
             setPhase("done");
+            // A pointer that came in during the intro (as after a reload) is in from here.
+            if (pointer) {
+              inside = true;
+              setPointerIn(true);
+            }
           }
         }
       } else if (mode === "follow" && pointer) {
@@ -217,10 +224,10 @@ export function MilevasHero({
       const at = toLocal(event);
       section.style.setProperty("--cx", `${at.x}px`);
       section.style.setProperty("--cy", `${at.y}px`);
-      const entering = !pointer;
       pointer = at;
       if (mode === "glide") target = at;
-      if (!entering || settling) return;
+      if (inside || settling) return;
+      inside = true;
       setPointerIn(true);
       // From rest the trucks start from their own columns and glide to the pointer.
       if (mode === "rest" || mode === "idle" || mode === "return") {
@@ -232,6 +239,7 @@ export function MilevasHero({
     const onLeave = (event: PointerEvent) => {
       if (event.pointerType !== "mouse") return;
       pointer = null;
+      inside = false;
       setPointerIn(false);
       if (settling) return;
       current = null;
