@@ -1067,6 +1067,15 @@ export const figmaNotes: FigmaNote[] = [
   },
   {
     target: "configurator",
+    topic: "Skärmens höjd",
+    figma: "Skärmen är 800px hög (Tablet 1000, Konfigurator-sidan 832), truckens yta fast",
+    code: "En skärm hög i alla bredder, så att steget och knapparna får plats i fönstret; trucken tar platsen som blir över (minst 12rem under Desktop S, för prisrutan) och skärmen växer bara när steget självt är högre",
+    why: "I ett lägre fönster hamnade valen och knapparna under kanten. Under Desktop S börjar prisrutan dessutom under navigationsraden, där Figma låter den nudda raden",
+    status: "Beslut",
+    date: "2026-10-23",
+  },
+  {
+    target: "configurator",
     topic: "Konfiguratorsidan",
     figma:
       'Sidmallen "Konfigrator" (05 — Pages): skärmen från sidans topp under navigationen, 832px hög på Desktop, och navigationen i Light',
