@@ -430,12 +430,6 @@ export const designQuestions: DesignQuestion[] = [
   {
     target: "configurator",
     question:
-      '"Skicka kopia till mig" skickar offerten till vilken adress som helst. Ska det byggas, och i så fall med vilket skydd mot missbruk (till exempel en gräns per adress och timme)?',
-    figma: "9264:10759",
-  },
-  {
-    target: "configurator",
-    question:
       '"Skicka" i offerten är mörk på Desktop och grå på Tablet och Mobile. Vilken ska den vara?',
     figma: "9264:10759",
   },
@@ -2104,10 +2098,10 @@ export const figmaNotes: FigmaNote[] = [
     target: "configurator",
     topic: "Skicka kopia till mig",
     figma: "Fält och knapp i offerten",
-    code: "Fältet och knappen finns men är inaktiva; inget skickas",
-    why: "Utskicket behöver skydd mot missbruk; se frågan",
+    code: "Skickar offerten som mejl till adressen. Ett dolt fält stoppar robotar, och varje adress får högst 3 och varje IP-adress 10 kopior i timmen. En rad under fältet säger att kopian är skickad, eller felet; Figma ritar inga sådana lägen",
+    why: "Vem som helst kan ange vilken adress som helst, så utskicket får inte kunna användas för att fylla någons inkorg",
     status: "Lucka",
-    date: "2026-10-23",
+    date: "2026-10-26",
   },
   {
     target: "configurator",

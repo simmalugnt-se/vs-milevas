@@ -6,8 +6,8 @@ import { Button } from "@/components/ui/button";
 import { ContactForm } from "@/components/ui/contact-form";
 import { TextAreaField, TextField } from "@/components/ui/text-field";
 import { TimePicker, type TimePickerDay } from "@/components/ui/time-picker";
-import { submitCallRequest, submitOrderRequest } from "./actions";
-import type { ConfiguratorActionState, SelectionState } from "./types";
+import { sendQuoteCopy, submitCallRequest, submitOrderRequest } from "./actions";
+import type { ConfiguratorActionState, QuoteCopyState, SelectionState } from "./types";
 
 const initialActionState: ConfiguratorActionState = { ok: false };
 
@@ -37,6 +37,53 @@ function HiddenConfiguration({
       <input type="hidden" name="submissionKey" value={submissionKey} />
       <input className="hidden" tabIndex={-1} autoComplete="off" name="website" aria-hidden />
     </>
+  );
+}
+
+/**
+ * "Skicka kopia till mig" in the quote (Figma `type=offert`, 9264:10759): the field and its button.
+ * Figma draws no sent or error state; a line under the field says which (see figma-notes).
+ */
+export function QuoteCopyForm(configuration: Configuration) {
+  const [state, formAction, pending] = useActionState(sendQuoteCopy, {
+    ok: false,
+  } satisfies QuoteCopyState);
+  const submissionKey = useId();
+  const messageId = useId();
+  const message = state.ok ? `Kopian är skickad till ${state.email}.` : state.message;
+
+  return (
+    <form action={formAction} className="flex flex-col gap-(--spacing-2xs)">
+      <HiddenConfiguration {...configuration} submissionKey={submissionKey} />
+      <div className="flex items-end gap-(--spacing-2xs)">
+        <label className="flex min-w-0 flex-1 flex-col gap-(--spacing-2xs)">
+          <span className="text-text-m text-ui-primary">Skicka kopia till mig</span>
+          <input
+            type="email"
+            name="copyEmail"
+            autoComplete="email"
+            placeholder="namn@foretag.se"
+            required
+            defaultValue={state.email}
+            aria-describedby={message ? messageId : undefined}
+            aria-invalid={state.message && !state.ok ? true : undefined}
+            className="h-10 w-full rounded-sm bg-bg-fill px-(--spacing-sm) text-text-xs text-ui-primary ring-(length:--stroke-width) ring-border-primary ring-inset placeholder:text-ui-tertiary"
+          />
+        </label>
+        <Button type="submit" variant="secondary" size="s" iconRight="mail" disabled={pending}>
+          {pending ? "Skickar…" : "Skicka"}
+        </Button>
+      </div>
+      {message ? (
+        <p
+          id={messageId}
+          role={state.ok ? "status" : "alert"}
+          className={`text-text-xs ${state.ok ? "text-ui-secondary" : "text-status-error"}`}
+        >
+          {message}
+        </p>
+      ) : null}
+    </form>
   );
 }
 

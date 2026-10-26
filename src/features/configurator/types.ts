@@ -177,6 +177,13 @@ export type ConfiguratorActionState = {
   };
 };
 
+/** "Skicka kopia till mig": the address and how it went. */
+export type QuoteCopyState = {
+  ok: boolean;
+  email?: string;
+  message?: string;
+};
+
 export type ConfiguratorRequestSnapshot = {
   createdAt: string;
   locale: string;

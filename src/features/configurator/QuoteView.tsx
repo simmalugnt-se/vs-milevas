@@ -6,7 +6,7 @@ import { ConfiguratorQuote } from "@/components/blocks/configurator-quote";
 import { ConfiguratorThanks } from "@/components/blocks/configurator-thanks";
 import { Button, TextLink } from "@/components/ui/button";
 import { PriceBox } from "@/components/ui/price-box";
-import { CallRequestForm, OrderRequestForm, RequestDialog } from "./RequestForms";
+import { CallRequestForm, OrderRequestForm, QuoteCopyForm, RequestDialog } from "./RequestForms";
 import type { NextStep, ConfiguratorQuote as Quote } from "./types";
 
 function formatPrice(value: number) {
@@ -30,8 +30,8 @@ type QuoteViewProps = {
 /**
  * The quote and what follows it (Figma `type=offert` and `type=TNX!`): the quote with its price
  * box, "Boka samtal" opening the call popup and "Fortsätt beställning" the order popup; once the
- * order is sent, the thank-you screen with the same price box. "Skicka kopia till mig" is drawn
- * but does not send yet (see figma-notes).
+ * order is sent, the thank-you screen with the same price box. "Skicka kopia till mig" mails the
+ * quote to the address given.
  */
 export function QuoteView({
   quote,
@@ -160,24 +160,7 @@ export function QuoteView({
                 ]
               : []),
           ]}
-          copy={
-            <div className="flex items-end gap-(--spacing-2xs)">
-              <label className="flex min-w-0 flex-1 flex-col gap-(--spacing-2xs)">
-                <span className="text-text-m text-ui-primary">Skicka kopia till mig</span>
-                <input
-                  type="email"
-                  name="copyEmail"
-                  autoComplete="email"
-                  placeholder="namn@foretag.se"
-                  disabled
-                  className="h-10 w-full rounded-sm bg-bg-fill px-(--spacing-sm) text-text-xs text-ui-primary ring-(length:--stroke-width) ring-border-primary ring-inset placeholder:text-ui-tertiary"
-                />
-              </label>
-              <Button variant="secondary" size="s" iconRight="mail" disabled>
-                Skicka
-              </Button>
-            </div>
-          }
+          copy={<QuoteCopyForm {...configuration} />}
           order={
             <Button
               mode="tejp"

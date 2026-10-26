@@ -6,8 +6,14 @@ import type { TypedLocale } from "payload";
 import { getPayloadClient } from "@/payload/get-payload";
 import { getConfiguratorCatalog } from "./data";
 import { buildQuote } from "./engine";
-import { sendConfiguratorRequestEmails } from "./request-emails";
-import type { ConfiguratorActionState, ConfiguratorRequestSnapshot, SelectionState } from "./types";
+import { takeRateLimit } from "./rate-limit";
+import { sendConfiguratorRequestEmails, sendQuoteCopyEmail } from "./request-emails";
+import type {
+  ConfiguratorActionState,
+  ConfiguratorRequestSnapshot,
+  QuoteCopyState,
+  SelectionState,
+} from "./types";
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const organizationNumberPattern = /^\d{6}-?\d{4}$/;
@@ -237,4 +243,52 @@ export async function submitCallRequest(
   formData: FormData,
 ): Promise<ConfiguratorActionState> {
   return submitRequest(formData, "call");
+}
+
+const HOUR = 60 * 60 * 1000;
+
+/**
+ * "Skicka kopia till mig": mails the quote to the address given. Anyone can give any address, so
+ * a hidden field stops bots, and each address gets at most 3 copies and each visitor's IP address
+ * 10 an hour, against using the form to flood someone's inbox.
+ */
+export async function sendQuoteCopy(
+  _previousState: QuoteCopyState,
+  formData: FormData,
+): Promise<QuoteCopyState> {
+  const email = textValue(formData, "copyEmail", 320).toLowerCase();
+  if (textValue(formData, "website", 200)) {
+    return { ok: false, email, message: "Kopian kunde inte skickas." };
+  }
+  if (!emailPattern.test(email)) {
+    return { ok: false, email, message: "Ange en giltig e-postadress." };
+  }
+
+  const base = validateBaseForm(formData);
+  const quote = base
+    ? buildQuote(
+        await getConfiguratorCatalog(base.locale, false),
+        base.familyKey,
+        base.selections,
+        base.financingKey,
+        base.serviceAgreement,
+      )
+    : null;
+  if (!quote) {
+    return { ok: false, email, message: "Konfigurationen är ofullständig eller inte längre giltig." };
+  }
+
+  const payload = await getPayloadClient();
+  const ip = (await headers()).get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+  const allowed =
+    (await takeRateLimit(payload, `quote-copy-ip:${ip}`, 10, HOUR)) &&
+    (await takeRateLimit(payload, `quote-copy-email:${email}`, 3, HOUR));
+  if (!allowed) {
+    return { ok: false, email, message: "För många kopior har skickats. Försök igen om en timme." };
+  }
+
+  if (!(await sendQuoteCopyEmail(email, quote))) {
+    return { ok: false, email, message: "Kopian kunde inte skickas just nu. Försök igen senare." };
+  }
+  return { ok: true, email };
 }

@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import type { Payload } from "payload";
 import {
   buildQuote,
   calculateFinancingPrice,
@@ -10,6 +11,7 @@ import {
   firstInvalidSelectionStep,
   sanitizeSelections,
 } from "../src/features/configurator/engine.ts";
+import { takeRateLimit } from "../src/features/configurator/rate-limit.ts";
 import type {
   ConfiguratorCatalog,
   ConfiguratorChoice,
@@ -266,4 +268,20 @@ test("quote calculation ignores unknown and client-supplied price-like keys", ()
   assert.ok(quote);
   assert.equal(quote.totalPrice, 155000);
   assert.equal("totalPrice" in quote.selections, false);
+});
+
+test("the rate limit allows a number of uses per window, then frees them as time passes", async () => {
+  const store = new Map<string, unknown>();
+  const payload = {
+    kv: {
+      get: async (key: string) => store.get(key) ?? null,
+      set: async (key: string, value: unknown) => void store.set(key, value),
+    },
+  } as unknown as Payload;
+  const take = (now: number) => takeRateLimit(payload, "copy:a@b.se", 2, 1000, now);
+  assert.equal(await take(0), true);
+  assert.equal(await take(10), true);
+  assert.equal(await take(20), false);
+  assert.equal(await take(1001), true);
+  assert.equal(await takeRateLimit(payload, "copy:other@b.se", 2, 1000, 20), true);
 });

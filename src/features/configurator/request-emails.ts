@@ -152,3 +152,32 @@ export async function sendConfiguratorRequestEmails(
     });
   }
 }
+
+/** "Skicka kopia till mig": the quote as the quote page shows it, for the visitor to keep. */
+function quoteCopyEmail(quote: ConfiguratorQuote) {
+  const specs = quote.specifications
+    .map(
+      (spec) =>
+        `<tr><td style="padding:4px 12px 4px 0">${escapeHtml(spec.label)}</td><td style="padding:4px 0;text-align:right">${escapeHtml(spec.value)}</td></tr>`,
+    )
+    .join("");
+  return emailDocument(
+    `Din offert: ${quote.familySingularName ?? quote.familyName}`,
+    `<h2>Konfiguration</h2><table style="border-collapse:collapse;width:100%">${quoteRows(quote)}<tr><td style="border-top:1px solid #ddd;padding:8px 12px 4px 0"><strong>Totalpris</strong></td><td style="border-top:1px solid #ddd;padding:8px 0 4px;text-align:right"><strong>${escapeHtml(formatPrice(quote.totalPrice))}</strong></td></tr></table><p><strong>${escapeHtml(quote.financing.label)}:</strong> ${escapeHtml(formatPrice(quote.financingPrice))}${quote.financing.kind === "monthly" ? "/månad" : ""}</p>${specs ? `<h2>Tekniska specifikationer</h2><table style="border-collapse:collapse;width:100%">${specs}</table>` : ""}${quote.deliveryTime ? `<p><strong>Uppskattad leverans:</strong> ${escapeHtml(quote.deliveryTime)}</p>` : ""}${quote.warranty ? `<p><strong>Garanti:</strong> ${escapeHtml(quote.warranty)}</p>` : ""}<p>Alla priser anges exkl. moms. Offerten gäller i ${escapeHtml(quote.quoteValidityDays)} dagar och är inte ett bindande avtal.</p>`,
+  );
+}
+
+/** Sends the quote to `to`; false when Resend is not configured or the send fails. */
+export async function sendQuoteCopyEmail(to: string, quote: ConfiguratorQuote): Promise<boolean> {
+  const apiKey = process.env.RESEND_API_KEY;
+  const from = process.env.RESEND_FROM;
+  if (!apiKey || !from) return false;
+
+  const result = await new Resend(apiKey).emails.send({
+    from,
+    to,
+    subject: `Din offert: ${quote.familySingularName ?? quote.familyName}`,
+    html: quoteCopyEmail(quote),
+  });
+  return !result.error;
+}
