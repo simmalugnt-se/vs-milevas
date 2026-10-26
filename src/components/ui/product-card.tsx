@@ -16,8 +16,8 @@ import { TruckInfo } from "./truck-info";
  *   "/mån", and the 48 × 64 arrow without the box.
  * It keeps the component's 430 × 507 proportion in every state and width, unless the block around it
  * sets another in `--card-aspect` (Product-Grid does); the image shrinks to make room for the arrow
- * and prices. Content sits inside the ratio box so its intrinsic size cannot
- * change the card's height or the grid rows. Pass `data-state="hover"` to show the Desktop hover
+ * and prices, from its height as in Figma, so it shrinks evenly with the rows. Content sits inside
+ * the ratio box so its intrinsic size cannot change the card's height or the grid rows. Pass `data-state="hover"` to show the Desktop hover
  * without a pointer. The name is the link and covers the card, so the info button (`info`, Figma's
  * truckinfo) can sit on top of it.
  * Figma's prototype (Mouse enter / Mouse leave → Change to) moves between Default and Hover or Active
@@ -54,9 +54,11 @@ const motion = "duration-200 ease-[cubic-bezier(0.81,0,0.28,0.99)] motion-reduce
 
 /**
  * The arrow's row: shut on Mobile until the card is active, open on Tablet, on Desktop on hover.
- * Opacity is in the transition only on the way in, so the arrow fades in and is gone at once.
+ * Shut, it is as high as the labels beside it (12px, Figma's Default), so the row grows from the
+ * first frame, as Figma's does. The arrow is not clipped: it only fades, in on the way in, and is
+ * gone at once on the way out (opacity is in the transition only on the way in).
  */
-const arrowRow = `h-0 overflow-hidden opacity-0 transition-[height] ${motion} tablet:h-12 tablet:opacity-100 desktop-s:h-0 desktop-s:opacity-0 max-tablet:group-data-[state=active]/card:h-12 max-tablet:group-data-[state=active]/card:opacity-100 max-tablet:group-data-[state=active]/card:transition-[height,opacity] desktop-s:group-hover/card:h-16 desktop-s:group-hover/card:opacity-100 desktop-s:group-hover/card:transition-[height,opacity] desktop-s:group-data-[state=hover]/card:h-16 desktop-s:group-data-[state=hover]/card:opacity-100 desktop-s:group-data-[state=hover]/card:transition-[height,opacity]`;
+const arrowRow = `h-3 opacity-0 transition-[height] ${motion} tablet:h-12 tablet:opacity-100 desktop-s:h-3 desktop-s:opacity-0 max-tablet:group-data-[state=active]/card:h-12 max-tablet:group-data-[state=active]/card:opacity-100 max-tablet:group-data-[state=active]/card:transition-[height,opacity] desktop-s:group-hover/card:h-16 desktop-s:group-hover/card:opacity-100 desktop-s:group-hover/card:transition-[height,opacity] desktop-s:group-data-[state=hover]/card:h-16 desktop-s:group-data-[state=hover]/card:opacity-100 desktop-s:group-data-[state=hover]/card:transition-[height,opacity]`;
 
 /** The prices' row, opened as the arrow's (a grid row from `0fr` to `1fr`). */
 const priceRow = `grid grid-rows-[0fr] opacity-0 transition-[grid-template-rows] ${motion} tablet:grid-rows-[1fr] tablet:opacity-100 desktop-s:grid-rows-[0fr] desktop-s:opacity-0 max-tablet:group-data-[state=active]/card:grid-rows-[1fr] max-tablet:group-data-[state=active]/card:opacity-100 max-tablet:group-data-[state=active]/card:transition-[grid-template-rows,opacity] desktop-s:group-hover/card:grid-rows-[1fr] desktop-s:group-hover/card:opacity-100 desktop-s:group-hover/card:transition-[grid-template-rows,opacity] desktop-s:group-data-[state=hover]/card:grid-rows-[1fr] desktop-s:group-data-[state=hover]/card:opacity-100 desktop-s:group-data-[state=hover]/card:transition-[grid-template-rows,opacity]`;
@@ -97,8 +99,14 @@ export function ProductCard({
           </span>
         </span>
 
-        <span className="flex min-h-0 w-full flex-1 items-center justify-center p-8">
-          <span className="relative block aspect-[489/365] h-full max-w-full">{image}</span>
+        {/* As in Figma, the image is the area's height less 32px above and below, and as wide as
+            that makes it (a little wider than the area at rest), so its size follows the rows as
+            they open. In a card taller than Figma's it would outgrow the card, so it stops at the
+            card's padding (`spacing/sm` from the edge). */}
+        <span className="flex min-h-0 w-full flex-1 items-center justify-center py-8">
+          <span className="relative block aspect-[489/365] h-full max-w-full shrink-0">
+            {image}
+          </span>
         </span>
 
         <span className="flex w-full flex-col">
