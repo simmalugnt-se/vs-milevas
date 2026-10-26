@@ -4,6 +4,7 @@ import Image from "next/image";
 import type { TypedLocale } from "payload";
 import { type ReactNode, useEffect, useReducer, useState } from "react";
 import { ConfiguratorScreen } from "@/components/blocks/configurator-screen";
+import { ConfiguratorSkeleton } from "@/components/blocks/configurator-skeleton";
 import { ConfiguratorStep } from "@/components/blocks/configurator-step";
 import { Button, ButtonLink } from "@/components/ui/button";
 import { CheckboxChoice } from "@/components/ui/checkbox-choice";
@@ -230,12 +231,13 @@ export function ConfiguratorClient({
 
   if (!state.hydrated) {
     return (
-      <p
-        className="bg-bg-fill-secondary p-(--spacing-xl) text-text-m text-ui-secondary"
-        aria-live="polite"
-      >
-        Laddar konfiguratorn…
-      </p>
+      <ConfiguratorSkeleton
+        priceRows={catalog.financingMethods
+          .filter((method) => method.kind === "monthly")
+          .map((method) =>
+            method.months ? `${method.label} (${method.months} mån)` : method.label,
+          )}
+      />
     );
   }
 
