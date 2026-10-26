@@ -61,13 +61,13 @@ export function LinkedColumns({ columns, children }: LinkedColumnsProps) {
     };
   }, []);
 
-  // Each line is the right edge of a hero column, drawn inside it; the first ends just outside
-  // the left edge, the last just outside the right (a stroke further, since it is drawn left of
-  // its edge), and the others between the next block's columns.
+  // Each line is the right edge of a hero column, drawn inside it; the others end between the
+  // next block's columns, and the first and last a stroke clear of the screen's edges (`outside`,
+  // in strokes), so no part of them is drawn on a screen with fractional pixels.
   const lines = Array.from({ length: columns - 1 }, (_, index) => ({
     start: ((index + 1) * 100) / columns,
     end: (index * 100) / (columns - 2),
-    outside: index === columns - 2,
+    outside: index === 0 ? -1 : index === columns - 2 ? 2 : 0,
   }));
 
   return (
@@ -84,7 +84,7 @@ export function LinkedColumns({ columns, children }: LinkedColumnsProps) {
               className="absolute inset-y-0 w-(--stroke-width) -translate-x-full bg-ui-brand"
               style={{
                 left: `calc(${line.start}% + ${line.end - line.start}% * var(--lines, 0)${
-                  line.outside ? " + var(--stroke-width) * var(--lines, 0)" : ""
+                  line.outside ? ` + var(--stroke-width) * ${line.outside} * var(--lines, 0)` : ""
                 })`,
               }}
             />
