@@ -6,7 +6,7 @@ import type { ReactNode } from "react";
  * - Desktop L: the step over the first 4 of 12 columns and the truck over the other 8; Desktop S
  *   5 and 7. The columns are the page grid's (`grid/margin` at the sides, `grid/gap` between),
  *   where Figma has `spacing/md` at the sides (see figma-notes); the truck keeps `spacing/md` from
- *   the step inside its columns, and below Desktop S above it.
+ *   the step inside its columns, and as much from the right edge; below Desktop S above it.
  * - Tablet and Mobile: the truck above, the step under it. `spacing/xl` and `spacing/sm` at the
  *   sides.
  * - The price box and "Boka samtal" stand top right over the truck, 263px wide on desktop and
@@ -65,9 +65,10 @@ export function ConfiguratorScreen({
             : "desktop-s:col-span-7 desktop-s:col-start-6 desktop-l:col-span-8 desktop-l:col-start-5"
         }`}
       >
-        {/* `spacing/md` from the step, above it or beside it, so the truck never touches it. */}
+        {/* `spacing/md` from the step, above it or beside it, so the truck never touches it, and as
+            much from the right edge. */}
         {image ? (
-          <div className="absolute inset-0 bottom-(--spacing-md) desktop-s:bottom-0 desktop-s:left-(--spacing-md)">
+          <div className="absolute inset-0 bottom-(--spacing-md) desktop-s:bottom-0 desktop-s:inset-x-(--spacing-md)">
             {image}
           </div>
         ) : null}

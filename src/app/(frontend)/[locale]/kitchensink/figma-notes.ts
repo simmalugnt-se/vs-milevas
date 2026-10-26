@@ -2067,7 +2067,7 @@ export const figmaNotes: FigmaNote[] = [
     topic: "Stegskärmen i sidans grid",
     figma:
       "`spacing/md` vid sidorna; steget över 4 (Desktop L) eller 5 (Desktop S) av 12 kolumner och trucken intill",
-    code: "Sidans grid från Desktop S: `grid/margin` vid sidorna och `grid/gap` mellan kolumnerna, så att steget slutar på en kolumnkant. Trucken ligger i kolumnerna efter steget med `spacing/md` innanför, så den aldrig når valen",
+    code: "Sidans grid från Desktop S: `grid/margin` vid sidorna och `grid/gap` mellan kolumnerna, så att steget slutar på en kolumnkant. Trucken ligger i kolumnerna efter steget med `spacing/md` innanför på båda sidor, så den aldrig når valen och har lika mycket luft mot högerkanten",
     why: "Användarens beslut: steget ska följa gridet och trucken inte hamna kant i kant med valen",
     status: "Beslut",
     date: "2026-10-26",
@@ -2129,10 +2129,10 @@ export const figmaNotes: FigmaNote[] = [
     topic: "Offerten",
     figma:
       "`type=offert`: rubriken i singular, Konfiguration och Tekniska specifikationer, Skicka kopia till mig och Fortsätt beställning; price-boxen med Boka samtal uppe till höger på desktop, i flödet under rubriken på Tablet och Mobile",
-    code: "Som Figma, uppmätt vid 1440, 800 och 375 (inom 2px). På Desktop L börjar bildytan efter den 555px breda kolumnen, i Figma bakom den",
-    why: "Trucken ska inte ligga under texten",
-    status: "Beslut (teknisk)",
-    date: "2026-10-23",
+    code: "Som Figma vid 800 och 375. Från Desktop S på sidans grid som stegskärmen och tackskärmen: vänsterdelen över 5 av 12 kolumner (4 på Desktop L, där Figma har 555px) och trucken i resten med `spacing/md` innanför, så den har samma yta och plats i alla tre",
+    why: "Användarens beslut 2026-10-26: trucken bytte storlek och läge mellan sista steget och offerten. Tidigare börjar bildytan efter den 555px breda kolumnen så trucken inte låg under texten",
+    status: "Beslut",
+    date: "2026-10-26",
   },
   {
     target: "configurator",

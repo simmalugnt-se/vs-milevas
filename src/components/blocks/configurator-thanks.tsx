@@ -19,9 +19,10 @@ type ConfiguratorThanksProps = {
  * `bg-fill-secondary`. Below Desktop S 6rem on top for the site's overlaid navigation; from it the
  * navigation's row (`spacing/xl`), which the price box touches, and `spacing/xl` more for the rest,
  * as the configurator's steps:
- * - Desktop S and L: the heading top left and "Vad händer nu?" bottom left over 5 of 12 columns;
- *   the truck over the other 7 with the price box and "Boka samtal" top right (304px). The
- *   window's height (Figma's frame is 832px), growing only when the content does not fit.
+ * - Desktop S and L: the heading top left and "Vad händer nu?" bottom left over 5 of 12 columns (4
+ *   on Desktop L); the truck over the rest with `spacing/md` inside on both sides and the price box and "Boka
+ *   samtal" top right (304px). On the page grid as the step screen, so the truck has the same area.
+ *   The window's height (Figma's frame is 832px), growing only when the content does not fit.
  * - Tablet and Mobile: the heading, the price box and the steps, `spacing/md` apart. No truck and
  *   no "Boka samtal".
  * The steps are a `bg-fill` box (`radius-lg`) of rows with a line between: `[01]` in Label S
@@ -37,8 +38,8 @@ export function ConfiguratorThanks({
   steps,
 }: ConfiguratorThanksProps) {
   return (
-    <section className="bg-bg-fill-secondary px-(--spacing-md) pt-[calc(6rem+var(--spacing-xl))] pb-(--spacing-xl) tablet:px-(--spacing-xl) desktop-s:grid desktop-s:min-h-svh desktop-s:pt-(--spacing-xl) desktop-s:grid-cols-12 desktop-s:px-(--spacing-md)">
-      <div className="flex flex-col gap-(--spacing-md) desktop-s:col-span-5 desktop-s:justify-between desktop-s:pt-(--spacing-xl)">
+    <section className="bg-bg-fill-secondary px-(--spacing-md) pt-[calc(6rem+var(--spacing-xl))] pb-(--spacing-xl) tablet:px-(--spacing-xl) desktop-s:grid desktop-s:min-h-svh desktop-s:grid-cols-12 desktop-s:gap-x-(--grid-gap) desktop-s:px-(--grid-margin) desktop-s:pt-(--spacing-xl)">
+      <div className="flex flex-col gap-(--spacing-md) desktop-s:col-span-5 desktop-s:justify-between desktop-s:pt-(--spacing-xl) desktop-l:col-span-4">
         <h1 className="text-display-m text-ui-primary">{heading}</h1>
         <div className="desktop-s:hidden">{price}</div>
         <div className="flex flex-col gap-(--spacing-3xs) desktop-s:gap-(--spacing-xs)">
@@ -59,8 +60,8 @@ export function ConfiguratorThanks({
           </ol>
         </div>
       </div>
-      <div className="relative hidden flex-col items-end desktop-s:col-span-7 desktop-s:flex">
-        {image ? <div className="absolute inset-0">{image}</div> : null}
+      <div className="relative hidden flex-col items-end desktop-s:col-span-7 desktop-s:col-start-6 desktop-s:flex desktop-l:col-span-8 desktop-l:col-start-5">
+        {image ? <div className="absolute inset-0 inset-x-(--spacing-md)">{image}</div> : null}
         <div className="relative flex w-[19rem] flex-col gap-(--spacing-2xs)">
           {price}
           {contact}

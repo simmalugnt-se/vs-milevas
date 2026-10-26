@@ -65,8 +65,10 @@ function Table({ heading, action, rows }: QuoteTable) {
  * as the configurator's steps:
  * - Desktop S and L: the heading, the two tables and the buttons on the left, spread over the
  *   window's height (Figma's frame is 832px) and `spacing/sm` apart at least, growing only when
- *   they do not fit, as the configurator's steps; the truck on the right with the price box and "Boka samtal" top right
- *   (304px). Desktop L gives the left 555px, Desktop S half.
+ *   they do not fit, as the configurator's steps; the truck on the right with the price box and
+ *   "Boka samtal" top right (304px). On the page grid as the step screen, so the truck has the same
+ *   area there and here: the left over 5 of 12 columns (4 on Desktop L, where Figma gives it
+ *   555px), the truck over the rest with `spacing/md` inside on both sides.
  * - Tablet and Mobile: one column `spacing/md` apart: the heading and the back link, the price box,
  *   the tables (side by side on Tablet), and the buttons with "Boka samtal" between the copy field
  *   and "Fortsätt beställning". No truck.
@@ -84,8 +86,8 @@ export function ConfiguratorQuote({
   order,
 }: ConfiguratorQuoteProps) {
   return (
-    <section className="bg-bg-fill-secondary px-(--spacing-md) pt-[calc(6rem+var(--spacing-xl))] pb-(--spacing-xl) tablet:px-(--spacing-xl) desktop-s:grid desktop-s:min-h-svh desktop-s:pt-(--spacing-xl) desktop-s:grid-cols-2 desktop-s:px-(--spacing-md) desktop-l:grid-cols-[34.6875rem_minmax(0,1fr)]">
-      <div className="flex flex-col gap-(--spacing-md) desktop-s:justify-between desktop-s:pt-(--spacing-xl) desktop-s:gap-(--spacing-sm)">
+    <section className="bg-bg-fill-secondary px-(--spacing-md) pt-[calc(6rem+var(--spacing-xl))] pb-(--spacing-xl) tablet:px-(--spacing-xl) desktop-s:grid desktop-s:min-h-svh desktop-s:grid-cols-12 desktop-s:gap-x-(--grid-gap) desktop-s:px-(--grid-margin) desktop-s:pt-(--spacing-xl)">
+      <div className="flex flex-col gap-(--spacing-md) desktop-s:col-span-5 desktop-s:justify-between desktop-s:gap-(--spacing-sm) desktop-s:pt-(--spacing-xl) desktop-l:col-span-4">
         <div className="flex flex-col gap-(--spacing-2xs)">
           <h1 className="text-display-m text-ui-primary">{heading}</h1>
           {back ? <div className="desktop-s:hidden">{back}</div> : null}
@@ -108,8 +110,8 @@ export function ConfiguratorQuote({
           {order}
         </div>
       </div>
-      <div className="relative hidden flex-col items-end desktop-s:flex">
-        {image ? <div className="absolute inset-0">{image}</div> : null}
+      <div className="relative hidden flex-col items-end desktop-s:col-span-7 desktop-s:col-start-6 desktop-s:flex desktop-l:col-span-8 desktop-l:col-start-5">
+        {image ? <div className="absolute inset-0 inset-x-(--spacing-md)">{image}</div> : null}
         {/* Out of Figma's popup frame (9321:55718), so it fades as the popup opens. */}
         <div className="relative flex w-[19rem] flex-col gap-(--spacing-2xs) transition-opacity duration-1200 ease-[cubic-bezier(0.72,0,0.37,1)] motion-reduce:transition-none [html[data-request-popup=open]_&]:opacity-0">
           {price}
