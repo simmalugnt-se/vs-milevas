@@ -34,6 +34,8 @@ type ConfiguratorStepProps = {
   options: ConfiguratorStepOption[];
   /** Under the box, e.g. the service agreement's <CheckboxChoice>. */
   addon?: ReactNode;
+  /** Two per row once the box is wide enough, for a step in a wide <ConfiguratorScreen>. */
+  wide?: boolean;
 };
 
 /** One step of the configurator: a <ConfiguratorBox> laid out as its type. */
@@ -43,6 +45,7 @@ export function ConfiguratorStep({
   display,
   options,
   addon,
+  wide = false,
 }: ConfiguratorStepProps) {
   if (display === "prices") {
     return (
@@ -62,7 +65,11 @@ export function ConfiguratorStep({
   }
 
   const pictured = display === "images" || display === "imageRows";
-  const layout = display === "grid" || display === "images" ? "grid" : "stack";
+  const layout = wide
+    ? "gridWhenWide"
+    : display === "grid" || display === "images"
+      ? "grid"
+      : "stack";
   return (
     <ConfiguratorBox number={number} label={label} addon={addon} layout={layout}>
       {options.map((option) => (

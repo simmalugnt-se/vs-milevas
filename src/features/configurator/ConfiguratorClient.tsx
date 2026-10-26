@@ -255,6 +255,7 @@ export function ConfiguratorClient({
         number={number}
         label="Trucktyp"
         display="imageRows"
+        wide
         options={families.map((candidate) => ({
           key: candidate.key,
           title: candidate.name,
@@ -376,6 +377,7 @@ export function ConfiguratorClient({
   return (
     <>
       <ConfiguratorScreen
+        wide={state.step === 0 || !family}
         price={
           <PriceBox
             totalLabel={family ? "Totalpris" : "Från"}

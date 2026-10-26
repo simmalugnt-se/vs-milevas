@@ -442,7 +442,7 @@ export const designQuestions: DesignQuestion[] = [
   {
     target: "configurator",
     question:
-      'Trucktypssteget, när /configurator öppnas utan vald truck, är inte ritat. Koden visar de sex trucktyperna som typ 4, en per rad, och steget blir mycket högt. Typ 3, två per rad, får inte plats: namn som "Elektriska motviktstruckar" bryts mitt i orden. Hur ska steget se ut?',
+      'Trucktypssteget, när /configurator öppnas utan vald truck, är inte ritat. Koden visar trucktyperna som typ 4 i ett bredare steg (7 av 12 kolumner), två per rad när rutan är minst 45rem bred och annars en per rad; långa namn bryts där redaktören satt `|` ("Skjutstativ|truckar"). Hur ska steget se ut?',
     figma: "9264:6653",
   },
 ];
@@ -1404,16 +1404,25 @@ export const figmaNotes: FigmaNote[] = [
     target: "choice",
     topic: "Höjd med bild",
     figma: "`image=big` är 262px och `image=small` 140px höga, som 234,5, 368 och 469px breda val",
-    code: "Samma höjder i rem (`h-[16.375rem]`, `h-[8.75rem]`), som skalar med sidan; big-bilden fyller rummet mellan titel och text",
+    code: "Samma höjder i rem (`h-[16.375rem]`, minst `8.75rem`), som skalar med sidan; big-bilden fyller rummet mellan titel och text",
     why: "Figma håller höjden fast när valet blir bredare, så en proportion hade gett fel höjd i de andra bredderna",
     status: "Beslut (teknisk)",
     date: "2026-10-21",
   },
   {
     target: "choice",
+    topic: "Den lilla bildens plats",
+    figma: "`image=small`: bilden 124 × 93 ligger absolut till höger, över titeln och texten",
+    code: "Två kolumner `spacing/sm` isär: titeln över texten till vänster, priset över bilden till höger med `spacing/xs` emellan oavsett valets höjd, så texten aldrig hamnar bakom bilden; valet växer om innehållet behöver det",
+    why: "Användarens beslut: texten hamnade bakom bilden, bilden låg tätt under priset och i högre val långt ifrån det",
+    status: "Beslut",
+    date: "2026-10-26",
+  },
+  {
+    target: "choice",
     topic: "Långa titlar och priser",
-    figma: "Titeln tar platsen bredvid priset och radbryts där; ett ord som inte får plats bryts",
-    code: "Som Figma. Tidigare flyttades priset till en rad under titeln när de inte fick plats bredvid varandra, och långa ord avstavades (`hyphens-auto`)",
+    figma: "Titeln tar platsen bredvid priset och radbryts där; ett ord som inte får plats bryts. Inget avstånd mellan titel och pris",
+    code: "Som Figma, men med minst `spacing/sm` mellan titel och pris, och ett långt ord bryts med bindestreck där redaktören satt `|` i truckdatans namn (mjukt bindestreck), annars var som helst (2026-10-26, användarens beslut). Tidigare flyttades priset till en rad under titeln, och långa ord avstavades automatiskt (`hyphens-auto`)",
     why: 'Inte ritat; långa namn och priser (trucktypen, "FRÅN 169 900 KR") blir trånga när rutan är smal, till exempel från Desktop S till ungefär 1300px',
     status: "Lucka",
     date: "2026-10-21",
@@ -2044,6 +2053,15 @@ export const figmaNotes: FigmaNote[] = [
   },
   {
     target: "configurator",
+    topic: "Stegskärmen i sidans grid",
+    figma: "`spacing/md` vid sidorna; steget över 4 (Desktop L) eller 5 (Desktop S) av 12 kolumner och trucken intill",
+    code: "Sidans grid från Desktop S: `grid/margin` vid sidorna och `grid/gap` mellan kolumnerna, så att steget slutar på en kolumnkant. Trucken ligger i kolumnerna efter steget med `spacing/md` innanför, så den aldrig når valen",
+    why: "Användarens beslut: steget ska följa gridet och trucken inte hamna kant i kant med valen",
+    status: "Beslut",
+    date: "2026-10-26",
+  },
+  {
+    target: "configurator",
     topic: "Popupens rörelse",
     figma:
       '"prototyp - popup" (9321:55718): "Fortsätt beställning" (och "Boka samtal") öppnar popupen med Smart animate, 1200ms, easing 0.72, 0, 0.37, 1. Panelen glider in från höger och sidan 622px åt vänster; prisrutan och "Boka samtal" finns inte i slutramen och tonas bort. Stängningen och lägen under Desktop S är inte ritade, och ramen har ingen navigation',
@@ -2056,7 +2074,7 @@ export const figmaNotes: FigmaNote[] = [
     target: "configurator",
     topic: "Trucktyp",
     figma: "Inte ritat; ramarna börjar med lyftkapaciteten",
-    code: 'Valet av truckfamilj är första steget, `[01]`, som typ 4 (familjens bild till höger och "Från"-pris); familjens steg följer som `[02]` och framåt',
+    code: 'Valet av truckfamilj är första steget, `[01]`, som typ 4 (familjens bild till höger och "Från"-pris) över 7 av 12 kolumner från Desktop S, två per rad när rutan är minst 45rem bred; familjens steg följer som `[02]` och framåt',
     why: "Familjeval behövs när /configurator öppnas utan family i URL:en; startsidans länkar går direkt till familjens första steg",
     status: "Antagande",
   },
