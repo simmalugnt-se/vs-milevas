@@ -40,12 +40,13 @@ export const MilevasHeroBlock: Block = {
     {
       name: "columns",
       label: "Kolumner",
+      labels: { singular: "Kolumn", plural: "Kolumner" },
       type: "array",
       required: true,
       minRows: 1,
       maxRows: 6,
       admin: {
-        description: "En kolumn per truckfamilj; namn, bild, priser och länk kommer från familjen.",
+        description: "En kolumn per trucktyp; namn, bild, priser och länk kommer från trucktypen.",
       },
       fields: [
         { ...familyField, required: true },

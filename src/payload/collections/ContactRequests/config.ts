@@ -5,7 +5,7 @@ import { isAuthenticated } from "../../access/isAuthenticated.ts";
 /** What the Contact block's form sends; the server action creates them, editors follow them up. */
 export const ContactRequests: CollectionConfig = {
   slug: "contact-requests",
-  labels: { singular: "Kontaktförfrågan", plural: "Kontaktförfrågningar" },
+  labels: { singular: "Meddelande", plural: "Meddelanden" },
   access: {
     create: isAuthenticated,
     delete: isAuthenticated,
@@ -18,10 +18,25 @@ export const ContactRequests: CollectionConfig = {
     useAsTitle: "reference",
   },
   fields: [
-    { name: "reference", type: "text", required: true, unique: true, index: true },
-    { name: "idempotencyKey", type: "text", required: true, unique: true, index: true },
+    {
+      name: "reference",
+      label: "Referens",
+      type: "text",
+      required: true,
+      unique: true,
+      index: true,
+    },
+    {
+      name: "idempotencyKey",
+      label: "Dubblettspärr",
+      type: "text",
+      required: true,
+      unique: true,
+      index: true,
+    },
     {
       name: "status",
+      label: "Status",
       type: "select",
       required: true,
       defaultValue: "new",
@@ -33,21 +48,23 @@ export const ContactRequests: CollectionConfig = {
     },
     {
       name: "locale",
+      label: "Språk",
       type: "select",
       required: true,
       options: [
         { label: "Svenska", value: "sv" },
-        { label: "English", value: "en" },
+        { label: "Engelska", value: "en" },
       ],
     },
-    { name: "sourceUrl", type: "text" },
-    { name: "name", type: "text", required: true },
-    { name: "company", type: "text" },
-    { name: "email", type: "email", required: true },
-    { name: "phone", type: "text" },
-    { name: "message", type: "textarea", required: true },
+    { name: "sourceUrl", label: "Skickad från", type: "text" },
+    { name: "name", label: "Namn", type: "text", required: true },
+    { name: "company", label: "Företag", type: "text" },
+    { name: "email", label: "E-post", type: "email", required: true },
+    { name: "phone", label: "Telefon", type: "text" },
+    { name: "message", label: "Meddelande", type: "textarea", required: true },
     {
       name: "emailStatus",
+      label: "E-poststatus",
       type: "select",
       required: true,
       defaultValue: "pending",
@@ -58,7 +75,7 @@ export const ContactRequests: CollectionConfig = {
         { label: "Ej konfigurerad", value: "notConfigured" },
       ],
     },
-    { name: "emailId", type: "text" },
-    { name: "emailError", type: "textarea" },
+    { name: "emailId", label: "Mejlets id", type: "text" },
+    { name: "emailError", label: "E-postfel", type: "textarea" },
   ],
 };

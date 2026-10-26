@@ -13,6 +13,7 @@ export const TextBoxinfoBlock: Block = {
     {
       name: "items",
       label: "Informationsrader",
+      labels: { singular: "Rad", plural: "Rader" },
       type: "array",
       required: true,
       minRows: 1,

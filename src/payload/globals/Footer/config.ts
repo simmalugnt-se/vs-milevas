@@ -6,6 +6,7 @@ import { revalidateFooter } from "./hooks/revalidate";
 
 export const Footer: GlobalConfig = {
   slug: "footer",
+  label: "Sidfot",
   access: {
     read: () => true,
   },
@@ -19,30 +20,32 @@ export const Footer: GlobalConfig = {
     {
       name: "linkGroups",
       type: "array",
-      label: "Link columns",
+      label: "Länkkolumner",
+      labels: { singular: "Länkkolumn", plural: "Länkkolumner" },
       maxRows: 2,
       admin: {
         initCollapsed: true,
-        description: 'Figma: "Produkter" and "Tjänster". The contact column follows them.',
+        description: "Kontaktkolumnen kommer efter dem.",
       },
       fields: [
-        { name: "heading", type: "text", localized: true, required: true },
+        { name: "heading", label: "Rubrik", type: "text", localized: true, required: true },
         {
           name: "source",
           type: "select",
-          label: "The column's links",
+          label: "Kolumnens länkar",
           defaultValue: "links",
           options: [
-            { label: "The links below", value: "links" },
-            { label: "The truck families", value: "truckFamilies" },
+            { label: "Länkarna nedan", value: "links" },
+            { label: "Trucktyperna", value: "truckFamilies" },
           ],
           admin: {
-            description:
-              "The truck families: every published family in its order (Figma's Produkter).",
+            description: "Trucktyperna: varje publicerad trucktyp i sin ordning.",
           },
         },
         {
           name: "links",
+          label: "Länkar",
+          labels: { singular: "Länk", plural: "Länkar" },
           type: "array",
           fields: [link()],
           admin: {
@@ -54,64 +57,59 @@ export const Footer: GlobalConfig = {
     },
     {
       type: "collapsible",
-      label: "Contact column",
+      label: "Kontaktkolumn",
       fields: [
         {
           name: "contactHeading",
           type: "text",
-          label: "Heading",
+          label: "Rubrik",
           localized: true,
           defaultValue: "Kontakt",
         },
         {
           name: "email",
+          label: "E-post",
           type: "email",
         },
         {
           name: "phone",
+          label: "Telefon",
           type: "text",
-          admin: { description: 'Shown as written, e.g. "08-123 45 67"; it links to the number.' },
+          admin: {
+            description:
+              'Visas som det är skrivet, till exempel "08-123 45 67", och länkar till numret.',
+          },
         },
         {
           name: "location",
+          label: "Ort",
           type: "text",
           localized: true,
-          admin: { description: 'Plain text, e.g. "Stockholm, Sverige".' },
+          admin: { description: 'Till exempel "Stockholm, Sverige".' },
         },
         {
           name: "socialLinks",
           type: "array",
-          label: "Social links",
+          label: "Sociala länkar",
+          labels: { singular: "Social länk", plural: "Sociala länkar" },
           admin: {
             description:
-              "Shown in the Contact block after the e-mail and phone, which also come from here.",
+              "Visas i Kontakt-blocket efter e-post och telefon, som också hämtas härifrån.",
           },
           fields: [
-            { name: "label", type: "text", required: true, admin: { width: "50%" } },
-            { name: "url", type: "text", required: true, admin: { width: "50%" } },
+            { name: "label", label: "Text", type: "text", required: true, admin: { width: "50%" } },
+            { name: "url", label: "Adress", type: "text", required: true, admin: { width: "50%" } },
           ],
         },
       ],
     },
     {
       name: "copyright",
+      label: "Upphovsrätt",
       type: "text",
       localized: true,
       defaultValue: "Milevas AB. Alla rättigheter förbehållna.",
-      admin: { description: 'After "© year" at the bottom.' },
-    },
-    {
-      name: "navItems",
-      type: "array",
-      label: "Links (not shown)",
-      localized: false,
-      fields: [link()],
-      maxRows: 8,
-      admin: {
-        initCollapsed: true,
-        description:
-          "The old footer's links. Figma's footer has link columns instead, so they are not shown.",
-      },
+      admin: { description: 'Efter "© år" längst ner.' },
     },
   ],
   hooks: {

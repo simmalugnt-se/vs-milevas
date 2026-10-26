@@ -47,11 +47,9 @@ async function main() {
           singularName: `Test ${key}`,
           key,
           sortOrder: 0,
-          configurable,
           deliveryTime: "1 vecka",
           warranty: "Test",
-          modelChoice: { label: "Modell", heading: "Välj modell" },
-          models: configurable ? [{ label: "1,5 ton", price: 169900 }] : [],
+          models: configurable ? [{ capacityKg: 1500, price: 169900 }] : [],
           _status: "published",
         },
       });
@@ -97,35 +95,8 @@ async function main() {
       ).size,
       3,
     );
-    // Editing the English copy must preserve Swedish content and the shared page structure.
-    const englishLayout = saved.layout?.map((block) =>
-      block.blockType === "textGrid" ? { ...block, heading: "How it works" } : block,
-    );
-    await payload.update({
-      collection: "pages",
-      id: saved.id,
-      locale: "en",
-      context: { disableRevalidate: true },
-      data: { layout: englishLayout },
-    });
-    const english = await payload.findByID({ collection: "pages", id: saved.id, locale: "en" });
-    const swedish = await payload.findByID({ collection: "pages", id: saved.id, locale: "sv" });
-    assert.equal(
-      english.layout?.find((block) => block.blockType === "textGrid")?.heading,
-      "How it works",
-    );
-    assert.equal(
-      swedish.layout?.find((block) => block.blockType === "textGrid")?.heading,
-      "Så enkelt\nfungerar det",
-    );
     const repeated = await seedMilevasHomepage(payload, true);
     assert.equal(repeated.seeded, false);
-    assert.equal(
-      (await payload.findByID({ collection: "pages", id: saved.id, locale: "en" })).layout?.find(
-        (block) => block.blockType === "textGrid",
-      )?.heading,
-      "How it works",
-    );
     const images = await payload.find({ collection: "images", pagination: false });
     for (const image of images.docs) {
       for (const filename of [
@@ -137,7 +108,7 @@ async function main() {
       }
     }
     console.log(
-      "PASS: nine CMS blocks on the start page and Om oss, cards and columns pointing at their truck families, three distinct photos, localized copy and repeat-safe seed.",
+      "PASS: nine CMS blocks on the start page and Om oss, cards and columns pointing at their truck families, three distinct photos and repeat-safe seed.",
     );
   } finally {
     try {

@@ -136,7 +136,8 @@ since every deploy runs migrations.
 | `NEXT_PUBLIC_SITE_URL` | optional, the public origin |
 | `PAYLOAD_TRUSTED_ORIGINS` | optional, more origins for Admin's login cookie, comma-separated |
 | `ENABLE_SEARCH_INDEXING` | optional, opt in to indexing |
-| `PAYLOAD_MUX_ENABLED`, `PAYLOAD_MCP_ENABLED` | `false` when you don't use them |
+| `PAYLOAD_MUX_ENABLED` | `false` when you don't use it |
+| `PAYLOAD_MCP_ENABLED`, `PAYLOAD_REDIRECTS_ENABLED` | `true` to turn MCP (and its API keys) or redirects on; off in Milevas |
 
 Content health needs no variables of its own.
 

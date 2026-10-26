@@ -1,111 +1,141 @@
-import * as migration_20260514_115903 from "./20260514_115903";
-import * as migration_20260514_161458_localize_template_fields from "./20260514_161458_localize_template_fields";
-import * as migration_20260708_120954 from "./20260708_120954";
-import * as migration_20260805_135632 from "./20260805_135632";
-import * as migration_20260810_150422_configurator_service_agreement from "./20260810_150422_configurator_service_agreement";
-import * as migration_20260811_120812_r2_media_prefix from "./20260811_120812_r2_media_prefix";
-import * as migration_20260811_122754_r2_documents_prefix from "./20260811_122754_r2_documents_prefix";
-import * as migration_20261002_065231_boilerplate_sync from "./20261002_065231_boilerplate_sync";
-import * as migration_20261005_081141_header_cta_footer_email from "./20261005_081141_header_cta_footer_email";
-import * as migration_20261005_094932_configurator_step_help from "./20261005_094932_configurator_step_help";
-import * as migration_20261022_123131_header_menus_login from "./20261022_123131_header_menus_login";
-import * as migration_20261022_125150_footer_columns_contact from "./20261022_125150_footer_columns_contact";
-import * as migration_20261023_091729_truck_catalog from "./20261023_091729_truck_catalog";
-import * as migration_20261023_094032_request_name_optional from "./20261023_094032_request_name_optional";
-import * as migration_20261023_094139_spec_in_quote from "./20261023_094139_spec_in_quote";
-import * as migration_20261023_115840_contact_requests from "./20261023_115840_contact_requests";
-import * as migration_20261023_140057_page_background from "./20261023_140057_page_background";
-import * as migration_20261026_084255_truck_fixed_fields from "./20261026_084255_truck_fixed_fields";
+import * as migration_20260514_115903 from './20260514_115903';
+import * as migration_20260514_161458_localize_template_fields from './20260514_161458_localize_template_fields';
+import * as migration_20260708_120954 from './20260708_120954';
+import * as migration_20260805_135632 from './20260805_135632';
+import * as migration_20260810_150422_configurator_service_agreement from './20260810_150422_configurator_service_agreement';
+import * as migration_20260811_120812_r2_media_prefix from './20260811_120812_r2_media_prefix';
+import * as migration_20260811_122754_r2_documents_prefix from './20260811_122754_r2_documents_prefix';
+import * as migration_20261002_065231_boilerplate_sync from './20261002_065231_boilerplate_sync';
+import * as migration_20261005_081141_header_cta_footer_email from './20261005_081141_header_cta_footer_email';
+import * as migration_20261005_094932_configurator_step_help from './20261005_094932_configurator_step_help';
+import * as migration_20261022_123131_header_menus_login from './20261022_123131_header_menus_login';
+import * as migration_20261022_125150_footer_columns_contact from './20261022_125150_footer_columns_contact';
+import * as migration_20261023_091729_truck_catalog from './20261023_091729_truck_catalog';
+import * as migration_20261023_094032_request_name_optional from './20261023_094032_request_name_optional';
+import * as migration_20261023_094139_spec_in_quote from './20261023_094139_spec_in_quote';
+import * as migration_20261023_115840_contact_requests from './20261023_115840_contact_requests';
+import * as migration_20261023_140057_page_background from './20261023_140057_page_background';
+import * as migration_20261026_084255_truck_fixed_fields from './20261026_084255_truck_fixed_fields';
+import * as migration_20261026_135318_truck_product_page from './20261026_135318_truck_product_page';
+import * as migration_20261026_140314_truck_configurable_from_variants from './20261026_140314_truck_configurable_from_variants';
+import * as migration_20261026_141712_swedish_only from './20261026_141712_swedish_only';
+import * as migration_20261026_143440_financing_monthly_percent from './20261026_143440_financing_monthly_percent';
+import * as migration_20261026_143603_remove_unshown_header_footer_fields from './20261026_143603_remove_unshown_header_footer_fields';
 
 export const migrations = [
   {
     up: migration_20260514_115903.up,
     down: migration_20260514_115903.down,
-    name: "20260514_115903",
+    name: '20260514_115903',
   },
   {
     up: migration_20260514_161458_localize_template_fields.up,
     down: migration_20260514_161458_localize_template_fields.down,
-    name: "20260514_161458_localize_template_fields",
+    name: '20260514_161458_localize_template_fields',
   },
   {
     up: migration_20260708_120954.up,
     down: migration_20260708_120954.down,
-    name: "20260708_120954",
+    name: '20260708_120954',
   },
   {
     up: migration_20260805_135632.up,
     down: migration_20260805_135632.down,
-    name: "20260805_135632",
+    name: '20260805_135632',
   },
   {
     up: migration_20260810_150422_configurator_service_agreement.up,
     down: migration_20260810_150422_configurator_service_agreement.down,
-    name: "20260810_150422_configurator_service_agreement",
+    name: '20260810_150422_configurator_service_agreement',
   },
   {
     up: migration_20260811_120812_r2_media_prefix.up,
     down: migration_20260811_120812_r2_media_prefix.down,
-    name: "20260811_120812_r2_media_prefix",
+    name: '20260811_120812_r2_media_prefix',
   },
   {
     up: migration_20260811_122754_r2_documents_prefix.up,
     down: migration_20260811_122754_r2_documents_prefix.down,
-    name: "20260811_122754_r2_documents_prefix",
+    name: '20260811_122754_r2_documents_prefix',
   },
   {
     up: migration_20261002_065231_boilerplate_sync.up,
     down: migration_20261002_065231_boilerplate_sync.down,
-    name: "20261002_065231_boilerplate_sync",
+    name: '20261002_065231_boilerplate_sync',
   },
   {
     up: migration_20261005_081141_header_cta_footer_email.up,
     down: migration_20261005_081141_header_cta_footer_email.down,
-    name: "20261005_081141_header_cta_footer_email",
+    name: '20261005_081141_header_cta_footer_email',
   },
   {
     up: migration_20261005_094932_configurator_step_help.up,
     down: migration_20261005_094932_configurator_step_help.down,
-    name: "20261005_094932_configurator_step_help",
+    name: '20261005_094932_configurator_step_help',
   },
   {
     up: migration_20261022_123131_header_menus_login.up,
     down: migration_20261022_123131_header_menus_login.down,
-    name: "20261022_123131_header_menus_login",
+    name: '20261022_123131_header_menus_login',
   },
   {
     up: migration_20261022_125150_footer_columns_contact.up,
     down: migration_20261022_125150_footer_columns_contact.down,
-    name: "20261022_125150_footer_columns_contact",
+    name: '20261022_125150_footer_columns_contact',
   },
   {
     up: migration_20261023_091729_truck_catalog.up,
     down: migration_20261023_091729_truck_catalog.down,
-    name: "20261023_091729_truck_catalog",
+    name: '20261023_091729_truck_catalog',
   },
   {
     up: migration_20261023_094032_request_name_optional.up,
     down: migration_20261023_094032_request_name_optional.down,
-    name: "20261023_094032_request_name_optional",
+    name: '20261023_094032_request_name_optional',
   },
   {
     up: migration_20261023_094139_spec_in_quote.up,
     down: migration_20261023_094139_spec_in_quote.down,
-    name: "20261023_094139_spec_in_quote",
+    name: '20261023_094139_spec_in_quote',
   },
   {
     up: migration_20261023_115840_contact_requests.up,
     down: migration_20261023_115840_contact_requests.down,
-    name: "20261023_115840_contact_requests",
+    name: '20261023_115840_contact_requests',
   },
   {
     up: migration_20261023_140057_page_background.up,
     down: migration_20261023_140057_page_background.down,
-    name: "20261023_140057_page_background",
+    name: '20261023_140057_page_background',
   },
   {
     up: migration_20261026_084255_truck_fixed_fields.up,
     down: migration_20261026_084255_truck_fixed_fields.down,
-    name: "20261026_084255_truck_fixed_fields",
+    name: '20261026_084255_truck_fixed_fields',
+  },
+  {
+    up: migration_20261026_135318_truck_product_page.up,
+    down: migration_20261026_135318_truck_product_page.down,
+    name: '20261026_135318_truck_product_page',
+  },
+  {
+    up: migration_20261026_140314_truck_configurable_from_variants.up,
+    down: migration_20261026_140314_truck_configurable_from_variants.down,
+    name: '20261026_140314_truck_configurable_from_variants',
+  },
+  {
+    up: migration_20261026_141712_swedish_only.up,
+    down: migration_20261026_141712_swedish_only.down,
+    name: '20261026_141712_swedish_only',
+  },
+  {
+    up: migration_20261026_143440_financing_monthly_percent.up,
+    down: migration_20261026_143440_financing_monthly_percent.down,
+    name: '20261026_143440_financing_monthly_percent',
+  },
+  {
+    up: migration_20261026_143603_remove_unshown_header_footer_fields.up,
+    down: migration_20261026_143603_remove_unshown_header_footer_fields.down,
+    name: '20261026_143603_remove_unshown_header_footer_fields'
   },
 ];

@@ -275,7 +275,11 @@ export async function sendQuoteCopy(
       )
     : null;
   if (!quote) {
-    return { ok: false, email, message: "Konfigurationen är ofullständig eller inte längre giltig." };
+    return {
+      ok: false,
+      email,
+      message: "Konfigurationen är ofullständig eller inte längre giltig.",
+    };
   }
 
   const payload = await getPayloadClient();

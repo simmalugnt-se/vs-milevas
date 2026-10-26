@@ -6,7 +6,7 @@ import { revalidateImages, revalidateImagesDelete } from "./hooks/revalidate.ts"
 /** Images only; videos are their own collection (`videos`), played through Mux. */
 export const Images: CollectionConfig = {
   slug: "images",
-  labels: { singular: "Image", plural: "Images" },
+  labels: { singular: "Bild", plural: "Bilder" },
   access: {
     create: isAuthenticated,
     delete: isAuthenticated,
@@ -21,11 +21,13 @@ export const Images: CollectionConfig = {
   fields: [
     {
       name: "alt",
+      label: "Alternativtext",
       type: "text",
       localized: true,
     },
     {
       name: "credit",
+      label: "Fotograf",
       type: "text",
       localized: true,
     },

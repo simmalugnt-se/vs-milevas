@@ -1,6 +1,7 @@
 import { postgresAdapter } from "@payloadcms/db-postgres";
 import { lexicalEditor } from "@payloadcms/richtext-lexical";
 import { s3Storage } from "@payloadcms/storage-s3";
+import { sv } from "@payloadcms/translations/languages/sv";
 import path from "path";
 import { buildConfig, type PayloadRequest } from "payload";
 import sharp from "sharp";
@@ -63,9 +64,22 @@ if (!process.env.PAYLOAD_SECRET) {
 
 const payloadSecret = process.env.PAYLOAD_SECRET;
 
+/** The content locales as the admin's locale switcher names them. */
+const localeLabels: Record<string, string> = {
+  en: "Engelska",
+  sv: "Svenska",
+};
+
 export default buildConfig({
+  // The admin is in Swedish only; the site's content has both locales.
+  i18n: {
+    fallbackLanguage: "sv",
+    supportedLanguages: { sv },
+    // Payload's own group for globals, which it lists first; ADMIN_GROUPS.globals joins it.
+    translations: { sv: { general: { globals: "Allmänt" } } },
+  },
   localization: {
-    locales: [...routing.locales],
+    locales: routing.locales.map((code) => ({ code, label: localeLabels[code] ?? code })),
     defaultLocale: routing.defaultLocale,
     fallback: true,
   },
@@ -85,13 +99,13 @@ export default buildConfig({
     livePreview: {
       breakpoints: [
         {
-          label: "Mobile",
+          label: "Mobil",
           name: "mobile",
           width: 375,
           height: 667,
         },
         {
-          label: "Tablet",
+          label: "Surfplatta",
           name: "tablet",
           width: 768,
           height: 1024,

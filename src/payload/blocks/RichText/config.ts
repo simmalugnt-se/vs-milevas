@@ -5,9 +5,11 @@ const richTextLinkCollections = ["pages", "documents"] as const;
 
 export const RichTextBlock: Block = {
   slug: "richText",
+  labels: { singular: "Fritext", plural: "Fritext" },
   fields: [
     {
       name: "content",
+      label: "Innehåll",
       type: "richText",
       editor: lexicalEditor({
         features: ({ defaultFeatures }) => [

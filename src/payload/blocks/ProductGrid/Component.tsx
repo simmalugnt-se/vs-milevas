@@ -1,4 +1,4 @@
-import { editableBlock, editableField } from "@simmalugnt-se/payload-visual-editing/frontend";
+import { editableBlock } from "@simmalugnt-se/payload-visual-editing/frontend";
 import { draftMode } from "next/headers";
 import Image from "next/image";
 import { getLocale } from "next-intl/server";
@@ -18,7 +18,6 @@ export async function ProductGridBlockComponent({
     const family = familyFromCatalog(item.family, catalog);
     const link = family ? familyLink(family) : undefined;
     if (!family || !link) return [];
-    const crop = item.imageFit === "crop" ? item.imageCrop : undefined;
     return [
       {
         href: link.href,
@@ -30,26 +29,15 @@ export async function ProductGridBlockComponent({
         name: family.name,
         specs: familyCardSpecs(family, catalog),
         ...familyPrices(family, catalog),
+        // The truck type's main image, always whole: a cut-out truck on its bottom edge.
         image: family.image ? (
-          <span className="absolute inset-0 block overflow-hidden" {...editableField("imageFit")}>
-            <span
-              className="absolute block"
-              style={{
-                width: `${crop?.width ?? 100}%`,
-                height: `${crop?.height ?? 100}%`,
-                left: `${crop?.left ?? 0}%`,
-                top: `${crop?.top ?? 0}%`,
-              }}
-            >
-              <Image
-                src={family.image.url}
-                alt=""
-                fill
-                sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 90vw"
-                className={item.imageFit === "cover" ? "object-cover" : "object-contain"}
-              />
-            </span>
-          </span>
+          <Image
+            src={family.image.url}
+            alt=""
+            fill
+            sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 90vw"
+            className="object-contain"
+          />
         ) : null,
       },
     ];

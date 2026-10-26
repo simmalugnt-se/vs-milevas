@@ -1,6 +1,6 @@
 import type { CollectionSlug, GlobalSlug, PayloadRequest, TypedLocale } from "payload";
 import { frontendPath } from "@/i18n/frontend-path";
-import { routing } from "@/i18n/routing";
+import { getTypedLocale } from "@/i18n/routing";
 
 type PreviewCollection = Extract<CollectionSlug, "pages">;
 
@@ -40,11 +40,7 @@ function normalizeRouteKey(value: string | null | undefined) {
 }
 
 function previewLocale(req: PayloadRequest): TypedLocale {
-  const raw = req.locale;
-  if (raw === "en" || raw === "sv") {
-    return raw;
-  }
-  return routing.defaultLocale as TypedLocale;
+  return getTypedLocale(req.locale);
 }
 
 /**

@@ -55,7 +55,7 @@ const catalog: ConfiguratorCatalog = {
       key: "leasing",
       label: "Leasing",
       kind: "monthly",
-      monthlyFactor: 0.02,
+      monthlyPercent: 2,
       serviceAgreementEligible: true,
     },
   ],

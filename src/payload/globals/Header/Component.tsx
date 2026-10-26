@@ -26,8 +26,7 @@ type HeaderComponentProps = {
 
 /**
  * The site's header: the Navigation block (Figma 9051:12518) fed by the Header global, with the
- * boilerplate's optional announcement bar above it. `siteName` and `siteTagline` stay in the global
- * but are not shown, and neither is `cta`: Figma's navigation has no button. Each `navItems` row
+ * boilerplate's optional announcement bar above it. Each `navItems` row
  * is a menu: with `links` it opens them beside its `image` (each link's own image shows while it is
  * pointed at), without them its link is a plain link. A menu whose `source` is the truck families
  * (Figma's Modeller) lists every published family in its order, with its name and main image; its

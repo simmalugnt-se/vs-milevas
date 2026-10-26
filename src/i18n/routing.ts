@@ -2,7 +2,8 @@ import { defineRouting } from "next-intl/routing";
 import type { TypedLocale } from "payload";
 
 export const routing = defineRouting({
-  locales: ["en", "sv"],
+  // Swedish only for now; add "en" back to publish the English site and edit English content.
+  locales: ["sv"],
   defaultLocale: "sv",
   localePrefix: "as-needed",
   localeDetection: false,

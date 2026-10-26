@@ -25,6 +25,7 @@ export const TextColumnsBlock: Block = {
     {
       name: "logos",
       label: "Logotyper",
+      labels: { singular: "Logotyp", plural: "Logotyper" },
       type: "array",
       required: true,
       minRows: 1,

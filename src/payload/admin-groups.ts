@@ -1,17 +1,17 @@
 /**
- * Admin navigation and dashboard groups. "Globals" is Payload's own default group, which it always
- * lists first; the others follow in the order their first collection appears: Globals, Content,
- * Requests, Configurator, Settings.
+ * Admin navigation and dashboard groups. "Allmänt" is Payload's own group for globals (renamed in
+ * `i18n.translations`), which it always lists first; the others follow in the order their first
+ * collection appears: Innehåll, Förfrågningar, Konfigurator, Inställningar.
  */
 export const ADMIN_GROUPS = {
   /** What editors work on every day. */
-  content: "Content",
+  content: "Innehåll",
   /** What visitors send in: contact and configurator requests. */
-  requests: "Requests",
+  requests: "Förfrågningar",
   /** The truck families and the configurator's settings. */
-  configurator: "Configurator",
+  configurator: "Konfigurator",
   /** Rarely used administration, including collections added by plugins. */
-  settings: "Settings",
+  settings: "Inställningar",
   /** Site-wide content shown on every page. */
-  globals: "Globals",
+  globals: "Allmänt",
 } as const;

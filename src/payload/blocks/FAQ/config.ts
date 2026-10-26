@@ -2,18 +2,19 @@ import type { Block } from "payload";
 
 export const FAQBlock: Block = {
   slug: "faq",
-  labels: { singular: "FAQ", plural: "FAQs" },
+  labels: { singular: "Vanliga frågor", plural: "Vanliga frågor" },
   fields: [
-    { name: "heading", type: "text", localized: true },
+    { name: "heading", label: "Rubrik", type: "text", localized: true },
     {
       name: "items",
+      label: "Frågor",
       type: "array",
       required: true,
       minRows: 1,
-      labels: { singular: "Question", plural: "Questions" },
+      labels: { singular: "Fråga", plural: "Frågor" },
       fields: [
-        { name: "question", type: "text", required: true, localized: true },
-        { name: "answer", type: "textarea", required: true, localized: true },
+        { name: "question", label: "Fråga", type: "text", required: true, localized: true },
+        { name: "answer", label: "Svar", type: "textarea", required: true, localized: true },
       ],
     },
   ],

@@ -5,6 +5,7 @@ import { revalidateDocuments, revalidateDocumentsDelete } from "./hooks/revalida
 
 export const Documents: CollectionConfig = {
   slug: "documents",
+  labels: { singular: "Dokument", plural: "Dokument" },
   access: {
     create: isAuthenticated,
     delete: isAuthenticated,
@@ -19,12 +20,14 @@ export const Documents: CollectionConfig = {
   fields: [
     {
       name: "title",
+      label: "Titel",
       type: "text",
       localized: true,
       required: true,
     },
     {
       name: "description",
+      label: "Beskrivning",
       type: "textarea",
       localized: true,
     },

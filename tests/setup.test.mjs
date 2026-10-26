@@ -69,10 +69,7 @@ test("optional integrations retain schema and gate their entry points", async ()
     new URL("../src/payload/plugins/index.ts", import.meta.url),
     "utf8",
   );
-  assert.match(
-    plugins,
-    /mcpPlugin\(\{\s*\/\/[^\n]*\n\s*disabled: process.env.PAYLOAD_MCP_ENABLED === "false"/,
-  );
+  assert.match(plugins, /mcpPlugin\(\{\s*\/\/[^\n]*\n\s*disabled: !mcpEnabled/);
   // The videos collection stays without Mux, so the schema does not depend on it.
   assert.match(plugins, /muxPlugin\(\{\s*enabled: process.env.PAYLOAD_MUX_ENABLED !== "false"/);
 });

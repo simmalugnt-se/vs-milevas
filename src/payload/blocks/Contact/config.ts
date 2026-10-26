@@ -15,7 +15,7 @@ export const ContactBlock: Block = {
       defaultValue: "Kontakt",
       admin: {
         description:
-          "E-post, telefon och sociala länkar hämtas från sidfoten (Globals → Footer), så de bara ändras på ett ställe. Formuläret skickas till Kontaktförfrågningar.",
+          "E-post, telefon och sociala länkar hämtas från sidfoten (Allmänt → Sidfot), så de bara ändras på ett ställe. Formuläret sparas i Förfrågningar → Meddelanden.",
       },
     },
   ],

@@ -18,6 +18,7 @@ export const CardSliderBlock: Block = {
     {
       name: "cards",
       label: "Kort",
+      labels: { singular: "Kort", plural: "Kort" },
       type: "array",
       required: true,
       minRows: 1,

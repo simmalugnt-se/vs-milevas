@@ -12,6 +12,12 @@ import {
 } from "@/payload/data/redirects-core";
 import type { Page } from "@/payload-types";
 
+/**
+ * Redirects are off unless `PAYLOAD_REDIRECTS_ENABLED=true`: the collection is hidden in Admin and
+ * a new slug adds no redirect. Its table stays, so turning them on needs no migration.
+ */
+export const redirectsEnabled = process.env.PAYLOAD_REDIRECTS_ENABLED === "true";
+
 const contextKey = (id: string | number) => `publishedSlug:${id}`;
 
 /**

@@ -2,10 +2,11 @@ import type { Block } from "payload";
 
 export const GalleryBlock: Block = {
   slug: "gallery",
-  labels: { singular: "Gallery", plural: "Galleries" },
+  labels: { singular: "Galleri", plural: "Gallerier" },
   fields: [
     {
       name: "images",
+      label: "Bilder",
       type: "upload",
       relationTo: "images",
       hasMany: true,

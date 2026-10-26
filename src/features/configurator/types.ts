@@ -98,7 +98,8 @@ export type FinancingMethod = {
   description?: string;
   kind: "purchase" | "monthly";
   months?: number;
-  monthlyFactor?: number;
+  /** The monthly cost as a percentage of the total price, e.g. 1.875. */
+  monthlyPercent?: number;
   serviceAgreementEligible: boolean;
 };
 

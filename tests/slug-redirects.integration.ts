@@ -32,6 +32,8 @@ async function main() {
   process.env.DATABASE_SSL = "false";
   process.env.PAYLOAD_LOCAL_PUSH = "false";
   process.env.PAYLOAD_SECRET = "isolated-slug-redirects-test-secret";
+  // Off by default in Milevas; this test is about them.
+  process.env.PAYLOAD_REDIRECTS_ENABLED = "true";
   // Skip resolving the Admin import map in this CLI test.
   process.argv.push("migrate");
 

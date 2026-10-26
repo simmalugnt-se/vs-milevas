@@ -11,11 +11,11 @@ export const slugField = ({
   localized = false,
 }: SlugSource = {}): Field => ({
   name: "slug",
+  label: "Adress",
   type: "text",
   localized,
   admin: {
-    description:
-      "Auto-generated from the title on first save. Changing it on a published page adds a redirect from the old address when you publish.",
+    description: "Skapas ur titeln första gången sidan sparas.",
     position: "sidebar",
   },
   hooks: {

@@ -10,11 +10,11 @@ export function TextGridBlockComponent({ block }: LayoutBlockComponentProps<Text
       id={block.anchor ?? undefined}
       heading={block.heading}
       headingAttributes={editableField("heading")}
-      cards={block.cards.map((item) => {
+      cards={block.cards.map((item, index) => {
         const src = getMediaImageURL(item.image);
         return {
           attributes: editableBlock(item),
-          number: <span {...editableField("number")}>{item.number}</span>,
+          number: String(index + 1).padStart(2, "0"),
           label: <span {...editableField("label")}>{item.label}</span>,
           text: (
             <span className="whitespace-pre-line" {...editableField("text")}>

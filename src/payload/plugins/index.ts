@@ -10,6 +10,7 @@ import type { CollectionConfig, Plugin } from "payload";
 import { routing } from "@/i18n/routing";
 import { isAuthenticated } from "@/payload/access/isAuthenticated.ts";
 import { ADMIN_GROUPS } from "@/payload/admin-groups.ts";
+import { redirectsEnabled } from "@/payload/collections/Pages/hooks/redirect-old-slug.ts";
 import {
   revalidateRedirectDelete,
   revalidateRedirects,
@@ -25,11 +26,19 @@ import {
 // import { assistantModel, assistantModelProblem, assistantModelWarning } from "./assistant-model.ts";
 
 const disableMcpSse = process.env.PAYLOAD_MCP_DISABLE_SSE === "true";
+// Off unless PAYLOAD_MCP_ENABLED=true: no endpoints, and its API keys are hidden in Admin.
+const mcpEnabled = process.env.PAYLOAD_MCP_ENABLED === "true";
 // The editor assistant has no key of its own; it calls the model chosen in assistant-model.ts.
 // const assistantProblem = assistantModelProblem() ?? assistantModelWarning();
 // if (assistantProblem) {
 //   console.warn(`[editor-assistant] ${assistantProblem}`);
 // }
+
+const seoLabels: Record<string, { label: string; description?: string }> = {
+  title: { label: "Titel" },
+  description: { label: "Beskrivning" },
+  image: { label: "Delningsbild", description: "Högst 12 MB, helst under 500 kB." },
+};
 
 export const cmsPlugins: Plugin[] = [
   // Before MCP, which lists the videos collection. The collection stays when Mux is off, so the
@@ -50,7 +59,8 @@ export const cmsPlugins: Plugin[] = [
   redirectsPlugin({
     collections: ["pages"],
     overrides: {
-      admin: { group: ADMIN_GROUPS.settings },
+      labels: { singular: "Omdirigering", plural: "Omdirigeringar" },
+      admin: { group: ADMIN_GROUPS.settings, hidden: !redirectsEnabled },
       hooks: {
         afterChange: [revalidateRedirects],
         afterDelete: [revalidateRedirectDelete],
@@ -59,6 +69,20 @@ export const cmsPlugins: Plugin[] = [
   }),
   seoPlugin({
     collections: ["pages"],
+    // The plugin's own labels are English whatever the admin's language.
+    fields: ({ defaultFields }) =>
+      defaultFields.map((field) => {
+        const swedish = "name" in field ? seoLabels[field.name] : undefined;
+        if (!swedish) return field;
+        return {
+          ...field,
+          label: swedish.label,
+          admin: {
+            ...field.admin,
+            ...(swedish.description && { description: swedish.description }),
+          },
+        } as typeof field;
+      }),
     generateDescription: ({ doc }) => getDocumentDescription(doc),
     generateImage: ({ doc }) => getDocumentImage(doc) ?? "",
     generateTitle: ({ doc }) => getDocumentTitle(doc),
@@ -69,7 +93,7 @@ export const cmsPlugins: Plugin[] = [
   }),
   mcpPlugin({
     // Keep its API-key collection in every environment, but do not register endpoints when off.
-    disabled: process.env.PAYLOAD_MCP_ENABLED === "false",
+    disabled: !mcpEnabled,
     mcp: {
       handlerOptions: {
         disableSse: disableMcpSse,
@@ -81,7 +105,7 @@ export const cmsPlugins: Plugin[] = [
         admin: {
           ...collection.admin,
           group: ADMIN_GROUPS.settings,
-          hidden: process.env.PAYLOAD_MCP_ENABLED === "false",
+          hidden: !mcpEnabled,
         },
         access: {
           ...collection.access,

@@ -153,7 +153,7 @@ function milevasProductGridBlock(familyIDs: Map<string, string>) {
     category: "Modeller",
     products: familyKeys.flatMap((key) => {
       const family = familyIDs.get(key);
-      return family ? [{ family, imageFit: "contain" as const }] : [];
+      return family ? [{ family }] : [];
     }),
   };
 }
@@ -363,9 +363,9 @@ export async function seedMilevasHomepage(
       anchor: "hur-det-fungerar",
       heading: "Så enkelt\nfungerar det",
       cards: [
-        { number: "01", label: "Bygg din truck", text: "", image: photos[0] },
-        { number: "02", label: "Få offert", text: "text", image: photos[1] },
-        { number: "03", label: "Leverans", text: "text", image: photos[2] },
+        { label: "Bygg din truck", text: "", image: photos[0] },
+        { label: "Få offert", text: "text", image: photos[1] },
+        { label: "Leverans", text: "text", image: photos[2] },
       ],
     },
     {

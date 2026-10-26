@@ -10,12 +10,13 @@ export const TextGridBlock: Block = {
     {
       name: "cards",
       label: "Bildkort",
+      labels: { singular: "Bildkort", plural: "Bildkort" },
       type: "array",
+      admin: { description: "Numreras 01, 02 … i ordning." },
       required: true,
       minRows: 1,
       maxRows: 3,
       fields: [
-        { name: "number", label: "Nummer", type: "text", required: true },
         { name: "label", label: "Etikett", type: "text", required: true, localized: true },
         { name: "text", label: "Text", type: "textarea", localized: true },
         { name: "image", label: "Bild", type: "upload", relationTo: "images", required: true },

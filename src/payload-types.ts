@@ -105,7 +105,7 @@ export interface Config {
   db: {
     defaultIDType: string;
   };
-  fallbackLocale: ('false' | 'none' | 'null') | false | null | ('en' | 'sv') | ('en' | 'sv')[];
+  fallbackLocale: ('false' | 'none' | 'null') | false | null | 'sv' | 'sv'[];
   globals: {
     header: Header;
     footer: Footer;
@@ -116,7 +116,7 @@ export interface Config {
     footer: FooterSelect<false> | FooterSelect<true>;
     'configurator-settings': ConfiguratorSettingsSelect<false> | ConfiguratorSettingsSelect<true>;
   };
-  locale: 'en' | 'sv';
+  locale: 'sv';
   widgets: {
     collections: CollectionsWidget;
   };
@@ -177,11 +177,11 @@ export interface Page {
   title: string;
   publishedAt?: string | null;
   /**
-   * Auto-generated from the title on first save. Changing it on a published page adds a redirect from the old address when you publish.
+   * Skapas ur titeln första gången sidan sparas.
    */
   slug: string;
   /**
-   * The page behind the blocks: it shows in the gaps between them and around the footer.
+   * Sidan bakom blocken; den syns i mellanrummen mellan dem och runt sidfoten.
    */
   background?: ('dark' | 'light') | null;
   layout?:
@@ -370,11 +370,11 @@ export interface Page {
              */
             activeColumn?: number | null;
             /**
-             * En kolumn per truckfamilj; namn, bild, priser och länk kommer från familjen.
+             * En kolumn per trucktyp; namn, bild, priser och länk kommer från trucktypen.
              */
             columns: {
               /**
-               * Namn, bild och priser ändras i truckfamiljen.
+               * Namn, bild och priser ändras i trucktypen.
                */
               family: string | TruckFamily;
               /**
@@ -452,20 +452,13 @@ export interface Page {
             brand?: string | null;
             category?: string | null;
             /**
-             * Ett kort per truckfamilj; namn, bild, specifikationer, priser och länk kommer från familjen.
+             * Ett kort per trucktyp; namn, bild, specifikationer, priser och länk kommer från trucktypen.
              */
             products: {
               /**
-               * Namn, bild och priser ändras i truckfamiljen.
+               * Namn, bild och priser ändras i trucktypen.
                */
               family: string | TruckFamily;
-              imageFit?: ('contain' | 'cover' | 'crop') | null;
-              imageCrop?: {
-                width?: number | null;
-                height?: number | null;
-                left?: number | null;
-                top?: number | null;
-              };
               id?: string | null;
             }[];
             id?: string | null;
@@ -478,8 +471,10 @@ export interface Page {
              */
             anchor?: string | null;
             heading: string;
+            /**
+             * Numreras 01, 02 … i ordning.
+             */
             cards: {
-              number: string;
               label: string;
               text?: string | null;
               image: string | Image;
@@ -571,7 +566,7 @@ export interface Page {
              */
             anchor?: string | null;
             /**
-             * E-post, telefon och sociala länkar hämtas från sidfoten (Globals → Footer), så de bara ändras på ett ställe. Formuläret skickas till Kontaktförfrågningar.
+             * E-post, telefon och sociala länkar hämtas från sidfoten (Allmänt → Sidfot), så de bara ändras på ett ställe. Formuläret sparas i Förfrågningar → Meddelanden.
              */
             heading: string;
             id?: string | null;
@@ -584,7 +579,7 @@ export interface Page {
     title?: string | null;
     description?: string | null;
     /**
-     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     * Högst 12 MB, helst under 500 kB.
      */
     image?: (string | null) | Image;
   };
@@ -673,21 +668,13 @@ export interface Video {
 export interface TruckFamily {
   id: string;
   /**
-   * I plural. Exempel: "Elektriska motvikts|truckar". Skriv | där ett långt ord får avstavas, till exempel "Skjutstativ|truckar". Ordet visas helt när det får plats och som "Skjutstativ-truckar" när det måste brytas.
+   * I plural, i menyer och på kort. Exempel: "Elektriska motvikts|truckar". Skriv | där ett långt ord får avstavas, till exempel "Skjutstativ|truckar". Ordet visas helt när det får plats och som "Skjutstativ-truckar" när det måste brytas.
    */
   name: string;
   /**
-   * Offertens rubrik. Exempel: "Elektrisk motviktstruck". Skriv | där ett långt ord får avstavas, till exempel "Skjutstativ|truckar". Ordet visas helt när det får plats och som "Skjutstativ-truckar" när det måste brytas.
+   * Offertens rubrik. Exempel: "Elektrisk motvikts|truck".
    */
   singularName: string;
-  /**
-   * Konfiguratorns adress pekar på familjen med den. Exempel: "reach-truck".
-   */
-  key: string;
-  /**
-   * Ordningen i navigationen och i konfiguratorns första val.
-   */
-  sortOrder: number;
   description?: string | null;
   /**
    * Frilagd truck med nederkanten mot marken. Heron, navigationen, produktkorten och konfiguratorn visar den.
@@ -695,9 +682,20 @@ export interface TruckFamily {
   image?: (string | null) | Image;
   brochure?: (string | null) | Document;
   /**
-   * Av för en familj som bara säljs via kontakt (Plocktruckar).
+   * Lastad / olastad. Exempel: "15 / 15".
    */
-  configurable?: boolean | null;
+  travelSpeed?: string | null;
+  /**
+   * Exempel: "4–6 veckor".
+   */
+  deliveryTime?: string | null;
+  /**
+   * Kort, som "4 år". Förklaringen står i konfiguratorinställningarna.
+   */
+  warranty?: string | null;
+  /**
+   * Dit kort och menyer länkar så länge trucktypen saknar varianter att konfigurera.
+   */
   contactLink?: {
     type?: ('internal' | 'external') | null;
     reference?: {
@@ -709,134 +707,92 @@ export interface TruckFamily {
     newTab?: boolean | null;
   };
   /**
-   * Exempel: "4–6 veckor".
+   * En rad per variant; konfiguratorns första val. Namnet räknas fram ur kapaciteten ("1,6 ton").
    */
-  deliveryTime?: string | null;
-  /**
-   * Kort, som "4 år". Förklaringen står i konfiguratorinställningarna.
-   */
-  warranty?: string | null;
-  /**
-   * Det som är lika för alla modeller. Ett tomt fält visas inte.
-   */
-  specs?: {
-    /**
-     * På produktkortet efter lyftkapaciteten, inte i offerten. Exempel: "80 V 228 Ah".
-     */
-    battery?: string | null;
-    turningRadius?: string | null;
-    travelSpeed?: string | null;
-    batteryCapacity?: string | null;
-    weight?: string | null;
-    buildHeight?: string | null;
-  };
-  /**
-   * Modellen är konfiguratorns första steg.
-   */
-  modelChoice: {
-    label: string;
-    heading: string;
-  };
   models?:
     | {
+        capacityKg: number;
         /**
-         * Exempel: "1,8 ton".
-         */
-        label: string;
-        /**
-         * Under namnet i konfiguratorn, och i offerten.
+         * Under kapaciteten i konfiguratorn, och i offerten.
          */
         sku?: string | null;
         price: number;
+        weight?: string | null;
         /**
-         * Produktkortet visar modellernas intervall.
+         * Exempel: "1870 / 1850".
          */
-        capacityKg?: number | null;
+        turningRadius?: string | null;
         defaultSelected?: boolean | null;
-        /**
-         * Bara det som skiljer modellen från familjen.
-         */
-        specs?: {
-          /**
-           * På produktkortet efter lyftkapaciteten, inte i offerten. Exempel: "80 V 228 Ah".
-           */
-          battery?: string | null;
-          turningRadius?: string | null;
-          travelSpeed?: string | null;
-          batteryCapacity?: string | null;
-          weight?: string | null;
-          buildHeight?: string | null;
-        };
         id?: string | null;
       }[]
     | null;
   /**
-   * Ett val.
+   * Med flera kan kunden välja i konfiguratorn; med ett enda är det en del av trucken och visas bara som specifikation. Det förvalda batteriets kapacitet står på produktkortet.
    */
-  battery?: {
-    options?:
-      | {
-          /**
-           * Skriv | där ett långt ord får avstavas, till exempel "Skjutstativ|truckar". Ordet visas helt när det får plats och som "Skjutstativ-truckar" när det måste brytas.
-           */
-          label: string;
-          description?: string | null;
-          /**
-           * Läggs till modellens pris. 0 visas som "Ingår".
-           */
-          price: number;
-          defaultSelected?: boolean | null;
-          id?: string | null;
-        }[]
-      | null;
-  };
+  batteries?:
+    | {
+        /**
+         * Exempel: "Standard", "Stort batteri".
+         */
+        label: string;
+        /**
+         * Exempel: "80 V 228 Ah".
+         */
+        capacity: string;
+        /**
+         * 0 visas som "Ingår".
+         */
+        price: number;
+        description?: string | null;
+        defaultSelected?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
   /**
-   * Ett val. Mastens bygghöjd visas under namnet och i offerten.
+   * Med flera kan kunden välja i konfiguratorn; med ett enda är det en del av trucken och visas bara som specifikation. Bygghöjden visas under lyfthöjden och i offerten.
    */
-  liftHeight?: {
-    /**
-     * Under alternativen, följd av "Kontakta oss". Exempel: "Behöver du hjälp med andra mastalternativ?".
-     */
-    help?: string | null;
-    options?:
-      | {
-          /**
-           * Skriv | där ett långt ord får avstavas, till exempel "Skjutstativ|truckar". Ordet visas helt när det får plats och som "Skjutstativ-truckar" när det måste brytas.
-           */
-          label: string;
-          /**
-           * Med den här masten. Ersätter familjens bygghöjd.
-           */
-          buildHeight?: string | null;
-          /**
-           * Läggs till modellens pris. 0 visas som "Ingår".
-           */
-          price: number;
-          defaultSelected?: boolean | null;
-          id?: string | null;
-        }[]
-      | null;
-  };
+  liftHeights?:
+    | {
+        liftHeight: number;
+        /**
+         * Med den här masten.
+         */
+        buildHeight?: number | null;
+        /**
+         * 0 visas som "Ingår".
+         */
+        price: number;
+        defaultSelected?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
   /**
-   * Flera val, inget krävs.
+   * Följd av "Kontakta oss". Exempel: "Behöver du hjälp med andra mastalternativ?".
    */
-  extras?: {
-    options?:
-      | {
-          /**
-           * Skriv | där ett långt ord får avstavas, till exempel "Skjutstativ|truckar". Ordet visas helt när det får plats och som "Skjutstativ-truckar" när det måste brytas.
-           */
-          label: string;
-          description?: string | null;
-          image?: (string | null) | Image;
-          /**
-           * Läggs till modellens pris. 0 visas som "Ingår".
-           */
-          price: number;
-          id?: string | null;
-        }[]
-      | null;
-  };
+  liftHeightHelp?: string | null;
+  /**
+   * Kunden väljer fritt bland dem; inget krävs.
+   */
+  extras?:
+    | {
+        /**
+         * Skriv | där ett långt ord får avstavas, till exempel "Skjutstativ|truckar". Ordet visas helt när det får plats och som "Skjutstativ-truckar" när det måste brytas.
+         */
+        label: string;
+        price: number;
+        description?: string | null;
+        image?: (string | null) | Image;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Konfiguratorns adress pekar på trucktypen med den. Skapas ur namnet om den är tom.
+   */
+  key: string;
+  /**
+   * Lägst först, i navigationen och i konfiguratorns första val.
+   */
+  sortOrder: number;
   publishedAt?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -1469,15 +1425,6 @@ export interface PagesSelect<T extends boolean = true> {
                 | T
                 | {
                     family?: T;
-                    imageFit?: T;
-                    imageCrop?:
-                      | T
-                      | {
-                          width?: T;
-                          height?: T;
-                          left?: T;
-                          top?: T;
-                        };
                     id?: T;
                   };
               id?: T;
@@ -1491,7 +1438,6 @@ export interface PagesSelect<T extends boolean = true> {
               cards?:
                 | T
                 | {
-                    number?: T;
                     label?: T;
                     text?: T;
                     image?: T;
@@ -1706,12 +1652,12 @@ export interface ContactRequestsSelect<T extends boolean = true> {
 export interface TruckFamiliesSelect<T extends boolean = true> {
   name?: T;
   singularName?: T;
-  key?: T;
-  sortOrder?: T;
   description?: T;
   image?: T;
   brochure?: T;
-  configurable?: T;
+  travelSpeed?: T;
+  deliveryTime?: T;
+  warranty?: T;
   contactLink?:
     | T
     | {
@@ -1721,84 +1667,48 @@ export interface TruckFamiliesSelect<T extends boolean = true> {
         label?: T;
         newTab?: T;
       };
-  deliveryTime?: T;
-  warranty?: T;
-  specs?:
-    | T
-    | {
-        battery?: T;
-        turningRadius?: T;
-        travelSpeed?: T;
-        batteryCapacity?: T;
-        weight?: T;
-        buildHeight?: T;
-      };
-  modelChoice?:
-    | T
-    | {
-        label?: T;
-        heading?: T;
-      };
   models?:
     | T
     | {
-        label?: T;
+        capacityKg?: T;
         sku?: T;
         price?: T;
-        capacityKg?: T;
+        weight?: T;
+        turningRadius?: T;
         defaultSelected?: T;
-        specs?:
-          | T
-          | {
-              battery?: T;
-              turningRadius?: T;
-              travelSpeed?: T;
-              batteryCapacity?: T;
-              weight?: T;
-              buildHeight?: T;
-            };
         id?: T;
       };
-  battery?:
+  batteries?:
     | T
     | {
-        options?:
-          | T
-          | {
-              label?: T;
-              description?: T;
-              price?: T;
-              defaultSelected?: T;
-              id?: T;
-            };
+        label?: T;
+        capacity?: T;
+        price?: T;
+        description?: T;
+        defaultSelected?: T;
+        id?: T;
       };
-  liftHeight?:
+  liftHeights?:
     | T
     | {
-        help?: T;
-        options?:
-          | T
-          | {
-              label?: T;
-              buildHeight?: T;
-              price?: T;
-              defaultSelected?: T;
-              id?: T;
-            };
+        liftHeight?: T;
+        buildHeight?: T;
+        price?: T;
+        defaultSelected?: T;
+        id?: T;
       };
+  liftHeightHelp?: T;
   extras?:
     | T
     | {
-        options?:
-          | T
-          | {
-              label?: T;
-              description?: T;
-              image?: T;
-              price?: T;
-              id?: T;
-            };
+        label?: T;
+        price?: T;
+        description?: T;
+        image?: T;
+        id?: T;
       };
+  key?: T;
+  sortOrder?: T;
   publishedAt?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -1981,12 +1891,10 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
  */
 export interface Header {
   id: string;
-  siteName?: string | null;
-  siteTagline?: string | null;
   navItems?:
     | {
         /**
-         * The menu's label, e.g. "Modeller". The link is used only when the menu has no links.
+         * Menyns namn, till exempel "Modeller". Länken används bara när menyn saknar länkar.
          */
         link: {
           type?: ('internal' | 'external') | null;
@@ -1999,7 +1907,7 @@ export interface Header {
           newTab?: boolean | null;
         };
         /**
-         * The truck families: every published family in its order, with its name and main image (Figma's Modeller).
+         * Trucktyperna: varje publicerad trucktyp i sin ordning, med namn och huvudbild.
          */
         source?: ('links' | 'truckFamilies') | null;
         links?:
@@ -2015,14 +1923,14 @@ export interface Header {
                 newTab?: boolean | null;
               };
               /**
-               * Desktop: replaces the menu's image while the link is pointed at.
+               * På desktop: ersätter menyns bild medan länken pekas på.
                */
               image?: (string | null) | Image;
               id?: string | null;
             }[]
           | null;
         /**
-         * The square image beside the open menu (Desktop and Tablet). Not shown for the truck families: there the square is empty until a family is pointed at.
+         * Den fyrkantiga bilden bredvid den öppna menyn (desktop och surfplatta). Visas inte för trucktyperna; där är rutan tom tills en trucktyp pekas på.
          */
         image?: (string | null) | Image;
         id?: string | null;
@@ -2040,22 +1948,9 @@ export interface Header {
       newTab?: boolean | null;
     };
     /**
-     * Below Desktop S, e.g. "Login" for "Dealer login".
+     * På smalare skärmar än Desktop S, till exempel "Logga in" för "Återförsäljare: logga in".
      */
     shortLabel?: string | null;
-  };
-  /**
-   * The old navigation's button ("Bygg din truck"). Figma's navigation has none, so it is not shown.
-   */
-  cta?: {
-    type?: ('internal' | 'external') | null;
-    reference?: {
-      relationTo: 'pages';
-      value: string | Page;
-    } | null;
-    url?: string | null;
-    label?: string | null;
-    newTab?: boolean | null;
   };
   showAnnouncement?: boolean | null;
   announcement: string;
@@ -2080,13 +1975,13 @@ export interface Header {
 export interface Footer {
   id: string;
   /**
-   * Figma: "Produkter" and "Tjänster". The contact column follows them.
+   * Kontaktkolumnen kommer efter dem.
    */
   linkGroups?:
     | {
         heading: string;
         /**
-         * The truck families: every published family in its order (Figma's Produkter).
+         * Trucktyperna: varje publicerad trucktyp i sin ordning.
          */
         source?: ('links' | 'truckFamilies') | null;
         links?:
@@ -2110,15 +2005,15 @@ export interface Footer {
   contactHeading?: string | null;
   email?: string | null;
   /**
-   * Shown as written, e.g. "08-123 45 67"; it links to the number.
+   * Visas som det är skrivet, till exempel "08-123 45 67", och länkar till numret.
    */
   phone?: string | null;
   /**
-   * Plain text, e.g. "Stockholm, Sverige".
+   * Till exempel "Stockholm, Sverige".
    */
   location?: string | null;
   /**
-   * Shown in the Contact block after the e-mail and phone, which also come from here.
+   * Visas i Kontakt-blocket efter e-post och telefon, som också hämtas härifrån.
    */
   socialLinks?:
     | {
@@ -2128,27 +2023,9 @@ export interface Footer {
       }[]
     | null;
   /**
-   * After "© year" at the bottom.
+   * Efter "© år" längst ner.
    */
   copyright?: string | null;
-  /**
-   * The old footer's links. Figma's footer has link columns instead, so they are not shown.
-   */
-  navItems?:
-    | {
-        link: {
-          type?: ('internal' | 'external') | null;
-          reference?: {
-            relationTo: 'pages';
-            value: string | Page;
-          } | null;
-          url?: string | null;
-          label: string;
-          newTab?: boolean | null;
-        };
-        id?: string | null;
-      }[]
-    | null;
   _status?: ('draft' | 'published') | null;
   updatedAt?: string | null;
   createdAt?: string | null;
@@ -2167,11 +2044,11 @@ export interface ConfiguratorSetting {
     kind: 'purchase' | 'monthly';
     months?: number | null;
     /**
-     * Exempel: 0.01875 motsvarar 1,875 % av totalpriset.
+     * Till exempel 1,875: en truck för 200 000 kr kostar då 3 750 kr i månaden.
      */
-    monthlyFactor?: number | null;
+    monthlyPercent?: number | null;
     /**
-     * Visar serviceavtal som ett val för denna finansieringsmetod.
+     * Visar serviceavtal som ett val för denna finansieringsform.
      */
     serviceAgreementEligible?: boolean | null;
     id?: string | null;
@@ -2204,8 +2081,6 @@ export interface ConfiguratorSetting {
  * via the `definition` "header_select".
  */
 export interface HeaderSelect<T extends boolean = true> {
-  siteName?: T;
-  siteTagline?: T;
   navItems?:
     | T
     | {
@@ -2250,15 +2125,6 @@ export interface HeaderSelect<T extends boolean = true> {
               newTab?: T;
             };
         shortLabel?: T;
-      };
-  cta?:
-    | T
-    | {
-        type?: T;
-        reference?: T;
-        url?: T;
-        label?: T;
-        newTab?: T;
       };
   showAnnouncement?: T;
   announcement?: T;
@@ -2314,20 +2180,6 @@ export interface FooterSelect<T extends boolean = true> {
         id?: T;
       };
   copyright?: T;
-  navItems?:
-    | T
-    | {
-        link?:
-          | T
-          | {
-              type?: T;
-              reference?: T;
-              url?: T;
-              label?: T;
-              newTab?: T;
-            };
-        id?: T;
-      };
   _status?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -2347,7 +2199,7 @@ export interface ConfiguratorSettingsSelect<T extends boolean = true> {
         description?: T;
         kind?: T;
         months?: T;
-        monthlyFactor?: T;
+        monthlyPercent?: T;
         serviceAgreementEligible?: T;
         id?: T;
       };

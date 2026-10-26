@@ -6,11 +6,16 @@ import { layoutBlocks } from "../../blocks/index.ts";
 import { slugField } from "../../fields/slug.ts";
 import { populatePublishedAt } from "../../hooks/populatePublishedAt.ts";
 import { generatePreviewPath } from "../../utilities/preview.ts";
-import { redirectOldSlug, rememberPublishedSlug } from "./hooks/redirect-old-slug.ts";
+import {
+  redirectOldSlug,
+  redirectsEnabled,
+  rememberPublishedSlug,
+} from "./hooks/redirect-old-slug.ts";
 import { revalidateCollection, revalidateCollectionDelete } from "./hooks/revalidate.ts";
 
 export const Pages: CollectionConfig = {
   slug: "pages",
+  labels: { singular: "Sida", plural: "Sidor" },
   access: {
     create: isAuthenticated,
     delete: isAuthenticated,
@@ -39,12 +44,14 @@ export const Pages: CollectionConfig = {
   fields: [
     {
       name: "title",
+      label: "Titel",
       type: "text",
       required: true,
       localized: false,
     },
     {
       name: "publishedAt",
+      label: "Publicerad",
       type: "date",
       localized: false,
       admin: {
@@ -54,29 +61,31 @@ export const Pages: CollectionConfig = {
     slugField({ localized: false }),
     {
       name: "background",
+      label: "Bakgrund",
       type: "select",
       defaultValue: "dark",
       options: [
-        { label: "Dark", value: "dark" },
-        { label: "Light grey", value: "light" },
+        { label: "Mörk", value: "dark" },
+        { label: "Ljusgrå", value: "light" },
       ],
       admin: {
         position: "sidebar",
-        description:
-          "The page behind the blocks: it shows in the gaps between them and around the footer.",
+        description: "Sidan bakom blocken; den syns i mellanrummen mellan dem och runt sidfoten.",
       },
     },
     {
       name: "layout",
+      label: "Innehåll",
+      labels: { singular: "Block", plural: "Block" },
       type: "blocks",
       blocks: layoutBlocks,
       localized: false,
     },
   ],
   hooks: {
-    afterChange: [redirectOldSlug, revalidateCollection],
+    afterChange: [...(redirectsEnabled ? [redirectOldSlug] : []), revalidateCollection],
     afterDelete: [revalidateCollectionDelete],
-    beforeChange: [populatePublishedAt, rememberPublishedSlug],
+    beforeChange: [populatePublishedAt, ...(redirectsEnabled ? [rememberPublishedSlug] : [])],
   },
   versions: {
     drafts: {

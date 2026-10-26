@@ -3,12 +3,13 @@ import { link } from "../../fields/link.ts";
 
 export const CallToActionBlock: Block = {
   slug: "callToAction",
-  labels: { singular: "Call to action", plural: "Calls to action" },
+  labels: { singular: "Uppmaning", plural: "Uppmaningar" },
   fields: [
-    { name: "title", type: "text", required: true, localized: true },
-    { name: "text", type: "textarea", localized: true },
+    { name: "title", label: "Rubrik", type: "text", required: true, localized: true },
+    { name: "text", label: "Text", type: "textarea", localized: true },
     {
       name: "button",
+      label: "Knapp",
       type: "group",
       fields: [link()],
     },

@@ -17,7 +17,7 @@ type FooterComponentProps = {
 /**
  * The site's footer: the Footer block (Figma 9264:22371) fed by the Footer global: its link columns
  * (`linkGroups`; one whose `source` is the truck families lists every published family), the
- * contact column (`contactHeading`, `email`, `phone`, `location`) and the copyright line. `navItems` stays in the global but is not shown: Figma's footer has columns.
+ * contact column (`contactHeading`, `email`, `phone`, `location`) and the copyright line.
  */
 export async function FooterComponent({ draft = false, locale }: FooterComponentProps) {
   const footer = await getFooter(locale, draft);

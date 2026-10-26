@@ -1,6 +1,6 @@
 import { unstable_cache, unstable_noStore } from "next/cache";
 import type { TypedLocale } from "payload";
-import { TRUCK_SPECS } from "@/payload/collections/TruckFamilies/specs";
+import { TRUCK_SPECS, type TruckSpecName } from "@/payload/collections/TruckFamilies/specs";
 import { resolveLinkField } from "@/payload/utilities/link-field";
 import { getMediaImageURL } from "@/payload/utilities/media";
 import type { ConfiguratorSetting, Document, Image, TruckFamily } from "@/payload-types";
@@ -20,7 +20,7 @@ const DEFAULT_FINANCING: ConfiguratorCatalog["financingMethods"] = [
     label: "Leasing",
     kind: "monthly",
     months: 48,
-    monthlyFactor: 0.01875,
+    monthlyPercent: 1.875,
     serviceAgreementEligible: true,
   },
   {
@@ -28,7 +28,7 @@ const DEFAULT_FINANCING: ConfiguratorCatalog["financingMethods"] = [
     label: "Långtidshyra",
     kind: "monthly",
     months: 48,
-    monthlyFactor: 0.0191667,
+    monthlyPercent: 1.91667,
     serviceAgreementEligible: false,
   },
 ];
@@ -44,8 +44,6 @@ const hyphenate = (text: string) => text.replaceAll("|", "\u00AD");
 /** The name without its break marks, for alt texts. */
 const plain = (text: string) => text.replaceAll("|", "");
 
-type SpecFields = Partial<Record<(typeof TRUCK_SPECS)[number]["name"], string | null>>;
-
 /** The specifications as the configurator names and orders them, from `TRUCK_SPECS`. */
 const SPECS: ConfiguratorSpec[] = TRUCK_SPECS.map((spec, index) => ({
   key: spec.name,
@@ -56,13 +54,14 @@ const SPECS: ConfiguratorSpec[] = TRUCK_SPECS.map((spec, index) => ({
   inQuote: !("inQuote" in spec) || spec.inQuote,
 }));
 
-/** The filled-in specifications; an empty field is left out. */
-function mapSpecs(fields: SpecFields | null | undefined): SpecValue[] {
-  return TRUCK_SPECS.flatMap(({ name }) => {
-    const value = fields?.[name]?.trim();
-    return value ? [{ spec: name, value }] : [];
-  });
-}
+/** A specification's value, left out when it is empty. */
+const spec = (key: TruckSpecName, value: string | number | null | undefined): SpecValue[] => {
+  const text = value === null || value === undefined ? "" : String(value).trim();
+  return text ? [{ spec: key, value: text }] : [];
+};
+
+const tons = (kg: number) =>
+  `${new Intl.NumberFormat("sv-SE", { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(kg / 1000)} ton`;
 
 function imageData(value: string | Image | null | undefined, alt: string) {
   const image = value && typeof value === "object" ? value : null;
@@ -70,68 +69,40 @@ function imageData(value: string | Image | null | undefined, alt: string) {
   return image && url ? { alt: image.alt || alt, url } : undefined;
 }
 
-type StepOption = {
-  id?: string | null;
-  label: string;
-  description?: string | null;
-  image?: string | Image | null;
-  price: number;
-  defaultSelected?: boolean | null;
-  buildHeight?: string | null;
-};
+type Battery = NonNullable<TruckFamily["batteries"]>[number];
+type LiftHeight = NonNullable<TruckFamily["liftHeights"]>[number];
+type Extra = NonNullable<TruckFamily["extras"]>[number];
 
 /** An option keeps its row id as its key, so the URL and the quote point at it. */
-function mapOption(option: StepOption): ConfiguratorOption {
-  const buildHeight = option.buildHeight?.trim();
-  return {
-    key: option.id ?? option.label,
-    label: hyphenate(option.label),
-    description:
-      option.description ||
-      (buildHeight ? `Truckens höjd med denna mast: ${buildHeight} mm` : undefined),
-    image: imageData(option.image, plain(option.label)),
-    price: option.price,
-    default: option.defaultSelected === true,
-    specs: buildHeight ? [{ spec: "buildHeight", value: buildHeight }] : [],
-  };
-}
+const batteryOption = (battery: Battery): ConfiguratorOption => ({
+  key: battery.id ?? battery.label,
+  label: hyphenate(battery.label),
+  description: battery.description || undefined,
+  price: battery.price,
+  default: battery.defaultSelected === true,
+  specs: spec("batteryCapacity", battery.capacity),
+});
 
-/**
- * The steps after the model, in Figma's order; a step without options is left out. Their texts
- * and types are the configurator's, the same for every family.
- */
-function familyChoices(family: TruckFamily): ConfiguratorChoice[] {
-  const steps: ConfiguratorChoice[] = [
-    {
-      key: "battery",
-      label: "Batteri",
-      heading: "Välj batteri",
-      selectionMode: "single",
-      required: true,
-      display: "stack",
-      options: (family.battery?.options ?? []).map(mapOption),
-    },
-    {
-      key: "lift-height",
-      label: "Lyfthöjd",
-      heading: "Välj lyfthöjd",
-      help: family.liftHeight?.help || undefined,
-      selectionMode: "single",
-      required: true,
-      display: "stack",
-      options: (family.liftHeight?.options ?? []).map(mapOption),
-    },
-    {
-      key: "extras",
-      label: "Tillval",
-      heading: "Välj tillval",
-      selectionMode: "multiple",
-      required: false,
-      options: (family.extras?.options ?? []).map(mapOption),
-    },
-  ];
-  return steps.filter((step) => step.options.length > 0);
-}
+const liftHeightOption = (mast: LiftHeight): ConfiguratorOption => ({
+  key: mast.id ?? String(mast.liftHeight),
+  label: `${mast.liftHeight} mm`,
+  description: mast.buildHeight
+    ? `Truckens höjd med denna mast: ${mast.buildHeight} mm`
+    : undefined,
+  price: mast.price,
+  default: mast.defaultSelected === true,
+  specs: spec("buildHeight", mast.buildHeight),
+});
+
+const extraOption = (extra: Extra): ConfiguratorOption => ({
+  key: extra.id ?? extra.label,
+  label: hyphenate(extra.label),
+  description: extra.description || undefined,
+  image: imageData(extra.image, plain(extra.label)),
+  price: extra.price,
+  default: false,
+  specs: [],
+});
 
 function brochureData(document: TruckFamily["brochure"]): ConfiguratorFamily["brochure"] {
   if (!document || typeof document !== "object") {
@@ -141,9 +112,67 @@ function brochureData(document: TruckFamily["brochure"]): ConfiguratorFamily["br
   return resolved.url ? { title: resolved.title, url: resolved.url } : undefined;
 }
 
+/**
+ * The configurator's view of a family, built from its product data: the variants are the first
+ * step (Lyftkapacitet), then a step for the batteries and the lift heights when there is more
+ * than one to choose from, and for the extras when there are any. A battery or mast alone is part
+ * of the truck: its specifications are the family's and its cost is in the base price. The steps'
+ * texts and types are the configurator's, the same for every family.
+ */
 function mapFamily(family: TruckFamily): ConfiguratorFamily {
-  const configurable = family.configurable !== false;
+  // Variants are what is configured; without them the truck type links to its contact link.
+  const configurable = (family.models?.length ?? 0) > 0;
   const contactLink = configurable ? null : resolveLinkField(family.contactLink);
+  const batteries = (family.batteries ?? []).map(batteryOption);
+  const liftHeights = (family.liftHeights ?? []).map(liftHeightOption);
+  const extras = (family.extras ?? []).map(extraOption);
+  const fixed = [batteries, liftHeights].flatMap((list) => (list.length === 1 ? list : []));
+  const fixedPrice = fixed.reduce((sum, option) => sum + option.price, 0);
+  const cardBattery =
+    (family.batteries ?? []).find((battery) => battery.defaultSelected) ?? family.batteries?.[0];
+
+  const choices: ConfiguratorChoice[] = [
+    ...(batteries.length > 1
+      ? [
+          {
+            key: "battery",
+            label: "Batteri",
+            heading: "Välj batteri",
+            selectionMode: "single" as const,
+            required: true,
+            display: "stack" as const,
+            options: batteries,
+          },
+        ]
+      : []),
+    ...(liftHeights.length > 1
+      ? [
+          {
+            key: "lift-height",
+            label: "Lyfthöjd",
+            heading: "Välj lyfthöjd",
+            help: family.liftHeightHelp || undefined,
+            selectionMode: "single" as const,
+            required: true,
+            display: "stack" as const,
+            options: liftHeights,
+          },
+        ]
+      : []),
+    ...(extras.length > 0
+      ? [
+          {
+            key: "extras",
+            label: "Tillval",
+            heading: "Välj tillval",
+            selectionMode: "multiple" as const,
+            required: false,
+            options: extras,
+          },
+        ]
+      : []),
+  ];
+
   return {
     id: family.id,
     key: family.key,
@@ -158,20 +187,24 @@ function mapFamily(family: TruckFamily): ConfiguratorFamily {
     warranty: family.warranty ?? "",
     image: imageData(family.image, plain(family.name)),
     brochure: brochureData(family.brochure),
-    specs: mapSpecs(family.specs),
-    modelChoice: { label: family.modelChoice.label, heading: family.modelChoice.heading },
+    specs: [
+      ...spec("travelSpeed", family.travelSpeed),
+      ...spec("battery", cardBattery?.capacity),
+      ...fixed.flatMap((option) => option.specs),
+    ],
+    modelChoice: { label: "Lyftkapacitet", heading: "Välj lyftkapacitet" },
     models: configurable
       ? (family.models ?? []).map((model) => ({
-          key: model.id ?? model.label,
-          label: model.label,
+          key: model.id ?? String(model.capacityKg),
+          label: tons(model.capacityKg),
           sku: model.sku || undefined,
-          price: model.price,
-          capacityKg: model.capacityKg ?? undefined,
+          price: model.price + fixedPrice,
+          capacityKg: model.capacityKg,
           default: model.defaultSelected === true,
-          specs: mapSpecs(model.specs),
+          specs: [...spec("weight", model.weight), ...spec("turningRadius", model.turningRadius)],
         }))
       : [],
-    choices: configurable ? familyChoices(family) : [],
+    choices: configurable ? choices : [],
   };
 }
 
@@ -210,7 +243,7 @@ function mapSettings(
       description: method.description || undefined,
       kind: method.kind,
       months: method.months ?? undefined,
-      monthlyFactor: method.monthlyFactor ?? undefined,
+      monthlyPercent: method.monthlyPercent ?? undefined,
       serviceAgreementEligible: method.serviceAgreementEligible === true,
     })),
   };
@@ -258,7 +291,7 @@ async function fetchConfiguratorCatalog(
 }
 
 /** Bumped when the catalogue's shape changes, so a cache from before is not read as the new one. */
-const CATALOG_VERSION = "2026-10-26";
+const CATALOG_VERSION = "2026-10-26b";
 
 const getCachedCatalog = (locale: TypedLocale) =>
   unstable_cache(

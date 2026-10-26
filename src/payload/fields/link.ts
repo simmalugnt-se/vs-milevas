@@ -6,14 +6,17 @@ import type { Field } from "payload";
  */
 export const link = ({
   name = "link",
+  label = "Länk",
   required = true,
   labelRequired = required,
 }: {
   name?: string;
+  label?: string;
   required?: boolean;
   labelRequired?: boolean;
 } = {}): Field => ({
   name,
+  label,
   type: "group",
   admin: {
     hideGutter: true,
@@ -21,14 +24,15 @@ export const link = ({
   fields: [
     {
       name: "type",
+      label: "Typ",
       type: "radio",
       admin: {
         layout: "horizontal",
       },
       defaultValue: "internal",
       options: [
-        { label: "Internal link", value: "internal" },
-        { label: "External URL", value: "external" },
+        { label: "Intern länk", value: "internal" },
+        { label: "Extern adress", value: "external" },
       ],
     },
     {
@@ -36,7 +40,7 @@ export const link = ({
       type: "relationship",
       relationTo: ["pages"],
       required,
-      label: "Document to link to",
+      label: "Sida att länka till",
       admin: {
         condition: (_, siblingData) => siblingData?.type === "internal",
       },
@@ -44,7 +48,7 @@ export const link = ({
     {
       name: "url",
       type: "text",
-      label: "URL",
+      label: "Adress",
       required,
       admin: {
         condition: (_, siblingData) => siblingData?.type === "external",
@@ -53,14 +57,14 @@ export const link = ({
     {
       name: "label",
       type: "text",
-      label: "Label",
+      label: "Text",
       localized: true,
       required: labelRequired,
     },
     {
       name: "newTab",
       type: "checkbox",
-      label: "Open in new tab",
+      label: "Öppna i ny flik",
     },
   ],
 });

@@ -27,9 +27,7 @@ export type HeaderData = {
   cta?: LinkFieldValue | null;
   login?: { link?: LinkFieldValue | null; shortLabel?: string | null } | null;
   navItems?: HeaderNavItem[] | null;
-  siteName?: string | null;
   showAnnouncement?: boolean | null;
-  siteTagline?: string | null;
 };
 
 export type FooterData = {
@@ -47,7 +45,6 @@ export type FooterData = {
         links?: NavItem[] | null;
       }[]
     | null;
-  navItems?: NavItem[] | null;
 };
 
 /** Locale-agnostic pathname for next-intl `Link` (it adds the locale prefix). */

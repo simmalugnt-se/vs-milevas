@@ -146,7 +146,7 @@ export function calculateFinancingPrice(total: number, financing: FinancingMetho
   if (financing.kind === "purchase") {
     return total;
   }
-  return Math.round(total * (financing.monthlyFactor ?? 0));
+  return Math.round((total * (financing.monthlyPercent ?? 0)) / 100);
 }
 
 /**

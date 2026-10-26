@@ -21,10 +21,10 @@ export function CacheTools() {
   };
 
   const label = {
-    error: "Revalidate failed",
-    idle: "Revalidate all cache",
-    loading: "Revalidating...",
-    success: "Revalidated!",
+    error: "Det gick inte att tömma cachen",
+    idle: "Töm hela cachen",
+    loading: "Tömmer…",
+    success: "Cachen är tömd",
   }[status];
 
   return (
@@ -43,8 +43,8 @@ export function CacheTools() {
       <div>
         <h2 style={{ margin: 0 }}>Cache</h2>
         <p style={{ margin: "calc(var(--base) * 0.25) 0 0", color: "var(--theme-elevation-600)" }}>
-          Pages are cached and refreshed when content changes. Revalidate everything if the site
-          shows outdated content.
+          Sidorna cachas och uppdateras när innehållet ändras. Töm hela cachen om webbplatsen visar
+          gammalt innehåll.
         </p>
       </div>
       <div>

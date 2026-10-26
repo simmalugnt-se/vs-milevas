@@ -1,16 +1,16 @@
 # Truckdata i Payload: kartläggning och förslag
 
-> **2026-10-26:** specifikationerna och stegen är fasta fält på familjen i stället för kopplingar.
-> Avsnitt 9 beskriver schemat som det är nu; 5.1, 5.3 och 5.4 visar det som byggdes först.
+> **2026-10-26:** trucktypen beskrivs som en produkt på en sida, och konfiguratorn bygger sina
+> steg av den datan. Avsnitt 10 beskriver schemat som det är nu; 5 och 9 visar tidigare steg.
 
 Skrivet 2026-10-23 inför Figmas nya konfigurator (`04 — Blocks` → Configurator, `9264:6653`), och
 byggt samma dag (se avsnitt 8).
 
-**Kort:** i dag beskriver en truckfamilj hur konfiguratorn klickas igenom (steg → grupper → val),
+**Kort:** i dag beskriver en trucktyp hur konfiguratorn klickas igenom (steg → grupper → val),
 inte vad trucken är. Förslaget vänder på det: schemat utgår från vad varje steg och vy i Figma
-behöver (avsnitt 3). En familj består av **modeller** med specifikationer och **val** som ändrar pris
+behöver (avsnitt 3). En trucktyp består av **modeller** med specifikationer och **val** som ändrar pris
 och specifikationer, och konfiguratorns steg följer av det. Allt som visar en trucktyp, som heron,
-navigationen och produktkorten, hämtar namn, bild och priser från familjen.
+navigationen och produktkorten, hämtar namn, bild och priser från trucktypen.
 
 ## Beslut
 
@@ -18,41 +18,42 @@ navigationen och produktkorten, hämtar namn, bild och priser från familjen.
 |---|---|
 | 2026-10-23 | Truckdatan i produktion och lokalt är platshållare. Den ersätts av en ny seed; ingen data flyttas över. |
 | 2026-10-23 | Schemat bestäms av vad alla stegen och vyerna i Figma behöver, inte av ett datablad. |
-| 2026-10-23 | Heron, navigationens Modeller, produktkorten och konfiguratorn kopplas till familjerna och hämtar namn och huvudbild därifrån, så att de ändras på ett ställe. |
-| 2026-10-23 | Varje familj har sin egen följd av val. |
+| 2026-10-23 | Heron, navigationens Modeller, produktkorten och konfiguratorn kopplas till trucktyperna och hämtar namn och huvudbild därifrån, så att de ändras på ett ställe. |
+| 2026-10-23 | Varje trucktyp har sin egen följd av val. |
 | 2026-10-23 | Stegets typ väljs av innehållet; redaktören kan välja en annan (`display`). |
-| 2026-10-23 | En huvudbild per familj; heron, menyn och korten beskär den var för sig. |
-| 2026-10-23 | Navigationens Modeller listar alla publicerade familjer i sorteringsordning. |
-| 2026-10-26 | Fasta fält i stället för kopplingar: specifikationerna och stegen (batteri, lyfthöjd, tillval) är fält på familjen, ett tomt fält eller steg visas inte. `truck-specs`, nycklarna och villkoren (`models`, `requires`, `excludes`) tas bort. |
+| 2026-10-23 | En huvudbild per trucktyp; heron, menyn och korten beskär den var för sig. |
+| 2026-10-23 | Navigationens Modeller listar alla publicerade trucktyper i sorteringsordning. |
+| 2026-10-26 | Produktdata först: trucktypen beskrivs som en produkt (varianter, batterier, lyfthöjder, tillval) på en sida utan flikar; konfiguratorns steg byggs av listorna. Ett alternativ ensamt är en specifikation, inget steg. Varianternas namn räknas fram ur kapaciteten. |
+| 2026-10-26 | Fasta fält i stället för kopplingar: specifikationerna och stegen (batteri, lyfthöjd, tillval) är fält på trucktypen, ett tomt fält eller steg visas inte. `truck-specs`, nycklarna och villkoren (`models`, `requires`, `excludes`) tas bort. |
 
 ## 1. Dagens schema
 
 `TruckFamilies` ([config.ts](../src/payload/collections/TruckFamilies/config.ts)):
 
-- Familjen: namn, nyckel, sortering, beskrivning, baspris, artikelnummer, bild, broschyr,
+- Trucktypen: namn, nyckel, sortering, beskrivning, baspris, artikelnummer, bild, broschyr,
   leveranstid och garanti.
 - `steps[]` → `groups[]` → `options[]`, tre nivåer. Ett val har pris med `priceMode` (ingår,
   pristillägg eller ersätt baspris), förval, artikelnummer, villkor och `specifications[]`.
 - Villkoren (`allOf`, `anyOf`, `noneOf`) pekar på andra val med fri text, `grupp.alternativ`.
-- `ConfiguratorSettings` (global): finansieringsformer med månadsfaktor, serviceavtal och offertens
+- `ConfiguratorSettings` (global): finansieringsformer med månadskostnad i procent av totalpriset, serviceavtal och offertens
   giltighetstid.
 - `ConfiguratorRequests`: kontaktuppgifter och en ögonblicksbild (`snapshot`, JSON) av offerten.
 
-Blocken har egna kopior av det som borde komma från familjen:
+Blocken har egna kopior av det som borde komma från trucktypen:
 
-- **Heron:** en kolumn kan kopplas till en familj, men har också egen truckbild, rubrik, Från-pris och
+- **Heron:** en kolumn kan kopplas till en trucktyp, men har också egen truckbild, rubrik, Från-pris och
   leasing.
 - **Produktgridens kort:** egen bild, eget namn, lyftkapacitet och batteri som text.
-- **Navigationens Modeller:** vanliga länkar med egen bild; ingen koppling till familjerna.
+- **Navigationens Modeller:** vanliga länkar med egen bild; ingen koppling till trucktyperna.
 
 ## 2. Vem läser truckdata
 
 | Ställe | Visar | Kommer i dag från |
 |---|---|---|
-| Produktkort (Product-Grid) | Namn, bild, "1.5 – 3.5 ton /// 80 V 228 Ah", Från-pris, leasing/mån | Namn, bild och priser från familjen eller kortets egna fält; specifikationerna skrivs för hand |
-| Hero | Namn, bild, Från-pris, leasing/mån, länk till konfiguratorn | Familjen eller kolumnens egna fält |
+| Produktkort (Product-Grid) | Namn, bild, "1.5 – 3.5 ton /// 80 V 228 Ah", Från-pris, leasing/mån | Namn, bild och priser från trucktypen eller kortets egna fält; specifikationerna skrivs för hand |
+| Hero | Namn, bild, Från-pris, leasing/mån, länk till konfiguratorn | Trucktypen eller kolumnens egna fält |
 | Navigationens Modeller | Namn och bild per truck | Header-globalens egna fält |
-| Konfiguratorn, steg 0 | Familjerna med bild | Familjen |
+| Konfiguratorn, steg 0 | Trucktyperna med bild | Trucktypen |
 | Konfiguratorn, stegen | `[01] Label`, val med titel, pris och text; hjälptext | `steps` och `groups`; val har ingen bild |
 | Konfiguratorn, sista steget | Köp, leasing, långtidshyra, serviceavtal | `ConfiguratorSettings` |
 | Price-box | Totalt och månadspriser | Motorn (`estimateTotal`, `calculateFinancingPrice`) |
@@ -67,7 +68,7 @@ Varje rad är något Figma visar och det fält i förslaget (avsnitt 5) som bär
 | Vy i Figma | Visar | Fält |
 |---|---|---|
 | Alla steg | `[01] LABEL` överst, "Föregående" och "Nästa" | `choices[].label`; numret är stegets plats |
-| Alla steg | Truckbilden bakom stegen | `image` (familjens huvudbild) |
+| Alla steg | Truckbilden bakom stegen | `image` (trucktypens huvudbild) |
 | Typ 1 (sex val, två per rad) | Titel, pris och text per val; i Figma kapaciteten | `models[]`: `label`, `price`, `description` |
 | Typ 2 (två val under varandra) | Titel, pris, text och "Behöver du hjälp …? Kontakta oss" | `options[]`: `label`, `price`, `description`; `choices[].help` |
 | Typ 3 (fyra val med bild, två per rad) | Titel, pris, bild och text | `options[].image` |
@@ -76,7 +77,7 @@ Varje rad är något Figma visar och det fält i förslaget (avsnitt 5) som bär
 | Price-boxen under stegen | Totalpris, Leasing (48 mån), Långtidshyra, "Boka samtal" | Modellens och valens priser; finansieringsformerna i inställningarna |
 | Offerten, rubrik | "Elektrisk motviktstruck", i singular | `singularName` |
 | Offerten, Konfiguration | "Elektriska motviktstruckar – bas (1,8 ton)" med pris, sedan ett val per rad, även de som kostar 0 kr | `name`, `models[].label` och `price`, `options[].label` och `price` |
-| Offerten, Tekniska specifikationer | Vändradie, Körhastighet (lastad/olastad), Batterikapacitet, Vikt, Truckens bygghöjd | `specs[]` på familj, modell och val; namn, enhet och ordning från `truck-specs` |
+| Offerten, Tekniska specifikationer | Vändradie, Körhastighet (lastad/olastad), Batterikapacitet, Vikt, Truckens bygghöjd | `specs[]` på trucktyp, modell och val; namn, enhet och ordning från `truck-specs` |
 | Offerten, price-boxen | Totalpris, Leasing (48 mån), Uppskattad leverans, Garanti med förklaring | `deliveryTime`, `warranty`; förklaringen i inställningarna |
 | Offerten, knappar | "Skicka kopia till mig", "Fortsätt beställning" | Inga truckdata |
 | Tack-sidan | "Tack för din beställning!", "Vad händer nu?" med fem steg | `nextSteps[]` i inställningarna |
@@ -86,7 +87,7 @@ Varje rad är något Figma visar och det fält i förslaget (avsnitt 5) som bär
 | Navigationens Modeller | Namn och bild per truck | `name`, `image` |
 
 Plocktruckar finns i heron, menyn och produktgriden men inte i konfiguratorn; kortet länkar till
-kontakt. Den blir en familj utan modeller och val (`configurable: false`), så att den har namn och
+kontakt. Den blir en trucktyp utan modeller och val (`configurable: false`), så att den har namn och
 bild på samma ställe som de andra.
 
 ## 4. Det som inte räcker
@@ -94,7 +95,7 @@ bild på samma ställe som de andra.
 1. **Specifikationerna finns inte som data.** Offertens tabell och produktkortens rad har inget att
    hämta från; produktkortens text skrivs för hand och kan säga emot konfiguratorn.
 2. **Modellerna är val.** 1,5–3,5 ton är var sin modell med eget artikelnummer, pris och
-   specifikationer, men byggda som ett val som "ersätter baspriset". Familjens `basePrice` och `sku`
+   specifikationer, men byggda som ett val som "ersätter baspriset". Trucktypens `basePrice` och `sku`
    blir då dubbletter av det förvalda valet.
 3. **Stegen styr datan.** Ett val kan bara finnas i ett steg, och stegens ordning och texter ligger
    blandade med priser. Figma visar en grupp per steg, så stegnivån tillför bara en nivå till.
@@ -102,7 +103,7 @@ bild på samma ställe som de andra.
    konfiguratorn.
 5. **Visningen saknas.** Val har ingen bild (Figmas typ 3 och 4), och det finns inget som säger hur
    ett steg ska se ut.
-6. **Samma sak på flera ställen.** Namn, bild och priser för en trucktyp finns i familjen, i heron, i
+6. **Samma sak på flera ställen.** Namn, bild och priser för en trucktyp finns i trucktypen, i heron, i
    produktgriden och i navigationen, och måste ändras på varje ställe.
 7. **Texter som är lika för alla** (tack-sidans steg, garantins förklaring) har ingen plats.
 
@@ -125,7 +126,7 @@ Värdena är text (`1870 / 1850`, `76,8 V · 150 / 228 Ah`), eftersom Figma blan
 par. Lyftkapaciteten är ett tal på modellen (`capacityKg`), så att produktkortets intervall kan räknas
 fram.
 
-### 5.2 Truckfamilj (`truck-families`)
+### 5.2 Trucktyp (`truck-families`)
 
 Det enda stället för en trucktyps namn, bild och priser.
 
@@ -135,14 +136,14 @@ Det enda stället för en trucktyps namn, bild och priser.
 | `image` | Huvudbilden: en frilagd truck, som heron, menyn, produktkorten och konfiguratorn beskär var för sig |
 | `singularName` (ny) | "Elektrisk motviktstruck", för offertens rubrik |
 | `configurable` (ny) | Av för Plocktruckar: inga modeller eller val, och korten länkar till kontakt |
-| `contactLink` (ny) | Länken när familjen inte går att konfigurera |
+| `contactLink` (ny) | Länken när trucktypen inte går att konfigurera |
 | `warranty` | Kort ("4 år"); förklaringen ligger i inställningarna |
 | `basePrice`, `sku` | Tas bort; finns på modellerna |
-| `specs[]` (ny) | Det som är lika för alla modeller i familjen: `{ spec, value }` |
+| `specs[]` (ny) | Det som är lika för alla modeller i trucktypen: `{ spec, value }` |
 | `models[]` (ny) | Se 5.3 |
 | `choices[]` (ersätter `steps`) | Se 5.4 |
 
-### 5.3 Modeller (`models[]` i familjen)
+### 5.3 Modeller (`models[]` i trucktypen)
 
 | Fält | Exempel |
 |---|---|
@@ -153,12 +154,12 @@ Det enda stället för en trucktyps namn, bild och priser.
 | `price` | 184 000 |
 | `capacityKg` | 1800 |
 | `default` | Förvald |
-| `specs[]` | `{ spec, value }`, det som skiljer från familjen |
+| `specs[]` | `{ spec, value }`, det som skiljer från trucktypen |
 
 Modellen är konfiguratorns första steg. Produktkortets intervall och Från-priset räknas fram ur
 modellerna.
 
-### 5.4 Val (`choices[]` i familjen, ersätter `steps` och `groups`)
+### 5.4 Val (`choices[]` i trucktypen, ersätter `steps` och `groups`)
 
 Ett val är ett steg i konfiguratorn, i den ordning de ligger.
 
@@ -183,7 +184,7 @@ Alternativen:
 | `requires[]`, `excludes[]` | Andra alternativ, som `lift-height.6000-mm` |
 | `specs[]` | Specifikationer valet sätter, som bygghöjd för en mast eller batterikapacitet |
 
-Nycklarna i `models`, `requires` och `excludes` kontrolleras när familjen sparas, så att ett
+Nycklarna i `models`, `requires` och `excludes` kontrolleras när trucktypen sparas, så att ett
 felstavat val stoppas i admin i stället för att försvinna i konfiguratorn. "Ersätt baspris" behövs
 inte längre: modellen bär baspriset och alla val lägger till.
 
@@ -195,21 +196,22 @@ Som i dag, plus garantins förklaring och tack-sidans steg ("Vad händer nu?"), 
 
 | Ställe | Behåller | Tas bort |
 |---|---|---|
-| Heron, kolumn | Kopplingen till familjen, rubriken ("Bygg din truck:") | Truckbild, Från-pris, leasing; namnet och länken kommer från familjen |
-| Produktgridens kort | Kopplingen till familjen, bildens utsnitt och passning | Bild, namn, lyftkapacitet, batteri, länk |
-| Navigationens Modeller | Menyn och dess ordning | Länkarna och bilderna; menyn listar familjerna (alla, eller de som väljs) |
+| Heron, kolumn | Kopplingen till trucktypen, rubriken ("Bygg din truck:") | Truckbild, Från-pris, leasing; namnet och länken kommer från trucktypen |
+| Produktgridens kort | Kopplingen till trucktypen | Bild, namn, lyftkapacitet, batteri, länk; bildens utsnitt och passning (2026-10-26) |
+| Navigationens Modeller | Menyn och dess ordning | Länkarna och bilderna; menyn listar trucktyperna (alla, eller de som väljs) |
 
-Utsnittet stannar i blocken, eftersom samma huvudbild beskärs olika i heron, korten och menyn.
+Ingen av dem beskär huvudbilden: den är en frilagd truck och visas hel överallt. Produktkortens
+bildpassning och utsnitt togs bort 2026-10-26; inget kort använde något annat än hela bilden.
 
 ### 5.7 Specifikationerna i offerten
 
-Modellens specifikationer gäller över familjens, och valens över modellens. Ordningen och enheten
+Modellens specifikationer gäller över trucktypens, och valens över modellens. Ordningen och enheten
 kommer från `truck-specs`. Ögonblicksbilden i förfrågningarna sparar etikett och värde som i dag,
 så gamla förfrågningar visas som förut.
 
 ## 6. Flytt
 
-- Truckfamiljerna ligger i egna databastabeller (inte JSON som blocken), så schemat kräver en
+- Trucktyperna ligger i egna databastabeller (inte JSON som blocken), så schemat kräver en
   migrering. Den testas mot en kopia med produktionens läge, aldrig mot produktion.
 - Datan är platshållare, så migreringen tar bort de gamla tabellerna och skapar de nya; en ny seed
   fyller dem med Figmas exempel (kapaciteter, batterier, master, specifikationerna i offerten).
@@ -227,27 +229,52 @@ Inga; frågorna är besvarade (se Beslut).
 Alla fyra stegen är byggda 2026-10-23 (migreringarna `20261023_091729_truck_catalog` och
 `20261023_094139_spec_in_quote`).
 
-1. `truck-specs`, familjen med modeller och val, inställningarna, migreringen och en ny seed.
+1. `truck-specs`, trucktypen med modeller och val, inställningarna, migreringen och en ny seed.
 2. Motorn (`engine.ts`), URL:en och testerna på den nya modellen; offerten och förfrågningarna.
-3. Heron, produktgriden och navigationen kopplade till familjerna.
+3. Heron, produktgriden och navigationen kopplade till trucktyperna.
 4. Figmas konfigurator: stegtyperna, price-boxen, offerten och tack-sidan.
 
 ## 9. Fasta fält (2026-10-26)
 
 Kopplingarna i 5.1–5.4 gjorde att man kunde lägga till nya steg och specifikationer utan att ändra
-koden, men Figma visar ett och samma flöde för alla truckar. Familjen har därför fasta fält
+koden, men Figma visar ett och samma flöde för alla truckar. Trucktypen har därför fasta fält
 (migreringen `20261026_084255_truck_fixed_fields`):
 
 | Fält | Innehåll |
 |---|---|
 | `specs` | Batteri (bara produktkortet), Vändradie, Körhastighet, Batterikapacitet, Vikt och Truckens bygghöjd, som text. Namn, enhet och ordning står i `TruckFamilies/specs.ts`. |
-| `modelChoice`, `models[]` | Modellstegets etikett och rubrik; modellerna med namn, artikelnummer (under namnet, som i Figma), pris, kapacitet, förval och egna `specs` som ersätter familjens. |
+| `modelChoice`, `models[]` | Modellstegets etikett och rubrik; modellerna med namn, artikelnummer (under namnet, som i Figma), pris, kapacitet, förval och egna `specs` som ersätter trucktypens. |
 | `battery.options[]` | Namn, text, pris och förval. Ett val. |
-| `liftHeight.help`, `liftHeight.options[]` | Hjälptexten; namn, mastens bygghöjd, pris och förval. Bygghöjden visas som "Truckens höjd med denna mast" och ersätter familjens i offerten. Ett val. |
+| `liftHeight.help`, `liftHeight.options[]` | Hjälptexten; namn, mastens bygghöjd, pris och förval. Bygghöjden visas som "Truckens höjd med denna mast" och ersätter trucktypens i offerten. Ett val. |
 | `extras.options[]` | Namn, text, bild och pris. Flera val, inget krävs. |
 
 - Ett steg utan alternativ hoppas över. Stegens etiketter, rubriker och typer står i
   `features/configurator/data.ts`.
 - Modellerna och alternativen pekas ut med radens id, i URL:en och i förfrågningarna. Inga nycklar
-  skrivs för hand; familjens `key` finns kvar som adressens namn på familjen.
+  skrivs för hand; trucktypens `key` finns kvar som adressens namn på trucktypen.
 - Motorn (`engine.ts`) är densamma, utan villkoren: `data.ts` gör om fälten till dess modell och val.
+
+## 10. Produktsidan (2026-10-26)
+
+Fälten i avsnitt 9 följde fortfarande konfiguratorns steg (flikar som "Steg", stegets etikett och
+rubrik, specifikationer både på trucktyp och modell). Trucktypen beskriver nu trucken som produkt, på en
+sida (migreringen `20261026_135318_truck_product_page`):
+
+| Fält | Innehåll |
+|---|---|
+| `name`, `singularName` | Plural (menyer, kort) och singular (offertens rubrik); ett lodstreck markerar var ett ord får avstavas |
+| `description`, `image`, `brochure`, `travelSpeed`, `deliveryTime`, `warranty` | Om trucktypen |
+| `contactLink` | Dit kort och menyer länkar när trucktypen saknar varianter; utan varianter går den inte att konfigurera (det finns inget eget fält för det) |
+| `models[]` (Lyftkapacitet) | `capacityKg`, `sku`, `price` (grundpris), `weight`, `turningRadius`, förval. Namnet ("1,6 ton") räknas fram |
+| `batteries[]` | Benämning, `capacity` ("80 V 228 Ah"), text, pristillägg, förval |
+| `liftHeights[]`, `liftHeightHelp` | `liftHeight` och `buildHeight` i mm, pristillägg, förval; hjälptexten när det finns flera |
+| `extras[]` | Namn, text, bild, pris |
+| `key`, `sortOrder` (sidopanelen) | Nyckeln skapas ur namnet om den är tom |
+
+Konfiguratorn (`features/configurator/data.ts`) bygger stegen av listorna: Lyftkapacitet, Batteri
+och Lyfthöjd när det finns fler än ett, Tillval när det finns något, sedan Finansiering. Ett batteri
+eller en mast ensam är en del av trucken: dess specifikation står i offerten och dess pris ingår i
+grundpriset. Produktkortet visar det förvalda batteriets kapacitet. Offertens specifikationer kommer
+från trucktypen (körhastighet), varianten (vikt, vändradie), batteriet (batterikapacitet) och masten
+(bygghöjd), i ordningen i `TruckFamilies/specs.ts`. Listraderna i admin visar sitt innehåll
+(`TruckFamilies/RowLabels.tsx`).

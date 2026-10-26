@@ -20,12 +20,17 @@ import { ChecklistFeatureClient as ChecklistFeatureClient_e70f5e05f09f93e00b997e
 import { BlockquoteFeatureClient as BlockquoteFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { HorizontalRuleFeatureClient as HorizontalRuleFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { InlineToolbarFeatureClient as InlineToolbarFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
+import { Note as Note_ad9bcec086fa80adbb30be1e0a36e86f } from '../../payload/components/Note.tsx'
 import { OverviewComponent as OverviewComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client'
 import { MetaTitleComponent as MetaTitleComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client'
 import { MetaDescriptionComponent as MetaDescriptionComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client'
 import { MetaImageComponent as MetaImageComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client'
 import { PreviewComponent as PreviewComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client'
 import { VisualEditingAdminBridge as VisualEditingAdminBridge_ef98436ff3126b2eab6a99c3362cf8ba } from '@simmalugnt-se/payload-visual-editing/client'
+import { ModelRowLabel as ModelRowLabel_e70b1b18b28ca1f64b445135ddfbaaac } from '../../payload/collections/TruckFamilies/RowLabels.tsx'
+import { BatteryRowLabel as BatteryRowLabel_e70b1b18b28ca1f64b445135ddfbaaac } from '../../payload/collections/TruckFamilies/RowLabels.tsx'
+import { LiftHeightRowLabel as LiftHeightRowLabel_e70b1b18b28ca1f64b445135ddfbaaac } from '../../payload/collections/TruckFamilies/RowLabels.tsx'
+import { ExtraRowLabel as ExtraRowLabel_e70b1b18b28ca1f64b445135ddfbaaac } from '../../payload/collections/TruckFamilies/RowLabels.tsx'
 import { VideoField as VideoField_329793083ea1bbf314c92cf4b9d6ad01 } from '@simmalugnt-se/payload-mux/client'
 import { VideoDetails as VideoDetails_329793083ea1bbf314c92cf4b9d6ad01 } from '@simmalugnt-se/payload-mux/client'
 import { CacheTools as CacheTools_b88d10399ab5955969aafcb24963bfdc } from '../../payload/components/CacheTools'
@@ -56,12 +61,17 @@ export const importMap = {
   "@payloadcms/richtext-lexical/client#BlockquoteFeatureClient": BlockquoteFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#HorizontalRuleFeatureClient": HorizontalRuleFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#InlineToolbarFeatureClient": InlineToolbarFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
+  "/payload/components/Note.tsx#Note": Note_ad9bcec086fa80adbb30be1e0a36e86f,
   "@payloadcms/plugin-seo/client#OverviewComponent": OverviewComponent_a8a977ebc872c5d5ea7ee689724c0860,
   "@payloadcms/plugin-seo/client#MetaTitleComponent": MetaTitleComponent_a8a977ebc872c5d5ea7ee689724c0860,
   "@payloadcms/plugin-seo/client#MetaDescriptionComponent": MetaDescriptionComponent_a8a977ebc872c5d5ea7ee689724c0860,
   "@payloadcms/plugin-seo/client#MetaImageComponent": MetaImageComponent_a8a977ebc872c5d5ea7ee689724c0860,
   "@payloadcms/plugin-seo/client#PreviewComponent": PreviewComponent_a8a977ebc872c5d5ea7ee689724c0860,
   "@simmalugnt-se/payload-visual-editing/client#VisualEditingAdminBridge": VisualEditingAdminBridge_ef98436ff3126b2eab6a99c3362cf8ba,
+  "/payload/collections/TruckFamilies/RowLabels.tsx#ModelRowLabel": ModelRowLabel_e70b1b18b28ca1f64b445135ddfbaaac,
+  "/payload/collections/TruckFamilies/RowLabels.tsx#BatteryRowLabel": BatteryRowLabel_e70b1b18b28ca1f64b445135ddfbaaac,
+  "/payload/collections/TruckFamilies/RowLabels.tsx#LiftHeightRowLabel": LiftHeightRowLabel_e70b1b18b28ca1f64b445135ddfbaaac,
+  "/payload/collections/TruckFamilies/RowLabels.tsx#ExtraRowLabel": ExtraRowLabel_e70b1b18b28ca1f64b445135ddfbaaac,
   "@simmalugnt-se/payload-mux/client#VideoField": VideoField_329793083ea1bbf314c92cf4b9d6ad01,
   "@simmalugnt-se/payload-mux/client#VideoDetails": VideoDetails_329793083ea1bbf314c92cf4b9d6ad01,
   "/payload/components/CacheTools#CacheTools": CacheTools_b88d10399ab5955969aafcb24963bfdc,

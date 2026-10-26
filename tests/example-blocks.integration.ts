@@ -94,13 +94,12 @@ async function main() {
     const cardsHTML = renderToStaticMarkup(
       createElement(
         NextIntlClientProvider,
-        // Milevas defaults to Swedish, so English is the locale with a prefix.
-        { locale: "en", messages: {} },
+        { locale: "sv", messages: {} },
         createElement(CardsBlockComponent, { block: cards }),
       ),
     );
     assert.match(cardsHTML, /data-payload-field="link.label"/);
-    assert.match(cardsHTML, /href="\/en\/test"/);
+    assert.match(cardsHTML, /href="\/test"/);
     assert.match(cardsHTML, /target="_blank"/);
     assert.match(cardsHTML, /rel="noopener noreferrer"/);
     const faqHTML = renderToStaticMarkup(createElement(FAQBlockComponent, { block: faq }));
@@ -137,21 +136,13 @@ async function main() {
     const callToActionHTML = renderToStaticMarkup(
       createElement(
         NextIntlClientProvider,
-        // Milevas defaults to Swedish, so English is the locale with a prefix.
-        { locale: "en", messages: {} },
+        { locale: "sv", messages: {} },
         createElement(CallToActionBlockComponent, { block: callToAction }),
       ),
     );
     assert.match(callToActionHTML, /<h2 /);
     assert.match(callToActionHTML, /data-payload-field="button.link.label"/);
-    assert.match(callToActionHTML, /href="\/en\/test"/);
-
-    const english = await payload.findByID({ collection: "pages", id: page.id, locale: "en" });
-    assert.deepEqual(
-      english.layout?.map((block) => block.blockType),
-      ["hero", "cards", "faq", "columns", "callToAction"],
-    );
-    assert.ok(english.layout?.find((block) => block.blockType === "faq")?.items[0].answer);
+    assert.match(callToActionHTML, /href="\/test"/);
 
     await payload.update({
       collection: "pages",

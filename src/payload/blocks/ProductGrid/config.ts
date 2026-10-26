@@ -25,67 +25,15 @@ export const ProductGridBlock: Block = {
     {
       name: "products",
       label: "Truckkort",
+      labels: { singular: "Truckkort", plural: "Truckkort" },
       type: "array",
       admin: {
         description:
-          "Ett kort per truckfamilj; namn, bild, specifikationer, priser och länk kommer från familjen.",
+          "Ett kort per trucktyp; namn, bild, specifikationer, priser och länk kommer från trucktypen.",
       },
       required: true,
       minRows: 1,
-      fields: [
-        { ...familyField, required: true },
-        {
-          name: "imageFit",
-          label: "Bildpassning",
-          type: "select",
-          defaultValue: "contain",
-          options: [
-            { label: "Visa hela bilden", value: "contain" },
-            { label: "Fyll bildytan", value: "cover" },
-            { label: "Eget utsnitt", value: "crop" },
-          ],
-        },
-        {
-          name: "imageCrop",
-          label: "Bildutsnitt",
-          type: "group",
-          admin: { condition: (_, item) => item?.imageFit === "crop" },
-          fields: [
-            {
-              name: "width",
-              label: "Bredd (%)",
-              type: "number",
-              min: 1,
-              max: 300,
-              defaultValue: 100,
-            },
-            {
-              name: "height",
-              label: "Höjd (%)",
-              type: "number",
-              min: 1,
-              max: 300,
-              defaultValue: 100,
-            },
-            {
-              name: "left",
-              label: "Vågrät position (%)",
-              type: "number",
-              min: -200,
-              max: 200,
-              defaultValue: 0,
-            },
-            {
-              name: "top",
-              label: "Lodrät position (%)",
-              type: "number",
-              min: -200,
-              max: 200,
-              defaultValue: 0,
-            },
-          ],
-        },
-      ],
+      fields: [{ ...familyField, required: true }],
     },
   ],
 };

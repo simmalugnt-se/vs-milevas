@@ -16,13 +16,15 @@ a plugin.
 
 - Milevas' own parts: the truck configurator (`src/features/configurator`, `TruckFamilies`,
   `ConfiguratorRequests`, `ConfiguratorSettings`, the `configurator` block), the temporary landing
-  page (`MILEVAS_LANDING_ONLY` in `src/proxy.ts`) and Swedish as the default locale. Everything else
+  page (`MILEVAS_LANDING_ONLY` in `src/proxy.ts`) and Swedish: the admin is in Swedish only, and
+  `sv` is the only locale in `src/i18n/routing.ts` for now (the multi-locale code stays). Everything else
   follows the boilerplate; keep it close so later updates merge cleanly.
 - Design system from Figma "Milevas — Website": start from `docs/design-system.md` (where things
   are, how a block is built, what is next). Record every deviation from Figma, every gap in Figma
   the code fills, and every question for the designer in `src/app/(frontend)/[locale]/kitchensink/figma-notes.ts`, tied to the
   component or block it concerns; /kitchensink shows them there, and general ones at the top.
-- Plugins: visual editing is on. Content health and the editor assistant are installed but commented
+- Plugins: visual editing is on. Redirects and MCP (its API keys) are off unless
+  `PAYLOAD_REDIRECTS_ENABLED` / `PAYLOAD_MCP_ENABLED` is `true`; their tables stay. Content health and the editor assistant are installed but commented
   out in `src/payload/plugins/index.ts`; the assistant needs a migration for its tables when it is
   turned on.
 - `pnpm typecheck`, `pnpm lint` and `pnpm test` pass before a commit.

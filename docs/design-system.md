@@ -113,9 +113,9 @@ bildfält, länkar och markörer för visual editing. Boilerplatens block är kv
   och navigation ovanpå innehållet som följer med vid scroll. Blocken ansvarar för sin egen spacing;
   layouten beror inte på vilket block som ligger först.
 - Hero är `100svh` hög i alla bredder. Introt, trucksen som följer pekaren och snap-listan under
-  Desktop S följer Figma Make-prototypen; varje kolumn är en truckfamilj och visar dess namn,
+  Desktop S följer Figma Make-prototypen; varje kolumn är en trucktyp och visar dess namn,
   huvudbild och priser. `pnpm seed:homepage -- --hero --publish-local` byter bara heron på en
-  befintlig lokal startsida mot Figmas texter och de sex familjerna.
+  befintlig lokal startsida mot Figmas texter och de sex trucktyperna.
 - `textColumns` (Text block Collumns) direkt efter `milevasHero` renderas i `LinkedColumns`
   (`RenderBlocks.tsx`) när heron har två kolumner fler (sex och fyra): ett lager streck som står
   still på skärmen medan man scrollar, och heronas kolumner som byter bredd med det. Den första och
@@ -127,21 +127,21 @@ bildfält, länkar och markörer för visual editing. Boilerplatens block är kv
   Text-block, Card Slider, Image & Text (ankaret `service`) och Contact (ankaret `kontakt`).
   `pnpm seed:homepage -- --about --publish-local` skapar Om oss lokalt om den inte finns.
 - **Contact** visar sidfotens e-post, telefon och sociala länkar (`socialLinks` i Footer-globalen),
-  så de ändras på ett ställe. Formuläret sparar i samlingen Kontaktförfrågningar
+  så de ändras på ett ställe. Formuläret sparar i samlingen Meddelanden
   (`contact-requests`) och mejlas via Resend till `CONTACT_REQUEST_EMAIL`, annars
   `CONFIGURATOR_SALES_EMAIL`.
-- **Truckfamiljerna är det enda stället för en trucktyp** ([`truck-data-schema.md`](./truck-data-schema.md)):
+- **Trucktyperna är det enda stället för en trucktyp** ([`truck-data-schema.md`](./truck-data-schema.md)):
   heron, produktgriden, navigationens Modeller och sidfotens Produkter (`source: truckFamilies`)
-  hämtar namn, huvudbild, specifikationer, priser och länk därifrån. Produktkorten bestämmer bara
-  bildens utsnitt. `pnpm seed:configurator` fyller katalogen (specifikationer, familjer med modeller
-  och val, inställningar) med Figmas exempel och uppdaterar varje familj på dess nyckel, så sidorna
+  hämtar namn, huvudbild, specifikationer, priser och länk därifrån; korten visar huvudbilden hel.
+  `pnpm seed:configurator` fyller katalogen (specifikationer, trucktyper med modeller
+  och val, inställningar) med Figmas exempel och uppdaterar varje trucktyp på dess nyckel, så sidorna
   som pekar på den fortsätter göra det. `--products` till `seed:homepage` byter produktgriden.
 - `pnpm seed:homepage` skapar startsidan (`home`) och Om oss samt navigation/footer som lokala utkast.
   `pnpm seed:homepage -- --publish-local` publicerar testet enbart lokalt. Kommandot kräver
   `SERVICES=local`, körs aldrig automatiskt och ersätter inte en startsida som redan har Milevas Hero.
   Figma-bilderna finns i `scripts/figma-homepage-assets` och laddas upp till Payload av scriptet.
 - `pnpm seed:globals -- --publish-local` fyller bara i Header- och Footer-globalerna efter Figma
-  (menyerna, där Modeller listar truckfamiljerna, och login; footerns kolumner, där Produkter listar
+  (menyerna, där Modeller listar trucktyperna, och login; footerns kolumner, där Produkter listar
   dem, kontakt och copyright), utan att röra
   startsidan. Samma krav som ovan.
 - Ingen ny SQL-migrering behövs för blocken: `blocksAsJSON` lagrar block och relationer i sidans

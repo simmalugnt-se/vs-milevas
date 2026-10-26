@@ -6,6 +6,7 @@ import { revalidateHeader } from "./hooks/revalidate";
 
 export const Header: GlobalConfig = {
   slug: "header",
+  label: "Sidhuvud",
   access: {
     read: () => true,
   },
@@ -17,21 +18,10 @@ export const Header: GlobalConfig = {
   },
   fields: [
     {
-      name: "siteName",
-      type: "text",
-      localized: false,
-      defaultValue: "Milevas",
-    },
-    {
-      name: "siteTagline",
-      type: "text",
-      localized: true,
-      defaultValue: "Boilerplate for Payload CMS and Next.js.",
-    },
-    {
       name: "navItems",
       type: "array",
-      label: "Menus",
+      label: "Menyer",
+      labels: { singular: "Meny", plural: "Menyer" },
       localized: false,
       fields: [
         {
@@ -39,27 +29,28 @@ export const Header: GlobalConfig = {
           admin: {
             hideGutter: true,
             description:
-              'The menu\'s label, e.g. "Modeller". The link is used only when the menu has no links.',
+              'Menyns namn, till exempel "Modeller". Länken används bara när menyn saknar länkar.',
           },
         },
         {
           name: "source",
           type: "select",
-          label: "The menu's links",
+          label: "Menyns länkar",
           defaultValue: "links",
           options: [
-            { label: "The links below", value: "links" },
-            { label: "The truck families", value: "truckFamilies" },
+            { label: "Länkarna nedan", value: "links" },
+            { label: "Trucktyperna", value: "truckFamilies" },
           ],
           admin: {
             description:
-              "The truck families: every published family in its order, with its name and main image (Figma's Modeller).",
+              "Trucktyperna: varje publicerad trucktyp i sin ordning, med namn och huvudbild.",
           },
         },
         {
           name: "links",
           type: "array",
-          label: "Links in the menu",
+          label: "Länkar i menyn",
+          labels: { singular: "Länk", plural: "Länkar" },
           admin: {
             initCollapsed: true,
             condition: (_, siblingData) => siblingData?.source !== "truckFamilies",
@@ -70,9 +61,9 @@ export const Header: GlobalConfig = {
               name: "image",
               type: "upload",
               relationTo: "images",
-              label: "Image while pointed at",
+              label: "Bild när länken pekas på",
               admin: {
-                description: "Desktop: replaces the menu's image while the link is pointed at.",
+                description: "På desktop: ersätter menyns bild medan länken pekas på.",
               },
             },
           ],
@@ -81,10 +72,10 @@ export const Header: GlobalConfig = {
           name: "image",
           type: "upload",
           relationTo: "images",
-          label: "Image",
+          label: "Bild",
           admin: {
             description:
-              "The square image beside the open menu (Desktop and Tablet). Not shown for the truck families: there the square is empty until a family is pointed at.",
+              "Den fyrkantiga bilden bredvid den öppna menyn (desktop och surfplatta). Visas inte för trucktyperna; där är rutan tom tills en trucktyp pekas på.",
           },
         },
       ],
@@ -96,38 +87,30 @@ export const Header: GlobalConfig = {
     {
       name: "login",
       type: "group",
-      label: "Login link",
+      label: "Inloggningslänk",
       admin: { hideGutter: true },
       fields: [
         link({ required: false }),
         {
           name: "shortLabel",
           type: "text",
-          label: "Short label",
+          label: "Kort text",
           localized: true,
           admin: {
-            description: 'Below Desktop S, e.g. "Login" for "Dealer login".',
+            description:
+              'På smalare skärmar än Desktop S, till exempel "Logga in" för "Återförsäljare: logga in".',
           },
         },
       ],
     },
     {
-      ...(link({ name: "cta", required: false }) as GroupField),
-      label: "Button (not shown)",
-      admin: {
-        hideGutter: true,
-        description:
-          "The old navigation's button (\"Bygg din truck\"). Figma's navigation has none, so it is not shown.",
-      },
-    },
-    {
       name: "showAnnouncement",
       type: "checkbox",
-      label: "Show announcement bar",
+      label: "Visa meddelandefält",
     },
     {
       type: "collapsible",
-      label: "Announcement bar",
+      label: "Meddelandefält",
       admin: {
         condition: (data) => Boolean(data?.showAnnouncement),
         initCollapsed: true,
@@ -136,11 +119,11 @@ export const Header: GlobalConfig = {
         {
           name: "announcement",
           type: "text",
-          label: "Message",
+          label: "Meddelande",
           localized: true,
           required: true,
         },
-        link({ name: "announcementLink" }),
+        link({ name: "announcementLink", label: "Meddelandets länk" }),
       ],
     },
   ],

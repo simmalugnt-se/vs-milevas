@@ -5,6 +5,7 @@ import { isAuthenticated } from "../../access/isAuthenticated.ts";
 
 export const Users: CollectionConfig = {
   slug: "users",
+  labels: { singular: "Användare", plural: "Användare" },
   access: {
     create: canCreateFirstUser,
     delete: isAuthenticated,
@@ -19,6 +20,7 @@ export const Users: CollectionConfig = {
   fields: [
     {
       name: "name",
+      label: "Namn",
       type: "text",
     },
   ],

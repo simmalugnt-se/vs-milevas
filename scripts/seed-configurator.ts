@@ -11,9 +11,10 @@ if (process.env.APP_ENV === "production") {
 }
 
 /**
- * The truck catalogue as Figma's examples: six families with their models, steps and
- * specifications, and the configurator settings. Placeholder data until Baoli's own; each family is
- * updated in place by its key, so pages that point at a family keep pointing at it.
+ * The truck catalogue as Figma's examples: six families described as products (variants,
+ * batteries, lift heights, extras), and the configurator settings. Placeholder data until Baoli's
+ * own; each family is updated in place by its key, so pages that point at a family keep pointing
+ * at it.
  */
 
 type FamilyInput = RequiredDataFromCollectionSlug<"truck-families">;
@@ -29,12 +30,11 @@ const brochurePath = path.join(root, "src/payload/seed/assets/produktbroschyr-pl
 const brochureFilename = "produktbroschyr-placeholder.pdf";
 
 const model = (
-  label: string,
+  capacityKg: number,
   sku: string,
   price: number,
-  capacityKg: number,
   extra: Partial<ModelInput> = {},
-): ModelInput => ({ label, sku, price, capacityKg, ...extra });
+): ModelInput => ({ capacityKg, sku, price, ...extra });
 
 const standardDelivery = "4–6 veckor";
 
@@ -48,67 +48,51 @@ const families: FamilySeed[] = [
     sortOrder: 10,
     description: "Elektrisk motviktstruck för lager, terminal och industri.",
     image: "counterbalance",
+    travelSpeed: "15 / 15",
     deliveryTime: standardDelivery,
     warranty: "4 år",
-    specs: {
-      battery: "80 V 228 Ah",
-      travelSpeed: "15 / 15",
-      batteryCapacity: "76,8 V · 150 / 228 Ah",
-      turningRadius: "1870 / 1850",
-      buildHeight: "2130",
-    },
-    modelChoice: { label: "Lyftkapacitet", heading: "Välj lyftkapacitet" },
     models: [
-      model("1,5 ton", "KBE 15 Li G1", 169000, 1500, {
+      model(1500, "KBE 15 Li G1", 169000, {
         defaultSelected: true,
-        specs: { weight: "2 980" },
+        weight: "2 980",
+        turningRadius: "1870 / 1850",
       }),
-      model("1,8 ton", "KBE 18 Li G1", 179900, 1800, { specs: { weight: "3 293" } }),
-      model("2,0 ton", "KBE 20 Li G1", 196000, 2000, { specs: { weight: "3 450" } }),
-      model("2,5 ton", "KBE 25 Li G1", 211000, 2500, {
-        specs: { weight: "4 020", turningRadius: "2 190" },
-      }),
-      model("3,0 ton", "KBE 30 Li G1", 246000, 3000, {
-        specs: { weight: "4 510", turningRadius: "2 240" },
-      }),
-      model("3,5 ton", "KBE 35 Li G1", 276000, 3500, {
-        specs: { weight: "4 980", turningRadius: "2 290" },
-      }),
+      model(1800, "KBE 18 Li G1", 179900, { weight: "3 293", turningRadius: "1870 / 1850" }),
+      model(2000, "KBE 20 Li G1", 196000, { weight: "3 450", turningRadius: "1870 / 1850" }),
+      model(2500, "KBE 25 Li G1", 211000, { weight: "4 020", turningRadius: "2 190" }),
+      model(3000, "KBE 30 Li G1", 246000, { weight: "4 510", turningRadius: "2 240" }),
+      model(3500, "KBE 35 Li G1", 276000, { weight: "4 980", turningRadius: "2 290" }),
     ],
-    battery: {
-      options: [
-        {
-          label: "Standard",
-          description: "150 Ah för normal drift, upp till ett skift per dag.",
-          price: 0,
-          defaultSelected: true,
-        },
-        {
-          label: "Stort batteri",
-          description: "228 Ah för längre räckvidd och drift i flera skift.",
-          price: 18000,
-        },
-      ],
-    },
-    liftHeight: {
-      help: liftHeightHelp,
-      options: [
-        { label: "4700 mm", buildHeight: "2130", price: 0, defaultSelected: true },
-        { label: "6000 mm", buildHeight: "2765", price: 3500 },
-      ],
-    },
-    extras: {
-      options: [
-        { label: "Backsummer", price: 1200 },
-        { label: "Fasthållnings|system", price: 14500 },
-        { label: "Trådlöst kamera|system (bak)", price: 6900 },
-        {
-          label: "Sidoförskjutning och gaffel|spridning",
-          description: "Ändra gaffelavståndet från förarplatsen.",
-          price: 9500,
-        },
-      ],
-    },
+    batteries: [
+      {
+        label: "Standard",
+        capacity: "76,8 V · 150 Ah",
+        description: "För normal drift, upp till ett skift per dag.",
+        price: 0,
+        defaultSelected: true,
+      },
+      {
+        label: "Stort batteri",
+        capacity: "80 V 228 Ah",
+        description: "För längre räckvidd och drift i flera skift.",
+        price: 18000,
+      },
+    ],
+    liftHeights: [
+      { liftHeight: 4700, buildHeight: 2130, price: 0, defaultSelected: true },
+      { liftHeight: 6000, buildHeight: 2765, price: 3500 },
+    ],
+    liftHeightHelp,
+    extras: [
+      { label: "Backsummer", price: 1200 },
+      { label: "Fasthållnings|system", price: 14500 },
+      { label: "Trådlöst kamera|system (bak)", price: 6900 },
+      {
+        label: "Sidoförskjutning och gaffel|spridning",
+        description: "Ändra gaffelavståndet från förarplatsen.",
+        price: 9500,
+      },
+    ],
   },
   {
     name: "Skjutstativ|truckar",
@@ -117,34 +101,28 @@ const families: FamilySeed[] = [
     sortOrder: 20,
     description: "Skjutstativtruck för effektiv pallhantering på hög höjd.",
     image: "reach-truck",
+    travelSpeed: "11 / 11",
     deliveryTime: standardDelivery,
     warranty: "4 år",
-    specs: {
-      battery: "48 V 465 Ah",
-      travelSpeed: "11 / 11",
-      batteryCapacity: "48 V · 465 Ah",
-      turningRadius: "1 680",
-      weight: "2 950",
-    },
-    modelChoice: { label: "Lyftkapacitet", heading: "Välj lyftkapacitet" },
     models: [
-      model("1,6 ton", "KBR 16", 516000, 1600, { defaultSelected: true }),
-      model("2,0 ton", "KBR 20", 546000, 2000, { specs: { weight: "3 210" } }),
+      model(1600, "KBR 16", 516000, {
+        defaultSelected: true,
+        weight: "2 950",
+        turningRadius: "1 680",
+      }),
+      model(2000, "KBR 20", 546000, { weight: "3 210", turningRadius: "1 680" }),
     ],
-    liftHeight: {
-      help: liftHeightHelp,
-      options: [
-        { label: "6955 mm", buildHeight: "3 050", price: 0, defaultSelected: true },
-        { label: "7255 mm", buildHeight: "3 200", price: 22000 },
-        { label: "8255 mm", buildHeight: "3 550", price: 44000 },
-      ],
-    },
-    extras: {
-      options: [
-        { label: "Backsummer", price: 1200 },
-        { label: "Trådlöst kamera|system (bak)", price: 6900 },
-      ],
-    },
+    batteries: [{ label: "Standard", capacity: "48 V 465 Ah", price: 0, defaultSelected: true }],
+    liftHeights: [
+      { liftHeight: 6955, buildHeight: 3050, price: 0, defaultSelected: true },
+      { liftHeight: 7255, buildHeight: 3200, price: 22000 },
+      { liftHeight: 8255, buildHeight: 3550, price: 44000 },
+    ],
+    liftHeightHelp,
+    extras: [
+      { label: "Backsummer", price: 1200 },
+      { label: "Trådlöst kamera|system (bak)", price: 6900 },
+    ],
   },
   {
     name: "Låglyftare",
@@ -152,14 +130,14 @@ const families: FamilySeed[] = [
     key: "low-lift-pallet-truck",
     sortOrder: 30,
     image: "low-lift",
+    travelSpeed: "6 / 6",
     deliveryTime: standardDelivery,
     warranty: "1 år",
-    specs: { battery: "24 V 105 Ah", travelSpeed: "6 / 6" },
-    modelChoice: { label: "Utförande", heading: "Välj utförande" },
     models: [
-      model("Utan åkplatta", "EP 16-25", 38000, 1600, { defaultSelected: true }),
-      model("Med åkplatta", "EP20-111", 76000, 2000, { specs: { travelSpeed: "10 / 12" } }),
+      model(1600, "EP 16-25", 38000, { defaultSelected: true }),
+      model(2000, "EP20-111", 76000),
     ],
+    batteries: [{ label: "Standard", capacity: "24 V 105 Ah", price: 0, defaultSelected: true }],
   },
   {
     name: "Ledstaplare",
@@ -169,12 +147,8 @@ const families: FamilySeed[] = [
     image: "stacker",
     deliveryTime: standardDelivery,
     warranty: "1 år",
-    specs: { battery: "24 V 150 Ah" },
-    modelChoice: { label: "Serie", heading: "Välj serie" },
-    models: [
-      model("KBS-serien", "KBS 12N", 40000, 1200, { defaultSelected: true }),
-      model("ES-serien", "ES 16", 82000, 1600),
-    ],
+    models: [model(1200, "KBS 12N", 40000, { defaultSelected: true }), model(1600, "ES 16", 82000)],
+    batteries: [{ label: "Standard", capacity: "24 V 150 Ah", price: 0, defaultSelected: true }],
   },
   {
     name: "Elektriska pallyftare",
@@ -184,14 +158,12 @@ const families: FamilySeed[] = [
     image: "pallet-truck",
     deliveryTime: standardDelivery,
     warranty: "1 år",
-    specs: { battery: "24 V 20 Ah" },
-    modelChoice: { label: "Modell", heading: "Välj modell" },
     models: [
-      model("KBP 15E", "KBP 15E", 15900, 1500, { defaultSelected: true }),
-      model("KBP 14H", "KBP 14H", 32900, 1400),
-      model("KBP 15L", "KBP 15L", 39900, 1500),
-      model("KBP 20", "KBP 20", 46900, 2000),
+      model(1400, "KBP 14H", 32900),
+      model(1500, "KBP 15E", 15900, { defaultSelected: true }),
+      model(2000, "KBP 20", 46900),
     ],
+    batteries: [{ label: "Standard", capacity: "24 V 20 Ah", price: 0, defaultSelected: true }],
   },
   {
     name: "Plocktruckar",
@@ -199,9 +171,7 @@ const families: FamilySeed[] = [
     key: "order-picker",
     sortOrder: 60,
     image: "order-picker",
-    configurable: false,
     contactLink: { type: "external", url: "/#kontakt", label: "Kontakta oss" },
-    modelChoice: { label: "Modell", heading: "Välj modell" },
   },
 ];
 
@@ -252,13 +222,14 @@ async function placeholderBrochure(payload: Payload) {
 
 async function upsertFamily(payload: Payload, seed: FamilySeed, brochure: string) {
   const data: FamilyInput = {
-    // A step the family does not have is emptied, so a re-seed removes it.
-    battery: { options: [] },
-    liftHeight: { options: [] },
-    extras: { options: [] },
+    // A list the family does not have is emptied, so a re-seed removes it.
+    models: [],
+    batteries: [],
+    liftHeights: [],
+    extras: [],
     ...seed,
     image: await uploadImage(payload, seed.image, seed.singularName),
-    brochure: seed.configurable === false ? undefined : brochure,
+    brochure: seed.models?.length ? brochure : undefined,
     _status: "published",
   };
   const existing = await payload.find({
@@ -322,7 +293,7 @@ async function seed() {
             description: "Fast beräknad månadskostnad.",
             kind: "monthly",
             months: 48,
-            monthlyFactor: 0.01875,
+            monthlyPercent: 1.875,
             serviceAgreementEligible: true,
           },
           {
@@ -331,7 +302,7 @@ async function seed() {
             description: "Beräknad månadskostnad inklusive service enligt separat avtal.",
             kind: "monthly",
             months: 48,
-            monthlyFactor: 0.0191667,
+            monthlyPercent: 1.91667,
             serviceAgreementEligible: false,
           },
         ],

@@ -3,10 +3,10 @@ import type { Field, RelationshipField } from "payload";
 /** The truck family a block shows: its name, image, specifications, prices and link. */
 export const familyField: RelationshipField = {
   name: "family",
-  label: "Truckfamilj",
+  label: "Trucktyp",
   type: "relationship",
   relationTo: "truck-families",
-  admin: { description: "Namn, bild och priser ändras i truckfamiljen." },
+  admin: { description: "Namn, bild och priser ändras i trucktypen." },
 };
 
 export const sectionID: Field = {

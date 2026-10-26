@@ -240,7 +240,7 @@ export function ConfiguratorClient({
   }
 
   if (families.length === 0) {
-    return <p className="text-text-m">Det finns inga publicerade truckfamiljer ännu.</p>;
+    return <p className="text-text-m">Det finns inga publicerade trucktyper ännu.</p>;
   }
 
   const lowestPrice = Math.min(...families.map(startPrice));
