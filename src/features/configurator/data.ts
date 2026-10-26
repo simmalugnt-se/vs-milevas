@@ -1,10 +1,12 @@
 import { unstable_cache, unstable_noStore } from "next/cache";
 import type { TypedLocale } from "payload";
+import { TRUCK_SPECS } from "@/payload/collections/TruckFamilies/specs";
 import { resolveLinkField } from "@/payload/utilities/link-field";
 import { getMediaImageURL } from "@/payload/utilities/media";
-import type { ConfiguratorSetting, Document, Image, TruckFamily, TruckSpec } from "@/payload-types";
+import type { ConfiguratorSetting, Document, Image, TruckFamily } from "@/payload-types";
 import type {
   ConfiguratorCatalog,
+  ConfiguratorChoice,
   ConfiguratorFamily,
   ConfiguratorOption,
   ConfiguratorSpec,
@@ -37,14 +39,24 @@ const DEFAULT_SERVICE_AGREEMENT: NonNullable<ConfiguratorCatalog["serviceAgreeme
   annualPrice: 2856,
 };
 
-type FamilyChoice = NonNullable<TruckFamily["choices"]>[number];
-type SpecRows = NonNullable<TruckFamily["specs"]>;
+type SpecFields = Partial<Record<(typeof TRUCK_SPECS)[number]["name"], string | null>>;
 
-/** Values by specification key; a value whose type is not populated is left out. */
-function mapSpecs(rows: SpecRows | null | undefined): SpecValue[] {
-  return (rows ?? []).flatMap(({ spec, value }) =>
-    spec && typeof spec === "object" ? [{ spec: spec.key, value }] : [],
-  );
+/** The specifications as the configurator names and orders them, from `TRUCK_SPECS`. */
+const SPECS: ConfiguratorSpec[] = TRUCK_SPECS.map((spec, index) => ({
+  key: spec.name,
+  label: spec.label,
+  unit: "unit" in spec ? spec.unit : undefined,
+  sortOrder: index,
+  onCard: "onCard" in spec && spec.onCard,
+  inQuote: !("inQuote" in spec) || spec.inQuote,
+}));
+
+/** The filled-in specifications; an empty field is left out. */
+function mapSpecs(fields: SpecFields | null | undefined): SpecValue[] {
+  return TRUCK_SPECS.flatMap(({ name }) => {
+    const value = fields?.[name]?.trim();
+    return value ? [{ spec: name, value }] : [];
+  });
 }
 
 function imageData(value: string | Image | null | undefined, alt: string) {
@@ -53,20 +65,67 @@ function imageData(value: string | Image | null | undefined, alt: string) {
   return image && url ? { alt: image.alt || alt, url } : undefined;
 }
 
-function mapOption(option: FamilyChoice["options"][number]): ConfiguratorOption {
+type StepOption = {
+  id?: string | null;
+  label: string;
+  description?: string | null;
+  image?: string | Image | null;
+  price: number;
+  defaultSelected?: boolean | null;
+  buildHeight?: string | null;
+};
+
+/** An option keeps its row id as its key, so the URL and the quote point at it. */
+function mapOption(option: StepOption): ConfiguratorOption {
+  const buildHeight = option.buildHeight?.trim();
   return {
-    key: option.key,
+    key: option.id ?? option.label,
     label: option.label,
-    description: option.description || undefined,
+    description:
+      option.description ||
+      (buildHeight ? `Truckens höjd med denna mast: ${buildHeight} mm` : undefined),
     image: imageData(option.image, option.label),
     price: option.price,
     default: option.defaultSelected === true,
-    sku: option.sku || undefined,
-    models: option.models ?? [],
-    requires: option.requires ?? [],
-    excludes: option.excludes ?? [],
-    specs: mapSpecs(option.specs),
+    specs: buildHeight ? [{ spec: "buildHeight", value: buildHeight }] : [],
   };
+}
+
+/**
+ * The steps after the model, in Figma's order; a step without options is left out. Their texts
+ * and types are the configurator's, the same for every family.
+ */
+function familyChoices(family: TruckFamily): ConfiguratorChoice[] {
+  const steps: ConfiguratorChoice[] = [
+    {
+      key: "battery",
+      label: "Batteri",
+      heading: "Välj batteri",
+      selectionMode: "single",
+      required: true,
+      display: "stack",
+      options: (family.battery?.options ?? []).map(mapOption),
+    },
+    {
+      key: "lift-height",
+      label: "Lyfthöjd",
+      heading: "Välj lyfthöjd",
+      help: family.liftHeight?.help || undefined,
+      selectionMode: "single",
+      required: true,
+      display: "stack",
+      options: (family.liftHeight?.options ?? []).map(mapOption),
+    },
+    {
+      key: "extras",
+      label: "Tillval",
+      heading: "Välj tillval",
+      selectionMode: "multiple",
+      required: false,
+      options: (family.extras?.options ?? []).map(mapOption),
+    },
+  ];
+  return steps.filter((step) => step.options.length > 0);
 }
 
 function brochureData(document: TruckFamily["brochure"]): ConfiguratorFamily["brochure"] {
@@ -98,9 +157,8 @@ function mapFamily(family: TruckFamily): ConfiguratorFamily {
     modelChoice: { label: family.modelChoice.label, heading: family.modelChoice.heading },
     models: configurable
       ? (family.models ?? []).map((model) => ({
-          key: model.key,
+          key: model.id ?? model.label,
           label: model.label,
-          description: model.description || undefined,
           sku: model.sku || undefined,
           price: model.price,
           capacityKg: model.capacityKg ?? undefined,
@@ -108,29 +166,7 @@ function mapFamily(family: TruckFamily): ConfiguratorFamily {
           specs: mapSpecs(model.specs),
         }))
       : [],
-    choices: configurable
-      ? (family.choices ?? []).map((choice) => ({
-          key: choice.key,
-          label: choice.label,
-          heading: choice.heading,
-          help: choice.help || undefined,
-          selectionMode: choice.selectionMode,
-          required: choice.required === true,
-          display: choice.display ?? undefined,
-          options: choice.options.map(mapOption),
-        }))
-      : [],
-  };
-}
-
-function mapSpec(spec: TruckSpec): ConfiguratorSpec {
-  return {
-    key: spec.key,
-    label: spec.label,
-    unit: spec.unit || undefined,
-    sortOrder: spec.sortOrder,
-    onCard: spec.onCard === true,
-    inQuote: spec.inQuote !== false,
+    choices: configurable ? familyChoices(family) : [],
   };
 }
 
@@ -186,24 +222,17 @@ async function fetchConfiguratorCatalog(
     import("@/payload/get-payload"),
   ]);
   if (!(await getPayloadDbReady()).ready) {
-    return { families: [], specs: [], ...mapSettings(null) };
+    return { families: [], specs: SPECS, ...mapSettings(null) };
   }
 
   const payload = await getPayloadClient();
-  const [families, specs, settings] = await Promise.all([
+  const [families, settings] = await Promise.all([
     payload.find({
       collection: "truck-families",
       locale,
       depth: 2,
       draft,
       overrideAccess: draft,
-      pagination: false,
-      sort: "sortOrder",
-    }),
-    payload.find({
-      collection: "truck-specs",
-      locale,
-      depth: 0,
       pagination: false,
       sort: "sortOrder",
     }),
@@ -218,13 +247,13 @@ async function fetchConfiguratorCatalog(
 
   return {
     families: families.docs.map(mapFamily),
-    specs: specs.docs.map(mapSpec),
+    specs: SPECS,
     ...mapSettings(settings),
   };
 }
 
 /** Bumped when the catalogue's shape changes, so a cache from before is not read as the new one. */
-const CATALOG_VERSION = "2026-10-23";
+const CATALOG_VERSION = "2026-10-26";
 
 const getCachedCatalog = (locale: TypedLocale) =>
   unstable_cache(

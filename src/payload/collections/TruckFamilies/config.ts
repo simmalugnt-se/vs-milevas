@@ -1,98 +1,94 @@
 import type { CollectionConfig, Field } from "payload";
+import { ADMIN_GROUPS } from "@/payload/admin-groups.ts";
 import { authenticatedOrPublished } from "../../access/authenticatedOrPublished.ts";
 import { isAuthenticated } from "../../access/isAuthenticated.ts";
 import { link } from "../../fields/link.ts";
 import { populatePublishedAt } from "../../hooks/populatePublishedAt.ts";
 import { revalidateTruckFamily, revalidateTruckFamilyDelete } from "./hooks/revalidate.ts";
+import { TRUCK_SPECS } from "./specs.ts";
 
-const keyField = (name = "key", label = "Stabil nyckel"): Field => ({
-  name,
-  label,
+const keyField: Field = {
+  name: "key",
+  label: "Nyckel i adressen",
   type: "text",
   required: true,
   localized: false,
+  admin: {
+    description: 'Konfiguratorns adress pekar på familjen med den. Exempel: "reach-truck".',
+  },
   validate: (value: unknown) =>
     typeof value === "string" && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value)
       ? true
       : "Använd endast gemener, siffror och bindestreck.",
-});
+};
 
-/** Values for `truck-specs`: on the family, a model or an option, each overriding the one before. */
-const specsField = (dbName: string, description: string): Field => ({
+/** The fixed specifications, on the family and, overriding it, on a model. */
+const specsField = (description: string): Field => ({
   name: "specs",
   label: "Specifikationer",
-  dbName,
-  type: "array",
-  localized: false,
-  admin: { description, initCollapsed: true },
+  type: "group",
+  admin: { description },
+  fields: TRUCK_SPECS.map((spec) => ({
+    name: spec.name,
+    label: "unit" in spec ? `${spec.label} (${spec.unit})` : spec.label,
+    type: "text",
+    localized: true,
+    admin: "description" in spec ? { description: spec.description } : undefined,
+  })),
+});
+
+const priceField: Field = {
+  name: "price",
+  label: "Pris",
+  type: "number",
+  min: 0,
+  defaultValue: 0,
+  required: true,
+  admin: { description: 'Läggs till modellens pris. 0 visas som "Ingår".' },
+};
+
+const defaultField: Field = {
+  name: "defaultSelected",
+  label: "Förvalt",
+  type: "checkbox",
+  defaultValue: false,
+};
+
+/** A configurator step after the model: left empty, the configurator skips it. */
+const stepField = (
+  name: string,
+  dbName: string,
+  label: string,
+  description: string,
+  optionFields: Field[],
+  extra: Field[] = [],
+): Field => ({
+  name,
+  label,
+  type: "group",
+  admin: { description },
   fields: [
+    ...extra,
     {
-      name: "spec",
-      label: "Specifikation",
-      type: "relationship",
-      relationTo: "truck-specs",
-      required: true,
-    },
-    {
-      name: "value",
-      label: "Värde",
-      type: "text",
-      localized: true,
-      required: true,
-      admin: { description: 'Utan enheten, om specifikationen har en. Exempel: "1870 / 1850".' },
+      name: "options",
+      label: "Alternativ",
+      dbName,
+      type: "array",
+      localized: false,
+      admin: { initCollapsed: true },
+      fields: [
+        { name: "label", label: "Namn", type: "text", localized: true, required: true },
+        ...optionFields,
+      ],
     },
   ],
 });
 
-type FamilyData = {
-  models?: Array<{ key?: string }> | null;
-  choices?: Array<{ key?: string; options?: Array<{ key?: string }> | null }> | null;
-};
-
-const unknownKeys = (value: unknown, known: Set<string>) =>
-  (Array.isArray(value) ? value : []).filter(
-    (key): key is string => typeof key === "string" && !known.has(key),
-  );
-
-/** An option's models must be the family's own, so a typo is stopped here, not in the configurator. */
-const optionModels: Field = {
-  name: "models",
-  label: "Gäller modellerna",
-  type: "text",
-  hasMany: true,
-  admin: { description: "Modellernas nycklar. Tomt betyder alla modeller." },
-  validate: (value: unknown, { data }: { data?: unknown }) => {
-    const known = new Set(
-      ((data as FamilyData | undefined)?.models ?? []).flatMap((model) => model.key ?? []),
-    );
-    const unknown = unknownKeys(value, known);
-    return unknown.length ? `Okända modeller: ${unknown.join(", ")}` : true;
-  },
-};
-
-/** Other options, as `choice.option`; checked against the family's choices when it is saved. */
-const optionReferences = (name: "requires" | "excludes", label: string): Field => ({
-  name,
-  label,
-  type: "text",
-  hasMany: true,
-  admin: { description: 'Valets och alternativets nycklar. Exempel: "lift-height.6000-mm".' },
-  validate: (value: unknown, { data }: { data?: unknown }) => {
-    const known = new Set(
-      ((data as FamilyData | undefined)?.choices ?? []).flatMap((choice) =>
-        (choice.options ?? []).map((option) => `${choice.key}.${option.key}`),
-      ),
-    );
-    const unknown = unknownKeys(value, known);
-    return unknown.length ? `Okända val: ${unknown.join(", ")}` : true;
-  },
-});
-
 /**
  * A truck family (Figma's product category): the one place for its name, image and prices, which
- * the hero, the navigation, the product cards and the configurator read. Its **models** carry the
- * prices and specifications; its **choices** are the configurator's steps after the model, each
- * adding to the price and able to set specifications. See `docs/truck-data-schema.md`.
+ * the hero, the navigation, the product cards and the configurator read. Its fields follow Figma's
+ * configurator: the **models**, then the battery, the lift height and the extras, each a step the
+ * configurator skips when it is empty. See `docs/truck-data-schema.md`.
  */
 export const TruckFamilies: CollectionConfig = {
   slug: "truck-families",
@@ -105,7 +101,7 @@ export const TruckFamilies: CollectionConfig = {
   },
   admin: {
     defaultColumns: ["name", "key", "sortOrder", "configurable", "updatedAt"],
-    group: "Configurator",
+    group: ADMIN_GROUPS.configurator,
     useAsTitle: "name",
   },
   fields: [
@@ -131,7 +127,7 @@ export const TruckFamilies: CollectionConfig = {
               required: true,
               admin: { description: 'Offertens rubrik. Exempel: "Elektrisk motviktstruck".' },
             },
-            keyField(),
+            keyField,
             {
               name: "sortOrder",
               label: "Ordning",
@@ -185,7 +181,7 @@ export const TruckFamilies: CollectionConfig = {
                 description: 'Kort, som "4 år". Förklaringen står i konfiguratorinställningarna.',
               },
             },
-            specsField("truck_fam_specs", "Det som är lika för alla modeller i familjen."),
+            specsField("Det som är lika för alla modeller. Ett tomt fält visas inte."),
           ],
         },
         {
@@ -223,7 +219,6 @@ export const TruckFamilies: CollectionConfig = {
               localized: false,
               admin: { initCollapsed: true },
               fields: [
-                keyField(),
                 {
                   name: "label",
                   label: "Namn",
@@ -232,8 +227,12 @@ export const TruckFamilies: CollectionConfig = {
                   required: true,
                   admin: { description: 'Exempel: "1,8 ton".' },
                 },
-                { name: "description", label: "Text", type: "textarea", localized: true },
-                { name: "sku", label: "Artikelnummer", type: "text" },
+                {
+                  name: "sku",
+                  label: "Artikelnummer",
+                  type: "text",
+                  admin: { description: "Under namnet i konfiguratorn, och i offerten." },
+                },
                 { name: "price", label: "Pris", type: "number", required: true, min: 0 },
                 {
                   name: "capacityKg",
@@ -242,34 +241,37 @@ export const TruckFamilies: CollectionConfig = {
                   min: 0,
                   admin: { description: "Produktkortet visar modellernas intervall." },
                 },
-                {
-                  name: "defaultSelected",
-                  label: "Förvald",
-                  type: "checkbox",
-                  defaultValue: false,
-                },
-                specsField("truck_model_specs", "Det som skiljer modellen från familjen."),
+                { ...defaultField, label: "Förvald" } as Field,
+                specsField("Bara det som skiljer modellen från familjen."),
               ],
             },
           ],
         },
         {
-          label: "Val",
+          label: "Steg",
+          description: "Konfiguratorns steg efter modellen. Ett steg utan alternativ hoppas över.",
           fields: [
-            {
-              name: "choices",
-              label: "Val",
-              dbName: "truck_choices",
-              type: "array",
-              localized: false,
-              admin: {
-                description: "Konfiguratorns steg efter modellen, i den här ordningen.",
-                initCollapsed: true,
-              },
-              fields: [
-                keyField(),
-                { name: "label", label: "Etikett", type: "text", localized: true, required: true },
-                { name: "heading", label: "Rubrik", type: "text", localized: true, required: true },
+            stepField("battery", "truck_batteries", "Batteri", "Ett val.", [
+              { name: "description", label: "Text", type: "textarea", localized: true },
+              priceField,
+              defaultField,
+            ]),
+            stepField(
+              "liftHeight",
+              "truck_lift_heights",
+              "Lyfthöjd",
+              "Ett val. Mastens bygghöjd visas under namnet och i offerten.",
+              [
+                {
+                  name: "buildHeight",
+                  label: "Truckens bygghöjd (mm)",
+                  type: "text",
+                  admin: { description: "Med den här masten. Ersätter familjens bygghöjd." },
+                },
+                priceField,
+                defaultField,
+              ],
+              [
                 {
                   name: "help",
                   label: "Hjälptext",
@@ -277,82 +279,16 @@ export const TruckFamilies: CollectionConfig = {
                   localized: true,
                   admin: {
                     description:
-                      'Under steget, följd av "Kontakta oss". Exempel: "Behöver du hjälp med andra mastalternativ?".',
+                      'Under alternativen, följd av "Kontakta oss". Exempel: "Behöver du hjälp med andra mastalternativ?".',
                   },
-                },
-                {
-                  name: "selectionMode",
-                  label: "Val",
-                  type: "select",
-                  required: true,
-                  defaultValue: "single",
-                  options: [
-                    { label: "Enkelval", value: "single" },
-                    { label: "Flerval", value: "multiple" },
-                  ],
-                },
-                { name: "required", label: "Krävs", type: "checkbox", defaultValue: true },
-                {
-                  name: "display",
-                  label: "Visning",
-                  type: "select",
-                  admin: {
-                    description:
-                      "Figmas stegtyp. Tomt väljer efter innehållet: bild ger bildtyperna, val utan text ger bara titel och pris.",
-                  },
-                  options: [
-                    { label: "Två per rad med text (typ 1)", value: "grid" },
-                    { label: "Under varandra (typ 2)", value: "stack" },
-                    { label: "Bild, två per rad (typ 3)", value: "images" },
-                    { label: "Bild till höger (typ 4)", value: "imageRows" },
-                    { label: "Titel och pris (typ 5)", value: "prices" },
-                  ],
-                },
-                {
-                  name: "options",
-                  label: "Alternativ",
-                  dbName: "truck_options",
-                  type: "array",
-                  localized: false,
-                  required: true,
-                  minRows: 1,
-                  fields: [
-                    keyField(),
-                    { name: "label", label: "Namn", type: "text", localized: true, required: true },
-                    { name: "description", label: "Text", type: "textarea", localized: true },
-                    { name: "image", label: "Bild", type: "upload", relationTo: "images" },
-                    {
-                      name: "price",
-                      label: "Pris",
-                      type: "number",
-                      min: 0,
-                      defaultValue: 0,
-                      required: true,
-                      admin: { description: 'Läggs till modellens pris. 0 visas som "Ingår".' },
-                    },
-                    {
-                      name: "defaultSelected",
-                      label: "Förvalt",
-                      type: "checkbox",
-                      defaultValue: false,
-                    },
-                    {
-                      name: "sku",
-                      label: "Artikelnummer",
-                      type: "text",
-                      admin: { description: "Om alternativet byter artikelnummer." },
-                    },
-                    optionModels,
-                    optionReferences("requires", "Kräver"),
-                    optionReferences("excludes", "Utesluter"),
-                    specsField(
-                      "truck_option_specs",
-                      "Specifikationer alternativet sätter, som bygghöjden för en mast.",
-                    ),
-                  ],
                 },
               ],
-            },
+            ),
+            stepField("extras", "truck_extras", "Tillval", "Flera val, inget krävs.", [
+              { name: "description", label: "Text", type: "textarea", localized: true },
+              { name: "image", label: "Bild", type: "upload", relationTo: "images" },
+              priceField,
+            ]),
           ],
         },
       ],

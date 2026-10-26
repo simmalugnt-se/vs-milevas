@@ -51,7 +51,7 @@ async function main() {
           deliveryTime: "1 vecka",
           warranty: "Test",
           modelChoice: { label: "Modell", heading: "Välj modell" },
-          models: configurable ? [{ key: "small", label: "1,5 ton", price: 169900 }] : [],
+          models: configurable ? [{ label: "1,5 ton", price: 169900 }] : [],
           _status: "published",
         },
       });

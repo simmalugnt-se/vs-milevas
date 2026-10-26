@@ -1,7 +1,7 @@
 /** A choice's options, keyed by choice: `{ model: ["kbet-18"], battery: ["large-li-ion"] }`. */
 export type SelectionState = Record<string, string[]>;
 
-/** A specification type from `truck-specs`: how a value is named, ordered and shown. */
+/** A specification from `TRUCK_SPECS`: how a value is named, ordered and shown. */
 export type ConfiguratorSpec = {
   key: string;
   label: string;
@@ -41,12 +41,6 @@ export type ConfiguratorOption = {
   price: number;
   default: boolean;
   sku?: string;
-  /** The models the option is offered for; empty for all. */
-  models: string[];
-  /** Options that must be chosen, as `choice.option`. */
-  requires: string[];
-  /** Options that may not be chosen with it, as `choice.option`. */
-  excludes: string[];
   specs: SpecValue[];
 };
 
@@ -67,7 +61,7 @@ export type ConfiguratorChoice = {
 export type ConfiguratorModel = {
   key: string;
   label: string;
-  description?: string;
+  /** Under the label in the model step, as in Figma. */
   sku?: string;
   price: number;
   capacityKg?: number;

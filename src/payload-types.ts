@@ -71,10 +71,9 @@ export interface Config {
     pages: Page;
     images: Image;
     documents: Document;
-    'truck-families': TruckFamily;
-    'truck-specs': TruckSpec;
     'configurator-requests': ConfiguratorRequest;
     'contact-requests': ContactRequest;
+    'truck-families': TruckFamily;
     users: User;
     videos: Video;
     redirects: Redirect;
@@ -90,10 +89,9 @@ export interface Config {
     pages: PagesSelect<false> | PagesSelect<true>;
     images: ImagesSelect<false> | ImagesSelect<true>;
     documents: DocumentsSelect<false> | DocumentsSelect<true>;
-    'truck-families': TruckFamiliesSelect<false> | TruckFamiliesSelect<true>;
-    'truck-specs': TruckSpecsSelect<false> | TruckSpecsSelect<true>;
     'configurator-requests': ConfiguratorRequestsSelect<false> | ConfiguratorRequestsSelect<true>;
     'contact-requests': ContactRequestsSelect<false> | ContactRequestsSelect<true>;
+    'truck-families': TruckFamiliesSelect<false> | TruckFamiliesSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     videos: VideosSelect<false> | VideosSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
@@ -682,6 +680,9 @@ export interface TruckFamily {
    * Offertens rubrik. Exempel: "Elektrisk motviktstruck".
    */
   singularName: string;
+  /**
+   * Konfiguratorns adress pekar på familjen med den. Exempel: "reach-truck".
+   */
   key: string;
   /**
    * Ordningen i navigationen och i konfiguratorns första val.
@@ -716,18 +717,19 @@ export interface TruckFamily {
    */
   warranty?: string | null;
   /**
-   * Det som är lika för alla modeller i familjen.
+   * Det som är lika för alla modeller. Ett tomt fält visas inte.
    */
-  specs?:
-    | {
-        spec: string | TruckSpec;
-        /**
-         * Utan enheten, om specifikationen har en. Exempel: "1870 / 1850".
-         */
-        value: string;
-        id?: string | null;
-      }[]
-    | null;
+  specs?: {
+    /**
+     * På produktkortet efter lyftkapaciteten, inte i offerten. Exempel: "80 V 228 Ah".
+     */
+    battery?: string | null;
+    turningRadius?: string | null;
+    travelSpeed?: string | null;
+    batteryCapacity?: string | null;
+    weight?: string | null;
+    buildHeight?: string | null;
+  };
   /**
    * Modellen är konfiguratorns första steg.
    */
@@ -737,12 +739,13 @@ export interface TruckFamily {
   };
   models?:
     | {
-        key: string;
         /**
          * Exempel: "1,8 ton".
          */
         label: string;
-        description?: string | null;
+        /**
+         * Under namnet i konfiguratorn, och i offerten.
+         */
         sku?: string | null;
         price: number;
         /**
@@ -751,41 +754,69 @@ export interface TruckFamily {
         capacityKg?: number | null;
         defaultSelected?: boolean | null;
         /**
-         * Det som skiljer modellen från familjen.
+         * Bara det som skiljer modellen från familjen.
          */
-        specs?:
-          | {
-              spec: string | TruckSpec;
-              /**
-               * Utan enheten, om specifikationen har en. Exempel: "1870 / 1850".
-               */
-              value: string;
-              id?: string | null;
-            }[]
-          | null;
+        specs?: {
+          /**
+           * På produktkortet efter lyftkapaciteten, inte i offerten. Exempel: "80 V 228 Ah".
+           */
+          battery?: string | null;
+          turningRadius?: string | null;
+          travelSpeed?: string | null;
+          batteryCapacity?: string | null;
+          weight?: string | null;
+          buildHeight?: string | null;
+        };
         id?: string | null;
       }[]
     | null;
   /**
-   * Konfiguratorns steg efter modellen, i den här ordningen.
+   * Ett val.
    */
-  choices?:
-    | {
-        key: string;
-        label: string;
-        heading: string;
-        /**
-         * Under steget, följd av "Kontakta oss". Exempel: "Behöver du hjälp med andra mastalternativ?".
-         */
-        help?: string | null;
-        selectionMode: 'single' | 'multiple';
-        required?: boolean | null;
-        /**
-         * Figmas stegtyp. Tomt väljer efter innehållet: bild ger bildtyperna, val utan text ger bara titel och pris.
-         */
-        display?: ('grid' | 'stack' | 'images' | 'imageRows' | 'prices') | null;
-        options: {
-          key: string;
+  battery?: {
+    options?:
+      | {
+          label: string;
+          description?: string | null;
+          /**
+           * Läggs till modellens pris. 0 visas som "Ingår".
+           */
+          price: number;
+          defaultSelected?: boolean | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  /**
+   * Ett val. Mastens bygghöjd visas under namnet och i offerten.
+   */
+  liftHeight?: {
+    /**
+     * Under alternativen, följd av "Kontakta oss". Exempel: "Behöver du hjälp med andra mastalternativ?".
+     */
+    help?: string | null;
+    options?:
+      | {
+          label: string;
+          /**
+           * Med den här masten. Ersätter familjens bygghöjd.
+           */
+          buildHeight?: string | null;
+          /**
+           * Läggs till modellens pris. 0 visas som "Ingår".
+           */
+          price: number;
+          defaultSelected?: boolean | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  /**
+   * Flera val, inget krävs.
+   */
+  extras?: {
+    options?:
+      | {
           label: string;
           description?: string | null;
           image?: (string | null) | Image;
@@ -793,41 +824,10 @@ export interface TruckFamily {
            * Läggs till modellens pris. 0 visas som "Ingår".
            */
           price: number;
-          defaultSelected?: boolean | null;
-          /**
-           * Om alternativet byter artikelnummer.
-           */
-          sku?: string | null;
-          /**
-           * Modellernas nycklar. Tomt betyder alla modeller.
-           */
-          models?: string[] | null;
-          /**
-           * Valets och alternativets nycklar. Exempel: "lift-height.6000-mm".
-           */
-          requires?: string[] | null;
-          /**
-           * Valets och alternativets nycklar. Exempel: "lift-height.6000-mm".
-           */
-          excludes?: string[] | null;
-          /**
-           * Specifikationer alternativet sätter, som bygghöjden för en mast.
-           */
-          specs?:
-            | {
-                spec: string | TruckSpec;
-                /**
-                 * Utan enheten, om specifikationen har en. Exempel: "1870 / 1850".
-                 */
-                value: string;
-                id?: string | null;
-              }[]
-            | null;
           id?: string | null;
-        }[];
-        id?: string | null;
-      }[]
-    | null;
+        }[]
+      | null;
+  };
   publishedAt?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -854,30 +854,6 @@ export interface Document {
   height?: number | null;
   focalX?: number | null;
   focalY?: number | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "truck-specs".
- */
-export interface TruckSpec {
-  id: string;
-  label: string;
-  key: string;
-  /**
-   * Läggs efter värdet om det inte redan slutar med den. Exempel: "mm".
-   */
-  unit?: string | null;
-  sortOrder: number;
-  /**
-   * Efter lyftkapaciteten, som batteriet i Figma.
-   */
-  onCard?: boolean | null;
-  /**
-   * Under Tekniska specifikationer i offerten och i mejlen.
-   */
-  inQuote?: boolean | null;
-  updatedAt: string;
-  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1199,20 +1175,16 @@ export interface PayloadLockedDocument {
         value: string | Document;
       } | null)
     | ({
-        relationTo: 'truck-families';
-        value: string | TruckFamily;
-      } | null)
-    | ({
-        relationTo: 'truck-specs';
-        value: string | TruckSpec;
-      } | null)
-    | ({
         relationTo: 'configurator-requests';
         value: string | ConfiguratorRequest;
       } | null)
     | ({
         relationTo: 'contact-requests';
         value: string | ContactRequest;
+      } | null)
+    | ({
+        relationTo: 'truck-families';
+        value: string | TruckFamily;
       } | null)
     | ({
         relationTo: 'users';
@@ -1662,115 +1634,6 @@ export interface DocumentsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "truck-families_select".
- */
-export interface TruckFamiliesSelect<T extends boolean = true> {
-  name?: T;
-  singularName?: T;
-  key?: T;
-  sortOrder?: T;
-  description?: T;
-  image?: T;
-  brochure?: T;
-  configurable?: T;
-  contactLink?:
-    | T
-    | {
-        type?: T;
-        reference?: T;
-        url?: T;
-        label?: T;
-        newTab?: T;
-      };
-  deliveryTime?: T;
-  warranty?: T;
-  specs?:
-    | T
-    | {
-        spec?: T;
-        value?: T;
-        id?: T;
-      };
-  modelChoice?:
-    | T
-    | {
-        label?: T;
-        heading?: T;
-      };
-  models?:
-    | T
-    | {
-        key?: T;
-        label?: T;
-        description?: T;
-        sku?: T;
-        price?: T;
-        capacityKg?: T;
-        defaultSelected?: T;
-        specs?:
-          | T
-          | {
-              spec?: T;
-              value?: T;
-              id?: T;
-            };
-        id?: T;
-      };
-  choices?:
-    | T
-    | {
-        key?: T;
-        label?: T;
-        heading?: T;
-        help?: T;
-        selectionMode?: T;
-        required?: T;
-        display?: T;
-        options?:
-          | T
-          | {
-              key?: T;
-              label?: T;
-              description?: T;
-              image?: T;
-              price?: T;
-              defaultSelected?: T;
-              sku?: T;
-              models?: T;
-              requires?: T;
-              excludes?: T;
-              specs?:
-                | T
-                | {
-                    spec?: T;
-                    value?: T;
-                    id?: T;
-                  };
-              id?: T;
-            };
-        id?: T;
-      };
-  publishedAt?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  _status?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "truck-specs_select".
- */
-export interface TruckSpecsSelect<T extends boolean = true> {
-  label?: T;
-  key?: T;
-  unit?: T;
-  sortOrder?: T;
-  onCard?: T;
-  inQuote?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "configurator-requests_select".
  */
 export interface ConfiguratorRequestsSelect<T extends boolean = true> {
@@ -1826,6 +1689,111 @@ export interface ContactRequestsSelect<T extends boolean = true> {
   emailError?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "truck-families_select".
+ */
+export interface TruckFamiliesSelect<T extends boolean = true> {
+  name?: T;
+  singularName?: T;
+  key?: T;
+  sortOrder?: T;
+  description?: T;
+  image?: T;
+  brochure?: T;
+  configurable?: T;
+  contactLink?:
+    | T
+    | {
+        type?: T;
+        reference?: T;
+        url?: T;
+        label?: T;
+        newTab?: T;
+      };
+  deliveryTime?: T;
+  warranty?: T;
+  specs?:
+    | T
+    | {
+        battery?: T;
+        turningRadius?: T;
+        travelSpeed?: T;
+        batteryCapacity?: T;
+        weight?: T;
+        buildHeight?: T;
+      };
+  modelChoice?:
+    | T
+    | {
+        label?: T;
+        heading?: T;
+      };
+  models?:
+    | T
+    | {
+        label?: T;
+        sku?: T;
+        price?: T;
+        capacityKg?: T;
+        defaultSelected?: T;
+        specs?:
+          | T
+          | {
+              battery?: T;
+              turningRadius?: T;
+              travelSpeed?: T;
+              batteryCapacity?: T;
+              weight?: T;
+              buildHeight?: T;
+            };
+        id?: T;
+      };
+  battery?:
+    | T
+    | {
+        options?:
+          | T
+          | {
+              label?: T;
+              description?: T;
+              price?: T;
+              defaultSelected?: T;
+              id?: T;
+            };
+      };
+  liftHeight?:
+    | T
+    | {
+        help?: T;
+        options?:
+          | T
+          | {
+              label?: T;
+              buildHeight?: T;
+              price?: T;
+              defaultSelected?: T;
+              id?: T;
+            };
+      };
+  extras?:
+    | T
+    | {
+        options?:
+          | T
+          | {
+              label?: T;
+              description?: T;
+              image?: T;
+              price?: T;
+              id?: T;
+            };
+      };
+  publishedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2045,7 +2013,7 @@ export interface Header {
             }[]
           | null;
         /**
-         * The square image beside the open menu (Desktop and Tablet).
+         * The square image beside the open menu (Desktop and Tablet). Not shown for the truck families: there the square is empty until a family is pointed at.
          */
         image?: (string | null) | Image;
         id?: string | null;

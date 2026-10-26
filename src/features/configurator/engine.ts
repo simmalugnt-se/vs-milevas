@@ -3,7 +3,6 @@ import type {
   ConfiguratorCatalog,
   ConfiguratorChoice,
   ConfiguratorFamily,
-  ConfiguratorOption,
   ConfiguratorQuote,
   ConfiguratorSpecification,
   FinancingMethod,
@@ -15,14 +14,6 @@ import type {
 export const MODEL_CHOICE = "model";
 
 const selectionReference = (choiceKey: string, optionKey: string) => `${choiceKey}.${optionKey}`;
-
-function selectedReferences(selections: SelectionState): Set<string> {
-  return new Set(
-    Object.entries(selections).flatMap(([choiceKey, optionKeys]) =>
-      optionKeys.map((optionKey) => selectionReference(choiceKey, optionKey)),
-    ),
-  );
-}
 
 /**
  * The configurator's steps for a family: the models as the first choice, then the family's
@@ -39,13 +30,10 @@ export function familySteps(family: ConfiguratorFamily): ConfiguratorChoice[] {
     options: family.models.map((model) => ({
       key: model.key,
       label: model.label,
-      description: model.description,
+      description: model.sku,
       price: model.price,
       default: model.default,
       sku: model.sku,
-      models: [],
-      requires: [],
-      excludes: [],
       specs: model.specs,
     })),
   };
@@ -64,18 +52,6 @@ export function choiceDisplay(choice: ConfiguratorChoice): ChoiceDisplay {
   return "stack";
 }
 
-export function isOptionAvailable(option: ConfiguratorOption, selections: SelectionState): boolean {
-  const model = selections[MODEL_CHOICE]?.[0];
-  if (option.models.length > 0 && (!model || !option.models.includes(model))) {
-    return false;
-  }
-  const selected = selectedReferences(selections);
-  if (option.requires.some((reference) => !selected.has(reference))) {
-    return false;
-  }
-  return option.excludes.every((reference) => !selected.has(reference));
-}
-
 export function sanitizeSelections(
   family: ConfiguratorFamily,
   input: SelectionState,
@@ -85,9 +61,8 @@ export function sanitizeSelections(
 
   for (const choice of familySteps(family)) {
     const requested = input[choice.key] ?? [];
-    const available = choice.options.filter((option) => isOptionAvailable(option, next));
-    const availableKeys = new Set(available.map((option) => option.key));
-    const uniqueRequested = [...new Set(requested)].filter((key) => availableKeys.has(key));
+    const keys = new Set(choice.options.map((option) => option.key));
+    const uniqueRequested = [...new Set(requested)].filter((key) => keys.has(key));
     const accepted =
       choice.selectionMode === "single" ? uniqueRequested.slice(0, 1) : uniqueRequested;
 
@@ -97,7 +72,9 @@ export function sanitizeSelections(
     }
 
     if (applyDefaults) {
-      const defaults = available.filter((option) => option.default).map((option) => option.key);
+      const defaults = choice.options
+        .filter((option) => option.default)
+        .map((option) => option.key);
       const selectedDefaults = choice.selectionMode === "single" ? defaults.slice(0, 1) : defaults;
       if (selectedDefaults.length > 0) {
         next[choice.key] = selectedDefaults;
@@ -108,16 +85,9 @@ export function sanitizeSelections(
   return next;
 }
 
-/**
- * Whether a step is done: it is optional, something is chosen, or nothing in it is offered for
- * what is chosen before it (a required choice cannot then block the configuration).
- */
+/** Whether a step is done: it is optional or something is chosen. */
 export function choiceSatisfied(choice: ConfiguratorChoice, selections: SelectionState): boolean {
-  return (
-    !choice.required ||
-    (selections[choice.key]?.length ?? 0) > 0 ||
-    !choice.options.some((option) => isOptionAvailable(option, selections))
-  );
+  return !choice.required || (selections[choice.key]?.length ?? 0) > 0;
 }
 
 export function firstIncompleteStep(
@@ -154,20 +124,19 @@ export function firstInvalidSelectionStep(
   return firstInvalid;
 }
 
-/** Each chosen option that is available, step by step. */
+/** Each chosen option, step by step. */
 function chosenOptions(family: ConfiguratorFamily, selections: SelectionState) {
   return familySteps(family).flatMap((choice) =>
     (selections[choice.key] ?? []).flatMap((optionKey) => {
       const option = choice.options.find((candidate) => candidate.key === optionKey);
-      return option && isOptionAvailable(option, selections) ? [{ choice, option }] : [];
+      return option ? [{ choice, option }] : [];
     }),
   );
 }
 
 /**
  * The price of what is chosen so far, for the total shown while configuring: the model plus the
- * options. Unlike `buildQuote` it does not need every step complete; an option that is not
- * available does not count.
+ * options. Unlike `buildQuote` it does not need every step complete.
  */
 export function estimateTotal(family: ConfiguratorFamily, selections: SelectionState): number {
   return chosenOptions(family, selections).reduce((sum, { option }) => sum + option.price, 0);
@@ -182,7 +151,7 @@ export function calculateFinancingPrice(total: number, financing: FinancingMetho
 
 /**
  * The specifications as the quote lists them: the family's, overridden by the model's and then by
- * the options', in the order of `truck-specs`, each value with its unit.
+ * the options', in the order of `TRUCK_SPECS`, each value with its unit.
  */
 export function resolveSpecifications(
   catalog: Pick<ConfiguratorCatalog, "specs">,

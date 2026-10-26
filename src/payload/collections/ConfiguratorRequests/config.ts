@@ -1,4 +1,5 @@
 import type { CollectionConfig } from "payload";
+import { ADMIN_GROUPS } from "@/payload/admin-groups.ts";
 import { isAuthenticated } from "../../access/isAuthenticated.ts";
 
 export const ConfiguratorRequests: CollectionConfig = {
@@ -12,7 +13,7 @@ export const ConfiguratorRequests: CollectionConfig = {
   },
   admin: {
     defaultColumns: ["reference", "requestType", "status", "emailStatus", "createdAt"],
-    group: "Configurator",
+    group: ADMIN_GROUPS.requests,
     useAsTitle: "reference",
   },
   fields: [

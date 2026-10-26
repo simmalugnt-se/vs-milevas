@@ -14,7 +14,7 @@ export const ContactRequests: CollectionConfig = {
   },
   admin: {
     defaultColumns: ["reference", "name", "email", "status", "emailStatus", "createdAt"],
-    group: ADMIN_GROUPS.content,
+    group: ADMIN_GROUPS.requests,
     useAsTitle: "reference",
   },
   fields: [

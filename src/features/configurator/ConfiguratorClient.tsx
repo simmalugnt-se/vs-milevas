@@ -17,7 +17,6 @@ import {
   familySteps,
   firstIncompleteStep,
   firstInvalidSelectionStep,
-  isOptionAvailable,
   MODEL_CHOICE,
   sanitizeSelections,
 } from "./engine";
@@ -282,29 +281,23 @@ export function ConfiguratorClient({
         number={number}
         label={choice.label}
         display={choiceDisplay(choice)}
-        options={choice.options.map((option) => {
-          const available = isOptionAvailable(option, state.selections);
-          return {
-            key: option.key,
-            title: option.label,
-            price: priceLabel(choice, option.price),
-            text: available
-              ? option.description
-              : `${option.description ? `${option.description} ` : ""}Kräver ett annat tidigare val.`,
-            selected: (state.selections[choice.key] ?? []).includes(option.key),
-            disabled: !available,
-            image: option.image ? (
-              <Image
-                src={option.image.url}
-                alt=""
-                fill
-                sizes="(width >= 64rem) 15vw, 40vw"
-                className="object-contain"
-              />
-            ) : undefined,
-            onSelect: () => dispatch({ type: "toggleOption", family, choice, key: option.key }),
-          };
-        })}
+        options={choice.options.map((option) => ({
+          key: option.key,
+          title: option.label,
+          price: priceLabel(choice, option.price),
+          text: option.description,
+          selected: (state.selections[choice.key] ?? []).includes(option.key),
+          image: option.image ? (
+            <Image
+              src={option.image.url}
+              alt=""
+              fill
+              sizes="(width >= 64rem) 15vw, 40vw"
+              className="object-contain"
+            />
+          ) : undefined,
+          onSelect: () => dispatch({ type: "toggleOption", family, choice, key: option.key }),
+        }))}
       />
     );
   } else {

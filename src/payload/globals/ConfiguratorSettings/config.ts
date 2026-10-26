@@ -1,4 +1,5 @@
 import type { GlobalConfig } from "payload";
+import { ADMIN_GROUPS } from "@/payload/admin-groups.ts";
 import { isAuthenticated } from "../../access/isAuthenticated.ts";
 import { revalidateConfiguratorSettings } from "./hooks/revalidate.ts";
 
@@ -9,7 +10,7 @@ export const ConfiguratorSettings: GlobalConfig = {
     read: () => true,
     update: isAuthenticated,
   },
-  admin: { group: "Configurator" },
+  admin: { group: ADMIN_GROUPS.configurator },
   fields: [
     { name: "quoteValidityDays", type: "number", required: true, min: 1, defaultValue: 14 },
     {

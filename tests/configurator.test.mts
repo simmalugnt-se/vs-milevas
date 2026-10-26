@@ -27,9 +27,6 @@ const option = (overrides: Partial<ConfiguratorOption>): ConfiguratorOption => (
   label: "Standard",
   price: 0,
   default: false,
-  models: [],
-  requires: [],
-  excludes: [],
   specs: [],
   ...overrides,
 });
@@ -91,8 +88,7 @@ const family: ConfiguratorFamily = {
       required: false,
       options: [
         option({ key: "alarm", label: "Larm", price: 5000 }),
-        option({ key: "camera", label: "Kamera", price: 10000, models: ["large"] }),
-        option({ key: "guard", label: "Skydd", price: 2000, requires: ["mast.high"] }),
+        option({ key: "camera", label: "Kamera", price: 10000 }),
       ],
     },
   ],
@@ -163,8 +159,8 @@ test("the running total counts what is chosen so far, before every step is compl
   assert.equal(estimateTotal(family, {}), 0);
   assert.equal(estimateTotal(family, { model: ["large"] }), 150000);
   assert.equal(estimateTotal(family, { model: ["large"], extras: ["alarm", "camera"] }), 165000);
-  // An option not offered for the model does not count, as in the quote.
-  assert.equal(estimateTotal(family, { model: ["small"], extras: ["camera"] }), 120000);
+  // An option that is not the family's does not count, as in the quote.
+  assert.equal(estimateTotal(family, { model: ["small"], extras: ["gone"] }), 120000);
 });
 
 test("a call can carry an incomplete configuration, marked as such; an order cannot", () => {
@@ -188,31 +184,11 @@ test("a call can carry an incomplete configuration, marked as such; an order can
   assert.equal(complete?.complete, true);
 });
 
-test("an option is offered for its models and with what it requires", () => {
-  const large = sanitizeSelections(family, { model: ["large"], extras: ["camera"] });
-  assert.deepEqual(large.extras, ["camera"]);
-
-  const changed = sanitizeSelections(family, { ...large, model: ["small"] });
-  assert.deepEqual(changed, { model: ["small"], mast: ["low"] });
-  assert.equal(firstInvalidSelectionStep(family, { ...large, model: ["small"] }, changed), 2);
-
-  assert.deepEqual(sanitizeSelections(family, { extras: ["guard"] }).extras, undefined);
-  assert.deepEqual(sanitizeSelections(family, { mast: ["high"], extras: ["guard"] }).extras, [
-    "guard",
-  ]);
-});
-
-test("a required choice with nothing offered does not block the configuration", () => {
-  const onlyLarge: ConfiguratorFamily = {
-    ...family,
-    choices: [
-      {
-        ...family.choices[0],
-        options: family.choices[0].options.map((item) => ({ ...item, models: ["large"] })),
-      },
-    ],
-  };
-  assert.equal(firstIncompleteStep(onlyLarge, sanitizeSelections(onlyLarge, {})), null);
+test("an option the family no longer has is dropped, and its step reported", () => {
+  const input = { model: ["small"], extras: ["alarm", "gone"] };
+  const sanitized = sanitizeSelections(family, input);
+  assert.deepEqual(sanitized, { model: ["small"], mast: ["low"], extras: ["alarm"] });
+  assert.equal(firstInvalidSelectionStep(family, input, sanitized), 2);
 });
 
 test("missing required choices are reported when defaults are disabled", () => {

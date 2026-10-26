@@ -1,5 +1,8 @@
 # Truckdata i Payload: kartläggning och förslag
 
+> **2026-10-26:** specifikationerna och stegen är fasta fält på familjen i stället för kopplingar.
+> Avsnitt 9 beskriver schemat som det är nu; 5.1, 5.3 och 5.4 visar det som byggdes först.
+
 Skrivet 2026-10-23 inför Figmas nya konfigurator (`04 — Blocks` → Configurator, `9264:6653`), och
 byggt samma dag (se avsnitt 8).
 
@@ -20,6 +23,7 @@ navigationen och produktkorten, hämtar namn, bild och priser från familjen.
 | 2026-10-23 | Stegets typ väljs av innehållet; redaktören kan välja en annan (`display`). |
 | 2026-10-23 | En huvudbild per familj; heron, menyn och korten beskär den var för sig. |
 | 2026-10-23 | Navigationens Modeller listar alla publicerade familjer i sorteringsordning. |
+| 2026-10-26 | Fasta fält i stället för kopplingar: specifikationerna och stegen (batteri, lyfthöjd, tillval) är fält på familjen, ett tomt fält eller steg visas inte. `truck-specs`, nycklarna och villkoren (`models`, `requires`, `excludes`) tas bort. |
 
 ## 1. Dagens schema
 
@@ -227,3 +231,23 @@ Alla fyra stegen är byggda 2026-10-23 (migreringarna `20261023_091729_truck_cat
 2. Motorn (`engine.ts`), URL:en och testerna på den nya modellen; offerten och förfrågningarna.
 3. Heron, produktgriden och navigationen kopplade till familjerna.
 4. Figmas konfigurator: stegtyperna, price-boxen, offerten och tack-sidan.
+
+## 9. Fasta fält (2026-10-26)
+
+Kopplingarna i 5.1–5.4 gjorde att man kunde lägga till nya steg och specifikationer utan att ändra
+koden, men Figma visar ett och samma flöde för alla truckar. Familjen har därför fasta fält
+(migreringen `20261026_084255_truck_fixed_fields`):
+
+| Fält | Innehåll |
+|---|---|
+| `specs` | Batteri (bara produktkortet), Vändradie, Körhastighet, Batterikapacitet, Vikt och Truckens bygghöjd, som text. Namn, enhet och ordning står i `TruckFamilies/specs.ts`. |
+| `modelChoice`, `models[]` | Modellstegets etikett och rubrik; modellerna med namn, artikelnummer (under namnet, som i Figma), pris, kapacitet, förval och egna `specs` som ersätter familjens. |
+| `battery.options[]` | Namn, text, pris och förval. Ett val. |
+| `liftHeight.help`, `liftHeight.options[]` | Hjälptexten; namn, mastens bygghöjd, pris och förval. Bygghöjden visas som "Truckens höjd med denna mast" och ersätter familjens i offerten. Ett val. |
+| `extras.options[]` | Namn, text, bild och pris. Flera val, inget krävs. |
+
+- Ett steg utan alternativ hoppas över. Stegens etiketter, rubriker och typer står i
+  `features/configurator/data.ts`.
+- Modellerna och alternativen pekas ut med radens id, i URL:en och i förfrågningarna. Inga nycklar
+  skrivs för hand; familjens `key` finns kvar som adressens namn på familjen.
+- Motorn (`engine.ts`) är densamma, utan villkoren: `data.ts` gör om fälten till dess modell och val.
