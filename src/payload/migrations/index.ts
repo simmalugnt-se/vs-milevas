@@ -21,6 +21,7 @@ import * as migration_20261026_140314_truck_configurable_from_variants from './2
 import * as migration_20261026_141712_swedish_only from './20261026_141712_swedish_only';
 import * as migration_20261026_143440_financing_monthly_percent from './20261026_143440_financing_monthly_percent';
 import * as migration_20261026_143603_remove_unshown_header_footer_fields from './20261026_143603_remove_unshown_header_footer_fields';
+import * as migration_20261026_152506_hero_column_heading from './20261026_152506_hero_column_heading';
 
 export const migrations = [
   {
@@ -136,6 +137,11 @@ export const migrations = [
   {
     up: migration_20261026_143603_remove_unshown_header_footer_fields.up,
     down: migration_20261026_143603_remove_unshown_header_footer_fields.down,
-    name: '20261026_143603_remove_unshown_header_footer_fields'
+    name: '20261026_143603_remove_unshown_header_footer_fields',
+  },
+  {
+    up: migration_20261026_152506_hero_column_heading.up,
+    down: migration_20261026_152506_hero_column_heading.down,
+    name: '20261026_152506_hero_column_heading'
   },
 ];

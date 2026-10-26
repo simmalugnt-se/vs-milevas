@@ -136,9 +136,10 @@ function milevasHeroBlock(familyIDs: Map<string, string>) {
     highlight: "På typ 30 sekunder",
     prompt: "Välj trucktyp för att börja",
     activeColumn: 5,
+    columnHeading: "Bygg din truck:",
     columns: familyKeys.flatMap((key) => {
       const family = familyIDs.get(key);
-      return family ? [{ heading: "Bygg din truck:", family }] : [];
+      return family ? [{ family }] : [];
     }),
   };
 }

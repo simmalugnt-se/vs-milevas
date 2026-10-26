@@ -1,5 +1,5 @@
 import type { Block } from "payload";
-import { familyField, sectionID } from "../milevas-fields";
+import { FAMILY_ROW_LABEL, familyField, sectionID } from "../milevas-fields";
 
 export const ProductGridBlock: Block = {
   slug: "productGrid",
@@ -30,6 +30,7 @@ export const ProductGridBlock: Block = {
       admin: {
         description:
           "Ett kort per trucktyp; namn, bild, specifikationer, priser och länk kommer från trucktypen.",
+        components: { RowLabel: FAMILY_ROW_LABEL },
       },
       required: true,
       minRows: 1,

@@ -25,7 +25,7 @@ export async function MilevasHeroBlockComponent({
         target: "target" in link ? link.target : undefined,
         id: item.id ?? String(index),
         attributes: editableBlock(item),
-        label: `${item.heading} ${family.name}`,
+        label: `${block.columnHeading} ${family.name}`,
         name: family.name,
         image: family.image ? (
           <Image
@@ -36,7 +36,7 @@ export async function MilevasHeroBlockComponent({
             className="object-contain object-bottom"
           />
         ) : undefined,
-        heading: <span {...editableField("heading")}>{item.heading}</span>,
+        heading: block.columnHeading,
         rows: [
           ...(prices.price ? [{ label: "Från", value: prices.price }] : []),
           ...(prices.leasing ? [{ label: "Leasing från:", value: `${prices.leasing}/mån` }] : []),

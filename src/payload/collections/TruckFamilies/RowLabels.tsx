@@ -1,9 +1,10 @@
 "use client";
 
 import { useRowLabel } from "@payloadcms/ui";
+import { useEffect, useState } from "react";
 
 /**
- * The truck family's list rows in the admin, named by what they hold ("1,6 ton · KBR 16 · 516 000
+ * The truck type's list rows in the admin, named by what they hold ("1,6 ton · KBR 16 · 516 000
  * kr") instead of "Variant 01", so a row is found without opening it.
  */
 
@@ -83,4 +84,27 @@ export function ExtraRowLabel() {
       {join([text(data?.label), price(data?.price, true)], `Tillval ${(rowNumber ?? 0) + 1}`)}
     </span>
   );
+}
+
+/** The truck type's name for a block's row that points at one (the hero's columns, the cards). */
+export function FamilyRowLabel() {
+  const { data, rowNumber } = useRowLabel<{ family?: string | { id: string; name?: string } }>();
+  const family = data?.family;
+  const id = typeof family === "object" ? family?.id : family;
+  const [name, setName] = useState(typeof family === "object" ? family?.name : undefined);
+
+  useEffect(() => {
+    if (!id || typeof family === "object") return;
+    const controller = new AbortController();
+    fetch(`/api/truck-families/${id}?depth=0&draft=true&select[name]=true`, {
+      credentials: "include",
+      signal: controller.signal,
+    })
+      .then((response) => (response.ok ? response.json() : null))
+      .then((doc: { name?: string } | null) => setName(doc?.name))
+      .catch(() => {});
+    return () => controller.abort();
+  }, [id, family]);
+
+  return <span>{text(name) ?? `Trucktyp ${(rowNumber ?? 0) + 1}`}</span>;
 }

@@ -9,6 +9,9 @@ export const familyField: RelationshipField = {
   admin: { description: "Namn, bild och priser ändras i trucktypen." },
 };
 
+/** An array row named by its truck type ("Skjutstativtruckar") instead of "Kolumn 01". */
+export const FAMILY_ROW_LABEL = "/payload/collections/TruckFamilies/RowLabels.tsx#FamilyRowLabel";
+
 export const sectionID: Field = {
   name: "anchor",
   label: "Ankare",

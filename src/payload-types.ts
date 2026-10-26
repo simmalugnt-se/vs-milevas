@@ -370,6 +370,10 @@ export interface Page {
              */
             activeColumn?: number | null;
             /**
+             * Före trucktypens namn när en kolumn pekas på, samma på alla. Exempel: "Bygg din truck:".
+             */
+            columnHeading: string;
+            /**
              * En kolumn per trucktyp; namn, bild, priser och länk kommer från trucktypen.
              */
             columns: {
@@ -377,10 +381,6 @@ export interface Page {
                * Namn, bild och priser ändras i trucktypen.
                */
               family: string | TruckFamily;
-              /**
-               * Före namnet när kolumnen pekas på. Exempel: "Bygg din truck:".
-               */
-              heading: string;
               id?: string | null;
             }[];
             id?: string | null;
@@ -1366,11 +1366,11 @@ export interface PagesSelect<T extends boolean = true> {
               highlight?: T;
               prompt?: T;
               activeColumn?: T;
+              columnHeading?: T;
               columns?:
                 | T
                 | {
                     family?: T;
-                    heading?: T;
                     id?: T;
                   };
               id?: T;
