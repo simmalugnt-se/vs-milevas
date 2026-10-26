@@ -445,6 +445,12 @@ export const designQuestions: DesignQuestion[] = [
       "Popupen har inget bakom sig, så sidan syns som vanligt. Ska sidan tonas ner, och ska ett klick utanför stänga?",
     figma: "8882:14589",
   },
+  {
+    target: "configurator",
+    question:
+      'Trucktypssteget, när /configurator öppnas utan vald truck, är inte ritat. Koden visar de sex trucktyperna som typ 4, en per rad, och steget blir mycket högt. Typ 3, två per rad, får inte plats: namn som "Elektriska motviktstruckar" bryts mitt i orden. Hur ska steget se ut?',
+    figma: "9264:6653",
+  },
 ];
 
 export const figmaNotes: FigmaNote[] = [
