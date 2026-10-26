@@ -61,11 +61,13 @@ export function LinkedColumns({ columns, children }: LinkedColumnsProps) {
     };
   }, []);
 
-  // Each line is the right edge of a hero column; the first ends at the left edge, the last at
-  // the right, and the others between the next block's columns.
+  // Each line is the right edge of a hero column, drawn inside it; the first ends just outside
+  // the left edge, the last just outside the right (a stroke further, since it is drawn left of
+  // its edge), and the others between the next block's columns.
   const lines = Array.from({ length: columns - 1 }, (_, index) => ({
     start: ((index + 1) * 100) / columns,
     end: (index * 100) / (columns - 2),
+    outside: index === columns - 2,
   }));
 
   return (
@@ -75,13 +77,15 @@ export function LinkedColumns({ columns, children }: LinkedColumnsProps) {
         aria-hidden
         className="pointer-events-none absolute inset-0 z-[5] hidden desktop-s:block"
       >
-        <div className="sticky top-0 h-svh mode-dark">
+        <div className="sticky top-0 h-svh overflow-hidden mode-dark">
           {lines.map((line, index) => (
             <span
               key={index}
               className="absolute inset-y-0 w-(--stroke-width) -translate-x-full bg-ui-brand"
               style={{
-                left: `calc(${line.start}% + ${line.end - line.start}% * var(--lines, 0))`,
+                left: `calc(${line.start}% + ${line.end - line.start}% * var(--lines, 0)${
+                  line.outside ? " + var(--stroke-width) * var(--lines, 0)" : ""
+                })`,
               }}
             />
           ))}
