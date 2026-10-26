@@ -86,9 +86,10 @@ Varje rad är något Figma visar och det fält i förslaget (avsnitt 5) som bär
 | Heron | Namn, bild, Från-pris, Leasing från | `name`, `image`, lägsta modellpriset |
 | Navigationens Modeller | Namn och bild per truck | `name`, `image` |
 
-Plocktruckar finns i heron, menyn och produktgriden men inte i konfiguratorn; kortet länkar till
-kontakt. Den blir en trucktyp utan modeller och val (`configurable: false`), så att den har namn och
-bild på samma ställe som de andra.
+Plocktruckar fanns först i heron, menyn och produktgriden men inte i konfiguratorn, som en
+trucktyp utan modeller och val vars kort länkade till kontakt. Sedan 2026-10-26 har den
+platshållarvarianter i seeden som de andra och går att konfigurera; en trucktyp utan varianter
+länkar fortfarande till sin kontaktlänk.
 
 ## 4. Det som inte räcker
 
@@ -135,7 +136,7 @@ Det enda stället för en trucktyps namn, bild och priser.
 | `name`, `key`, `sortOrder`, `description`, `brochure`, `deliveryTime` | Som i dag |
 | `image` | Huvudbilden: en frilagd truck, som heron, menyn, produktkorten och konfiguratorn beskär var för sig |
 | `singularName` (ny) | "Elektrisk motviktstruck", för offertens rubrik |
-| `configurable` (ny) | Av för Plocktruckar: inga modeller eller val, och korten länkar till kontakt |
+| `configurable` (ny) | Av för en trucktyp utan varianter: inga modeller eller val, och korten länkar till kontakt (räknas sedan 2026-10-26 fram ur varianterna) |
 | `contactLink` (ny) | Länken när trucktypen inte går att konfigurera |
 | `warranty` | Kort ("4 år"); förklaringen ligger i inställningarna |
 | `basePrice`, `sku` | Tas bort; finns på modellerna |

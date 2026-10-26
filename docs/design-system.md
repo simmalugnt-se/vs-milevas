@@ -151,7 +151,7 @@ bildfält, länkar och markörer för visual editing. Boilerplatens block är kv
 - `pnpm test:milevas-blocks` provar sparande, relationer, lokaliserad text och upprepad seed i
   en egen tillfällig databas. Befintliga migrationsfiler bygger hela schemat.
 
-Heron, plocktruckens kontaktlänk, specifikationerna och kvarvarande
+Heron, specifikationerna och kvarvarande
 text-platshållare är dokumenterade vid blocken i `figma-notes.ts`. Clash Grotesk Variable används
 för Display, Text och sajtens standardtext; Label använder Geist Mono.
 

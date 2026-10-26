@@ -76,7 +76,7 @@ export type ConfiguratorFamily = {
   /** For the quote's heading: "Elektrisk motviktstruck". */
   singularName: string;
   description?: string;
-  /** Off for a family sold through contact only (Plocktruckar): no models or choices. */
+  /** Off for a family without variants: no models or choices, and it links to `contactLink`. */
   configurable: boolean;
   /** Where the family's cards and links go when it is not configurable. */
   contactLink?: { href: string; rel?: string; target?: "_blank" };

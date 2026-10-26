@@ -673,7 +673,7 @@ export const figmaNotes: FigmaNote[] = [
     topic: "Truckdata och plocktruck",
     figma:
       'Sex kort med exempel på namn, specifikationer ("1.5 – 3.5 ton /// 80 V 228 Ah") och bilder',
-    code: 'Varje kort är en trucktyp: namn, huvudbild, priser och länk därifrån; lyftkapaciteten som modellernas intervall ("1,5 – 3,5 ton", med decimalkomma) och specifikationerna markerade för produktkortet. Plocktruckar är en trucktyp som inte går att konfigurera och länkar till kontakt utan priser',
+    code: 'Varje kort är en trucktyp: namn, huvudbild, priser och länk därifrån; lyftkapaciteten som modellernas intervall ("1,5 – 3,5 ton", med decimalkomma) och specifikationerna markerade för produktkortet. Plocktruckar har platshållarvarianter som de andra och går att konfigurera (sedan 2026-10-26; tidigare länkade den till kontakt utan priser)',
     why: "Användarens beslut 2026-10-23: kategorierna ändras på ett ställe. Testets data är Figmas exempel och platshållare",
     status: "Beslut",
     date: "2026-10-23",

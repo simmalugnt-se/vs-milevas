@@ -170,8 +170,30 @@ const families: FamilySeed[] = [
     singularName: "Plocktruck",
     key: "order-picker",
     sortOrder: 60,
+    description: "Plocktruck för orderplock från golv och upp till mellanhöga hyllplan.",
     image: "order-picker",
-    contactLink: { type: "external", url: "/#kontakt", label: "Kontakta oss" },
+    travelSpeed: "9 / 9",
+    deliveryTime: standardDelivery,
+    warranty: "2 år",
+    // Placeholders, like the others: Figma has no order picker data.
+    models: [
+      model(1000, "KOP 10", 189000, {
+        defaultSelected: true,
+        weight: "2 100",
+        turningRadius: "1 650",
+      }),
+      model(1200, "KOP 12", 209000, { weight: "2 250", turningRadius: "1 650" }),
+    ],
+    batteries: [{ label: "Standard", capacity: "48 V 375 Ah", price: 0, defaultSelected: true }],
+    liftHeights: [
+      { liftHeight: 3000, buildHeight: 2200, price: 0, defaultSelected: true },
+      { liftHeight: 4500, buildHeight: 2700, price: 16000 },
+    ],
+    liftHeightHelp,
+    extras: [
+      { label: "Backsummer", price: 1200 },
+      { label: "Arbetsbelysning", price: 3400 },
+    ],
   },
 ];
 
@@ -222,7 +244,8 @@ async function placeholderBrochure(payload: Payload) {
 
 async function upsertFamily(payload: Payload, seed: FamilySeed, brochure: string) {
   const data: FamilyInput = {
-    // A list the family does not have is emptied, so a re-seed removes it.
+    // A list or link the family does not have is emptied, so a re-seed removes it.
+    contactLink: { type: "external", url: null, label: null, reference: null, newTab: null },
     models: [],
     batteries: [],
     liftHeights: [],
