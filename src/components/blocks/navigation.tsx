@@ -225,11 +225,19 @@ export function Navigation({
       onClickCapture={(event) => {
         if ((event.target as Element).closest("a")) closeAll();
       }}
-      className={`flex flex-col ${color === "dark" ? "mode-dark" : "mode-light"} ${openLook} ${
+      className={`relative isolate flex flex-col ${color === "dark" ? "mode-dark" : "mode-light"} ${openLook} ${
         open || desktopLook ? "" : "[body:has(main_[data-navigation=light])_&]:mode-light"
       }`}
       {...attributes}
     >
+      {/* The overlay over the whole screen, under the row and panel: where the fill has not reached
+          yet it dims the page as below it, so no undimmed band runs ahead of the fill's edge. */}
+      <div
+        aria-hidden
+        className={`absolute inset-0 bg-navigation-overlay transition-opacity duration-[600ms] ${ease} starting:opacity-0 ${
+          open ? "max-desktop-s:block" : "max-desktop-s:hidden"
+        } ${desktopLook ? "desktop-s:block" : "desktop-s:hidden"} ${desktopOpen || open ? "opacity-100" : "opacity-0"}`}
+      />
       <div
         onPointerLeave={(event) => {
           if (event.pointerType === "mouse" && !open) closeMenu();
@@ -424,13 +432,6 @@ export function Navigation({
           </div>
         ) : null}
       </div>
-
-      <div
-        aria-hidden
-        className={`flex-1 bg-navigation-overlay transition-opacity duration-[600ms] ${ease} starting:opacity-0 ${
-          open ? "max-desktop-s:block" : "max-desktop-s:hidden"
-        } ${desktopLook ? "desktop-s:block" : "desktop-s:hidden"} ${desktopOpen || open ? "opacity-100" : "opacity-0"}`}
-      />
     </nav>
   );
 }
