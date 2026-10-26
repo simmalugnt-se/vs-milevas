@@ -60,9 +60,12 @@ function Table({ heading, action, rows }: QuoteTable) {
 
 /**
  * The quote from Figma "04 — Blocks" → "COnfigurator" (`type=offert`, 9264:10759), on
- * `bg-fill-secondary`:
+ * `bg-fill-secondary`. Below Desktop S 6rem on top for the site's overlaid navigation; from it the
+ * navigation's row (`spacing/xl`), which the price box touches, and `spacing/xl` more for the rest,
+ * as the configurator's steps:
  * - Desktop S and L: the heading, the two tables and the buttons on the left, spread over the
- *   height (832px at least) and `spacing/sm` apart at least, as in Figma; the truck on the right with the price box and "Boka samtal" top right
+ *   window's height (Figma's frame is 832px) and `spacing/sm` apart at least, growing only when
+ *   they do not fit, as the configurator's steps; the truck on the right with the price box and "Boka samtal" top right
  *   (304px). Desktop L gives the left 555px, Desktop S half.
  * - Tablet and Mobile: one column `spacing/md` apart: the heading and the back link, the price box,
  *   the tables (side by side on Tablet), and the buttons with "Boka samtal" between the copy field
@@ -81,8 +84,8 @@ export function ConfiguratorQuote({
   order,
 }: ConfiguratorQuoteProps) {
   return (
-    <section className="bg-bg-fill-secondary px-(--spacing-md) py-(--spacing-xl) tablet:px-(--spacing-xl) desktop-s:grid desktop-s:min-h-[52rem] desktop-s:grid-cols-2 desktop-s:px-(--spacing-md) desktop-l:grid-cols-[34.6875rem_minmax(0,1fr)]">
-      <div className="flex flex-col gap-(--spacing-md) desktop-s:justify-between desktop-s:gap-(--spacing-sm)">
+    <section className="bg-bg-fill-secondary px-(--spacing-md) pt-[calc(6rem+var(--spacing-xl))] pb-(--spacing-xl) tablet:px-(--spacing-xl) desktop-s:grid desktop-s:min-h-svh desktop-s:pt-(--spacing-xl) desktop-s:grid-cols-2 desktop-s:px-(--spacing-md) desktop-l:grid-cols-[34.6875rem_minmax(0,1fr)]">
+      <div className="flex flex-col gap-(--spacing-md) desktop-s:justify-between desktop-s:pt-(--spacing-xl) desktop-s:gap-(--spacing-sm)">
         <div className="flex flex-col gap-(--spacing-2xs)">
           <h1 className="text-display-m text-ui-primary">{heading}</h1>
           {back ? <div className="desktop-s:hidden">{back}</div> : null}

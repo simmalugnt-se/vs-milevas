@@ -73,11 +73,12 @@ export default async function QuotePage({ params, searchParams }: QuotePageProps
     step: family ? familySteps(family).length + 1 : undefined,
   });
 
-  // Room for the site's overlaid navigation, Light here as on the configurator, and the page's
-  // light grey background around the footer, as the configurator page has.
+  // The site's overlaid navigation, Light here as on the configurator, and the page's light grey
+  // background around the footer, as the configurator page has. The quote leaves the navigation
+  // room itself, inside the window's height.
   return (
     <div
-      className="bg-bg-fill-secondary pt-24"
+      className="bg-bg-fill-secondary"
       data-page-background="light"
       data-navigation="light"
     >
