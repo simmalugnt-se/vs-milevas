@@ -1580,10 +1580,10 @@ export const figmaNotes: FigmaNote[] = [
     topic: "Serviceavtalets kryssruta",
     figma:
       '`CheckboxChoice` ("Lägg till serviceavtal") är bara ritad omarkerad; ett dolt textlager finns under raden',
-    code: "En riktig kryssruta som ser likadan ut ikryssad som omarkerad; den dolda texten visas inte",
-    why: "Inte ritat; ett ikryssat läge behövs för att se valet, och kanske texten när avtalet är valt",
+    code: "Ikryssad blir kortet Tejp som ett valt `Choice`, och rutan visar ikonen `check`; den dolda texten visas inte",
+    why: "Inte ritat; utan ett ikryssat läge syntes det inte att avtalet var valt",
     status: "Lucka",
-    date: "2026-10-21",
+    date: "2026-10-26",
   },
   {
     target: "configurator-box",
