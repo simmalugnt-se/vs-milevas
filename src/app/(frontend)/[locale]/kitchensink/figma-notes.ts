@@ -586,10 +586,10 @@ export const figmaNotes: FigmaNote[] = [
     topic: "Introt",
     figma:
       "Prototypen: rubriken visas i 1,2s, ett svep (0,85s) eller en scroll till slutet och tillbaka (0,85 och 0,95s), och 2s senare lyfts raderna ut på 0,5s med `cubic-bezier(0.65, 0, 0.35, 1)`, 0,12s mellan dem. Prototypens rubrik är 130px högt upp; Figmas Start har Display L mitt på höjden",
-    code: "Prototypens förlopp med Figmas Start-layout. Under Desktop S radbryts rubriken som i Figma och lyfts ut i ett stycke, sedan uppmaningen. Med reducerad rörelse hoppas introt över",
-    why: "Prototypen lyfter två textblock på mobil; Figmas rubrik bryts mitt i den gula delen",
-    status: "Beslut (teknisk)",
-    date: "2026-10-22",
+    code: "Desktop S och L: prototypens förlopp med Figmas Start-layout. Tablet och Mobile i en annan ordning: rubriken i 1,2s och sedan ut (rubriken radbruten som i Figma och lyft i ett stycke, sedan uppmaningen), därefter visas den första kolumnen, gul, från höger med sin truck, sitt namn och sina priser (clip-path, 0,6s med navigationens kurva), och listan knuffas direkt efter en tredjedel av en kolumn och tillbaka (0,7s åt varje håll) som en sista vink om att den går att scrolla. Med reducerad rörelse hoppas introt över",
+    why: "Användarens beslut 2026-10-26: på mobil låg rubriken över gul kolumn, truck och priser i nästan fem sekunder, och listan for genom alla sex kolumner på under en sekund så att den gula kolumnen bytte var tionde sekund",
+    status: "Beslut",
+    date: "2026-10-26",
   },
   {
     target: "hero",
@@ -1716,7 +1716,7 @@ export const figmaNotes: FigmaNote[] = [
     topic: "Data",
     figma:
       'Menyerna Modeller, Tjänster och Om oss, med länkar och en bild, och länken "Dealer login"',
-    code: 'Header-globalens `navItems` är menyerna: etikett, länkar (med en bild per länk) och en bild; utan länkar är menyn en vanlig länk. `login` är login-länken med en kort etikett. `cta`, `siteName` och `siteTagline` visades inte och togs bort 2026-10-26',
+    code: "Header-globalens `navItems` är menyerna: etikett, länkar (med en bild per länk) och en bild; utan länkar är menyn en vanlig länk. `login` är login-länken med en kort etikett. `cta`, `siteName` och `siteTagline` visades inte och togs bort 2026-10-26",
     why: "Fälten följer Figma; `cta` tas bort ur globalen först när innehållet inte behövs",
     status: "Beslut (teknisk)",
     date: "2026-10-22",
@@ -1735,7 +1735,7 @@ export const figmaNotes: FigmaNote[] = [
     topic: "Läge efter blocket under",
     figma:
       "Navigationen ritas Dark över mörka sektioner och Light på sidmallarna Konfigurator och Login; inget om vad som händer när en ljus yta scrollar in under den",
-    code: 'Stängd tar navigationen läget från det innersta elementet med `data-navigation="light"` eller `"dark"` under loggan, läst vid scroll. Blocken sätter det i koden: produktgridens kort, textgridens ljusa ruta (fotona Dark), sidfotens Tejp-ruta, konfiguratorn, offerten och Login. Utan något sådant gäller navigationens eget läge. Färgen byts med samma övergång som när menyn öppnas',
+    code: 'Stängd tar varje del av raden (loggan, varje meny, login-länken och "[Meny]") läget från det innersta elementet med `data-navigation="light"` eller `"dark"` under sin mitt, läst vid scroll (även i sidled) och när attributet ändras. Blocken sätter det i koden: produktgridens kort, herons gula kolumn, textgridens ljusa ruta (fotona Dark), sidfotens Tejp-ruta, konfiguratorn, offerten och Login. Utan något sådant gäller navigationens eget läge. Färgen byts med samma övergång som när menyn öppnas',
     why: "Användarens beslut 2026-10-26: vit text syntes inte över de ljusa korten",
     status: "Beslut",
     date: "2026-10-26",

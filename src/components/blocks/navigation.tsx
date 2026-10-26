@@ -10,11 +10,13 @@ import { Link, usePathname } from "@/i18n/navigation";
 /**
  * navigation from Figma "04 — Blocks" (9051:12518): a row over the page in the page grid (12
  * columns from Desktop S, 6 below) with `grid/gap` at the sides and `spacing/sm` above and below.
- * `color` is Figma's Dark or Light: the text and logo in `ui-primary` of that mode. Closed, it takes
- * the mode of what lies under it instead: the innermost element with `data-navigation="light"` or
- * `"dark"` under the logo, read as the page scrolls, so a block says in code where the navigation
- * must turn (the product grid's cards, the configurator, Login, the footer). Before that is read, a page that
- * starts with a light element (`data-navigation-start`) is Light from the first paint.
+ * `color` is Figma's Dark or Light: the text and logo in `ui-primary` of that mode. Closed, each part
+ * of the row (the logo, each menu, the login link and "[Meny]") takes the mode of what lies under its
+ * centre instead: the innermost element with `data-navigation="light"` or `"dark"` there, read as
+ * the page scrolls or the attribute changes, so a block says in code where the navigation must turn
+ * (the product grid's cards, the hero's yellow column, the configurator, Login, the footer). Before
+ * that is read, a page that starts with a light element (`data-navigation-start`) is Light from the
+ * first paint.
  * - The full logo in the first four columns (three on Mobile), `spacing/sm` in: 24px high, 16px on
  *   Mobile.
  * - Desktop S and L: a column per menu (Label S), and over the last two columns the login link
@@ -158,10 +160,14 @@ export function Navigation({
   // another open menu (the quicker fade).
   const [closing, setClosing] = useState<number | null>(null);
   const [moved, setMoved] = useState(false);
-  // The mode of the element under the logo, or the navigation's own where none says; null before
-  // it is read.
-  const [under, setUnder] = useState<"light" | "dark" | null>(null);
-  const logoRef = useRef<HTMLAnchorElement>(null);
+  // Per part of the row, the mode of the element under it, or the navigation's own where none says;
+  // null before it is read.
+  const [under, setUnder] = useState<Record<string, "light" | "dark"> | null>(null);
+  const parts = useRef(new Map<string, HTMLElement>());
+  const part = (key: string) => (element: HTMLElement | null) => {
+    if (element) parts.current.set(key, element);
+    else parts.current.delete(key);
+  };
   const id = useId();
   const pathname = usePathname();
   const isCurrent = (link: NavigationLink) => link.current ?? isCurrentPath(link.href, pathname);
@@ -185,36 +191,59 @@ export function Navigation({
   // biome-ignore lint/correctness/useExhaustiveDependencies: a new page (`pathname`) has other blocks under the navigation, so read again.
   useEffect(() => {
     let frame = 0;
-    const read = () => {
-      frame = 0;
-      const logo = logoRef.current?.getBoundingClientRect();
-      if (!logo) return;
-      const y = logo.top + logo.height / 2;
+    const modeAt = (x: number, y: number, marked: { box: DOMRect; mode?: string }[]) => {
       let mode: string | undefined;
       let top = Number.NEGATIVE_INFINITY;
-      // The page and its footer, not the navigation itself.
-      for (const element of document.querySelectorAll<HTMLElement>(
-        "main [data-navigation], footer [data-navigation]",
-      )) {
-        const box = element.getBoundingClientRect();
+      for (const { box, mode: candidate } of marked) {
         // The innermost, which starts last, wins over the block around it.
-        if (box.top <= y && box.bottom > y && box.top >= top) {
+        if (box.left <= x && box.right > x && box.top <= y && box.bottom > y && box.top >= top) {
           top = box.top;
-          mode = element.dataset.navigation;
+          mode = candidate;
         }
       }
-      setUnder(mode === "light" || mode === "dark" ? mode : color);
+      return mode === "light" || mode === "dark" ? mode : color;
+    };
+    const read = () => {
+      frame = 0;
+      // The page and its footer, not the navigation itself.
+      const marked = [
+        ...document.querySelectorAll<HTMLElement>(
+          "main [data-navigation], footer [data-navigation]",
+        ),
+      ].map((element) => ({
+        box: element.getBoundingClientRect(),
+        mode: element.dataset.navigation,
+      }));
+      const next: Record<string, "light" | "dark"> = {};
+      for (const [key, element] of parts.current) {
+        const box = element.getBoundingClientRect();
+        // Hidden at this width.
+        if (!box.width) continue;
+        next[key] = modeAt(box.left + box.width / 2, box.top + box.height / 2, marked);
+      }
+      setUnder((current) =>
+        current && Object.keys(next).every((key) => current[key] === next[key]) ? current : next,
+      );
     };
     const schedule = () => {
       frame ||= window.requestAnimationFrame(read);
     };
     read();
-    window.addEventListener("scroll", schedule, { passive: true });
+    // Any scroll, also of a list inside a block (the hero's columns), and a block changing its mode.
+    document.addEventListener("scroll", schedule, { capture: true, passive: true });
     window.addEventListener("resize", schedule);
+    const observer = new MutationObserver(schedule);
+    observer.observe(document.body, {
+      attributes: true,
+      attributeFilter: ["data-navigation"],
+      childList: true,
+      subtree: true,
+    });
     return () => {
       window.cancelAnimationFrame(frame);
-      window.removeEventListener("scroll", schedule);
+      document.removeEventListener("scroll", schedule, { capture: true });
       window.removeEventListener("resize", schedule);
+      observer.disconnect();
     };
   }, [color, pathname]);
 
@@ -262,6 +291,10 @@ export function Navigation({
   // 0.18s, which is for its hover.
   const textMotion = `transition-colors ${moved ? "duration-[180ms]!" : "duration-[600ms]!"} ease-[cubic-bezier(0.9,0,0.17,1.01)]! motion-reduce:transition-none`;
 
+  // Closed, a part of the row in the mode of what lies under it; open, the row's own look.
+  const look = (key: string) =>
+    open || desktopLook || !under ? "" : `mode-${under[key] ?? color}`;
+
   const columns = (links: NavigationLink[]) =>
     links.length > 3
       ? [links.slice(0, Math.ceil(links.length / 2)), links.slice(Math.ceil(links.length / 2))]
@@ -272,7 +305,7 @@ export function Navigation({
       onClickCapture={(event) => {
         if ((event.target as Element).closest("a")) closeAll();
       }}
-      className={`relative isolate flex flex-col ${(under ?? color) === "dark" ? "mode-dark" : "mode-light"} ${openLook} ${
+      className={`relative isolate flex flex-col ${color === "dark" ? "mode-dark" : "mode-light"} ${openLook} ${
         open || desktopLook || under ? "" : "[body:has(main_[data-navigation-start])_&]:mode-light"
       }`}
       {...attributes}
@@ -300,19 +333,25 @@ export function Navigation({
           }`}
         />
         <div className="col-span-3 flex items-center pl-(--spacing-sm) tablet:col-span-4 tablet:items-start">
-          <Link ref={logoRef} href="/" aria-label="Milevas" className={textMotion}>
+          <Link
+            ref={part("logo")}
+            href="/"
+            aria-label="Milevas"
+            className={`text-ui-primary ${look("logo")} ${textMotion}`}
+          >
             <Logo title="" className="block h-4 w-auto tablet:h-6" />
           </Link>
         </div>
 
         {menus.map((menu, index) => {
-          const tone = `${textMotion} ${
+          const tone = `${textMotion} ${look(`menu-${index}`)} ${
             desktopOpen && active !== index ? "text-ui-tertiary" : "text-ui-primary"
           }`;
           return (
             <div key={index} className="hidden items-center desktop-s:flex">
               {menu.links?.length ? (
                 <button
+                  ref={part(`menu-${index}`)}
                   type="button"
                   aria-expanded={active === index}
                   aria-controls={`${id}-panel`}
@@ -327,6 +366,7 @@ export function Navigation({
                 </button>
               ) : menu.href ? (
                 <NavLink
+                  ref={part(`menu-${index}`)}
                   href={menu.href}
                   rel={menu.rel}
                   target={menu.target}
@@ -344,11 +384,12 @@ export function Navigation({
         {login ? (
           <div className="hidden justify-end self-start pr-(--spacing-sm) desktop-s:col-[-3/-1] desktop-s:flex">
             <TextLink
+              ref={part("login")}
               href={login.href}
               rel={login.rel}
               target={login.target}
               icon="arrow-up-right"
-              className={textMotion}
+              className={`${look("login")} ${textMotion}`}
               {...login.attributes}
             >
               {login.label}
@@ -359,17 +400,19 @@ export function Navigation({
         <div className="col-span-3 flex items-center justify-end gap-(--spacing-xs) self-start pr-(--grid-margin) tablet:col-span-2 desktop-s:hidden">
           {login ? (
             <TextLink
+              ref={part("short-login")}
               href={login.href}
               rel={login.rel}
               target={login.target}
               icon="arrow-up-right"
-              className={`gap-(--spacing-3xs)! ${textMotion}`}
+              className={`gap-(--spacing-3xs)! ${look("short-login")} ${textMotion}`}
               {...login.attributes}
             >
               {login.shortLabel ?? login.label}
             </TextLink>
           ) : null}
           <button
+            ref={part("menu-button")}
             type="button"
             aria-expanded={open}
             aria-controls={`${id}-accordion`}
@@ -377,7 +420,7 @@ export function Navigation({
               setActive(open ? null : 0);
               setOpen(!open);
             }}
-            className={`py-(--spacing-2xs) text-label-s whitespace-nowrap ${textMotion}`}
+            className={`py-(--spacing-2xs) text-label-s whitespace-nowrap text-ui-primary ${look("menu-button")} ${textMotion}`}
           >
             [{menuLabel}]
           </button>

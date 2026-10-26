@@ -50,10 +50,14 @@ type MilevasHeroProps = {
  * 1. The heading, the yellow highlight and the prompt show over the empty columns for 1.2s.
  * 2. Desktop S and L: a point sweeps from the first column to the last in 0.85s and the trucks
  *    follow it, each clipped by its own column, so the point shows a different truck in every
- *    column. They then glide to the centre of `activeColumn`. Tablet and Mobile: the list scrolls
- *    to the end and back (0.85 and 0.95s).
+ *    column. They then glide to the centre of `activeColumn`.
  * 3. Two seconds later the lines rise out of view one after the other (0.5s, 0.12s apart) and the
  *    active column turns yellow with its heading and prices.
+ * Tablet and Mobile take the steps in another order, so the text never lies over the columns:
+ * after 1.2s the text rises out, then the first column, yellow, is revealed from the right with
+ * its truck, name and prices (0.6s, the navigation's curve), and the list nudges a third of a
+ * column and back (0.7s each way) to show that it scrolls. The prototype scrolls to the end and
+ * back with the text still shown.
  *
  * Then, from Desktop S, the trucks follow the pointer with a lag, the column under it is active
  * (8px in from its edges), and the truck name follows the pointer on a label instead of the
@@ -358,17 +362,22 @@ export function MilevasHero({
     list.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll);
     if (!reduced) {
+      // The text leaves first; the first column is revealed once it has gone (0.74s), and the
+      // list nudges as soon as it is (0.6s).
       timers.push(
-        window.setTimeout(() => {
-          setPhase("moving");
-          const end = (items[0]?.offsetWidth ?? 0) * (items.length - 1);
-          scrollTo(0, end, 850, () =>
-            scrollTo(end, 0, 950, () => {
-              setPhase("done");
-              timers.push(window.setTimeout(() => setText("leaving"), 2000));
-            }),
-          );
-        }, 1200),
+        window.setTimeout(() => setText("leaving"), 1200),
+        window.setTimeout(() => setPhase("moving"), 1200 + 740),
+        window.setTimeout(
+          () => {
+            const nudge = (items[0]?.offsetWidth ?? 0) / 3;
+            scrollTo(0, nudge, 700, () =>
+              timers.push(
+                window.setTimeout(() => scrollTo(nudge, 0, 700, () => setPhase("done")), 150),
+              ),
+            );
+          },
+          1200 + 740 + 600,
+        ),
       );
     }
     return () => {
@@ -382,8 +391,17 @@ export function MilevasHero({
   }, [desktop, reduced, columns.length]);
 
   const shown = phase !== "intro";
-  // Yellow from when the text has gone on Desktop, from when the list moves below it.
+  // Yellow once the text has gone on Desktop, and from the reveal below it.
   const lit = desktop ? text === "gone" || phase === "done" : shown;
+  // Below Desktop S the first column is hidden until the intro reveals it from the right.
+  const reveal =
+    phase === "intro"
+      ? "max-desktop-s:[clip-path:inset(0_0_0_100%)]"
+      : phase === "moving"
+        ? "max-desktop-s:[clip-path:inset(0)] max-desktop-s:transition-[clip-path] max-desktop-s:duration-[600ms] max-desktop-s:ease-[cubic-bezier(0.9,0,0.17,1.01)]"
+        : "";
+  // The columns snap and take the pointer once the intro is over.
+  const settled = text === "gone" && phase === "done";
   const leaving = text === "leaving";
   // Each line rises out of its mask; below Desktop S the heading wraps, so it rises as one.
   const rise = "duration-500 ease-[cubic-bezier(0.65,0,0.35,1)] motion-reduce:transition-none";
@@ -412,7 +430,7 @@ export function MilevasHero({
       <ul
         ref={listRef}
         className={`flex h-full overflow-x-auto overscroll-x-contain [scrollbar-width:none] desktop-s:overflow-hidden ${
-          text === "gone" ? "snap-x snap-mandatory" : "pointer-events-none"
+          settled ? "snap-x snap-mandatory" : "pointer-events-none"
         }`}
       >
         {columns.map((column, index) => (
@@ -421,7 +439,11 @@ export function MilevasHero({
             ref={(element) => {
               itemRefs.current[index] = element;
             }}
-            className="h-full w-[79.73%] shrink-0 snap-start snap-always tablet:w-[62.28%] desktop-s:w-(--column-width)"
+            // Yellow: the navigation turns Light over it.
+            data-navigation={lit && active === index ? "light" : undefined}
+            className={`h-full w-[79.73%] shrink-0 snap-start snap-always tablet:w-[62.28%] desktop-s:w-(--column-width) ${
+              index === 0 ? reveal : ""
+            }`}
             style={{ "--column-width": columnWidth(index) } as CSSProperties}
           >
             <TruckColumn
@@ -433,16 +455,14 @@ export function MilevasHero({
               target={column.target}
               heading={column.heading}
               rows={column.rows}
-              scrollLabel={
-                !desktop && index === 0 && text === "gone" && hint ? "Skrolla" : undefined
-              }
+              scrollLabel={!desktop && index === 0 && settled && hint ? "Skrolla" : undefined}
               data-state={lit && active === index ? "active" : undefined}
               contentClassName="max-desktop-s:translate-x-(--shift) desktop-s:group-data-[state=active]/column:animate-[hero-info-in_380ms_cubic-bezier(0.23,1,0.32,1)_both]"
               className="min-w-0 desktop-s:cursor-none desktop-s:group-data-[linked]/linked:border-transparent [&_span]:break-words"
             >
               <span
                 aria-hidden
-                className={`pointer-events-none absolute top-[clamp(9.875rem,27.25svh,16.375rem)] left-[calc(50%_+_var(--shift,0px))] h-[min(32.5svh,20rem)] w-[min(74.67vw,26.875rem)] -translate-x-1/2 transition-opacity duration-[180ms] desktop-s:top-[var(--ty,50%)] desktop-s:left-[var(--tx,50%)] desktop-s:size-[26.25rem] desktop-s:translate-y-[calc(-100%_+_11.875rem)] desktop-s:transition-none ${
+                className={`pointer-events-none absolute top-[clamp(9.875rem,27.25svh,16.375rem)] left-[calc(50%_+_var(--shift,0px))] h-[min(32.5svh,20rem)] w-[min(74.67vw,26.875rem)] -translate-x-1/2 desktop-s:top-[var(--ty,50%)] desktop-s:left-[var(--tx,50%)] desktop-s:size-[26.25rem] desktop-s:translate-y-[calc(-100%_+_11.875rem)] ${
                   shown ? "" : "opacity-0"
                 }`}
               >
@@ -450,7 +470,7 @@ export function MilevasHero({
               </span>
               <span
                 aria-hidden
-                className={`pointer-events-none absolute top-[clamp(25.625rem,59.875svh,36.875rem)] left-[calc(50%_+_var(--shift,0px))] flex max-w-[calc(100%_-_2rem)] -translate-x-1/2 items-center gap-(--spacing-xs) rounded-sm mode-dark bg-bg-fill p-(--spacing-xs) text-label-s whitespace-nowrap text-ui-primary transition-opacity duration-[180ms] desktop-s:hidden ${
+                className={`pointer-events-none absolute top-[clamp(25.625rem,59.875svh,36.875rem)] left-[calc(50%_+_var(--shift,0px))] flex max-w-[calc(100%_-_2rem)] -translate-x-1/2 items-center gap-(--spacing-xs) rounded-sm mode-dark bg-bg-fill p-(--spacing-xs) text-label-s whitespace-nowrap text-ui-primary desktop-s:hidden ${
                   shown ? "" : "opacity-0"
                 }`}
               >
