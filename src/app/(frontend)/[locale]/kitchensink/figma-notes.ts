@@ -1731,6 +1731,16 @@ export const figmaNotes: FigmaNote[] = [
   },
   {
     target: "navigation",
+    topic: "Fyllnad och overlay i rörelse",
+    figma:
+      "Prototypen låter panelen växa i 0,6 s med cubic-bezier(0.9, 0, 0.17, 1.01); hur fyllnaden bakom raden och overlayn rör sig framgår inte",
+    code: "Från Desktop S ligger fyllnaden med blur i ett eget lager som visas med clip-path från viewportens topp och ner, i samma tid och kurva som panelen, och tillbaka upp när menyn stängs. Overlayn tonar in och ut med samma kurva",
+    why: "Användarens beslut 2026-10-26: raden fick fyllnaden direkt och panelen växte efter, så rörelsen gick i två steg, och overlayn blinkade fram",
+    status: "Beslut",
+    date: "2026-10-26",
+  },
+  {
+    target: "navigation",
     topic: "Stänga menyn",
     figma:
       "Prototypen stänger Desktop-menyn när pekaren lämnar raden (Mouse leave); inget om overlayn, Escape eller hur mobilmenyn stängs",

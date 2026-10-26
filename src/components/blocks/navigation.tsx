@@ -37,9 +37,11 @@ import { Link, usePathname } from "@/i18n/navigation";
  * Motion, from Figma's prototype: on Desktop S and L pointing at a menu opens it (Mouse enter) and
  * leaving the row closes it (Mouse leave); a click toggles it too. Opening, the panel grows in 0.6s
  * with `cubic-bezier(0.9, 0, 0.17, 1.01)` while the links and image fade in and the other menus'
- * labels fade to `ui-tertiary`; closing, it shrinks the same way over its content, and the panel's
- * look goes when it is shut. Moving to another menu fades the labels in 0.18s and swaps the content
- * at once. Below Desktop S, "[Meny]" opens the accordion the same way and closes it at once.
+ * labels fade to `ui-tertiary`; closing, it shrinks the same way over its content. The fill and its
+ * blur are revealed from the top of the screen down with the panel, and back up as it closes (a
+ * clip-path on their own layer), and the overlay fades in and out on the same curve. Moving to
+ * another menu fades the labels in 0.18s and swaps the content at once. Below Desktop S, "[Meny]"
+ * opens the accordion the same way and closes it at once.
  *
  * The Header global feeds it on the site (`src/payload/globals/Header/Component.tsx`).
  */
@@ -208,10 +210,10 @@ export function Navigation({
     open ? "max-desktop-s:mode-dark max-desktop-s:min-h-svh" : "",
     desktopLook ? "desktop-s:mode-dark desktop-s:min-h-svh" : "",
   ].join(" ");
-  const fill = [
-    open ? "max-desktop-s:bg-navigation-fill max-desktop-s:backdrop-blur-[0.625rem]" : "",
-    desktopLook ? "desktop-s:bg-navigation-fill desktop-s:backdrop-blur-[0.625rem]" : "",
-  ].join(" ");
+  // Below Desktop S the fill is on the row; from it, on the revealed layer below.
+  const fill = open
+    ? "max-desktop-s:bg-navigation-fill max-desktop-s:backdrop-blur-[0.625rem]"
+    : "";
 
   const columns = (links: NavigationLink[]) =>
     links.length > 3
@@ -232,8 +234,16 @@ export function Navigation({
         onPointerLeave={(event) => {
           if (event.pointerType === "mouse" && !open) closeMenu();
         }}
-        className={`grid grid-cols-6 gap-x-(--grid-gap) overflow-hidden px-(--grid-gap) py-(--spacing-sm) text-ui-primary desktop-s:grid-cols-12 ${fill}`}
+        className={`relative isolate grid grid-cols-6 gap-x-(--grid-gap) overflow-hidden px-(--grid-gap) py-(--spacing-sm) text-ui-primary desktop-s:grid-cols-12 ${fill}`}
       >
+        {/* Desktop S and L: the fill, revealed from the top as the panel grows. Its edge reaches the
+            bottom of the row and panel together, since both move on the same curve and time. */}
+        <div
+          aria-hidden
+          className={`pointer-events-none absolute inset-0 -z-10 hidden bg-navigation-fill backdrop-blur-[0.625rem] transition-[clip-path] duration-[600ms] desktop-s:block ${ease} ${
+            desktopOpen ? "[clip-path:inset(0)]" : "[clip-path:inset(0_0_100%_0)]"
+          }`}
+        />
         <div className="col-span-3 flex items-center pl-(--spacing-sm) tablet:col-span-4 tablet:items-start">
           <Link href="/" aria-label="Milevas">
             <Logo title="" className="block h-4 w-auto tablet:h-6" />
@@ -417,9 +427,9 @@ export function Navigation({
 
       <div
         aria-hidden
-        className={`flex-1 bg-navigation-overlay ${open ? "max-desktop-s:block" : "max-desktop-s:hidden"} ${
-          desktopLook ? "desktop-s:block" : "desktop-s:hidden"
-        }`}
+        className={`flex-1 bg-navigation-overlay transition-opacity duration-[600ms] ${ease} starting:opacity-0 ${
+          open ? "max-desktop-s:block" : "max-desktop-s:hidden"
+        } ${desktopLook ? "desktop-s:block" : "desktop-s:hidden"} ${desktopOpen || open ? "opacity-100" : "opacity-0"}`}
       />
     </nav>
   );
