@@ -50,7 +50,8 @@ export function ConfiguratorScreen({
     <section className="grid min-h-svh grid-rows-[minmax(0,1fr)_auto] bg-bg-fill-secondary px-(--spacing-sm) pt-[calc(var(--spacing-sm)*3+1rem)] pb-(--spacing-xl) tablet:px-(--spacing-xl) tablet:pt-[calc(var(--spacing-sm)*3+1.5rem)] desktop-s:pt-(--spacing-xl) desktop-s:grid-cols-12 desktop-s:grid-rows-1 desktop-s:px-(--spacing-md)">
       <div className="relative row-start-1 flex min-h-[12rem] min-w-0 flex-col items-end desktop-s:col-span-7 desktop-s:col-start-6 desktop-s:min-h-0 desktop-l:col-span-8 desktop-l:col-start-5">
         {image ? <div className="absolute inset-0">{image}</div> : null}
-        <div className="relative flex w-[14.3125rem] flex-col gap-(--spacing-2xs) desktop-s:w-[16.4375rem]">
+        {/* Fades as the request popup opens, as on the quote (Figma 9321:55718). */}
+        <div className="relative flex w-[14.3125rem] flex-col gap-(--spacing-2xs) transition-opacity duration-1200 ease-[cubic-bezier(0.72,0,0.37,1)] motion-reduce:transition-none [html[data-request-popup=open]_&]:opacity-0 desktop-s:w-[16.4375rem]">
           {price}
           {contact}
         </div>

@@ -2044,6 +2044,16 @@ export const figmaNotes: FigmaNote[] = [
   },
   {
     target: "configurator",
+    topic: "Popupens rörelse",
+    figma:
+      '"prototyp - popup" (9321:55718): "Fortsätt beställning" (och "Boka samtal") öppnar popupen med Smart animate, 1200ms, easing 0.72, 0, 0.37, 1. Panelen glider in från höger och sidan 622px åt vänster; prisrutan och "Boka samtal" finns inte i slutramen och tonas bort. Stängningen och lägen under Desktop S är inte ritade, och ramen har ingen navigation',
+    code: "Som Figma när den öppnas, och samma rörelse baklänges när den stängs (krysset eller Escape). Sidan under navigationen glider 622/1440 av bredden från Desktop S; navigationen står kvar. Prisrutan och knappen Boka samtal tonas bort, också i konfiguratorn. Under Desktop S glider bara panelen, som täcker bredden. Ingen rörelse med reducerad rörelse",
+    why: "Stängningen behöver en rörelse för att inte hoppa tillbaka; navigationen ligger över sidan och följer inte med",
+    status: "Lucka",
+    date: "2026-10-26",
+  },
+  {
+    target: "configurator",
     topic: "Trucktyp",
     figma: "Inte ritat; ramarna börjar med lyftkapaciteten",
     code: 'Valet av truckfamilj är första steget, `[01]`, som typ 4 (familjens bild till höger och "Från"-pris); familjens steg följer som `[02]` och framåt',

@@ -1,6 +1,14 @@
 "use client";
 
-import { type ReactNode, useActionState, useEffect, useId, useMemo, useRef } from "react";
+import {
+  type ReactNode,
+  useActionState,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { Alternative } from "@/components/ui/alternative";
 import { Button } from "@/components/ui/button";
 import { ContactForm } from "@/components/ui/contact-form";
@@ -96,10 +104,17 @@ function FormMessage({ state }: { state: ConfiguratorActionState }) {
   ) : null;
 }
 
+/** Figma's "prototyp - popup" (9321:55718): Smart animate, 1200ms, this easing. */
+const POPUP_MS = 1200;
+
 /**
  * Figma's Popup (`04 — Blocks` → "Contact-popup", 8882:14589): a panel `grid/margin` from the
  * screen's edges, the right half from Desktop S and the whole width below. Figma draws nothing
  * behind it, so the page stays visible. Escape and the cross close it.
+ *
+ * It moves as Figma's prototype (9321:55718): the panel slides in from the right while the page
+ * slides left (`data-request-popup` on <html>, see site-theme.css), and back out when it closes,
+ * which Figma does not draw (see figma-notes). The children stay until the panel is out.
  */
 export function RequestDialog({
   open,
@@ -113,20 +128,55 @@ export function RequestDialog({
   children: ReactNode;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
+  // Shown from when it opens until the panel is out after closing.
+  const [shown, setShown] = useState(open);
+  if (open && !shown) setShown(true);
+
   useEffect(() => {
     const element = dialog.current;
     if (!element) return;
-    if (open && !element.open) element.showModal();
-    if (!open && element.open) element.close();
+    const root = document.documentElement;
+    if (open) {
+      if (!element.open) element.showModal();
+      // Draw the panel outside first, so the move to its place animates.
+      element.getBoundingClientRect();
+      element.dataset.state = "open";
+      root.dataset.requestPopup = "open";
+      return;
+    }
+    if (!element.open) return;
+    delete element.dataset.state;
+    delete root.dataset.requestPopup;
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const timer = window.setTimeout(
+      () => {
+        element.close();
+        setShown(false);
+      },
+      reduced ? 0 : POPUP_MS,
+    );
+    return () => window.clearTimeout(timer);
   }, [open]);
+
+  // A page left with the popup open does not keep the next page shifted.
+  useEffect(
+    () => () => {
+      delete document.documentElement.dataset.requestPopup;
+    },
+    [],
+  );
+
   return (
     <dialog
       ref={dialog}
       aria-labelledby={labelledBy}
-      onClose={onClose}
-      className="fixed inset-y-(--grid-margin) right-(--grid-margin) left-auto m-0 h-auto max-h-none w-[calc(100%-2*var(--grid-margin))] max-w-none bg-transparent p-0 backdrop:bg-transparent desktop-s:w-[calc(50%-0.75rem)]"
+      onCancel={(event) => {
+        event.preventDefault();
+        onClose();
+      }}
+      className="fixed inset-y-(--grid-margin) right-(--grid-margin) left-auto m-0 h-auto max-h-none w-[calc(100%-2*var(--grid-margin))] max-w-none translate-x-[calc(100%+var(--grid-margin))] bg-transparent p-0 transition-transform duration-1200 ease-[cubic-bezier(0.72,0,0.37,1)] backdrop:bg-transparent data-[state=open]:translate-x-0 motion-reduce:transition-none desktop-s:w-[calc(50%-0.75rem)]"
     >
-      {open ? children : null}
+      {shown ? children : null}
     </dialog>
   );
 }

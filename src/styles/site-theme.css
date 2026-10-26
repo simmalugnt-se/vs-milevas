@@ -559,3 +559,23 @@ html[data-grid-overlay-visible] [data-layout-block] {
     opacity: 0;
   }
 }
+
+/**
+ * The configurator's request popup (`RequestDialog`, Figma "prototyp - popup" 9321:55718): while it
+ * is open the page under the header slides left, 622px of Figma's 1440, with the panel's own move.
+ * From Desktop S; below it the panel covers the width. `div.canvas` is the page wrapper in <body>,
+ * which is a `.canvas` too.
+ */
+div.canvas > :not(header) {
+  transition: translate 1200ms cubic-bezier(0.72, 0, 0.37, 1);
+}
+@media (width >= 64rem) {
+  html[data-request-popup="open"] div.canvas > :not(header) {
+    translate: calc(-622 / 1440 * 100vw) 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  div.canvas > :not(header) {
+    transition: none;
+  }
+}

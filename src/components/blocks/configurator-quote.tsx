@@ -107,7 +107,8 @@ export function ConfiguratorQuote({
       </div>
       <div className="relative hidden flex-col items-end desktop-s:flex">
         {image ? <div className="absolute inset-0">{image}</div> : null}
-        <div className="relative flex w-[19rem] flex-col gap-(--spacing-2xs)">
+        {/* Out of Figma's popup frame (9321:55718), so it fades as the popup opens. */}
+        <div className="relative flex w-[19rem] flex-col gap-(--spacing-2xs) transition-opacity duration-1200 ease-[cubic-bezier(0.72,0,0.37,1)] motion-reduce:transition-none [html[data-request-popup=open]_&]:opacity-0">
           {price}
           {contact}
         </div>
