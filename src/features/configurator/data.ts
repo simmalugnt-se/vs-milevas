@@ -39,6 +39,11 @@ const DEFAULT_SERVICE_AGREEMENT: NonNullable<ConfiguratorCatalog["serviceAgreeme
   annualPrice: 2856,
 };
 
+/** `|` in a name is where it may break, shown as a hyphen only then (a soft hyphen). */
+const hyphenate = (text: string) => text.replaceAll("|", "\u00AD");
+/** The name without its break marks, for alt texts. */
+const plain = (text: string) => text.replaceAll("|", "");
+
 type SpecFields = Partial<Record<(typeof TRUCK_SPECS)[number]["name"], string | null>>;
 
 /** The specifications as the configurator names and orders them, from `TRUCK_SPECS`. */
@@ -80,11 +85,11 @@ function mapOption(option: StepOption): ConfiguratorOption {
   const buildHeight = option.buildHeight?.trim();
   return {
     key: option.id ?? option.label,
-    label: option.label,
+    label: hyphenate(option.label),
     description:
       option.description ||
       (buildHeight ? `Truckens höjd med denna mast: ${buildHeight} mm` : undefined),
-    image: imageData(option.image, option.label),
+    image: imageData(option.image, plain(option.label)),
     price: option.price,
     default: option.defaultSelected === true,
     specs: buildHeight ? [{ spec: "buildHeight", value: buildHeight }] : [],
@@ -142,8 +147,8 @@ function mapFamily(family: TruckFamily): ConfiguratorFamily {
   return {
     id: family.id,
     key: family.key,
-    name: family.name,
-    singularName: family.singularName,
+    name: hyphenate(family.name),
+    singularName: hyphenate(family.singularName),
     description: family.description || undefined,
     configurable,
     contactLink: contactLink
@@ -151,7 +156,7 @@ function mapFamily(family: TruckFamily): ConfiguratorFamily {
       : undefined,
     deliveryTime: family.deliveryTime ?? "",
     warranty: family.warranty ?? "",
-    image: imageData(family.image, family.name),
+    image: imageData(family.image, plain(family.name)),
     brochure: brochureData(family.brochure),
     specs: mapSpecs(family.specs),
     modelChoice: { label: family.modelChoice.label, heading: family.modelChoice.heading },

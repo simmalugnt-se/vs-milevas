@@ -42,8 +42,8 @@ const liftHeightHelp = "Behöver du hjälp med andra mastalternativ?";
 
 const families: FamilySeed[] = [
   {
-    name: "Elektriska motviktstruckar",
-    singularName: "Elektrisk motviktstruck",
+    name: "Elektriska motvikts|truckar",
+    singularName: "Elektrisk motvikts|truck",
     key: "electric-counterbalance",
     sortOrder: 10,
     description: "Elektrisk motviktstruck för lager, terminal och industri.",
@@ -100,10 +100,10 @@ const families: FamilySeed[] = [
     extras: {
       options: [
         { label: "Backsummer", price: 1200 },
-        { label: "Fasthållningssystem", price: 14500 },
-        { label: "Trådlöst kamerasystem (bak)", price: 6900 },
+        { label: "Fasthållnings|system", price: 14500 },
+        { label: "Trådlöst kamera|system (bak)", price: 6900 },
         {
-          label: "Sidoförskjutning och gaffelspridning",
+          label: "Sidoförskjutning och gaffel|spridning",
           description: "Ändra gaffelavståndet från förarplatsen.",
           price: 9500,
         },
@@ -111,8 +111,8 @@ const families: FamilySeed[] = [
     },
   },
   {
-    name: "Skjutstativtruckar",
-    singularName: "Skjutstativtruck",
+    name: "Skjutstativ|truckar",
+    singularName: "Skjutstativ|truck",
     key: "reach-truck",
     sortOrder: 20,
     description: "Skjutstativtruck för effektiv pallhantering på hög höjd.",
@@ -142,7 +142,7 @@ const families: FamilySeed[] = [
     extras: {
       options: [
         { label: "Backsummer", price: 1200 },
-        { label: "Trådlöst kamerasystem (bak)", price: 6900 },
+        { label: "Trådlöst kamera|system (bak)", price: 6900 },
       ],
     },
   },

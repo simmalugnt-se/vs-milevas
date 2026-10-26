@@ -673,11 +673,11 @@ export interface Video {
 export interface TruckFamily {
   id: string;
   /**
-   * I plural. Exempel: "Elektriska motviktstruckar".
+   * I plural. Exempel: "Elektriska motvikts|truckar". Skriv | där ett långt ord får avstavas, till exempel "Skjutstativ|truckar". Ordet visas helt när det får plats och som "Skjutstativ-truckar" när det måste brytas.
    */
   name: string;
   /**
-   * Offertens rubrik. Exempel: "Elektrisk motviktstruck".
+   * Offertens rubrik. Exempel: "Elektrisk motviktstruck". Skriv | där ett långt ord får avstavas, till exempel "Skjutstativ|truckar". Ordet visas helt när det får plats och som "Skjutstativ-truckar" när det måste brytas.
    */
   singularName: string;
   /**
@@ -776,6 +776,9 @@ export interface TruckFamily {
   battery?: {
     options?:
       | {
+          /**
+           * Skriv | där ett långt ord får avstavas, till exempel "Skjutstativ|truckar". Ordet visas helt när det får plats och som "Skjutstativ-truckar" när det måste brytas.
+           */
           label: string;
           description?: string | null;
           /**
@@ -797,6 +800,9 @@ export interface TruckFamily {
     help?: string | null;
     options?:
       | {
+          /**
+           * Skriv | där ett långt ord får avstavas, till exempel "Skjutstativ|truckar". Ordet visas helt när det får plats och som "Skjutstativ-truckar" när det måste brytas.
+           */
           label: string;
           /**
            * Med den här masten. Ersätter familjens bygghöjd.
@@ -817,6 +823,9 @@ export interface TruckFamily {
   extras?: {
     options?:
       | {
+          /**
+           * Skriv | där ett långt ord får avstavas, till exempel "Skjutstativ|truckar". Ordet visas helt när det får plats och som "Skjutstativ-truckar" när det måste brytas.
+           */
           label: string;
           description?: string | null;
           image?: (string | null) | Image;

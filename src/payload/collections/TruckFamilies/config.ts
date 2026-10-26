@@ -7,6 +7,10 @@ import { populatePublishedAt } from "../../hooks/populatePublishedAt.ts";
 import { revalidateTruckFamily, revalidateTruckFamilyDelete } from "./hooks/revalidate.ts";
 import { TRUCK_SPECS } from "./specs.ts";
 
+/** For a name that may be too long for its box; `hyphenate` in the configurator's data reads it. */
+const HYPHEN_HINT =
+  'Skriv | där ett långt ord får avstavas, till exempel "Skjutstativ|truckar". Ordet visas helt när det får plats och som "Skjutstativ-truckar" när det måste brytas.';
+
 const keyField: Field = {
   name: "key",
   label: "Nyckel i adressen",
@@ -77,7 +81,14 @@ const stepField = (
       localized: false,
       admin: { initCollapsed: true },
       fields: [
-        { name: "label", label: "Namn", type: "text", localized: true, required: true },
+        {
+          name: "label",
+          label: "Namn",
+          type: "text",
+          localized: true,
+          required: true,
+          admin: { description: HYPHEN_HINT },
+        },
         ...optionFields,
       ],
     },
@@ -117,7 +128,9 @@ export const TruckFamilies: CollectionConfig = {
               type: "text",
               localized: true,
               required: true,
-              admin: { description: 'I plural. Exempel: "Elektriska motviktstruckar".' },
+              admin: {
+                description: `I plural. Exempel: "Elektriska motvikts|truckar". ${HYPHEN_HINT}`,
+              },
             },
             {
               name: "singularName",
@@ -125,7 +138,9 @@ export const TruckFamilies: CollectionConfig = {
               type: "text",
               localized: true,
               required: true,
-              admin: { description: 'Offertens rubrik. Exempel: "Elektrisk motviktstruck".' },
+              admin: {
+                description: `Offertens rubrik. Exempel: "Elektrisk motviktstruck". ${HYPHEN_HINT}`,
+              },
             },
             keyField,
             {
