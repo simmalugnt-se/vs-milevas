@@ -1,6 +1,6 @@
 "use client";
 
-import { type ReactNode, useEffect, useId, useState } from "react";
+import { type ReactNode, useEffect, useId, useRef, useState } from "react";
 import { TextLink } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { Logo } from "@/components/ui/logo";
@@ -10,9 +10,11 @@ import { Link, usePathname } from "@/i18n/navigation";
 /**
  * navigation from Figma "04 — Blocks" (9051:12518): a row over the page in the page grid (12
  * columns from Desktop S, 6 below) with `grid/gap` at the sides and `spacing/sm` above and below.
- * `color` is Figma's Dark or Light: the text and logo in `ui-primary` of that mode. A page with a
- * `data-navigation="light"` block (the configurator and Login, as on Figma's page templates) turns a
- * closed navigation Light.
+ * `color` is Figma's Dark or Light: the text and logo in `ui-primary` of that mode. Closed, it takes
+ * the mode of what lies under it instead: the innermost element with `data-navigation="light"` or
+ * `"dark"` under the logo, read as the page scrolls, so a block says in code where the navigation
+ * must turn (the product grid's cards, the configurator, Login, the footer). Before that is read, a page that
+ * starts with a light element (`data-navigation-start`) is Light from the first paint.
  * - The full logo in the first four columns (three on Mobile), `spacing/sm` in: 24px high, 16px on
  *   Mobile.
  * - Desktop S and L: a column per menu (Label S), and over the last two columns the login link
@@ -156,6 +158,10 @@ export function Navigation({
   // another open menu (the quicker fade).
   const [closing, setClosing] = useState<number | null>(null);
   const [moved, setMoved] = useState(false);
+  // The mode of the element under the logo, or the navigation's own where none says; null before
+  // it is read.
+  const [under, setUnder] = useState<"light" | "dark" | null>(null);
+  const logoRef = useRef<HTMLAnchorElement>(null);
   const id = useId();
   const pathname = usePathname();
   const isCurrent = (link: NavigationLink) => link.current ?? isCurrentPath(link.href, pathname);
@@ -175,6 +181,42 @@ export function Navigation({
     const timer = window.setTimeout(() => setClosing(null), reduce ? 0 : openTime);
     return () => window.clearTimeout(timer);
   }, [closing]);
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: a new page (`pathname`) has other blocks under the navigation, so read again.
+  useEffect(() => {
+    let frame = 0;
+    const read = () => {
+      frame = 0;
+      const logo = logoRef.current?.getBoundingClientRect();
+      if (!logo) return;
+      const y = logo.top + logo.height / 2;
+      let mode: string | undefined;
+      let top = Number.NEGATIVE_INFINITY;
+      // The page and its footer, not the navigation itself.
+      for (const element of document.querySelectorAll<HTMLElement>(
+        "main [data-navigation], footer [data-navigation]",
+      )) {
+        const box = element.getBoundingClientRect();
+        // The innermost, which starts last, wins over the block around it.
+        if (box.top <= y && box.bottom > y && box.top >= top) {
+          top = box.top;
+          mode = element.dataset.navigation;
+        }
+      }
+      setUnder(mode === "light" || mode === "dark" ? mode : color);
+    };
+    const schedule = () => {
+      frame ||= window.requestAnimationFrame(read);
+    };
+    read();
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", schedule);
+    };
+  }, [color, pathname]);
 
   const openMenu = (index: number) => {
     if (desktopOpen && active === index) return;
@@ -215,6 +257,11 @@ export function Navigation({
     ? "max-desktop-s:bg-navigation-fill max-desktop-s:backdrop-blur-[0.625rem]"
     : "";
 
+  // The row's text changes colour with the open look (Light to Dark and back); the logo, the labels
+  // and the login link change together, in the labels' time. `!` wins over the login link's own
+  // 0.18s, which is for its hover.
+  const textMotion = `transition-colors ${moved ? "duration-[180ms]!" : "duration-[600ms]!"} ease-[cubic-bezier(0.9,0,0.17,1.01)]! motion-reduce:transition-none`;
+
   const columns = (links: NavigationLink[]) =>
     links.length > 3
       ? [links.slice(0, Math.ceil(links.length / 2)), links.slice(Math.ceil(links.length / 2))]
@@ -225,8 +272,8 @@ export function Navigation({
       onClickCapture={(event) => {
         if ((event.target as Element).closest("a")) closeAll();
       }}
-      className={`relative isolate flex flex-col ${color === "dark" ? "mode-dark" : "mode-light"} ${openLook} ${
-        open || desktopLook ? "" : "[body:has(main_[data-navigation=light])_&]:mode-light"
+      className={`relative isolate flex flex-col ${(under ?? color) === "dark" ? "mode-dark" : "mode-light"} ${openLook} ${
+        open || desktopLook || under ? "" : "[body:has(main_[data-navigation-start])_&]:mode-light"
       }`}
       {...attributes}
     >
@@ -253,13 +300,13 @@ export function Navigation({
           }`}
         />
         <div className="col-span-3 flex items-center pl-(--spacing-sm) tablet:col-span-4 tablet:items-start">
-          <Link href="/" aria-label="Milevas">
+          <Link ref={logoRef} href="/" aria-label="Milevas" className={textMotion}>
             <Logo title="" className="block h-4 w-auto tablet:h-6" />
           </Link>
         </div>
 
         {menus.map((menu, index) => {
-          const tone = `transition-colors ${moved ? "duration-[180ms]" : "duration-[600ms]"} ${ease} ${
+          const tone = `${textMotion} ${
             desktopOpen && active !== index ? "text-ui-tertiary" : "text-ui-primary"
           }`;
           return (
@@ -301,6 +348,7 @@ export function Navigation({
               rel={login.rel}
               target={login.target}
               icon="arrow-up-right"
+              className={textMotion}
               {...login.attributes}
             >
               {login.label}
@@ -315,7 +363,7 @@ export function Navigation({
               rel={login.rel}
               target={login.target}
               icon="arrow-up-right"
-              className="gap-(--spacing-3xs)!"
+              className={`gap-(--spacing-3xs)! ${textMotion}`}
               {...login.attributes}
             >
               {login.shortLabel ?? login.label}
@@ -329,7 +377,7 @@ export function Navigation({
               setActive(open ? null : 0);
               setOpen(!open);
             }}
-            className="py-(--spacing-2xs) text-label-s whitespace-nowrap"
+            className={`py-(--spacing-2xs) text-label-s whitespace-nowrap ${textMotion}`}
           >
             [{menuLabel}]
           </button>

@@ -81,7 +81,11 @@ function Column({
 export function Footer({ groups, contact, copyright, attributes }: FooterProps) {
   return (
     <footer className="px-(--grid-margin) py-(--spacing-2xs)" {...attributes}>
-      <div className="grid grid-cols-1 gap-x-(--grid-gap) gap-y-16 rounded-lg mode-tejp bg-bg-fill py-(--spacing-md) text-ui-primary tablet:grid-cols-6 desktop-s:grid-cols-12">
+      {/* Tejp: the navigation turns Light over it. */}
+      <div
+        data-navigation="light"
+        className="grid grid-cols-1 gap-x-(--grid-gap) gap-y-16 rounded-lg mode-tejp bg-bg-fill py-(--spacing-md) text-ui-primary tablet:grid-cols-6 desktop-s:grid-cols-12"
+      >
         {groups.map((group, index) => (
           <Column key={index} index={index} heading={group.heading} attributes={group.attributes}>
             {group.links.map((link, linkIndex) => (

@@ -81,6 +81,7 @@ export default async function QuotePage({ params, searchParams }: QuotePageProps
       className="bg-bg-fill-secondary"
       data-page-background="light"
       data-navigation="light"
+      data-navigation-start
     >
       <QuoteView
         quote={quote}

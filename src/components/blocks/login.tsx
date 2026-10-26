@@ -20,6 +20,7 @@ export function Login({ image, children, ...attributes }: LoginProps) {
   return (
     <section
       data-navigation="light"
+      data-navigation-start
       {...attributes}
       className="grid min-h-svh grid-cols-[repeat(var(--grid-columns),minmax(0,1fr))] gap-(--grid-gap) mode-dark bg-bg-fill p-(--grid-margin)"
     >

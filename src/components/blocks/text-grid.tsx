@@ -35,7 +35,11 @@ type TextGridProps = HTMLAttributes<HTMLElement> & {
 export function TextGrid({ heading, cards, headingAttributes, ...attributes }: TextGridProps) {
   return (
     <section {...attributes} className="mode-dark bg-bg-fill px-(--grid-margin)">
-      <div className="flex flex-col gap-(--spacing-lg) mode-light rounded-lg bg-bg-fill px-(--spacing-sm) py-(--spacing-xl) desktop-s:min-h-[50rem] desktop-s:justify-between desktop-s:gap-(--spacing-3xl)">
+      {/* The navigation turns Light over the light box, and stays Dark over its photos. */}
+      <div
+        data-navigation="light"
+        className="flex flex-col gap-(--spacing-lg) mode-light rounded-lg bg-bg-fill px-(--spacing-sm) py-(--spacing-xl) desktop-s:min-h-[50rem] desktop-s:justify-between desktop-s:gap-(--spacing-3xl)"
+      >
         <h2 {...headingAttributes} className="whitespace-pre-line text-display-l text-ui-primary">
           {/* Centred on the first line: half the line height (`sizes/3xl`) less half the arrow. */}
           <Arrow
@@ -44,7 +48,7 @@ export function TextGrid({ heading, cards, headingAttributes, ...attributes }: T
           />
           {heading}
         </h2>
-        <ul className="grid gap-(--grid-gap) desktop-s:grid-cols-3">
+        <ul data-navigation="dark" className="grid gap-(--grid-gap) desktop-s:grid-cols-3">
           {cards.map(({ attributes, ...card }, index) => (
             <li
               key={index}

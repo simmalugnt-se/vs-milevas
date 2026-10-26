@@ -14,7 +14,12 @@ export async function ConfiguratorBlockComponent(_: LayoutBlockComponentProps<Co
   const catalog = await getConfiguratorCatalog(locale, draft);
 
   return (
-    <section className="bg-bg-fill-secondary" id="truck-configurator" data-navigation="light">
+    <section
+      className="bg-bg-fill-secondary"
+      id="truck-configurator"
+      data-navigation="light"
+      data-navigation-start
+    >
       <ConfiguratorClient catalog={catalog} locale={locale} />
     </section>
   );

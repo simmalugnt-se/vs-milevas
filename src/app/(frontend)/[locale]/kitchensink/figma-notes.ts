@@ -1732,6 +1732,16 @@ export const figmaNotes: FigmaNote[] = [
   },
   {
     target: "navigation",
+    topic: "Läge efter blocket under",
+    figma:
+      "Navigationen ritas Dark över mörka sektioner och Light på sidmallarna Konfigurator och Login; inget om vad som händer när en ljus yta scrollar in under den",
+    code: 'Stängd tar navigationen läget från det innersta elementet med `data-navigation="light"` eller `"dark"` under loggan, läst vid scroll. Blocken sätter det i koden: produktgridens kort, textgridens ljusa ruta (fotona Dark), sidfotens Tejp-ruta, konfiguratorn, offerten och Login. Utan något sådant gäller navigationens eget läge. Färgen byts med samma övergång som när menyn öppnas',
+    why: "Användarens beslut 2026-10-26: vit text syntes inte över de ljusa korten",
+    status: "Beslut",
+    date: "2026-10-26",
+  },
+  {
+    target: "navigation",
     topic: "Fyllnad och overlay i rörelse",
     figma:
       "Prototypen låter panelen växa i 0,6 s med cubic-bezier(0.9, 0, 0.17, 1.01); hur fyllnaden bakom raden och overlayn rör sig framgår inte",
