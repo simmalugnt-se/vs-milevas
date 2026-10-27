@@ -1,7 +1,7 @@
 import { editableBlock } from "@simmalugnt-se/payload-visual-editing/frontend";
 import type { ReactNode } from "react";
 import { LinkedColumns } from "@/components/blocks/linked-columns";
-import { blockComponents, type LayoutBlock } from "./definitions.ts";
+import { blockComponents, type LayoutBlock, type LayoutBlockRenderer } from "./definitions.ts";
 
 type RenderBlocksProps = {
   className?: string;
@@ -10,7 +10,7 @@ type RenderBlocksProps = {
   layout?: LayoutBlock[] | null;
 };
 
-const renderers = blockComponents as Record<string, (props: { block: LayoutBlock }) => ReactNode>;
+const renderers = blockComponents as Record<string, LayoutBlockRenderer>;
 
 export function RenderBlocks({ className, editable = false, layout }: RenderBlocksProps) {
   if (!layout || layout.length === 0) {
@@ -30,7 +30,7 @@ export function RenderBlocks({ className, editable = false, layout }: RenderBloc
         key={block.id || `${block.blockType}-${index}`}
         {...(editable ? editableBlock(block) : {})}
       >
-        <BlockComponent block={block} />
+        <BlockComponent block={block} first={index === 0} />
       </div>
     );
   };

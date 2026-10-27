@@ -18,6 +18,8 @@ type ImageTextProps = HTMLAttributes<HTMLElement> & {
   /** The photo, e.g. a `next/image` with `fill` and `object-cover`. */
   image: ReactNode;
   heading: ReactNode;
+  /** The heading's element: `h1` when the block opens a page without a hero. */
+  headingAs?: "h1" | "h2";
   text?: ReactNode;
   cta?: {
     label: string;
@@ -28,7 +30,14 @@ type ImageTextProps = HTMLAttributes<HTMLElement> & {
   };
 };
 
-export function ImageText({ image, heading, text, cta, ...attributes }: ImageTextProps) {
+export function ImageText({
+  image,
+  heading,
+  headingAs: Heading = "h2",
+  text,
+  cta,
+  ...attributes
+}: ImageTextProps) {
   return (
     <section
       {...attributes}
@@ -39,7 +48,7 @@ export function ImageText({ image, heading, text, cta, ...attributes }: ImageTex
         <div className="absolute inset-0 bg-[rgba(0,0,0,0.65)]" />
       </div>
       <div className="col-span-full flex flex-col items-center justify-center gap-(--spacing-md) text-center text-ui-primary desktop-s:col-span-8 desktop-s:col-start-3">
-        <h2 className="text-display-l">{heading}</h2>
+        <Heading className="text-display-l">{heading}</Heading>
         {text ? <p className="text-text-l tablet:text-text-xl tablet:text-pretty">{text}</p> : null}
         {cta ? (
           <ButtonLink

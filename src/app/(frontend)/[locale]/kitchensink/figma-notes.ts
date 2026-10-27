@@ -444,6 +444,16 @@ export const designQuestions: DesignQuestion[] = [
 export const figmaNotes: FigmaNote[] = [
   {
     target: "general",
+    topic: "Sidans H1",
+    figma:
+      "Startsidans hero har sidans huvudrubrik; Om oss börjar med ett textblock och Konfigurator med konfiguratorn, utan någon rubrik som är märkt som sidans",
+    code: "Heron är alltid H1. Börjar sidan med ett annat block blir dess rubrik H1 i stället för H2 (och dess underrubriker en nivå upp), med samma utseende. Content health räknar likadant (`promoteFirstBlock`)",
+    why: "Varje sida behöver en H1 för skärmläsare och sökmotorer; content health hittade två sidor utan (beslut 2026-10-27)",
+    status: "Beslut",
+    date: "2026-10-27",
+  },
+  {
+    target: "general",
     topic: "Sidans bakgrund och luckorna",
     figma:
       "Sidmallarna (05 — Pages) har 8px mellan blocken och före sidfoten, där sidans bakgrund syns: mörk på Startsida, Om oss och Login, ljusgrå på Konfigurator",
@@ -2126,6 +2136,15 @@ export const figmaNotes: FigmaNote[] = [
     figma: "Trucken över steget och bakom prisrutan, så stor som steget lämnar plats för",
     code: "Prisrutan uppe till höger och steget under; trucken tar ytan till vänster om prisrutan, hela höjden ovanför steget, aldrig bakom rutan; den står centrerad mellan vänsterkanten och rutan, överst eller, när den är lägre än rutan, centrerad mot rutans höjd, och blir så stor som ytan tillåter, lika långt från rutan som rutan är från kanten. På Mobile står varje etikett i prisrutan över sitt värde och spalten är så bred som sitt innehåll (knappen eller prisrutans text); Tablet har Figmas 229px",
     why: "Trucken såg ut att ligga gömd bakom rutan; den ska fylla ytan utom rutan (beslut 2026-10-27)",
+    status: "Beslut",
+    date: "2026-10-27",
+  },
+  {
+    target: "configurator",
+    topic: "Rubrik för skärmläsare",
+    figma: "Stegskärmen har ingen rubrik",
+    code: 'Konfiguratorblocket har en rubrik ("Bygg din truck" som standard) som bara läses upp (`sr-only`): sidans H1 när konfiguratorn står först, annars H2',
+    why: "Konfiguratorsidan saknade H1; designen ändras inte (beslut 2026-10-27)",
     status: "Beslut",
     date: "2026-10-27",
   },

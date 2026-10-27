@@ -1,13 +1,14 @@
 import { editableBlock, editableField } from "@simmalugnt-se/payload-visual-editing/frontend";
 import type { FAQBlock, LayoutBlockComponentProps } from "../types";
 
-export function FAQBlockComponent({ block }: LayoutBlockComponentProps<FAQBlock>) {
+export function FAQBlockComponent({ block, first }: LayoutBlockComponentProps<FAQBlock>) {
+  const Heading = first ? "h1" : "h2";
   return (
     <section className="max-w-3xl space-y-6">
       {block.heading ? (
-        <h2 {...editableField("heading")} className="text-2xl font-semibold text-neutral-950">
+        <Heading {...editableField("heading")} className="text-2xl font-semibold text-neutral-950">
           {block.heading}
-        </h2>
+        </Heading>
       ) : null}
       <div className="divide-y divide-neutral-200 border-y border-neutral-200">
         {block.items?.map((item, index) => (

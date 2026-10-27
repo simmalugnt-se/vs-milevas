@@ -14,10 +14,11 @@ Next.js 16 + Payload 3 starter for a **content-managed marketing site** (localiz
 - Hero, rich text, media, gallery, card list, FAQ, call to action and columns blocks, with
   click-to-edit fields in Live Preview, and an optional announcement bar in the header
 - The `@simmalugnt-se` plugins: visual editing (click-to-edit in Live Preview), the editor assistant
-  (AI help in Admin) and content health (a dashboard widget and a work list of content issues). Each
-  works without the others; see [Removing a plugin](#removing-a-plugin)
-  - In Milevas only visual editing is on for now; content health and the editor assistant are
-    commented out in `src/payload/plugins/index.ts`.
+  (AI help in Admin), content health (a dashboard widget and a work list of content issues), Mux
+  (video uploads) and search (global Admin search with recent documents). Each works without the
+  others; see [Removing a plugin](#removing-a-plugin)
+  - In Milevas the editor assistant is installed but commented out in
+    `src/payload/plugins/index.ts`; the others are on.
 
 ## Local setup
 
@@ -80,14 +81,25 @@ slug.
 
 Draft preview uses `GET /[locale]/next/preview` with `PREVIEW_SECRET`. Set `NEXT_PUBLIC_SITE_URL` (or `NEXT_PUBLIC_SERVER_URL`) to the origin you open in the browser. Published `pages`, `header`, `footer`, and `redirects` changes trigger cache revalidation via Payload hooks.
 
+## Admin search
+
+The Search action or ⌘K / Ctrl+K opens global content search. It finds pages, truck types,
+configurator and contact requests (by reference), images, documents and videos by title, slug or
+filename, plus Header, Footer and the configurator settings by name. It also shows up to five
+recently opened documents per user, respecting read access. Page body text and Users are outside
+it. No AI model or database migration is required.
+See the [plugin documentation](https://github.com/simmalugnt-se/payload-plugins/tree/main/packages/payload-search).
+
 ## Removing a plugin
 
-The three `@simmalugnt-se` plugins do not depend on each other: content health offers "Fix with the
+The `@simmalugnt-se` plugins do not depend on each other: content health offers "Fix with the
 assistant" only when the assistant is installed, and marks fields itself without visual editing.
 To remove one, take it out of `src/payload/plugins/index.ts`, then:
 
 - **Content health** — nothing else. It has no tables. Editors who saved their own dashboard layout
   see "Widget not found" in its place until they remove it in the dashboard's edit mode.
+- **Search** — remove the plugin and regenerate the import map. It has no tables; its recent
+  references use Payload's existing per-user preferences.
 - **Visual editing** — removing the plugin is enough; the frontend markers then do nothing. To also
   uninstall the package, remove the `@simmalugnt-se/payload-visual-editing/frontend` helpers from the
   blocks in `src/payload/blocks/` and `VisualEditingPreview` from

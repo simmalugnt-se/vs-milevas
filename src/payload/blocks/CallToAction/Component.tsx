@@ -5,14 +5,16 @@ import type { CallToActionBlock, LayoutBlockComponentProps } from "../types";
 
 export function CallToActionBlockComponent({
   block,
+  first,
 }: LayoutBlockComponentProps<CallToActionBlock>) {
+  const Heading = first ? "h1" : "h2";
   const resolvedLink = resolveLinkField(block.button?.link);
 
   return (
     <section className="surface space-y-4 p-6 lg:p-8">
-      <h2 {...editableField("title")} className="text-2xl font-semibold text-neutral-950">
+      <Heading {...editableField("title")} className="text-2xl font-semibold text-neutral-950">
         {block.title}
-      </h2>
+      </Heading>
       {block.text ? (
         <p
           {...editableField("text")}

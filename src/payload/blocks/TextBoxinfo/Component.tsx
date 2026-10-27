@@ -3,10 +3,11 @@ import { TextBoxinfo } from "@/components/blocks/text-boxinfo";
 import { resolveLinkField } from "@/payload/utilities/link-field";
 import type { LayoutBlockComponentProps, TextBoxinfoBlock } from "../types";
 
-export function TextBoxinfoBlockComponent({ block }: LayoutBlockComponentProps<TextBoxinfoBlock>) {
+export function TextBoxinfoBlockComponent({ block, first }: LayoutBlockComponentProps<TextBoxinfoBlock>) {
   const link = block.showButton ? resolveLinkField(block.cta) : null;
   return (
     <TextBoxinfo
+      headingAs={first ? "h1" : "h2"}
       id={block.anchor ?? undefined}
       heading={
         <span className="whitespace-pre-line" {...editableField("heading")}>

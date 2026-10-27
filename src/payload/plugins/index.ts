@@ -1,10 +1,11 @@
 import { mcpPlugin } from "@payloadcms/plugin-mcp";
 import { redirectsPlugin } from "@payloadcms/plugin-redirects";
 import { seoPlugin } from "@payloadcms/plugin-seo";
-// Content health and the editor assistant are installed but off for now; see their blocks below.
-// import { contentHealthPlugin } from "@simmalugnt-se/payload-content-health";
+import { contentHealthPlugin } from "@simmalugnt-se/payload-content-health";
+// The editor assistant is installed but off for now; see its block below.
 // import { editorAssistantPlugin } from "@simmalugnt-se/payload-editor-assistant";
 import { muxPlugin } from "@simmalugnt-se/payload-mux";
+import { searchPlugin } from "@simmalugnt-se/payload-search";
 import { visualEditingPlugin } from "@simmalugnt-se/payload-visual-editing";
 import type { CollectionConfig, Plugin } from "payload";
 import { routing } from "@/i18n/routing";
@@ -131,29 +132,43 @@ export const cmsPlugins: Plugin[] = [
       },
     },
   }),
-  // Off for now. To turn on: uncomment this and its import, then pnpm generate:importmap.
-  // contentHealthPlugin({
-  //   collections: {
-  //     pages: {
-  //       seo: true,
-  //       // Localized text filled in English but empty in Swedish; the assistant translates it.
-  //       translations: true,
-  //       content: {
-  //         field: "layout",
-  //         // Levels as the block components render them; rich text headings count by their tag.
-  //         headings: {
-  //           hero: { headline: 1 },
-  //           cards: { heading: 2, "items.title": 3 },
-  //           faq: { heading: 2 },
-  //           callToAction: { title: 2 },
-  //         },
-  //       },
-  //     },
-  //     images: { altText: true },
-  //     // A video's description is its text alternative, as an alt text is for an image.
-  //     videos: { videoDescription: true },
-  //   },
-  // }),
+  contentHealthPlugin({
+    collections: {
+      pages: {
+        seo: true,
+        // Localized text filled in Swedish but empty in another language; finds nothing while
+        // Swedish is the only one.
+        translations: true,
+        content: {
+          field: "layout",
+          // Levels as the block components render them; rich text headings count by their tag.
+          // The first block's heading is the H1 when no hero opens the page (`first` in RenderBlocks).
+          promoteFirstBlock: true,
+          headings: {
+            hero: { headline: 1 },
+            milevasHero: { heading: 1 },
+            cards: { heading: 2, "items.title": 3 },
+            faq: { heading: 2 },
+            callToAction: { title: 2 },
+            contact: { heading: 2 },
+            imageText: { heading: 2 },
+            textBoxinfo: { heading: 2 },
+            textColumns: { heading: 2 },
+            textGrid: { heading: 2 },
+            // Only read out, as the step screen has no heading in Figma.
+            configurator: { heading: 2 },
+          },
+        },
+        // Published pages nothing links to; the start page is reached by its address.
+        orphans: { exclude: { slug: { equals: "home" } } },
+      },
+      images: { altText: true },
+      // A video's description is its text alternative, as an alt text is for an image.
+      videos: { videoDescription: true },
+    },
+    // Menu links are links too: broken ones are found, and pages reached from the menu are linked.
+    globals: { header: { links: true }, footer: { links: true } },
+  }),
   visualEditingPlugin({ collections: ["pages"], globals: ["header", "footer"] }),
   // Off for now. To turn on: uncomment this, its imports and the model check above, then pnpm
   // generate:importmap and pnpm db:migrate:create for its tables.
@@ -221,4 +236,16 @@ export const cmsPlugins: Plugin[] = [
   //     },
   //   ],
   // }),
+  searchPlugin({
+    collections: [
+      "pages",
+      "truck-families",
+      "configurator-requests",
+      "contact-requests",
+      "images",
+      "documents",
+      "videos",
+    ],
+    globals: ["header", "footer", "configurator-settings"],
+  }),
 ];

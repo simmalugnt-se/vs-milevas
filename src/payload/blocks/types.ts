@@ -4,6 +4,11 @@ export type LayoutBlock = NonNullable<Page["layout"]>[number];
 
 export type LayoutBlockComponentProps<TBlock extends LayoutBlock = LayoutBlock> = {
   block: TBlock;
+  /**
+   * The block opens the page, so its heading is the page's H1 (content health counts it so with
+   * `promoteFirstBlock`); a hero is the H1 wherever it is.
+   */
+  first?: boolean;
 };
 
 export type HeroBlock = Extract<LayoutBlock, { blockType: "hero" }>;

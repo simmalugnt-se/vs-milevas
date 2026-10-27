@@ -370,7 +370,7 @@ async function seed() {
           // Light grey, as Figma's Konfigurator page.
           background: "light",
           _status: "published",
-          layout: [{ blockType: "configurator" }],
+          layout: [{ blockType: "configurator", heading: "Bygg din truck" }],
         },
       });
     } else if (!existingPage.layout?.some((block) => block.blockType === "configurator")) {
@@ -382,7 +382,10 @@ async function seed() {
         overrideAccess: true,
         context: { disableRevalidate: true },
         data: {
-          layout: [...(existingPage.layout ?? []), { blockType: "configurator" }],
+          layout: [
+            ...(existingPage.layout ?? []),
+            { blockType: "configurator", heading: "Bygg din truck" },
+          ],
         },
       });
     }

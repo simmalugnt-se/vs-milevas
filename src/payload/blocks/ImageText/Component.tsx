@@ -5,11 +5,12 @@ import { resolveLinkField } from "@/payload/utilities/link-field";
 import { resolvePayloadMedia } from "@/payload/utilities/media";
 import type { ImageTextBlock, LayoutBlockComponentProps } from "../types";
 
-export function ImageTextBlockComponent({ block }: LayoutBlockComponentProps<ImageTextBlock>) {
+export function ImageTextBlockComponent({ block, first }: LayoutBlockComponentProps<ImageTextBlock>) {
   const media = resolvePayloadMedia(block.image);
   const link = block.showButton ? resolveLinkField(block.cta) : null;
   return (
     <ImageText
+      headingAs={first ? "h1" : "h2"}
       id={block.anchor ?? undefined}
       image={
         media?.kind === "image" ? (

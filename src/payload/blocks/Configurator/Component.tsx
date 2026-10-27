@@ -8,7 +8,11 @@ import type { ConfiguratorBlock, LayoutBlockComponentProps } from "../types";
  * The configurator as on Figma's Konfigurator page: the screen from the top of the page, under the
  * overlaid navigation, which turns Light here (`data-navigation`). The screen owns its spacing.
  */
-export async function ConfiguratorBlockComponent(_: LayoutBlockComponentProps<ConfiguratorBlock>) {
+export async function ConfiguratorBlockComponent({
+  block,
+  first,
+}: LayoutBlockComponentProps<ConfiguratorBlock>) {
+  const Heading = first ? "h1" : "h2";
   const locale = await getLocale();
   const { isEnabled: draft } = await draftMode();
   const catalog = await getConfiguratorCatalog(locale, draft);
@@ -20,6 +24,8 @@ export async function ConfiguratorBlockComponent(_: LayoutBlockComponentProps<Co
       data-navigation="light"
       data-navigation-start
     >
+      {/* Figma has no heading on the step screen; this one is only read out (see figma-notes). */}
+      {block.heading ? <Heading className="sr-only">{block.heading}</Heading> : null}
       <ConfiguratorClient catalog={catalog} locale={locale} />
     </section>
   );

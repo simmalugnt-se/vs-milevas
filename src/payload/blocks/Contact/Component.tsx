@@ -8,7 +8,7 @@ import { ContactRequestForm } from "@/features/contact/ContactRequestForm";
 import type { ContactBlock, LayoutBlockComponentProps } from "../types";
 
 /** Contact with the Footer global's e-mail, phone and social links, and the contact request form. */
-export async function ContactBlockComponent({ block }: LayoutBlockComponentProps<ContactBlock>) {
+export async function ContactBlockComponent({ block, first }: LayoutBlockComponentProps<ContactBlock>) {
   const locale = (await getLocale()) as TypedLocale;
   const { isEnabled: draft } = await draftMode();
   // Loaded here, not at the top: the globals import the Payload config, and a static import would
@@ -51,6 +51,7 @@ export async function ContactBlockComponent({ block }: LayoutBlockComponentProps
 
   return (
     <Contact
+      headingAs={first ? "h1" : "h2"}
       id={block.anchor ?? undefined}
       heading={<span {...editableField("heading")}>{block.heading}</span>}
       items={items}

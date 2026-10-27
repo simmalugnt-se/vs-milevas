@@ -36,14 +36,14 @@ import { TextColumnsBlockComponent } from "./TextColumns/Component";
 import { TextColumnsBlock } from "./TextColumns/config";
 import { TextGridBlockComponent } from "./TextGrid/Component";
 import { TextGridBlock } from "./TextGrid/config";
-import type { LayoutBlock } from "./types";
+import type { LayoutBlock, LayoutBlockComponentProps } from "./types";
 
 export type { LayoutBlock } from "./types";
 
 // sl-cli:block-component-imports (do not remove)
 // sl-cli:block-config-imports (do not remove)
 
-export type LayoutBlockRenderer = (props: { block: LayoutBlock }) => ReactNode;
+export type LayoutBlockRenderer = (props: LayoutBlockComponentProps) => ReactNode;
 
 function isBlockType<TType extends LayoutBlock["blockType"]>(
   block: LayoutBlock,
@@ -54,14 +54,16 @@ function isBlockType<TType extends LayoutBlock["blockType"]>(
 
 function renderTypedBlock<TType extends LayoutBlock["blockType"]>(
   blockType: TType,
-  render: (props: { block: Extract<LayoutBlock, { blockType: TType }> }) => ReactNode,
+  render: (
+    props: LayoutBlockComponentProps<Extract<LayoutBlock, { blockType: TType }>>,
+  ) => ReactNode,
 ): LayoutBlockRenderer {
-  return ({ block }) => {
+  return ({ block, ...props }) => {
     if (!isBlockType(block, blockType)) {
       return null;
     }
 
-    return render({ block });
+    return render({ block, ...props });
   };
 }
 
@@ -89,45 +91,45 @@ export const layoutBlocks: Block[] = [
 ];
 
 export const blockComponents = {
-  hero: renderTypedBlock("hero", ({ block }) => HeroBlockComponent({ block })),
-  media: renderTypedBlock("media", ({ block }) => MediaBlockComponent({ block })),
-  configurator: renderTypedBlock("configurator", ({ block }) =>
-    createElement(ConfiguratorBlockComponent, { block }),
+  hero: renderTypedBlock("hero", (props) => HeroBlockComponent(props)),
+  media: renderTypedBlock("media", (props) => MediaBlockComponent(props)),
+  configurator: renderTypedBlock("configurator", (props) =>
+    createElement(ConfiguratorBlockComponent, props),
   ),
-  richText: renderTypedBlock("richText", ({ block }) => RichTextBlockComponent({ block })),
-  gallery: renderTypedBlock("gallery", ({ block }) => GalleryBlockComponent({ block })),
-  cards: renderTypedBlock("cards", ({ block }) => CardsBlockComponent({ block })),
-  faq: renderTypedBlock("faq", ({ block }) => FAQBlockComponent({ block })),
-  callToAction: renderTypedBlock("callToAction", ({ block }) =>
-    CallToActionBlockComponent({ block }),
+  richText: renderTypedBlock("richText", (props) => RichTextBlockComponent(props)),
+  gallery: renderTypedBlock("gallery", (props) => GalleryBlockComponent(props)),
+  cards: renderTypedBlock("cards", (props) => CardsBlockComponent(props)),
+  faq: renderTypedBlock("faq", (props) => FAQBlockComponent(props)),
+  callToAction: renderTypedBlock("callToAction", (props) =>
+    CallToActionBlockComponent(props),
   ),
-  columns: renderTypedBlock("columns", ({ block }) => ColumnsBlockComponent({ block })),
-  milevasHero: renderTypedBlock("milevasHero", ({ block }) =>
-    createElement(MilevasHeroBlockComponent, { block }),
+  columns: renderTypedBlock("columns", (props) => ColumnsBlockComponent(props)),
+  milevasHero: renderTypedBlock("milevasHero", (props) =>
+    createElement(MilevasHeroBlockComponent, props),
   ),
-  textColumns: renderTypedBlock("textColumns", ({ block }) =>
-    createElement(TextColumnsBlockComponent, { block }),
+  textColumns: renderTypedBlock("textColumns", (props) =>
+    createElement(TextColumnsBlockComponent, props),
   ),
-  imageText: renderTypedBlock("imageText", ({ block }) =>
-    createElement(ImageTextBlockComponent, { block }),
+  imageText: renderTypedBlock("imageText", (props) =>
+    createElement(ImageTextBlockComponent, props),
   ),
-  productGrid: renderTypedBlock("productGrid", ({ block }) =>
-    createElement(ProductGridBlockComponent, { block }),
+  productGrid: renderTypedBlock("productGrid", (props) =>
+    createElement(ProductGridBlockComponent, props),
   ),
-  textGrid: renderTypedBlock("textGrid", ({ block }) =>
-    createElement(TextGridBlockComponent, { block }),
+  textGrid: renderTypedBlock("textGrid", (props) =>
+    createElement(TextGridBlockComponent, props),
   ),
-  textBoxinfo: renderTypedBlock("textBoxinfo", ({ block }) =>
-    createElement(TextBoxinfoBlockComponent, { block }),
+  textBoxinfo: renderTypedBlock("textBoxinfo", (props) =>
+    createElement(TextBoxinfoBlockComponent, props),
   ),
-  cardSlider: renderTypedBlock("cardSlider", ({ block }) =>
-    createElement(CardSliderBlockComponent, { block }),
+  cardSlider: renderTypedBlock("cardSlider", (props) =>
+    createElement(CardSliderBlockComponent, props),
   ),
-  textBlock: renderTypedBlock("textBlock", ({ block }) =>
-    createElement(TextBlockBlockComponent, { block }),
+  textBlock: renderTypedBlock("textBlock", (props) =>
+    createElement(TextBlockBlockComponent, props),
   ),
-  contact: renderTypedBlock("contact", ({ block }) =>
-    createElement(ContactBlockComponent, { block }),
+  contact: renderTypedBlock("contact", (props) =>
+    createElement(ContactBlockComponent, props),
   ),
   // sl-cli:block-components-map (do not remove)
 } satisfies Record<string, LayoutBlockRenderer>;

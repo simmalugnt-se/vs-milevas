@@ -23,10 +23,11 @@ a plugin.
   are, how a block is built, what is next). Record every deviation from Figma, every gap in Figma
   the code fills, and every question for the designer in `src/app/(frontend)/[locale]/kitchensink/figma-notes.ts`, tied to the
   component or block it concerns; /kitchensink shows them there, and general ones at the top.
-- Plugins: visual editing is on. Redirects and MCP (its API keys) are off unless
-  `PAYLOAD_REDIRECTS_ENABLED` / `PAYLOAD_MCP_ENABLED` is `true`; their tables stay. Content health and the editor assistant are installed but commented
-  out in `src/payload/plugins/index.ts`; the assistant needs a migration for its tables when it is
-  turned on.
+- Plugins: visual editing, Mux, content health and Admin search are on. Redirects and MCP (its API
+  keys) are off unless `PAYLOAD_REDIRECTS_ENABLED` / `PAYLOAD_MCP_ENABLED` is `true`; their tables
+  stay. The editor assistant is installed but commented out in `src/payload/plugins/index.ts`; it
+  needs a migration for its tables when it is turned on. Content health's heading levels per block
+  are listed there too: update them when a block's heading level changes or a block is added.
 - `pnpm typecheck`, `pnpm lint` and `pnpm test` pass before a commit.
 - Production and staging each have a Neon branch with its own database and bucket; Vercel's
   Production and Preview use them through `SERVICES=cloud`. Migrations run on deploy (`ci:build`).

@@ -3,13 +3,15 @@ import { Link } from "@/i18n/navigation";
 import { resolveLinkField } from "@/payload/utilities/link-field";
 import type { CardsBlock, LayoutBlockComponentProps } from "../types";
 
-export function CardsBlockComponent({ block }: LayoutBlockComponentProps<CardsBlock>) {
+export function CardsBlockComponent({ block, first }: LayoutBlockComponentProps<CardsBlock>) {
+  // Opening the page, the heading is the H1 and the cards' titles H2.
+  const [Heading, ItemHeading] = first ? (["h1", "h2"] as const) : (["h2", "h3"] as const);
   return (
     <section className="space-y-6">
       {block.heading ? (
-        <h2 {...editableField("heading")} className="text-2xl font-semibold text-neutral-950">
+        <Heading {...editableField("heading")} className="text-2xl font-semibold text-neutral-950">
           {block.heading}
-        </h2>
+        </Heading>
       ) : null}
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {block.items?.map((item, index) => {
@@ -21,9 +23,12 @@ export function CardsBlockComponent({ block }: LayoutBlockComponentProps<CardsBl
               {...editableBlock(item)}
               className="surface space-y-4 p-6"
             >
-              <h3 {...editableField("title")} className="text-lg font-semibold text-neutral-950">
+              <ItemHeading
+                {...editableField("title")}
+                className="text-lg font-semibold text-neutral-950"
+              >
                 {item.title}
-              </h3>
+              </ItemHeading>
               {item.text ? (
                 <p
                   {...editableField("text")}

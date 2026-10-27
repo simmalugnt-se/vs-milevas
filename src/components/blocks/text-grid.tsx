@@ -29,10 +29,18 @@ export type TextGridCard = {
 type TextGridProps = HTMLAttributes<HTMLElement> & {
   headingAttributes?: HTMLAttributes<HTMLHeadingElement>;
   heading: string;
+  /** The heading's element: `h1` when the block opens a page without a hero. */
+  headingAs?: "h1" | "h2";
   cards: TextGridCard[];
 };
 
-export function TextGrid({ heading, cards, headingAttributes, ...attributes }: TextGridProps) {
+export function TextGrid({
+  heading,
+  headingAs: Heading = "h2",
+  cards,
+  headingAttributes,
+  ...attributes
+}: TextGridProps) {
   return (
     <section {...attributes} className="mode-dark bg-bg-fill px-(--grid-margin)">
       {/* The navigation turns Light over the light box, and stays Dark over its photos. */}
@@ -40,14 +48,17 @@ export function TextGrid({ heading, cards, headingAttributes, ...attributes }: T
         data-navigation="light"
         className="flex flex-col gap-(--spacing-lg) mode-light rounded-lg bg-bg-fill px-(--spacing-sm) py-(--spacing-xl) desktop-s:min-h-[50rem] desktop-s:justify-between desktop-s:gap-(--spacing-3xl)"
       >
-        <h2 {...headingAttributes} className="whitespace-pre-line text-display-l text-ui-primary">
+        <Heading
+          {...headingAttributes}
+          className="whitespace-pre-line text-display-l text-ui-primary"
+        >
           {/* Centred on the first line: half the line height (`sizes/3xl`) less half the arrow. */}
           <Arrow
             name="round"
             className="mt-2 mr-(--spacing-sm) inline-block size-8 align-top tablet:size-12 desktop-s:mt-3 desktop-s:size-14 desktop-l:mt-4 desktop-l:size-16"
           />
           {heading}
-        </h2>
+        </Heading>
         <ul data-navigation="dark" className="grid gap-(--grid-gap) desktop-s:grid-cols-3">
           {cards.map(({ attributes, ...card }, index) => (
             <li

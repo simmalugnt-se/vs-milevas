@@ -3,6 +3,8 @@ import type { AnchorHTMLAttributes, HTMLAttributes, ReactNode } from "react";
 type ContactProps = HTMLAttributes<HTMLElement> & {
   /** Display L: "Kontakt". */
   heading: ReactNode;
+  /** The heading's element: `h1` when the block opens a page without a hero. */
+  headingAs?: "h1" | "h2";
   /** The numbered rows: e-mail, phone, social links. Several links in a row sit `spacing/xs` apart. */
   items: ReactNode[];
   /** A <ContactForm type="contact">. */
@@ -35,14 +37,20 @@ const line = "border-b-(length:--stroke-width) border-border-primary";
  * - Tablet and Mobile: the rows above the form, `spacing/4xl` apart and `spacing/sm` at the sides.
  *   Tablet gives both the same height, as Figma's two equal rows.
  */
-export function Contact({ heading, items, form, ...attributes }: ContactProps) {
+export function Contact({
+  heading,
+  headingAs: Heading = "h2",
+  items,
+  form,
+  ...attributes
+}: ContactProps) {
   return (
     <section
       {...attributes}
       className="grid grid-cols-[repeat(var(--grid-columns),minmax(0,1fr))] gap-x-(--grid-gap) gap-y-(--spacing-4xl) mode-dark bg-bg-fill px-(--spacing-2xs) py-(--spacing-3xl) text-ui-primary tablet:auto-rows-fr"
     >
       <div className="col-span-full flex flex-col self-start px-(--spacing-sm) desktop-s:col-span-6 desktop-s:pr-0">
-        <h2 className={`pb-(--spacing-4xl) text-display-l ${line}`}>{heading}</h2>
+        <Heading className={`pb-(--spacing-4xl) text-display-l ${line}`}>{heading}</Heading>
         <ul className="flex flex-col">
           {items.map((item, index) => (
             <li

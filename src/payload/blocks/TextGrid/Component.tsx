@@ -4,9 +4,10 @@ import { TextGrid } from "@/components/blocks/text-grid";
 import { getMediaImageURL } from "@/payload/utilities/media";
 import type { LayoutBlockComponentProps, TextGridBlock } from "../types";
 
-export function TextGridBlockComponent({ block }: LayoutBlockComponentProps<TextGridBlock>) {
+export function TextGridBlockComponent({ block, first }: LayoutBlockComponentProps<TextGridBlock>) {
   return (
     <TextGrid
+      headingAs={first ? "h1" : "h2"}
       id={block.anchor ?? undefined}
       heading={block.heading}
       headingAttributes={editableField("heading")}

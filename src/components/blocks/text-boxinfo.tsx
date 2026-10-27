@@ -25,6 +25,8 @@ export type TextBoxinfoItem = {
 
 type TextBoxinfoProps = HTMLAttributes<HTMLElement> & {
   heading: ReactNode;
+  /** The heading's element: `h1` when the block opens a page without a hero. */
+  headingAs?: "h1" | "h2";
   /** Second part of the heading, on its own line in `ui-brand`. */
   highlight?: ReactNode;
   text?: ReactNode;
@@ -40,6 +42,7 @@ type TextBoxinfoProps = HTMLAttributes<HTMLElement> & {
 
 export function TextBoxinfo({
   heading,
+  headingAs: Heading = "h2",
   highlight,
   text,
   items,
@@ -52,10 +55,10 @@ export function TextBoxinfo({
       className="grid-layout gap-y-(--spacing-4xl) mode-dark bg-bg-fill py-(--spacing-xl) desktop-s:min-h-[50rem]"
     >
       <div className="col-span-full flex flex-col gap-(--spacing-md) px-(--spacing-sm) desktop-s:col-span-7 desktop-s:pr-0">
-        <h2 className="text-display-l leading-[0.9] text-ui-primary">
+        <Heading className="text-display-l leading-[0.9] text-ui-primary">
           {heading}
           {highlight ? <span className="block text-ui-brand">{highlight}</span> : null}
-        </h2>
+        </Heading>
         {text ? <p className="text-text-xl text-ui-primary">{text}</p> : null}
       </div>
       <div className="col-span-full flex flex-col gap-(--grid-gap) px-(--spacing-sm) tablet:col-span-4 tablet:col-start-3 tablet:pl-0 desktop-s:col-start-9 desktop-s:self-end desktop-s:pt-(--spacing-4xl)">

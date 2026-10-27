@@ -4,7 +4,7 @@ import { TextBlockColumns } from "@/components/blocks/text-block-columns";
 import { getMediaImageDimensions, getMediaImageURL } from "@/payload/utilities/media";
 import type { LayoutBlockComponentProps, TextColumnsBlock } from "../types";
 
-export function TextColumnsBlockComponent({ block }: LayoutBlockComponentProps<TextColumnsBlock>) {
+export function TextColumnsBlockComponent({ block, first }: LayoutBlockComponentProps<TextColumnsBlock>) {
   const logos = block.logos.flatMap((logo) => {
     const src = getMediaImageURL(logo.image);
     const size = getMediaImageDimensions(logo.image);
@@ -29,6 +29,7 @@ export function TextColumnsBlockComponent({ block }: LayoutBlockComponentProps<T
   });
   return (
     <TextBlockColumns
+      headingAs={first ? "h1" : "h2"}
       id={block.anchor ?? undefined}
       heading={<span {...editableField("heading")}>{block.heading}</span>}
       highlight={
