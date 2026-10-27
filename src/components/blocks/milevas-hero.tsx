@@ -425,11 +425,16 @@ export function MilevasHero({
     return `calc(${share}% + ${end - share}% * var(--lines, 0))`;
   };
 
+  // Below Desktop S a column is `--hero-column-width` wide. On a phone its edge lands halfway
+  // between the navigation's "Login" and "[Meny]", 4.0762rem from the right (the 1rem margin,
+  // "[Meny]" 2.7012rem in Label S and half the 0.75rem between them), so the yellow column never
+  // ends at "Login"; from 41.0625rem Figma's 79.73% ends before "Login" with room to spare, and
+  // Tablet has Figma's 62.28%.
   return (
     <section
       ref={sectionRef}
       id={id}
-      className="relative h-svh min-h-[37.5rem] overflow-hidden mode-dark bg-bg-fill [container-type:inline-size] [--hero-column-width:79.73cqw] tablet:[--hero-column-width:62.28cqw] desktop-s:cursor-none"
+      className="relative h-svh min-h-[37.5rem] overflow-hidden mode-dark bg-bg-fill [container-type:inline-size] [--hero-column-width:calc(100cqw-4.0762rem)] min-[41.0625rem]:[--hero-column-width:79.73cqw] tablet:[--hero-column-width:62.28cqw] desktop-s:cursor-none"
     >
       <ul
         ref={listRef}
@@ -445,7 +450,7 @@ export function MilevasHero({
             }}
             // Yellow: the navigation turns Light over it.
             data-navigation={lit && active === index ? "light" : undefined}
-            className={`hero-column h-full w-[79.73%] shrink-0 snap-start snap-always tablet:w-[62.28%] desktop-s:w-(--column-width) ${
+            className={`hero-column h-full w-(--hero-column-width) shrink-0 snap-start snap-always desktop-s:w-(--column-width) ${
               index === 0 ? reveal : ""
             }`}
             style={{ "--column-width": columnWidth(index) } as CSSProperties}
@@ -488,7 +493,10 @@ export function MilevasHero({
           </li>
         ))}
         {/* Lets the last column scroll to the start. */}
-        <li aria-hidden className="w-[20.27%] shrink-0 tablet:w-[37.72%] desktop-s:hidden" />
+        <li
+          aria-hidden
+          className="w-[calc(100cqw-var(--hero-column-width))] shrink-0 desktop-s:hidden"
+        />
       </ul>
 
       {/* Desktop S and L: the truck name under the pointer, kept inside the hero near its bottom. */}

@@ -66,7 +66,7 @@ export const designQuestions: DesignQuestion[] = [
   {
     target: "hero",
     question:
-      "Mobile: den första kolumnen är 283px bred och de andra 299 (Tablet 482 och 498), och prototypen använder 314. Vilken bredd gäller? Koden ger alla Figmas 299 respektive 498.",
+      "Mobile: den första kolumnen är 283px bred och de andra 299 (Tablet 482 och 498), och prototypen använder 314. Vilken bredd gäller? Koden ger alla samma bredd: på en telefon så att kanten hamnar mitt mellan Login och [Meny], annars Figmas 79,73 % respektive 498.",
     figma: "8539:7128",
   },
   {
@@ -574,6 +574,15 @@ export const figmaNotes: FigmaNote[] = [
     why: "Användaren gav prototypen som beskrivning av hur heron ska bete sig",
     status: "Beslut",
     date: "2026-10-22",
+  },
+  {
+    target: "hero",
+    topic: "Kolumnbredd på Mobile",
+    figma: "Kolumnerna är 299px av 375 (79,73 %); den gula kolumnens kant hamnar då precis vid navigationens Login",
+    code: "På en telefon hamnar kolumnens kant mitt mellan Login och [Meny] (4,0762rem från högerkanten), så att den gula kolumnen aldrig slutar vid Login. Från 657px slutar Figmas 79,73 % före Login med luft och gäller där; Tablet har Figmas 498 av 800",
+    why: "Kanten ska ligga mellan knapparna eller före båda (beslut 2026-10-27)",
+    status: "Beslut",
+    date: "2026-10-27",
   },
   {
     target: "hero",
