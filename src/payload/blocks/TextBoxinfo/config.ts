@@ -1,4 +1,5 @@
 import type { Block } from "payload";
+import { coloredHeadingField } from "@/payload/fields/colored-heading";
 import { link } from "../../fields/link";
 import { sectionID } from "../milevas-fields";
 
@@ -7,8 +8,10 @@ export const TextBoxinfoBlock: Block = {
   labels: { singular: "Milevas: Text och inforuta", plural: "Milevas: Text och inforuta" },
   fields: [
     sectionID,
-    { name: "heading", label: "Rubrik", type: "textarea", required: true, localized: true },
-    { name: "highlight", label: "Markerad rubrikdel", type: "textarea", localized: true },
+    coloredHeadingField({
+      description:
+        'Varje stycke (Enter) blir en egen rad. Exempel: "Truck från" och "390kr/mån", och gult "Easy peasy" och "lemon squeezy.".',
+    }),
     { name: "text", label: "Brödtext", type: "textarea", localized: true },
     {
       name: "items",

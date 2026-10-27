@@ -15,7 +15,10 @@ to date with it at commit `ed9d953` (2026-10-01). `README.md` has setup, scripts
 a plugin.
 
 - Milevas' own parts: the truck configurator (`src/features/configurator`, `TruckFamilies`,
-  `ConfiguratorRequests`, `ConfiguratorSettings`, the `configurator` block), the temporary landing
+  `ConfiguratorRequests`, `ConfiguratorSettings`, the `configurator` block), dealers
+  (`src/features/dealers`, `Dealers`: they apply on /login, an editor accepts them, and they see
+  dealer prices beside customer prices; they sign in with the site's own cookie, never Payload's, and
+  only `users` count as editors in access checks, `isEditorUser`), the temporary landing
   page (`MILEVAS_LANDING_ONLY` in `src/proxy.ts`) and Swedish: the admin is in Swedish only, and
   `sv` is the only locale in `src/i18n/routing.ts` for now (the multi-locale code stays). Everything else
   follows the boilerplate; keep it close so later updates merge cleanly.
@@ -28,6 +31,8 @@ a plugin.
   stay. The editor assistant is installed but commented out in `src/payload/plugins/index.ts`; it
   needs a migration for its tables when it is turned on. Content health's heading levels per block
   are listed there too: update them when a block's heading level changes or a block is added.
+  Colored headings (`coloredHeadingField`, rich text) count as headings from content health's next
+  release after 0.11.0.
 - `pnpm typecheck`, `pnpm lint` and `pnpm test` pass before a commit.
 - Production and staging each have a Neon branch with its own database and bucket; Vercel's
   Production and Preview use them through `SERVICES=cloud`. Migrations run on deploy (`ci:build`).

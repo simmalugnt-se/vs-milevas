@@ -2,6 +2,7 @@
 
 import {
   type CSSProperties,
+  Fragment,
   type HTMLAttributes,
   type ReactNode,
   useEffect,
@@ -11,6 +12,7 @@ import {
 } from "react";
 import { Icon } from "@/components/ui/icon";
 import { TruckColumn } from "@/components/ui/truck-column";
+import { useDealerPrice } from "@/features/dealers/DealerProvider";
 
 type Column = {
   id: string;
@@ -23,16 +25,22 @@ type Column = {
   rel?: string;
   target?: "_blank";
   rows: { label: ReactNode; value: ReactNode }[];
+  /**
+   * The customer price the column starts at, in kronor: a signed-in dealer sees "Ditt ÅF-pris:"
+   * and "Kundpris:" instead of `rows`, as on the product card's `hover-INLOGGAD`.
+   */
+  amount?: number;
   /** The truck, e.g. a `next/image` with `fill`, `object-contain` and `object-bottom`. */
   image?: ReactNode;
   attributes?: HTMLAttributes<HTMLAnchorElement>;
 };
 
 type MilevasHeroProps = {
-  /** The page's h1, white in the intro (Figma: "Bygg din baoli"). */
-  heading: ReactNode;
-  /** The yellow line after it (Figma: "På typ 30 sekunder"). */
-  highlight?: ReactNode;
+  /**
+   * The page's h1 in the intro, a line each, with their colored parts (Figma: "Bygg din baoli",
+   * then "På typ 30 sekunder" in yellow).
+   */
+  lines: ReactNode[];
   /** Under the heading (Figma: "Välj trucktyp för att börja"). */
   prompt?: ReactNode;
   columns: Column[];
@@ -79,14 +87,23 @@ function useMedia(query: string) {
   );
 }
 
-export function MilevasHero({
-  heading,
-  highlight,
-  prompt,
-  columns,
-  activeColumn = 3,
-  id,
-}: MilevasHeroProps) {
+const formatPrice = (value: number) =>
+  new Intl.NumberFormat("sv-SE", {
+    style: "currency",
+    currency: "SEK",
+    maximumFractionDigits: 0,
+  }).format(value);
+
+export function MilevasHero({ lines, prompt, columns, activeColumn = 3, id }: MilevasHeroProps) {
+  const dealerPrice = useDealerPrice();
+  const dealerRows = ({ amount }: Column) => {
+    const dealer = amount === undefined ? null : dealerPrice(amount);
+    if (dealer === null || amount === undefined) return null;
+    return [
+      { label: "Ditt ÅF-pris:", value: formatPrice(dealer) },
+      { label: "Kundpris:", value: formatPrice(amount) },
+    ];
+  };
   const sectionRef = useRef<HTMLElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
   const itemRefs = useRef<(HTMLLIElement | null)[]>([]);
@@ -463,7 +480,7 @@ export function MilevasHero({
               rel={column.rel}
               target={column.target}
               heading={column.heading}
-              rows={column.rows}
+              rows={dealerRows(column) ?? column.rows}
               scrollLabel={!desktop && index === 0 && settled && hint ? "Skrolla" : undefined}
               data-state={lit && active === index ? "active" : undefined}
               contentClassName="hero-pinned max-desktop-s:translate-x-(--shift) desktop-s:group-data-[state=active]/column:animate-[hero-info-in_380ms_cubic-bezier(0.23,1,0.32,1)_both]"
@@ -538,22 +555,20 @@ export function MilevasHero({
             <span
               className={`block max-desktop-s:transition-[translate] ${rise} ${leaving ? "max-desktop-s:-translate-y-[120%]" : ""}`}
             >
-              <span className="desktop-s:block desktop-s:overflow-hidden">
-                <span
-                  className={`desktop-s:block desktop-s:transition-[translate] ${rise} ${leaving ? "desktop-s:-translate-y-[120%]" : ""}`}
-                >
-                  {heading}
-                </span>
-              </span>{" "}
-              {highlight ? (
-                <span className="desktop-s:block desktop-s:overflow-hidden">
-                  <span
-                    className={`text-ui-brand desktop-s:block desktop-s:transition-[translate] desktop-s:delay-[120ms] ${rise} ${leaving ? "desktop-s:-translate-y-[120%]" : ""}`}
-                  >
-                    {highlight}
+              {/* On Desktop each line rises out on its own, 120ms after the one above. */}
+              {lines.map((line, index) => (
+                <Fragment key={index}>
+                  {index > 0 ? " " : null}
+                  <span className="desktop-s:block desktop-s:overflow-hidden">
+                    <span
+                      className={`desktop-s:block desktop-s:transition-[translate] ${rise} ${leaving ? "desktop-s:-translate-y-[120%]" : ""}`}
+                      style={index > 0 ? { transitionDelay: `${index * 120}ms` } : undefined}
+                    >
+                      {line}
+                    </span>
                   </span>
-                </span>
-              ) : null}
+                </Fragment>
+              ))}
             </span>
           </h1>
           {prompt ? (

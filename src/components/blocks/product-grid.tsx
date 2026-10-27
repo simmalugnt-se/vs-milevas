@@ -1,5 +1,8 @@
 import type { HTMLAttributes } from "react";
-import { ProductCard, type ProductCardProps } from "@/components/ui/product-card";
+import {
+  DealerProductCard,
+  type DealerProductCardProps,
+} from "@/components/ui/dealer-product-card";
 
 /**
  * Product-Grid from Figma "04 — Blocks" (8365:8988): product-cards on Dark `bg-fill`, with
@@ -15,7 +18,8 @@ import { ProductCard, type ProductCardProps } from "@/components/ui/product-card
  */
 
 type ProductGridProps = HTMLAttributes<HTMLElement> & {
-  products: ProductCardProps[];
+  /** With `amount`, a signed-in dealer sees the card as Figma's `hover-INLOGGAD`. */
+  products: DealerProductCardProps[];
   /** Accessible name of the list, e.g. "Modeller". */
   label?: string;
 };
@@ -38,7 +42,7 @@ export function ProductGrid({ products, label, ...attributes }: ProductGridProps
             key={String(product.href)}
             className="w-[calc(100%-var(--spacing-md))] shrink-0 snap-start tablet:w-auto"
           >
-            <ProductCard {...product} />
+            <DealerProductCard {...product} />
           </li>
         ))}
       </ul>

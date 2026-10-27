@@ -1,4 +1,5 @@
 import type { Block } from "payload";
+import { coloredHeadingField } from "@/payload/fields/colored-heading";
 import { FAMILY_ROW_LABEL, familyField, sectionID } from "../milevas-fields";
 
 export const MilevasHeroBlock: Block = {
@@ -6,21 +7,11 @@ export const MilevasHeroBlock: Block = {
   labels: { singular: "Milevas: Hero", plural: "Milevas: Hero" },
   fields: [
     sectionID,
-    {
-      name: "heading",
+    coloredHeadingField({
       label: "Sidans rubrik",
-      type: "text",
-      required: true,
-      localized: true,
-      admin: { description: "Sidans h1, introts vita rad. Exempel: Bygg din baoli." },
-    },
-    {
-      name: "highlight",
-      label: "Gul rad",
-      type: "text",
-      localized: true,
-      admin: { description: "Efter rubriken, i gult. Exempel: På typ 30 sekunder." },
-    },
+      description:
+        'Sidans h1 i introt. Varje stycke (Enter) blir en egen rad. Exempel: "Bygg din baoli" och en gul rad "På typ 30 sekunder".',
+    }),
     {
       name: "prompt",
       label: "Uppmaning",

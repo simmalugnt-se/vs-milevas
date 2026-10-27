@@ -1,113 +1,234 @@
 "use client";
 
-import { type FormEvent, useState } from "react";
-import { Button } from "@/components/ui/button";
+import {
+  type ReactNode,
+  useActionState,
+  useCallback,
+  useEffect,
+  useState,
+  useTransition,
+} from "react";
+import { Button, ButtonLink } from "@/components/ui/button";
 import { TextField } from "@/components/ui/text-field";
+import {
+  applyForDealerAccount,
+  type DealerFormState,
+  loginDealer,
+  logoutDealer,
+  requestDealerPasswordReset,
+  resetDealerPassword,
+} from "@/features/dealers/actions";
+import { useDealer } from "@/features/dealers/DealerProvider";
+import { useRouter } from "@/i18n/navigation";
 
-export type LoginMode = "login" | "create";
+export type LoginMode = "login" | "apply" | "forgot" | "reset";
 
-type LoginErrors = { email?: string; password?: string };
+type LoginErrors = DealerFormState["fieldErrors"];
 
-const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const linkClassName =
   "text-text-s text-ui-primary underline decoration-from-font [text-underline-position:from-font]";
 
-function validate(mode: LoginMode, email: string, password: string): LoginErrors {
-  const errors: LoginErrors = {};
-  if (!email) errors.email = "Ange din e-post.";
-  else if (!emailPattern.test(email)) errors.email = "Ange en giltig e-postadress.";
-  if (!password) errors.password = "Ange ett lösenord.";
-  else if (mode === "create" && password.length < 8) {
-    errors.password = "Lösenordet behöver minst 8 tecken.";
-  }
-  return errors;
+const ACTIONS = {
+  login: loginDealer,
+  apply: applyForDealerAccount,
+  forgot: requestDealerPasswordReset,
+  reset: resetDealerPassword,
+} satisfies Record<LoginMode, unknown>;
+
+const SUBMIT: Record<LoginMode, string> = {
+  login: "Logga in",
+  apply: "Skicka ansökan",
+  forgot: "Skicka länk",
+  reset: "Spara lösenord",
+};
+
+function Heading({ title, children }: { title: string; children?: ReactNode }) {
+  return (
+    <div className="flex flex-col gap-(--spacing-2xs) text-ui-primary">
+      <h1 className="text-text-xl text-pretty">{title}</h1>
+      {children ? (
+        <p className="flex flex-wrap items-center gap-(--spacing-3xs) text-text-xs">{children}</p>
+      ) : null}
+    </div>
+  );
 }
 
 /**
- * Login's two states from Figma: Logga in (e-mail, password, "Jag har glömt mitt lösenord") and
- * Skapa konto (e-mail, password), with a link between them. Nothing is sent yet: the fields are
- * checked here, and a valid form says that login is not connected.
- * TODO(login): connect to real authentication.
+ * A link between the forms. On its own line it stays at the left, as Figma's "Jag har glömt mitt
+ * lösenord", instead of stretching across the column with its text centred.
  */
-export function LoginForm({
-  initialMode = "login",
-  initialErrors = {},
-  initialMessage,
+function SwitchLink({
+  onClick,
+  children,
+  alone = false,
 }: {
-  initialMode?: LoginMode;
-  /** For the kitchensink: show the error states without submitting. */
-  initialErrors?: LoginErrors;
-  initialMessage?: string;
+  onClick: () => void;
+  children: ReactNode;
+  alone?: boolean;
 }) {
-  const [mode, setMode] = useState(initialMode);
-  const [errors, setErrors] = useState<LoginErrors>(initialErrors);
-  const [message, setMessage] = useState(initialMessage);
-  const [pending, setPending] = useState(false);
-  const isLogin = mode === "login";
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`${alone ? "self-start text-left" : ""} ${linkClassName}`}
+    >
+      {children}
+    </button>
+  );
+}
 
-  const switchMode = () => {
-    setMode(isLogin ? "create" : "login");
-    setErrors({});
-    setMessage(undefined);
-  };
+/** A signed-in dealer: who, and signing out. */
+function SignedIn({ company, onSignedOut }: { company: string; onSignedOut: () => void }) {
+  const [pending, startTransition] = useTransition();
+  return (
+    <div className="flex flex-col gap-(--spacing-lg)">
+      <Heading title="Du är inloggad">
+        {company}. Dina ÅF-priser visas bredvid kundpriserna.
+      </Heading>
+      <div className="flex flex-col gap-(--spacing-2xs)">
+        <ButtonLink href="/configurator" mode="dark" size="m" iconRight="keyboard-arrow-right">
+          Bygg din truck
+        </ButtonLink>
+        <Button
+          type="button"
+          mode="light"
+          size="m"
+          disabled={pending}
+          onClick={() =>
+            startTransition(async () => {
+              await logoutDealer();
+              onSignedOut();
+            })
+          }
+        >
+          Logga ut
+        </Button>
+      </div>
+    </div>
+  );
+}
 
-  const onSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    const next = validate(
-      mode,
-      String(data.get("email") ?? "").trim(),
-      String(data.get("password") ?? ""),
+/** One of the forms; remounted per mode so each has its own action state. */
+function ModeForm({
+  mode,
+  setMode,
+  resetToken,
+  initialErrors,
+  onSignedIn,
+}: {
+  mode: LoginMode;
+  setMode: (mode: LoginMode) => void;
+  resetToken?: string;
+  initialErrors?: LoginErrors;
+  onSignedIn: () => void;
+}) {
+  const [state, formAction, pending] = useActionState<DealerFormState, FormData>(ACTIONS[mode], {
+    ok: false,
+    fieldErrors: initialErrors,
+  });
+  const errors = state.fieldErrors ?? {};
+  const signedIn = state.ok && !state.message && (mode === "login" || mode === "reset");
+
+  useEffect(() => {
+    if (signedIn) onSignedIn();
+  }, [signedIn, onSignedIn]);
+
+  if (state.ok && mode === "apply") {
+    return (
+      <div className="flex flex-col gap-(--spacing-lg)">
+        <Heading title="Tack för din ansökan">
+          Vi går igenom den och mejlar dig när kontot är godkänt.
+        </Heading>
+        <SwitchLink alone onClick={() => setMode("login")}>
+          Till inloggningen
+        </SwitchLink>
+      </div>
     );
-    setErrors(next);
-    setMessage(undefined);
-    if (Object.keys(next).length > 0) return;
-    setPending(true);
-    setTimeout(() => {
-      setPending(false);
-      setMessage(
-        isLogin
-          ? "Inloggningen är inte kopplad än."
-          : "Konton kan inte skapas än; inloggningen är inte kopplad.",
-      );
-    }, 600);
-  };
+  }
+  if (state.ok && mode === "forgot") {
+    return (
+      <div className="flex flex-col gap-(--spacing-lg)">
+        <Heading title="Kolla din e-post">
+          Finns det ett konto med adressen har vi skickat en länk för att välja ett nytt lösenord.
+          Länken gäller i en timme.
+        </Heading>
+        <SwitchLink alone onClick={() => setMode("login")}>
+          Till inloggningen
+        </SwitchLink>
+      </div>
+    );
+  }
+
+  let number = 0;
+  const next = () => String(++number).padStart(2, "0");
 
   return (
-    <form noValidate onSubmit={onSubmit} className="flex flex-col gap-(--spacing-lg)">
-      <div className="flex flex-col gap-(--spacing-2xs) text-ui-primary">
-        <h1 className="text-text-xl text-pretty">{isLogin ? "Logga in" : "Skapa konto"}</h1>
-        <p className="flex flex-wrap items-center gap-(--spacing-3xs) text-text-xs">
-          {isLogin ? "Har du inget konto?" : "Har du redan ett konto?"}
-          <button type="button" onClick={switchMode} className={linkClassName}>
-            {isLogin ? "Skapa konto" : "Logga in"}
-          </button>
-        </p>
-      </div>
+    <form noValidate action={formAction} className="flex flex-col gap-(--spacing-lg)">
+      {mode === "login" ? (
+        <Heading title="Logga in">
+          Har du inget konto?
+          <SwitchLink onClick={() => setMode("apply")}>Ansök om konto</SwitchLink>
+        </Heading>
+      ) : mode === "apply" ? (
+        <Heading title="Ansök om konto">
+          För återförsäljare. Vi godkänner ansökan innan du kan logga in. Har du redan ett konto?
+          <SwitchLink onClick={() => setMode("login")}>Logga in</SwitchLink>
+        </Heading>
+      ) : mode === "forgot" ? (
+        <Heading title="Glömt lösenord">
+          Ange din e-post så skickar vi en länk för att välja ett nytt lösenord.
+        </Heading>
+      ) : (
+        <Heading title="Välj nytt lösenord">Minst 8 tecken.</Heading>
+      )}
       <div className="flex flex-col gap-(--spacing-sm)">
-        <TextField
-          key={`${mode}-email`}
-          number="01"
-          label="Email"
-          name="email"
-          type="email"
-          autoComplete="email"
-          error={errors.email}
-        />
-        <TextField
-          key={`${mode}-password`}
-          number="02"
-          label="Lösenord"
-          name="password"
-          type="password"
-          autoComplete={isLogin ? "current-password" : "new-password"}
-          error={errors.password}
-        />
+        {mode === "apply" ? (
+          <>
+            {/* A field people never see; a bot fills it. */}
+            <input className="hidden" tabIndex={-1} autoComplete="off" name="website" aria-hidden />
+            <TextField
+              number={next()}
+              label="Företag"
+              name="company"
+              autoComplete="organization"
+              error={errors.company}
+            />
+            <TextField
+              number={next()}
+              label="Namn"
+              name="name"
+              autoComplete="name"
+              error={errors.name}
+            />
+          </>
+        ) : null}
+        {mode === "reset" ? (
+          <input type="hidden" name="token" value={resetToken ?? ""} />
+        ) : (
+          <TextField
+            number={next()}
+            label="Email"
+            name="email"
+            type="email"
+            autoComplete="email"
+            error={errors.email}
+          />
+        )}
+        {mode === "forgot" ? null : (
+          <TextField
+            number={next()}
+            label={mode === "reset" ? "Nytt lösenord" : "Lösenord"}
+            name="password"
+            type="password"
+            autoComplete={mode === "login" ? "current-password" : "new-password"}
+            error={errors.password}
+          />
+        )}
       </div>
       <div className="flex flex-col gap-(--spacing-2xs)">
-        {message ? (
+        {state.message ? (
           <p role="status" className="text-text-xs text-status-error">
-            {message}
+            {state.message}
           </p>
         ) : null}
         <Button
@@ -117,18 +238,59 @@ export function LoginForm({
           iconRight="keyboard-arrow-right"
           disabled={pending}
         >
-          {pending ? "Skickar…" : isLogin ? "Logga in" : "Skapa konto"}
+          {pending ? "Skickar…" : SUBMIT[mode]}
         </Button>
-        {isLogin ? (
-          <button
-            type="button"
-            onClick={() => setMessage("Återställning av lösenord är inte kopplad än.")}
-            className={`self-start ${linkClassName}`}
-          >
+        {mode === "login" ? (
+          <SwitchLink alone onClick={() => setMode("forgot")}>
             Jag har glömt mitt lösenord
-          </button>
+          </SwitchLink>
+        ) : mode === "forgot" || mode === "reset" ? (
+          <SwitchLink alone onClick={() => setMode("login")}>
+            Tillbaka till inloggningen
+          </SwitchLink>
         ) : null}
       </div>
     </form>
+  );
+}
+
+/**
+ * Dealer login on Figma's Login (9170:26321): Logga in, and in place of Figma's Skapa konto an
+ * application ("Ansök om konto") that an editor accepts in Admin. Also the forgotten password, the
+ * new password from the emailed link (`resetToken`, from `?reset=`), and the signed-in dealer.
+ */
+export function LoginForm({
+  initialMode = "login",
+  initialErrors,
+  resetToken,
+}: {
+  initialMode?: LoginMode;
+  /** For the kitchensink: show the error states without submitting. */
+  initialErrors?: LoginErrors;
+  resetToken?: string;
+}) {
+  const router = useRouter();
+  const { dealer, refresh } = useDealer();
+  const [mode, setMode] = useState<LoginMode>(resetToken ? "reset" : initialMode);
+
+  const onSignedIn = useCallback(() => {
+    void refresh();
+    // The reset link's token is spent; keep it out of the address.
+    if (resetToken) router.replace("/login");
+    setMode("login");
+  }, [refresh, resetToken, router]);
+
+  if (dealer && mode === "login") {
+    return <SignedIn company={dealer.company} onSignedOut={() => void refresh()} />;
+  }
+  return (
+    <ModeForm
+      key={mode}
+      mode={mode}
+      setMode={setMode}
+      resetToken={resetToken}
+      initialErrors={initialErrors}
+      onSignedIn={onSignedIn}
+    />
   );
 }

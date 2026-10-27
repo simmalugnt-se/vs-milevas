@@ -389,8 +389,12 @@ export default function BlocksPage() {
 
       <Block id="hero" figma="8550:12778">
         <MilevasHero
-          heading="Bygg din baoli"
-          highlight="På typ 30 sekunder"
+          lines={[
+            "Bygg din baoli",
+            <span key="highlight" className="text-ui-brand">
+              På typ 30 sekunder
+            </span>,
+          ]}
           prompt="Välj trucktyp för att börja"
           activeColumn={5}
           columns={heroTrucks.map(([name, image], index) => ({
@@ -419,8 +423,11 @@ export default function BlocksPage() {
       {/* On its own; right after the hero on a page the two share their lines (LinkedColumns). */}
       <Block id="text-block-columns" figma="8982:9898">
         <TextBlockColumns
-          heading="Ett varumärke inom"
-          highlight="KION Group"
+          heading={
+            <>
+              Ett varumärke inom <span className="text-ui-brand">KION Group</span>
+            </>
+          }
           text="Baoli är en del av KION Group – samma koncern som står bakom Linde och STILL. Det gör Baoli till det praktiska instegsvalet inom en global industrikoncern med över 100 års erfarenhet av materialhantering."
           logos={textBlockLogos.map(([alt, image, width]) => ({
             width,
@@ -457,8 +464,12 @@ export default function BlocksPage() {
 
       <Block id="text-boxinfo" figma="8389:8524">
         <TextBoxinfo
-          heading="Truck från 390 kr/mån"
-          highlight="Easy peasy lemon squeezy."
+          heading={
+            <>
+              <span className="block">Truck från 390 kr/mån</span>
+              <span className="block text-ui-brand">Easy peasy lemon squeezy.</span>
+            </>
+          }
           text="Vi erbjuder enkel finansiering så du kan fokusera på verksamheten."
           items={[
             {
@@ -667,13 +678,13 @@ export default function BlocksPage() {
         />
       </Block>
 
-      {/* The same as /login; the form checks its fields but sends nothing. */}
+      {/* The same as /login, and as connected: a valid form signs in or applies. */}
       <Block id="login" figma="9170:26321">
         <Login image={loginImage}>
           <LoginForm />
         </Login>
         <Login image={loginImage}>
-          <LoginForm initialMode="create" />
+          <LoginForm initialMode="apply" />
         </Login>
         <Login image={loginImage}>
           <LoginForm

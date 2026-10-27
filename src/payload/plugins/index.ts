@@ -50,6 +50,13 @@ export const cmsPlugins: Plugin[] = [
     overrideCollection: (collection) => ({
       ...collection,
       admin: { ...collection.admin, group: ADMIN_GROUPS.content },
+      // The plugin lets anyone signed in write; only Admin's users may.
+      access: {
+        ...collection.access,
+        create: isAuthenticated,
+        delete: isAuthenticated,
+        update: isAuthenticated,
+      },
       hooks: {
         ...collection.hooks,
         afterChange: [...(collection.hooks?.afterChange ?? []), revalidateVideos],
@@ -62,6 +69,12 @@ export const cmsPlugins: Plugin[] = [
     overrides: {
       labels: { singular: "Omdirigering", plural: "Omdirigeringar" },
       admin: { group: ADMIN_GROUPS.settings, hidden: !redirectsEnabled },
+      access: {
+        create: isAuthenticated,
+        delete: isAuthenticated,
+        read: () => true,
+        update: isAuthenticated,
+      },
       hooks: {
         afterChange: [revalidateRedirects],
         afterDelete: [revalidateRedirectDelete],

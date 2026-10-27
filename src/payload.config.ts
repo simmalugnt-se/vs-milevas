@@ -7,6 +7,7 @@ import { buildConfig, type PayloadRequest } from "payload";
 import sharp from "sharp";
 import { fileURLToPath } from "url";
 import { routing } from "./i18n/routing.ts";
+import { isEditorUser } from "./payload/access/isAuthenticated.ts";
 import { payloadCollections } from "./payload/collections/registry.ts";
 import { Users } from "./payload/collections/Users/config.ts";
 import { payloadGlobals } from "./payload/globals/registry.ts";
@@ -127,7 +128,7 @@ export default buildConfig({
   jobs: {
     access: {
       run: ({ req }: { req: PayloadRequest }): boolean => {
-        if (req.user) {
+        if (isEditorUser(req.user)) {
           return true;
         }
 

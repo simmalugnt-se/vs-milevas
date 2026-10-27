@@ -18,9 +18,11 @@ type EmailRequest = {
   preferredTime?: string;
   message?: string;
   quote: ConfiguratorQuote;
+  /** A signed-in dealer: shown to sales, with the dealer price when there is a discount. */
+  dealer?: { company: string; email: string; totalPrice?: number };
 };
 
-function escapeHtml(value: string | number | undefined) {
+export function escapeHtml(value: string | number | undefined) {
   return String(value ?? "")
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
@@ -53,7 +55,17 @@ function incompleteNote(quote: ConfiguratorQuote) {
     : "";
 }
 
-function emailDocument(title: string, content: string) {
+function dealerNote(request: EmailRequest) {
+  const { dealer } = request;
+  if (!dealer) return "";
+  const price =
+    dealer.totalPrice === undefined
+      ? ""
+      : ` ÅF-pris totalt: <strong>${escapeHtml(formatPrice(dealer.totalPrice))}</strong>.`;
+  return `<p><strong>Från återförsäljaren ${escapeHtml(dealer.company)}</strong> (${escapeHtml(dealer.email)}).${price}</p>`;
+}
+
+export function emailDocument(title: string, content: string) {
   return `<!doctype html><html lang="sv"><body style="background:#f5f5f5;font-family:Arial,sans-serif;margin:0;padding:24px"><main style="background:#fff;border:1px solid #ddd;margin:auto;max-width:680px;padding:32px"><h1 style="font-size:24px">${escapeHtml(title)}</h1>${content}</main></body></html>`;
 }
 
@@ -61,7 +73,7 @@ function salesEmail(request: EmailRequest) {
   const typeLabel = request.requestType === "order" ? "Orderförfrågan" : "Kontaktförfrågan";
   return emailDocument(
     `${typeLabel} ${request.reference}`,
-    `<p><strong>${escapeHtml(request.contact.name)}</strong><br>${escapeHtml(request.contact.company)}<br>${escapeHtml(request.contact.organizationNumber)}<br><a href="mailto:${escapeHtml(request.contact.email)}">${escapeHtml(request.contact.email)}</a><br>${escapeHtml(request.contact.phone)}</p><h2>${escapeHtml(request.quote.familyName)}</h2>${incompleteNote(request.quote)}<p>${escapeHtml(request.quote.sku)}</p><table style="border-collapse:collapse;width:100%">${quoteRows(request.quote)}<tr><td style="border-top:1px solid #ddd;padding:8px 12px 4px 0"><strong>Totalpris</strong></td><td style="border-top:1px solid #ddd;padding:8px 0 4px;text-align:right"><strong>${escapeHtml(formatPrice(request.quote.totalPrice))}</strong></td></tr></table><p><strong>Finansiering:</strong> ${escapeHtml(financingLabel(request.quote.financing, { residual: true }))} – ${escapeHtml(formatPrice(request.quote.financingPrice))}${request.quote.financing.kind === "monthly" ? "/månad" : ""}</p><p>Alla priser anges exkl. moms.</p>${request.preferredTime ? `<p><strong>Önskad tid:</strong> ${escapeHtml(request.preferredTime)}</p>` : ""}${request.message ? `<p><strong>Meddelande:</strong><br>${escapeHtml(request.message)}</p>` : ""}`,
+    `<p><strong>${escapeHtml(request.contact.name)}</strong><br>${escapeHtml(request.contact.company)}<br>${escapeHtml(request.contact.organizationNumber)}<br><a href="mailto:${escapeHtml(request.contact.email)}">${escapeHtml(request.contact.email)}</a><br>${escapeHtml(request.contact.phone)}</p><h2>${escapeHtml(request.quote.familyName)}</h2>${incompleteNote(request.quote)}<p>${escapeHtml(request.quote.sku)}</p><table style="border-collapse:collapse;width:100%">${quoteRows(request.quote)}<tr><td style="border-top:1px solid #ddd;padding:8px 12px 4px 0"><strong>Totalpris</strong></td><td style="border-top:1px solid #ddd;padding:8px 0 4px;text-align:right"><strong>${escapeHtml(formatPrice(request.quote.totalPrice))}</strong></td></tr></table>${dealerNote(request)}<p><strong>Finansiering:</strong> ${escapeHtml(financingLabel(request.quote.financing, { residual: true }))} – ${escapeHtml(formatPrice(request.quote.financingPrice))}${request.quote.financing.kind === "monthly" ? "/månad" : ""}</p><p>Alla priser anges exkl. moms.</p>${request.preferredTime ? `<p><strong>Önskad tid:</strong> ${escapeHtml(request.preferredTime)}</p>` : ""}${request.message ? `<p><strong>Meddelande:</strong><br>${escapeHtml(request.message)}</p>` : ""}`,
   );
 }
 

@@ -308,3 +308,21 @@ Migreringen `20261027_091217_editor_steps_and_order`:
   `months`) och, för leasing, `residualPercent`. Konfiguratorn visar reglaget i valt
   Financiering; den valda längden står i adressen (`months`) och följer med i offerten,
   förfrågningarna och mejlen. `withTerm` och `calculateFinancingPrice` i `engine.ts` räknar.
+
+## 12. Villkorade val (2026-10-28)
+
+Migreringen `20261027_144015_option_conditions_colored_headings`:
+
+- **Visas för:** ett batteri, en mast eller ett tillval kan visas bara för vissa lyftkapaciteter,
+  batterier eller master. Raden sparar id:na på de rader den visas för, per lista
+  (`availableFor: { models, batteries, liftHeights }`); en lista som inte står med är inget villkor.
+  `TruckFamilies/conditions.ts` läser och kontrollerar det.
+- **I admin** (`AvailableFor.tsx`) visas en kryssruta per rad i de steg som kommer före, i
+  inställningarnas ordning, och bara när båda listorna har något att välja mellan. Allt ikryssat är
+  inget villkor, så rader som läggs till senare kommer med.
+- **Konfiguratorn** visar bara alternativ som stegen före tillåter (`availableOptions` i
+  `engine.ts`). När ett tidigare val ändras faller det som inte längre gäller bort, och steget får sitt
+  förval, eller det första tillåtna om förvalet inte är tillåtet (`sanitizeSelections`). Villkor på ett
+  senare steg räknas inte.
+- **Publicering** stoppas när en lista att välja från inte lämnar något för en rad den har villkor på,
+  till exempel inget batteri för 1,8 ton (`checkEveryRowHasOption`).

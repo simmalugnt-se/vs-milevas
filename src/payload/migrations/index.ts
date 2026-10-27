@@ -25,6 +25,8 @@ import * as migration_20261026_152506_hero_column_heading from './20261026_15250
 import * as migration_20261027_091217_editor_steps_and_order from './20261027_091217_editor_steps_and_order';
 import * as migration_20261027_092134_financing_terms from './20261027_092134_financing_terms';
 import * as migration_20261027_123357_link_anchor from './20261027_123357_link_anchor';
+import * as migration_20261027_141811_dealers_requests_fields from './20261027_141811_dealers_requests_fields';
+import * as migration_20261027_144015_option_conditions_colored_headings from './20261027_144015_option_conditions_colored_headings';
 
 export const migrations = [
   {
@@ -160,6 +162,16 @@ export const migrations = [
   {
     up: migration_20261027_123357_link_anchor.up,
     down: migration_20261027_123357_link_anchor.down,
-    name: '20261027_123357_link_anchor'
+    name: '20261027_123357_link_anchor',
+  },
+  {
+    up: migration_20261027_141811_dealers_requests_fields.up,
+    down: migration_20261027_141811_dealers_requests_fields.down,
+    name: '20261027_141811_dealers_requests_fields',
+  },
+  {
+    up: migration_20261027_144015_option_conditions_colored_headings.up,
+    down: migration_20261027_144015_option_conditions_colored_headings.down,
+    name: '20261027_144015_option_conditions_colored_headings'
   },
 ];

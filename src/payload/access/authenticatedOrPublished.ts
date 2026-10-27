@@ -1,7 +1,8 @@
 import type { Access } from "payload";
+import { isEditorUser } from "./isAuthenticated.ts";
 
 export const authenticatedOrPublished: Access = ({ req: { user } }) => {
-  if (user) {
+  if (isEditorUser(user)) {
     return true;
   }
 

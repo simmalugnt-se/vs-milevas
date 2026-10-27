@@ -1,5 +1,6 @@
 import path from "node:path";
 import type { Payload } from "payload";
+import { coloredHeading } from "@/payload/utilities/colored-text";
 import type { Page } from "@/payload-types";
 
 /** The truck families (`pnpm seed:configurator`) the hero and the product grid show, in order. */
@@ -29,7 +30,10 @@ async function pageLink(payload: Payload, label: string, slug: string, anchor?: 
   });
   const page = docs[0];
   if (!page) {
-    return externalLink(label, `${slug === "home" ? "/" : `/${slug}`}${anchor ? `#${anchor}` : ""}`);
+    return externalLink(
+      label,
+      `${slug === "home" ? "/" : `/${slug}`}${anchor ? `#${anchor}` : ""}`,
+    );
   }
   return {
     type: "internal" as const,
@@ -161,8 +165,10 @@ export async function seedMilevasFooter(payload: Payload, publish = false) {
 function milevasHeroBlock(familyIDs: Map<string, string>) {
   return {
     blockType: "milevasHero" as const,
-    heading: "Bygg din baoli",
-    highlight: "På typ 30 sekunder",
+    heading: coloredHeading([
+      [{ text: "Bygg din baoli" }],
+      [{ text: "På typ 30 sekunder", color: "yellow" }],
+    ]),
     prompt: "Välj trucktyp för att börja",
     activeColumn: 5,
     columnHeading: "Bygg din truck:",
@@ -202,8 +208,9 @@ async function milevasTextColumnsBlock(payload: Payload) {
   }
   return {
     blockType: "textColumns" as const,
-    heading: "Ett varumärke inom",
-    highlight: "KION Group",
+    heading: coloredHeading([
+      [{ text: "Ett varumärke inom " }, { text: "KION Group", color: "yellow" }],
+    ]),
     text: "Baoli är en del av KION Group – samma koncern som står bakom Linde och STILL. Det gör Baoli till det praktiska instegsvalet inom en global industrikoncern med över 100 års erfarenhet av materialhantering.",
     logos: items,
   };
@@ -401,8 +408,12 @@ export async function seedMilevasHomepage(
     {
       blockType: "textBoxinfo",
       anchor: "finansiering",
-      heading: "Truck från\n390kr/mån",
-      highlight: "Easy peasy\nlemon squeezy.",
+      heading: coloredHeading([
+        [{ text: "Truck från" }],
+        [{ text: "390kr/mån" }],
+        [{ text: "Easy peasy", color: "yellow" }],
+        [{ text: "lemon squeezy.", color: "yellow" }],
+      ]),
       text: "Vi erbjuder enkel finansiering så du kan fokusera på verksamheten.",
       items: [
         {

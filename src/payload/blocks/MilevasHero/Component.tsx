@@ -3,7 +3,9 @@ import { draftMode } from "next/headers";
 import Image from "next/image";
 import { getLocale } from "next-intl/server";
 import { MilevasHero } from "@/components/blocks/milevas-hero";
+import { ColoredRuns } from "@/components/ui/colored-text";
 import { getConfiguratorCatalog } from "@/features/configurator/data";
+import { coloredLines } from "@/payload/utilities/colored-text";
 import { familyFromCatalog, familyLink, familyPrices } from "../milevas-data";
 import type { LayoutBlockComponentProps, MilevasHeroBlock } from "../types";
 
@@ -37,6 +39,7 @@ export async function MilevasHeroBlockComponent({
           />
         ) : undefined,
         heading: block.columnHeading,
+        amount: prices.amount,
         rows: [
           ...(prices.price ? [{ label: "Från", value: prices.price }] : []),
           ...(prices.leasing ? [{ label: "Leasing från:", value: `${prices.leasing}/mån` }] : []),
@@ -47,10 +50,11 @@ export async function MilevasHeroBlockComponent({
   return (
     <MilevasHero
       id={block.anchor ?? undefined}
-      heading={<span {...editableField("heading")}>{block.heading}</span>}
-      highlight={
-        block.highlight ? <span {...editableField("highlight")}>{block.highlight}</span> : undefined
-      }
+      lines={coloredLines(block.heading).map((runs, index) => (
+        <span key={index} {...editableField("heading")}>
+          <ColoredRuns runs={runs} />
+        </span>
+      ))}
       prompt={block.prompt ? <span {...editableField("prompt")}>{block.prompt}</span> : undefined}
       columns={columns}
       activeColumn={block.activeColumn ?? 3}

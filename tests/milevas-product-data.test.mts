@@ -65,9 +65,14 @@ const catalog: ConfiguratorCatalog = {
 test("homepage prices match the configuration the card opens: the default model", () => {
   assert.deepEqual(familyPrices(truck, catalog), {
     price: formatTruckPrice(169000),
+    amount: 169000,
     leasing: formatTruckPrice(3380),
   });
-  assert.deepEqual(familyPrices(contactOnly, catalog), { price: undefined, leasing: undefined });
+  assert.deepEqual(familyPrices(contactOnly, catalog), {
+    price: undefined,
+    leasing: undefined,
+    amount: undefined,
+  });
 });
 
 test("the card's specs are the models' capacity range and the default model's card specs", () => {

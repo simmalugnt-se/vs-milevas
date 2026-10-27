@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import type { Payload } from "payload";
 import {
+  availableOptions,
   buildQuote,
   calculateFinancingPrice,
   choiceDisplay,
@@ -26,6 +27,7 @@ import {
   parseConfiguratorSearchParams,
   parseSelectionReferences,
 } from "../src/features/configurator/url-state.ts";
+import { checkEveryRowHasOption } from "../src/payload/collections/TruckFamilies/conditions.ts";
 
 const option = (overrides: Partial<ConfiguratorOption>): ConfiguratorOption => ({
   key: "standard",
@@ -344,4 +346,89 @@ test("a battery or mast alone is part of the truck, variants and extras are a st
   assert.equal(stepRole("lift-height", 2), "choice");
   assert.equal(stepRole("extras", 1), "choice");
   assert.equal(stepRole("extras", 0), "none");
+});
+
+/** The fixture with the high mast for the large model only, and the camera only with the low mast. */
+const conditioned: ConfiguratorFamily = {
+  ...family,
+  choices: [
+    {
+      ...family.choices[0],
+      options: [
+        family.choices[0].options[0],
+        { ...family.choices[0].options[1], availableFor: { model: ["large"] } },
+      ],
+    },
+    {
+      ...family.choices[1],
+      options: [
+        family.choices[1].options[0],
+        { ...family.choices[1].options[1], availableFor: { mast: ["low"] } },
+      ],
+    },
+  ],
+};
+
+test("an option is offered only with what the steps before allow", () => {
+  const mast = conditioned.choices[0];
+  const keys = (selections: Record<string, string[]>) =>
+    availableOptions(conditioned, mast, selections).map((candidate) => candidate.key);
+  assert.deepEqual(keys({ model: ["small"] }), ["low"]);
+  assert.deepEqual(keys({ model: ["large"] }), ["low", "high"]);
+  // Nothing chosen before: no condition yet.
+  assert.deepEqual(keys({}), ["low", "high"]);
+});
+
+test("changing an earlier step drops what it no longer allows, and falls back to an allowed default", () => {
+  const large = sanitizeSelections(conditioned, {
+    model: ["large"],
+    mast: ["high"],
+    extras: ["alarm", "camera"],
+  });
+  assert.deepEqual(large, { model: ["large"], mast: ["high"], extras: ["alarm"] });
+  const small = sanitizeSelections(conditioned, { ...large, model: ["small"] });
+  assert.deepEqual(small, { model: ["small"], mast: ["low"], extras: ["alarm"] });
+  // A default the steps before do not allow gives way to the first one allowed.
+  const highFirst: ConfiguratorFamily = {
+    ...conditioned,
+    choices: [
+      {
+        ...conditioned.choices[0],
+        options: conditioned.choices[0].options.map((candidate) => ({
+          ...candidate,
+          default: candidate.key === "high",
+          availableFor: candidate.key === "low" ? { model: ["small"] } : candidate.availableFor,
+        })),
+      },
+      conditioned.choices[1],
+    ],
+  };
+  assert.deepEqual(sanitizeSelections(highFirst, { model: ["small"] }).mast, ["low"]);
+});
+
+test("a list to choose from must leave something for every row it sets conditions on", () => {
+  const models = [
+    { id: "a", capacityKg: 1600 },
+    { id: "b", capacityKg: 1800 },
+  ];
+  assert.equal(
+    checkEveryRowHasOption("batteries", {
+      models,
+      batteries: [
+        { id: "x", label: "Standard", availableFor: { models: ["a"] } },
+        { id: "y", label: "Stort", availableFor: { models: ["a"] } },
+      ],
+    }),
+    'Med lyftkapacitet 1,8 ton visas inget batteri. Kryssa i den under "Visas för" på minst en rad.',
+  );
+  assert.equal(
+    checkEveryRowHasOption("batteries", {
+      models,
+      batteries: [
+        { id: "x", label: "Standard", availableFor: { models: ["a"] } },
+        { id: "y", label: "Stort" },
+      ],
+    }),
+    true,
+  );
 });

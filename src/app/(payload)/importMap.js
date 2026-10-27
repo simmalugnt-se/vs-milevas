@@ -21,6 +21,7 @@ import { BlockquoteFeatureClient as BlockquoteFeatureClient_e70f5e05f09f93e00b99
 import { HorizontalRuleFeatureClient as HorizontalRuleFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { InlineToolbarFeatureClient as InlineToolbarFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { Note as Note_ad9bcec086fa80adbb30be1e0a36e86f } from '../../payload/components/Note.tsx'
+import { TextStateFeatureClient as TextStateFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { FamilyRowLabel as FamilyRowLabel_e70b1b18b28ca1f64b445135ddfbaaac } from '../../payload/collections/TruckFamilies/RowLabels.tsx'
 import { OverviewComponent as OverviewComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client'
 import { MetaTitleComponent as MetaTitleComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client'
@@ -30,8 +31,10 @@ import { PreviewComponent as PreviewComponent_a8a977ebc872c5d5ea7ee689724c0860 }
 import { ContentHealthFieldBridge as ContentHealthFieldBridge_49d3fc1ee9da3372a0d0eda76a8c6fdb } from '@simmalugnt-se/payload-content-health/client'
 import { VisualEditingAdminBridge as VisualEditingAdminBridge_ef98436ff3126b2eab6a99c3362cf8ba } from '@simmalugnt-se/payload-visual-editing/client'
 import { SearchRecentRecorder as SearchRecentRecorder_2d36a4e55a20b328e037a52d763a3b15 } from '@simmalugnt-se/payload-search/client'
+import { RequestSummary as RequestSummary_79fa4ee7cc8e90dc26d4994046cadfb5 } from '../../payload/collections/ConfiguratorRequests/RequestSummary.tsx'
 import { ConfiguratorOverview as ConfiguratorOverview_57704fd67194d755fba1507a48df81fb } from '../../payload/collections/TruckFamilies/ConfiguratorOverview.tsx'
 import { ModelRowLabel as ModelRowLabel_e70b1b18b28ca1f64b445135ddfbaaac } from '../../payload/collections/TruckFamilies/RowLabels.tsx'
+import { AvailableFor as AvailableFor_10bcfe8427def903ed05ba1826fc25dc } from '../../payload/collections/TruckFamilies/AvailableFor.tsx'
 import { BatteryRowLabel as BatteryRowLabel_e70b1b18b28ca1f64b445135ddfbaaac } from '../../payload/collections/TruckFamilies/RowLabels.tsx'
 import { LiftHeightRowLabel as LiftHeightRowLabel_e70b1b18b28ca1f64b445135ddfbaaac } from '../../payload/collections/TruckFamilies/RowLabels.tsx'
 import { ExtraRowLabel as ExtraRowLabel_e70b1b18b28ca1f64b445135ddfbaaac } from '../../payload/collections/TruckFamilies/RowLabels.tsx'
@@ -73,6 +76,7 @@ export const importMap = {
   "@payloadcms/richtext-lexical/client#HorizontalRuleFeatureClient": HorizontalRuleFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#InlineToolbarFeatureClient": InlineToolbarFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "/payload/components/Note.tsx#Note": Note_ad9bcec086fa80adbb30be1e0a36e86f,
+  "@payloadcms/richtext-lexical/client#TextStateFeatureClient": TextStateFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "/payload/collections/TruckFamilies/RowLabels.tsx#FamilyRowLabel": FamilyRowLabel_e70b1b18b28ca1f64b445135ddfbaaac,
   "@payloadcms/plugin-seo/client#OverviewComponent": OverviewComponent_a8a977ebc872c5d5ea7ee689724c0860,
   "@payloadcms/plugin-seo/client#MetaTitleComponent": MetaTitleComponent_a8a977ebc872c5d5ea7ee689724c0860,
@@ -82,8 +86,10 @@ export const importMap = {
   "@simmalugnt-se/payload-content-health/client#ContentHealthFieldBridge": ContentHealthFieldBridge_49d3fc1ee9da3372a0d0eda76a8c6fdb,
   "@simmalugnt-se/payload-visual-editing/client#VisualEditingAdminBridge": VisualEditingAdminBridge_ef98436ff3126b2eab6a99c3362cf8ba,
   "@simmalugnt-se/payload-search/client#SearchRecentRecorder": SearchRecentRecorder_2d36a4e55a20b328e037a52d763a3b15,
+  "/payload/collections/ConfiguratorRequests/RequestSummary.tsx#RequestSummary": RequestSummary_79fa4ee7cc8e90dc26d4994046cadfb5,
   "/payload/collections/TruckFamilies/ConfiguratorOverview.tsx#ConfiguratorOverview": ConfiguratorOverview_57704fd67194d755fba1507a48df81fb,
   "/payload/collections/TruckFamilies/RowLabels.tsx#ModelRowLabel": ModelRowLabel_e70b1b18b28ca1f64b445135ddfbaaac,
+  "/payload/collections/TruckFamilies/AvailableFor.tsx#AvailableFor": AvailableFor_10bcfe8427def903ed05ba1826fc25dc,
   "/payload/collections/TruckFamilies/RowLabels.tsx#BatteryRowLabel": BatteryRowLabel_e70b1b18b28ca1f64b445135ddfbaaac,
   "/payload/collections/TruckFamilies/RowLabels.tsx#LiftHeightRowLabel": LiftHeightRowLabel_e70b1b18b28ca1f64b445135ddfbaaac,
   "/payload/collections/TruckFamilies/RowLabels.tsx#ExtraRowLabel": ExtraRowLabel_e70b1b18b28ca1f64b445135ddfbaaac,

@@ -1,7 +1,8 @@
 import type { Access } from "payload";
+import { isEditorUser } from "./isAuthenticated.ts";
 
 export const canCreateFirstUser: Access = async ({ req }) => {
-  if (req.user) {
+  if (isEditorUser(req.user)) {
     return true;
   }
 

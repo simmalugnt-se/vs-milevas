@@ -25,10 +25,18 @@ async function fetchPageBySlug(slug: string, draft: boolean, locale: TypedLocale
   return result.docs[0] ?? null;
 }
 
+/**
+ * Bumped when a block's stored shape changes in a migration (2026-10-28: colored headings as rich
+ * text), so a page cached before the deploy is not read as the new shape.
+ */
+const PAGE_CACHE_VERSION = "2026-10-28";
+
 const getCachedPageBySlug = (slug: string, locale: TypedLocale) =>
-  unstable_cache(async () => fetchPageBySlug(slug, false, locale), ["page-by-slug", slug, locale], {
-    tags: ["pages", `page:${slug}`],
-  });
+  unstable_cache(
+    async () => fetchPageBySlug(slug, false, locale),
+    ["page-by-slug", PAGE_CACHE_VERSION, slug, locale],
+    { tags: ["pages", `page:${slug}`] },
+  );
 
 /**
  * Deduplicated per request with React `cache`. When `draft` is true, bypasses

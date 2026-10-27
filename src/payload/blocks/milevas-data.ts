@@ -36,13 +36,17 @@ export function familyLink(family: ConfiguratorFamily) {
 
 /** The price of the configuration a card opens (the defaults), and its leasing per month. */
 export function familyPrices(family: ConfiguratorFamily, catalog: ConfiguratorCatalog) {
-  if (familySteps(family).length === 0) return { price: undefined, leasing: undefined };
+  if (familySteps(family).length === 0) {
+    return { price: undefined, leasing: undefined, amount: undefined };
+  }
   const leasing = catalog.financingMethods.find(
     (method) => method.key === "leasing" && method.kind === "monthly",
   );
   const total = estimateTotal(family, sanitizeSelections(family, {}));
   return {
     price: formatTruckPrice(total),
+    /** The start price in kronor, for the dealer price beside it. */
+    amount: total,
     leasing: leasing ? formatTruckPrice(calculateFinancingPrice(total, leasing)) : undefined,
   };
 }

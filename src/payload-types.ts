@@ -63,6 +63,7 @@ export type SupportedTimezones =
 
 export interface Config {
   auth: {
+    dealers: DealerAuthOperations;
     users: UserAuthOperations;
     'payload-mcp-api-keys': PayloadMcpApiKeyAuthOperations;
   };
@@ -73,6 +74,7 @@ export interface Config {
     documents: Document;
     'configurator-requests': ConfiguratorRequest;
     'contact-requests': ContactRequest;
+    dealers: Dealer;
     'truck-families': TruckFamily;
     users: User;
     videos: Video;
@@ -91,6 +93,7 @@ export interface Config {
     documents: DocumentsSelect<false> | DocumentsSelect<true>;
     'configurator-requests': ConfiguratorRequestsSelect<false> | ConfiguratorRequestsSelect<true>;
     'contact-requests': ContactRequestsSelect<false> | ContactRequestsSelect<true>;
+    dealers: DealersSelect<false> | DealersSelect<true>;
     'truck-families': TruckFamiliesSelect<false> | TruckFamiliesSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     videos: VideosSelect<false> | VideosSelect<true>;
@@ -121,7 +124,7 @@ export interface Config {
     'content-health': ContentHealthWidget;
     collections: CollectionsWidget;
   };
-  user: User | PayloadMcpApiKey;
+  user: Dealer | User | PayloadMcpApiKey;
   jobs: {
     tasks: {
       schedulePublish: TaskSchedulePublish;
@@ -131,6 +134,24 @@ export interface Config {
       };
     };
     workflows: unknown;
+  };
+}
+export interface DealerAuthOperations {
+  forgotPassword: {
+    email: string;
+    password: string;
+  };
+  login: {
+    email: string;
+    password: string;
+  };
+  registerFirstUser: {
+    email: string;
+    password: string;
+  };
+  unlock: {
+    email: string;
+    password: string;
   };
 }
 export interface UserAuthOperations {
@@ -367,13 +388,23 @@ export interface Page {
              */
             anchor?: string | null;
             /**
-             * Sidans h1, introts vita rad. Exempel: Bygg din baoli.
+             * Sidans h1 i introt. Varje stycke (Enter) blir en egen rad. Exempel: "Bygg din baoli" och en gul rad "På typ 30 sekunder". Markera text och välj Gul i verktygsfältet för den gula delen; Standardstil gör den vit igen.
              */
-            heading: string;
-            /**
-             * Efter rubriken, i gult. Exempel: På typ 30 sekunder.
-             */
-            highlight?: string | null;
+            heading: {
+              root: {
+                type: string;
+                children: {
+                  type: any;
+                  version: number;
+                  [k: string]: unknown;
+                }[];
+                direction: ('ltr' | 'rtl') | null;
+                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                indent: number;
+                version: number;
+              };
+              [k: string]: unknown;
+            };
             /**
              * Under rubriken. Exempel: Välj trucktyp för att börja.
              */
@@ -406,13 +437,23 @@ export interface Page {
              */
             anchor?: string | null;
             /**
-             * Vit del. Exempel: Ett varumärke inom.
+             * Står i följd, även över flera stycken. Exempel: "Ett varumärke inom" och gult "KION Group". Markera text och välj Gul i verktygsfältet för den gula delen; Standardstil gör den vit igen.
              */
-            heading: string;
-            /**
-             * Efter rubriken, i gult. Exempel: KION Group.
-             */
-            highlight?: string | null;
+            heading: {
+              root: {
+                type: string;
+                children: {
+                  type: any;
+                  version: number;
+                  [k: string]: unknown;
+                }[];
+                direction: ('ltr' | 'rtl') | null;
+                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                indent: number;
+                version: number;
+              };
+              [k: string]: unknown;
+            };
             text?: string | null;
             /**
              * En kolumn per logotyp. Direkt efter Milevas: Hero delar blocken streck, som flyttas när man scrollar.
@@ -506,8 +547,24 @@ export interface Page {
              * Valfritt, för länkar inom sidan. Exempel: modeller (utan #).
              */
             anchor?: string | null;
-            heading: string;
-            highlight?: string | null;
+            /**
+             * Varje stycke (Enter) blir en egen rad. Exempel: "Truck från" och "390kr/mån", och gult "Easy peasy" och "lemon squeezy.". Markera text och välj Gul i verktygsfältet för den gula delen; Standardstil gör den vit igen.
+             */
+            heading: {
+              root: {
+                type: string;
+                children: {
+                  type: any;
+                  version: number;
+                  [k: string]: unknown;
+                }[];
+                direction: ('ltr' | 'rtl') | null;
+                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                indent: number;
+                version: number;
+              };
+              [k: string]: unknown;
+            };
             text?: string | null;
             items: {
               heading: string;
@@ -771,6 +828,11 @@ export interface TruckFamily {
         price: number;
         description?: string | null;
         defaultSelected?: boolean | null;
+        availableFor?: {
+          models?: string[];
+          batteries?: string[];
+          liftHeights?: string[];
+        };
         id?: string | null;
       }[]
     | null;
@@ -789,6 +851,11 @@ export interface TruckFamily {
          */
         price: number;
         defaultSelected?: boolean | null;
+        availableFor?: {
+          models?: string[];
+          batteries?: string[];
+          liftHeights?: string[];
+        };
         id?: string | null;
       }[]
     | null;
@@ -808,6 +875,11 @@ export interface TruckFamily {
         price: number;
         description?: string | null;
         image?: (string | null) | Image;
+        availableFor?: {
+          models?: string[];
+          batteries?: string[];
+          liftHeights?: string[];
+        };
         id?: string | null;
       }[]
     | null;
@@ -848,12 +920,11 @@ export interface Document {
  */
 export interface ConfiguratorRequest {
   id: string;
-  reference: string;
-  idempotencyKey: string;
-  requestType: 'order' | 'call';
   status: 'new' | 'contacted' | 'processing' | 'completed' | 'rejected';
-  locale: 'sv' | 'en';
-  sourceUrl?: string | null;
+  requestType: 'order' | 'call';
+  reference: string;
+  familyName?: string | null;
+  totalPrice?: number | null;
   contact: {
     company?: string | null;
     organizationNumber?: string | null;
@@ -861,13 +932,48 @@ export interface ConfiguratorRequest {
     email?: string | null;
     phone: string;
   };
+  dealer?: (string | null) | Dealer;
   callPreference?: ('asap' | 'specific') | null;
   preferredTime?: string | null;
   message?: string | null;
+  model?: string | null;
+  sku?: string | null;
+  complete?: boolean | null;
+  lines?:
+    | {
+        label?: string | null;
+        price?: number | null;
+        dealerPrice?: number | null;
+        kind?: ('base' | 'option' | 'service') | null;
+        id?: string | null;
+      }[]
+    | null;
+  dealerTotalPrice?: number | null;
+  financing?: {
+    label?: string | null;
+    price?: number | null;
+    monthly?: boolean | null;
+  };
   serviceAgreement?: {
     selected?: boolean | null;
     annualPrice?: number | null;
   };
+  specifications?:
+    | {
+        label?: string | null;
+        value?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  deliveryTime?: string | null;
+  warranty?: string | null;
+  locale: 'sv' | 'en';
+  sourceUrl?: string | null;
+  emailStatus: 'pending' | 'sent' | 'failed' | 'notConfigured';
+  salesEmailId?: string | null;
+  customerEmailId?: string | null;
+  emailError?: string | null;
+  idempotencyKey: string;
   snapshot:
     | {
         [k: string]: unknown;
@@ -877,12 +983,34 @@ export interface ConfiguratorRequest {
     | number
     | boolean
     | null;
-  emailStatus: 'pending' | 'sent' | 'failed' | 'notConfigured';
-  salesEmailId?: string | null;
-  customerEmailId?: string | null;
-  emailError?: string | null;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "dealers".
+ */
+export interface Dealer {
+  id: string;
+  status: 'pending' | 'accepted' | 'rejected';
+  company: string;
+  name?: string | null;
+  /**
+   * Syns bara här.
+   */
+  note?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  email: string;
+  resetPasswordToken?: string | null;
+  resetPasswordExpiration?: string | null;
+  salt?: string | null;
+  hash?: string | null;
+  resetPasswordRequestedAt?: string | null;
+  loginAttempts?: number | null;
+  lockUntil?: string | null;
+  password?: string | null;
+  collection: 'dealers';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1170,6 +1298,10 @@ export interface PayloadLockedDocument {
         value: string | ContactRequest;
       } | null)
     | ({
+        relationTo: 'dealers';
+        value: string | Dealer;
+      } | null)
+    | ({
         relationTo: 'truck-families';
         value: string | TruckFamily;
       } | null)
@@ -1192,6 +1324,10 @@ export interface PayloadLockedDocument {
   globalSlug?: string | null;
   user:
     | {
+        relationTo: 'dealers';
+        value: string | Dealer;
+      }
+    | {
         relationTo: 'users';
         value: string | User;
       }
@@ -1209,6 +1345,10 @@ export interface PayloadLockedDocument {
 export interface PayloadPreference {
   id: string;
   user:
+    | {
+        relationTo: 'dealers';
+        value: string | Dealer;
+      }
     | {
         relationTo: 'users';
         value: string | User;
@@ -1388,7 +1528,6 @@ export interface PagesSelect<T extends boolean = true> {
           | {
               anchor?: T;
               heading?: T;
-              highlight?: T;
               prompt?: T;
               activeColumn?: T;
               columnHeading?: T;
@@ -1406,7 +1545,6 @@ export interface PagesSelect<T extends boolean = true> {
           | {
               anchor?: T;
               heading?: T;
-              highlight?: T;
               text?: T;
               logos?:
                 | T
@@ -1477,7 +1615,6 @@ export interface PagesSelect<T extends boolean = true> {
           | {
               anchor?: T;
               heading?: T;
-              highlight?: T;
               text?: T;
               items?:
                 | T
@@ -1619,12 +1756,11 @@ export interface DocumentsSelect<T extends boolean = true> {
  * via the `definition` "configurator-requests_select".
  */
 export interface ConfiguratorRequestsSelect<T extends boolean = true> {
-  reference?: T;
-  idempotencyKey?: T;
-  requestType?: T;
   status?: T;
-  locale?: T;
-  sourceUrl?: T;
+  requestType?: T;
+  reference?: T;
+  familyName?: T;
+  totalPrice?: T;
   contact?:
     | T
     | {
@@ -1634,20 +1770,53 @@ export interface ConfiguratorRequestsSelect<T extends boolean = true> {
         email?: T;
         phone?: T;
       };
+  dealer?: T;
   callPreference?: T;
   preferredTime?: T;
   message?: T;
+  model?: T;
+  sku?: T;
+  complete?: T;
+  lines?:
+    | T
+    | {
+        label?: T;
+        price?: T;
+        dealerPrice?: T;
+        kind?: T;
+        id?: T;
+      };
+  dealerTotalPrice?: T;
+  financing?:
+    | T
+    | {
+        label?: T;
+        price?: T;
+        monthly?: T;
+      };
   serviceAgreement?:
     | T
     | {
         selected?: T;
         annualPrice?: T;
       };
-  snapshot?: T;
+  specifications?:
+    | T
+    | {
+        label?: T;
+        value?: T;
+        id?: T;
+      };
+  deliveryTime?: T;
+  warranty?: T;
+  locale?: T;
+  sourceUrl?: T;
   emailStatus?: T;
   salesEmailId?: T;
   customerEmailId?: T;
   emailError?: T;
+  idempotencyKey?: T;
+  snapshot?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1671,6 +1840,26 @@ export interface ContactRequestsSelect<T extends boolean = true> {
   emailError?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "dealers_select".
+ */
+export interface DealersSelect<T extends boolean = true> {
+  status?: T;
+  company?: T;
+  name?: T;
+  note?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  email?: T;
+  resetPasswordToken?: T;
+  resetPasswordExpiration?: T;
+  salt?: T;
+  hash?: T;
+  resetPasswordRequestedAt?: T;
+  loginAttempts?: T;
+  lockUntil?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1715,6 +1904,7 @@ export interface TruckFamiliesSelect<T extends boolean = true> {
         price?: T;
         description?: T;
         defaultSelected?: T;
+        availableFor?: T;
         id?: T;
       };
   liftHeights?:
@@ -1724,6 +1914,7 @@ export interface TruckFamiliesSelect<T extends boolean = true> {
         buildHeight?: T;
         price?: T;
         defaultSelected?: T;
+        availableFor?: T;
         id?: T;
       };
   liftHeightHelp?: T;
@@ -1734,6 +1925,7 @@ export interface TruckFamiliesSelect<T extends boolean = true> {
         price?: T;
         description?: T;
         image?: T;
+        availableFor?: T;
         id?: T;
       };
   key?: T;
@@ -2128,6 +2320,10 @@ export interface ConfiguratorSetting {
    */
   warrantyNote?: string | null;
   /**
+   * Dras av från alla priser för inloggade återförsäljare, som ser sitt ÅF-pris bredvid kundpriset. 0 visar inget ÅF-pris. Godkänn återförsäljare under Förfrågningar → Återförsäljare.
+   */
+  dealerDiscountPercent?: number | null;
+  /**
    * Stegen på tacksidan efter en beställning.
    */
   nextSteps?:
@@ -2292,6 +2488,7 @@ export interface ConfiguratorSettingsSelect<T extends boolean = true> {
         annualPrice?: T;
       };
   warrantyNote?: T;
+  dealerDiscountPercent?: T;
   nextSteps?:
     | T
     | {
@@ -2362,6 +2559,10 @@ export interface TaskSchedulePublish {
         } | null);
     global?: ('header' | 'footer' | 'configurator-settings') | null;
     user?:
+      | ({
+          relationTo: 'dealers';
+          value: string | Dealer;
+        } | null)
       | ({
           relationTo: 'users';
           value: string | User;

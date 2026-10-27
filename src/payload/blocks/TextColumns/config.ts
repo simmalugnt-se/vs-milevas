@@ -1,4 +1,5 @@
 import type { Block } from "payload";
+import { coloredHeadingField } from "@/payload/fields/colored-heading";
 import { sectionID } from "../milevas-fields";
 
 export const TextColumnsBlock: Block = {
@@ -6,21 +7,10 @@ export const TextColumnsBlock: Block = {
   labels: { singular: "Milevas: Text och logotyper", plural: "Milevas: Text och logotyper" },
   fields: [
     sectionID,
-    {
-      name: "heading",
-      label: "Rubrik",
-      type: "text",
-      required: true,
-      localized: true,
-      admin: { description: "Vit del. Exempel: Ett varumärke inom." },
-    },
-    {
-      name: "highlight",
-      label: "Gul del",
-      type: "text",
-      localized: true,
-      admin: { description: "Efter rubriken, i gult. Exempel: KION Group." },
-    },
+    coloredHeadingField({
+      description:
+        'Står i följd, även över flera stycken. Exempel: "Ett varumärke inom" och gult "KION Group".',
+    }),
     { name: "text", label: "Text", type: "textarea", localized: true },
     {
       name: "logos",

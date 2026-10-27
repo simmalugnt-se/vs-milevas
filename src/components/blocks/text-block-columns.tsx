@@ -12,8 +12,6 @@ type TextBlockColumnsProps = {
   heading: ReactNode;
   /** The heading's element: `h1` when the block opens a page without a hero. */
   headingAs?: "h1" | "h2";
-  /** The yellow end of the heading (Figma: "KION Group"). */
-  highlight?: ReactNode;
   text?: ReactNode;
   /** One column per logo (Figma: four). */
   logos: TextBlockColumnsLogo[];
@@ -35,7 +33,6 @@ type TextBlockColumnsProps = {
 export function TextBlockColumns({
   heading,
   headingAs: Heading = "h2",
-  highlight,
   text,
   logos,
   id,
@@ -65,9 +62,7 @@ export function TextBlockColumns({
         ))}
       </ul>
       <div className="absolute inset-x-0 top-[28.29%] z-10 mx-auto flex w-[calc(100%_-_2*var(--spacing-md))] flex-col items-center gap-(--spacing-sm) text-center text-ui-primary tablet:top-[33.13%] tablet:w-[35.125rem] tablet:gap-(--spacing-md) desktop-s:top-[26.48%] desktop-s:w-[53.1875rem] desktop-l:top-[22.99%]">
-        <Heading className="text-display-l uppercase max-tablet:hyphens-auto">
-          {heading} {highlight ? <span className="text-ui-brand">{highlight}</span> : null}
-        </Heading>
+        <Heading className="text-display-l uppercase max-tablet:hyphens-auto">{heading}</Heading>
         {text ? (
           <p className="text-text-m tablet:text-text-l desktop-s:max-w-[48.25rem]">{text}</p>
         ) : null}

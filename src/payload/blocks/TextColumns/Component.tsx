@@ -1,10 +1,16 @@
 import { editableBlock, editableField } from "@simmalugnt-se/payload-visual-editing/frontend";
 import Image from "next/image";
+import { Fragment } from "react";
 import { TextBlockColumns } from "@/components/blocks/text-block-columns";
+import { ColoredRuns } from "@/components/ui/colored-text";
+import { coloredLines } from "@/payload/utilities/colored-text";
 import { getMediaImageDimensions, getMediaImageURL } from "@/payload/utilities/media";
 import type { LayoutBlockComponentProps, TextColumnsBlock } from "../types";
 
-export function TextColumnsBlockComponent({ block, first }: LayoutBlockComponentProps<TextColumnsBlock>) {
+export function TextColumnsBlockComponent({
+  block,
+  first,
+}: LayoutBlockComponentProps<TextColumnsBlock>) {
   const logos = block.logos.flatMap((logo) => {
     const src = getMediaImageURL(logo.image);
     const size = getMediaImageDimensions(logo.image);
@@ -31,9 +37,15 @@ export function TextColumnsBlockComponent({ block, first }: LayoutBlockComponent
     <TextBlockColumns
       headingAs={first ? "h1" : "h2"}
       id={block.anchor ?? undefined}
-      heading={<span {...editableField("heading")}>{block.heading}</span>}
-      highlight={
-        block.highlight ? <span {...editableField("highlight")}>{block.highlight}</span> : undefined
+      heading={
+        <span {...editableField("heading")}>
+          {coloredLines(block.heading).map((runs, index) => (
+            <Fragment key={index}>
+              {index > 0 ? " " : null}
+              <ColoredRuns runs={runs} />
+            </Fragment>
+          ))}
+        </span>
       }
       text={block.text ? <span {...editableField("text")}>{block.text}</span> : undefined}
       logos={logos}

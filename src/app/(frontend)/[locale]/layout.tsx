@@ -6,6 +6,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import type { TypedLocale } from "payload";
 import { AdminBarSlot } from "@/components/admin-bar/slot";
 import { GridOverlay } from "@/components/grid-overlay";
+import { DealerProvider } from "@/features/dealers/DealerProvider";
 import { routing } from "@/i18n/routing";
 import { getRobotsMetadata } from "@/lib/seo/indexing";
 import { getSiteUrl } from "@/lib/site";
@@ -83,12 +84,14 @@ export default async function LocaleLayout({
       >
         <NextIntlClientProvider locale={locale}>
           <AdminBarSlot />
-          {/* The main content grows on a short page, so the footer ends at the bottom of the window. */}
-          <div className="canvas flex min-h-screen flex-col">
-            <SiteHeader locale={locale} />
-            <main className="flex w-full flex-1 flex-col">{children}</main>
-            <SiteFooter locale={locale} />
-          </div>
+          <DealerProvider>
+            {/* The main content grows on a short page, so the footer ends at the bottom of the window. */}
+            <div className="canvas flex min-h-screen flex-col">
+              <SiteHeader locale={locale} />
+              <main className="flex w-full flex-1 flex-col">{children}</main>
+              <SiteFooter locale={locale} />
+            </div>
+          </DealerProvider>
           <GridOverlay />
         </NextIntlClientProvider>
       </body>

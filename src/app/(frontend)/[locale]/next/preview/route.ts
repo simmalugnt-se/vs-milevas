@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import type { NextRequest } from "next/server";
 import type { CollectionSlug, GlobalSlug, PayloadRequest } from "payload";
 
+import { isEditorUser } from "@/payload/access/isAuthenticated";
 import { getPayloadClient } from "@/payload/get-payload";
 
 const PREVIEW_COLLECTIONS = new Set<CollectionSlug>(["pages", "truck-families"]);
@@ -51,10 +52,10 @@ export async function GET(req: NextRequest) {
   let user;
 
   try {
-    user = await payload.auth({
+    ({ user } = await payload.auth({
       req: req as unknown as PayloadRequest,
       headers: req.headers,
-    });
+    }));
   } catch (error) {
     payload.logger.error({ err: error }, "Error verifying token for live preview");
     return new Response("You are not allowed to preview this page", {
@@ -64,7 +65,8 @@ export async function GET(req: NextRequest) {
 
   const draft = await draftMode();
 
-  if (!user) {
+  // Only Admin's users preview drafts.
+  if (!isEditorUser(user)) {
     draft.disable();
     return new Response("You are not allowed to preview this page", {
       status: 403,

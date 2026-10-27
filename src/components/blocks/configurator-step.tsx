@@ -7,7 +7,7 @@ export type ConfiguratorStepOption = {
   key: string;
   title: ReactNode;
   /** As shown: "169 000 kr", "+18 000 kr", "Ingår". */
-  price: string;
+  price: ReactNode;
   text?: ReactNode;
   /** A product image, e.g. a `next/image` with `fill`, for `images` and `imageRows`. */
   image?: ReactNode;

@@ -2,15 +2,8 @@
 
 import { useAllFormFields } from "@payloadcms/ui";
 import { reduceFieldsToValues } from "payload/shared";
-import { useEffect, useState } from "react";
-import {
-  CHOICE_STEPS,
-  MODEL_STEP,
-  orderedSteps,
-  type StepKey,
-  type StepSetting,
-  stepRole,
-} from "@/features/configurator/steps";
+import { CHOICE_STEPS, MODEL_STEP, type StepKey, stepRole } from "@/features/configurator/steps";
+import { useStepOrder } from "./useStepOrder";
 
 /**
  * What the configurator makes of the truck type, read from the form as it is edited: its steps in
@@ -35,29 +28,7 @@ const count = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : 
 export function ConfiguratorOverview() {
   const [fields] = useAllFormFields();
   const data = reduceFieldsToValues(fields, true) as Record<string, unknown>;
-  const [order, setOrder] = useState<Array<{ step: StepKey; label: string }>>(() => [
-    { step: MODEL_STEP.key, label: MODEL_STEP.label },
-    ...orderedSteps([]),
-  ]);
-
-  useEffect(() => {
-    const controller = new AbortController();
-    fetch("/api/globals/configurator-settings?depth=0&draft=true", {
-      credentials: "include",
-      signal: controller.signal,
-    })
-      .then((response) => (response.ok ? response.json() : null))
-      .then((settings: { modelStepLabel?: string; steps?: StepSetting[] } | null) => {
-        if (settings) {
-          setOrder([
-            { step: MODEL_STEP.key, label: settings.modelStepLabel || MODEL_STEP.label },
-            ...orderedSteps(settings.steps),
-          ]);
-        }
-      })
-      .catch(() => {});
-    return () => controller.abort();
-  }, []);
+  const order = useStepOrder();
 
   const rows = (name: string) => (Array.isArray(data[name]) ? (data[name] as Row[]) : []);
   const models = rows("models");

@@ -1,7 +1,7 @@
 import type { ArrayField, GlobalConfig } from "payload";
 import { CHOICE_STEPS, MODEL_STEP, orderedSteps } from "@/features/configurator/steps.ts";
 import { ADMIN_GROUPS } from "@/payload/admin-groups.ts";
-import { isAuthenticated } from "../../access/isAuthenticated.ts";
+import { isAuthenticated, isEditorUser } from "../../access/isAuthenticated.ts";
 import { revalidateConfiguratorSettings } from "./hooks/revalidate.ts";
 
 /**
@@ -233,6 +233,26 @@ export const ConfiguratorSettings: GlobalConfig = {
               admin: {
                 description:
                   'Under garantin i offertens prisruta. Exempel: "Omfattar fabrikationsfel på drivlina, elsystem och chassi."',
+              },
+            },
+          ],
+        },
+        {
+          label: "Återförsäljare",
+          fields: [
+            {
+              name: "dealerDiscountPercent",
+              label: "ÅF-rabatt (%)",
+              type: "number",
+              min: 0,
+              max: 100,
+              defaultValue: 0,
+              // The site reads it past access for signed-in dealers only; visitors never get it.
+              access: { read: ({ req }) => isEditorUser(req.user) },
+              admin: {
+                step: 0.1,
+                description:
+                  "Dras av från alla priser för inloggade återförsäljare, som ser sitt ÅF-pris bredvid kundpriset. 0 visar inget ÅF-pris. Godkänn återförsäljare under Förfrågningar → Återförsäljare.",
               },
             },
           ],

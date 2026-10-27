@@ -8,9 +8,12 @@ import { ConfiguratorSkeleton } from "@/components/blocks/configurator-skeleton"
 import { ConfiguratorStep } from "@/components/blocks/configurator-step";
 import { Button, ButtonLink } from "@/components/ui/button";
 import { CheckboxChoice } from "@/components/ui/checkbox-choice";
+import { WithDealerPrice } from "@/components/ui/dealer-price";
 import { PriceBox } from "@/components/ui/price-box";
+import { useDealerPrice } from "@/features/dealers/DealerProvider";
 import { frontendPath } from "@/i18n/frontend-path";
 import {
+  availableOptions,
   calculateFinancingPrice,
   choiceDisplay,
   choiceSatisfied,
@@ -115,6 +118,19 @@ function priceLabel(choice: ConfiguratorChoice, price: number) {
   return price === 0 ? "Ingår" : `+${formatPrice(price)}`;
 }
 
+/** A price with the signed-in dealer's beside it; `dealerPrice` gives null for everyone else. */
+function withDealer(
+  text: string,
+  price: number,
+  dealerPrice: (price: number) => number | null,
+  format: (price: number) => string = formatPrice,
+): ReactNode {
+  const dealer = price === 0 ? null : dealerPrice(price);
+  return (
+    <WithDealerPrice dealer={dealer === null ? undefined : format(dealer)}>{text}</WithDealerPrice>
+  );
+}
+
 /** The price the configuration starts at: the defaults. */
 const startPrice = (family: ConfiguratorFamily) =>
   estimateTotal(family, sanitizeSelections(family, {}));
@@ -136,6 +152,7 @@ export function ConfiguratorClient({
   locale: string;
 }) {
   const [state, dispatch] = useReducer(reducer, initialState);
+  const dealerPrice = useDealerPrice();
   const [callOpen, setCallOpen] = useState(false);
   const families = catalog.families.filter((candidate) => familySteps(candidate).length > 0);
   const family = families.find((candidate) => candidate.key === state.familyKey);
@@ -267,6 +284,7 @@ export function ConfiguratorClient({
   const lowestPrice = Math.min(...families.map(startPrice));
   const monthlyMethods = catalog.financingMethods.filter((method) => method.kind === "monthly");
   const totalPrice = total ?? lowestPrice;
+  const dealerTotal = dealerPrice(totalPrice);
   const number = stepNumber(state.step);
 
   let step: ReactNode;
@@ -280,7 +298,11 @@ export function ConfiguratorClient({
         options={families.map((candidate) => ({
           key: candidate.key,
           title: candidate.name,
-          price: `Från ${formatPrice(startPrice(candidate))}`,
+          price: withDealer(
+            `Från ${formatPrice(startPrice(candidate))}`,
+            startPrice(candidate),
+            dealerPrice,
+          ),
           text: candidate.description,
           selected: family?.key === candidate.key,
           image: candidate.image ? (
@@ -297,7 +319,11 @@ export function ConfiguratorClient({
       />
     );
   } else if (currentConfigStep) {
-    const choice = currentConfigStep;
+    // Only what the steps before allow, e.g. the batteries for the chosen lift capacity.
+    const choice = {
+      ...currentConfigStep,
+      options: availableOptions(family, currentConfigStep, state.selections),
+    };
     step = (
       <ConfiguratorStep
         number={number}
@@ -306,7 +332,12 @@ export function ConfiguratorClient({
         options={choice.options.map((option) => ({
           key: option.key,
           title: option.label,
-          price: priceLabel(choice, option.price),
+          price: withDealer(
+            priceLabel(choice, option.price),
+            option.price,
+            dealerPrice,
+            choice.key === MODEL_CHOICE ? formatPrice : (price) => `+${formatPrice(price)}`,
+          ),
           text: option.description,
           selected: (state.selections[choice.key] ?? []).includes(option.key),
           image: option.image ? (
@@ -336,9 +367,11 @@ export function ConfiguratorClient({
             key: method.key,
             // With a slider the term shows there; without, in the title as before.
             title: terms.length > 1 ? method.label : financingLabel(termed),
-            price: `${formatPrice(calculateFinancingPrice(totalPrice, termed))}${
-              method.kind === "monthly" ? "/mån" : ""
-            }`,
+            // Dealer prices on purchase prices only; a month's cost is the customer's.
+            price:
+              method.kind === "monthly"
+                ? `${formatPrice(calculateFinancingPrice(totalPrice, termed))}/mån`
+                : withDealer(formatPrice(totalPrice), totalPrice, dealerPrice),
             selected: state.financingKey === method.key,
             onSelect: () =>
               dispatch({
@@ -424,13 +457,18 @@ export function ConfiguratorClient({
             stackOnMobile
             totalLabel={family ? "Totalpris" : "Från"}
             total={formatPrice(totalPrice)}
-            rows={monthlyMethods.map((method) => {
-              const termed = termOf(method);
-              return {
-                label: financingLabel(termed),
-                value: `${formatPrice(calculateFinancingPrice(totalPrice, termed))}/mån`,
-              };
-            })}
+            rows={[
+              ...(dealerTotal === null
+                ? []
+                : [{ label: "Ditt ÅF-pris", value: formatPrice(dealerTotal) }]),
+              ...monthlyMethods.map((method) => {
+                const termed = termOf(method);
+                return {
+                  label: financingLabel(termed),
+                  value: `${formatPrice(calculateFinancingPrice(totalPrice, termed))}/mån`,
+                };
+              }),
+            ]}
           />
         }
         image={

@@ -3,11 +3,13 @@
 import { randomBytes } from "node:crypto";
 import { headers } from "next/headers";
 import type { TypedLocale } from "payload";
+import { currentDealer, dealerDiscountPercent } from "@/features/dealers/session";
 import { getPayloadClient } from "@/payload/get-payload";
 import { getConfiguratorCatalog } from "./data";
 import { buildQuote } from "./engine";
 import { takeRateLimit } from "./rate-limit";
 import { sendConfiguratorRequestEmails, sendQuoteCopyEmail } from "./request-emails";
+import { quoteFields } from "./request-fields";
 import type {
   ConfiguratorActionState,
   ConfiguratorRequestSnapshot,
@@ -172,10 +174,22 @@ async function submitRequest(
     };
   }
 
+  // A signed-in dealer's request carries the dealer and the dealer prices.
+  const signedIn = await currentDealer();
+  const dealer = signedIn
+    ? {
+        id: signedIn.id,
+        email: signedIn.email,
+        company: signedIn.company,
+        discountPercent: await dealerDiscountPercent(),
+      }
+    : undefined;
+  const fields = quoteFields(quote, dealer);
   const snapshot: ConfiguratorRequestSnapshot = {
     createdAt: new Date().toISOString(),
     locale: base.locale,
     quote,
+    dealer,
   };
   const reference = createReference();
   const requestHeaders = await headers();
@@ -203,6 +217,7 @@ async function submitRequest(
         callPreference: requestType === "call" ? callPreference : undefined,
         preferredTime: requestType === "call" ? preferredTime || undefined : undefined,
         message: textValue(formData, "message", 3000) || undefined,
+        ...fields,
         serviceAgreement: {
           selected: Boolean(quote.serviceAgreement),
           annualPrice: quote.serviceAgreement?.annualPrice,
@@ -234,6 +249,11 @@ async function submitRequest(
     preferredTime: requestType === "call" ? preferredTime || undefined : undefined,
     message: textValue(formData, "message", 3000) || undefined,
     quote,
+    dealer: dealer && {
+      company: dealer.company,
+      email: dealer.email,
+      totalPrice: fields.dealerTotalPrice,
+    },
   });
 
   return { ok: true, reference, formValues: { ...formValues, callPreference } };

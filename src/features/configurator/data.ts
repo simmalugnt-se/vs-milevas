@@ -1,5 +1,6 @@
 import { unstable_cache, unstable_noStore } from "next/cache";
 import type { TypedLocale } from "payload";
+import { conditionsByStep } from "@/payload/collections/TruckFamilies/conditions";
 import { TRUCK_SPECS, type TruckSpecName } from "@/payload/collections/TruckFamilies/specs";
 import { resolveLinkField } from "@/payload/utilities/link-field";
 import { getMediaImageURL } from "@/payload/utilities/media";
@@ -99,6 +100,7 @@ const batteryOption = (battery: Battery): ConfiguratorOption => ({
   price: battery.price,
   default: battery.defaultSelected === true,
   specs: spec("batteryCapacity", battery.capacity),
+  availableFor: conditionsByStep(battery.availableFor),
 });
 
 const liftHeightOption = (mast: LiftHeight): ConfiguratorOption => ({
@@ -110,6 +112,7 @@ const liftHeightOption = (mast: LiftHeight): ConfiguratorOption => ({
   price: mast.price,
   default: mast.defaultSelected === true,
   specs: spec("buildHeight", mast.buildHeight),
+  availableFor: conditionsByStep(mast.availableFor),
 });
 
 const extraOption = (extra: Extra): ConfiguratorOption => ({
@@ -120,6 +123,7 @@ const extraOption = (extra: Extra): ConfiguratorOption => ({
   price: extra.price,
   default: false,
   specs: [],
+  availableFor: conditionsByStep(extra.availableFor),
 });
 
 function brochureData(document: TruckFamily["brochure"]): ConfiguratorFamily["brochure"] {
@@ -305,7 +309,7 @@ async function fetchConfiguratorCatalog(
 }
 
 /** Bumped when the catalogue's shape changes, so a cache from before is not read as the new one. */
-const CATALOG_VERSION = "2026-10-27c";
+const CATALOG_VERSION = "2026-10-28a";
 
 const getCachedCatalog = (locale: TypedLocale) =>
   unstable_cache(

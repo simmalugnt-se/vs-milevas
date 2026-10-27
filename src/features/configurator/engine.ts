@@ -3,6 +3,7 @@ import type {
   ConfiguratorCatalog,
   ConfiguratorChoice,
   ConfiguratorFamily,
+  ConfiguratorOption,
   ConfiguratorQuote,
   ConfiguratorSpecification,
   FinancingMethod,
@@ -51,6 +52,47 @@ export function choiceDisplay(choice: ConfiguratorChoice): ChoiceDisplay {
   return "stack";
 }
 
+/**
+ * Whether an option can be chosen after what is chosen so far: for each step it sets a condition
+ * on, the option chosen there is one it allows. `chosen` holds the earlier steps only, so a
+ * condition on a later step, or on a step not chosen yet, holds.
+ */
+function conditionsHold(option: ConfiguratorOption, chosen: SelectionState): boolean {
+  return Object.entries(option.availableFor ?? {}).every(([stepKey, allowed]) => {
+    const picked = chosen[stepKey] ?? [];
+    return picked.length === 0 || picked.some((key) => allowed.includes(key));
+  });
+}
+
+/** The steps before `choice`, with what is chosen in them. */
+function earlierSelections(
+  family: ConfiguratorFamily,
+  choice: ConfiguratorChoice,
+  selections: SelectionState,
+): SelectionState {
+  const earlier: SelectionState = {};
+  for (const step of familySteps(family)) {
+    if (step.key === choice.key) break;
+    if (selections[step.key]) earlier[step.key] = selections[step.key];
+  }
+  return earlier;
+}
+
+/** The options of a step the customer can choose from, after what is chosen in the steps before. */
+export function availableOptions(
+  family: ConfiguratorFamily,
+  choice: ConfiguratorChoice,
+  selections: SelectionState,
+): ConfiguratorOption[] {
+  const earlier = earlierSelections(family, choice, selections);
+  return choice.options.filter((option) => conditionsHold(option, earlier));
+}
+
+/**
+ * The selections as they can be: step by step, only options the steps before allow. A step with
+ * nothing valid chosen gets its default, or its first allowed option when the default is not
+ * allowed; an optional step stays empty.
+ */
 export function sanitizeSelections(
   family: ConfiguratorFamily,
   input: SelectionState,
@@ -60,7 +102,8 @@ export function sanitizeSelections(
 
   for (const choice of familySteps(family)) {
     const requested = input[choice.key] ?? [];
-    const keys = new Set(choice.options.map((option) => option.key));
+    const options = choice.options.filter((option) => conditionsHold(option, next));
+    const keys = new Set(options.map((option) => option.key));
     const uniqueRequested = [...new Set(requested)].filter((key) => keys.has(key));
     const accepted =
       choice.selectionMode === "single" ? uniqueRequested.slice(0, 1) : uniqueRequested;
@@ -71,9 +114,16 @@ export function sanitizeSelections(
     }
 
     if (applyDefaults) {
-      const defaults = choice.options
-        .filter((option) => option.default)
-        .map((option) => option.key);
+      const defaults = options.filter((option) => option.default).map((option) => option.key);
+      // The default is not allowed after the steps before: the first one that is.
+      if (
+        defaults.length === 0 &&
+        choice.selectionMode === "single" &&
+        choice.options.some((option) => option.default) &&
+        options[0]
+      ) {
+        defaults.push(options[0].key);
+      }
       const selectedDefaults = choice.selectionMode === "single" ? defaults.slice(0, 1) : defaults;
       if (selectedDefaults.length > 0) {
         next[choice.key] = selectedDefaults;

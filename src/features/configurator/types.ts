@@ -42,6 +42,11 @@ export type ConfiguratorOption = {
   default: boolean;
   sku?: string;
   specs: SpecValue[];
+  /**
+   * Shown only for these options of other steps, by step key: `{ model: ["…"] }` shows a battery
+   * only with those lift capacities. A step left out, or one after this, sets no condition.
+   */
+  availableFor?: Record<string, string[]>;
 };
 
 /** One step of the configurator: one set of options. */
@@ -191,4 +196,6 @@ export type ConfiguratorRequestSnapshot = {
   createdAt: string;
   locale: string;
   quote: ConfiguratorQuote;
+  /** The signed-in dealer who sent it, with the discount the dealer prices were counted with. */
+  dealer?: { id: string; email: string; company: string; discountPercent: number };
 };

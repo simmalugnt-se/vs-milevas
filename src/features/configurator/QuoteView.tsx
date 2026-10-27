@@ -5,7 +5,9 @@ import { useCallback, useState } from "react";
 import { ConfiguratorQuote } from "@/components/blocks/configurator-quote";
 import { ConfiguratorThanks } from "@/components/blocks/configurator-thanks";
 import { Button, TextLink } from "@/components/ui/button";
+import { WithDealerPrice } from "@/components/ui/dealer-price";
 import { PriceBox } from "@/components/ui/price-box";
+import { useDealerPrice } from "@/features/dealers/DealerProvider";
 import { financingLabel } from "./engine";
 import { CallRequestForm, OrderRequestForm, QuoteCopyForm, RequestDialog } from "./RequestForms";
 import type { NextStep, ConfiguratorQuote as Quote } from "./types";
@@ -43,6 +45,8 @@ export function QuoteView({
   nextSteps,
 }: QuoteViewProps) {
   const [dialog, setDialog] = useState<"call" | "order" | null>(null);
+  const dealerPrice = useDealerPrice();
+  const dealerTotal = dealerPrice(quote.totalPrice);
   const [ordered, setOrdered] = useState(false);
   const close = useCallback(() => setDialog(null), []);
   const onSent = useCallback(() => {
@@ -73,6 +77,9 @@ export function QuoteView({
       totalLabel="Totalpris"
       total={formatPrice(quote.totalPrice)}
       rows={[
+        ...(dealerTotal === null
+          ? []
+          : [{ label: "Ditt ÅF-pris", value: formatPrice(dealerTotal) }]),
         ...(financing ? [financing] : []),
         ...(quote.serviceAgreement
           ? [
@@ -146,7 +153,17 @@ export function QuoteView({
               ),
               rows: quote.lines
                 .filter((line) => line.kind !== "service")
-                .map((line) => ({ label: line.label, value: formatPrice(line.price) })),
+                .map((line) => {
+                  const dealer = line.price === 0 ? null : dealerPrice(line.price);
+                  return {
+                    label: line.label,
+                    value: (
+                      <WithDealerPrice dealer={dealer === null ? undefined : formatPrice(dealer)}>
+                        {formatPrice(line.price)}
+                      </WithDealerPrice>
+                    ),
+                  };
+                }),
             },
             ...(quote.specifications.length > 0
               ? [

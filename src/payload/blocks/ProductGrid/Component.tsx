@@ -3,7 +3,7 @@ import { draftMode } from "next/headers";
 import Image from "next/image";
 import { getLocale } from "next-intl/server";
 import { ProductGrid } from "@/components/blocks/product-grid";
-import type { ProductCardProps } from "@/components/ui/product-card";
+import type { DealerProductCardProps } from "@/components/ui/dealer-product-card";
 import { getConfiguratorCatalog } from "@/features/configurator/data";
 import { familyCardSpecs, familyFromCatalog, familyLink, familyPrices } from "../milevas-data";
 import type { LayoutBlockComponentProps, ProductGridBlock } from "../types";
@@ -14,7 +14,7 @@ export async function ProductGridBlockComponent({
   const locale = await getLocale();
   const { isEnabled: draft } = await draftMode();
   const catalog = await getConfiguratorCatalog(locale, draft);
-  const products = block.products.flatMap((item): ProductCardProps[] => {
+  const products = block.products.flatMap((item): DealerProductCardProps[] => {
     const family = familyFromCatalog(item.family, catalog);
     const link = family ? familyLink(family) : undefined;
     if (!family || !link) return [];

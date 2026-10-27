@@ -5,6 +5,7 @@ import { isAuthenticated } from "../../access/isAuthenticated.ts";
 import { link } from "../../fields/link.ts";
 import { populatePublishedAt } from "../../hooks/populatePublishedAt.ts";
 import { generatePreviewPath } from "../../utilities/preview.ts";
+import { type ConditionList, checkEveryRowHasOption } from "./conditions.ts";
 import { revalidateTruckFamily, revalidateTruckFamilyDelete } from "./hooks/revalidate.ts";
 
 /** For a name that may be too long for its box; `hyphenate` in the configurator's data reads it. */
@@ -65,6 +66,44 @@ const oneDefault =
     const defaults = rows.filter((row) => row?.defaultSelected === true).length;
     return defaults === 1 || message;
   };
+
+/** Both checks on a list the customer chooses one from. */
+const validateChoiceList =
+  (list: ListName & ConditionList, message: string): Validate =>
+  (value, args) => {
+    const one = oneDefault(list, message)(value, args);
+    if (one !== true) return one;
+    return checkEveryRowHasOption(list, args.data as Parameters<typeof checkEveryRowHasOption>[1]);
+  };
+
+/**
+ * "Visas för": the lift capacities, batteries and masts a row is shown with (`conditions.ts`). Shown
+ * where there is something to choose between, in this list and another.
+ */
+const availableForField = (list: ListName | "extras"): Field => ({
+  name: "availableFor",
+  label: "Visas för",
+  type: "json",
+  typescriptSchema: [
+    () => ({
+      type: "object",
+      additionalProperties: false,
+      properties: {
+        models: { type: "array", items: { type: "string" } },
+        batteries: { type: "array", items: { type: "string" } },
+        liftHeights: { type: "array", items: { type: "string" } },
+      },
+    }),
+  ],
+  admin: {
+    components: { Field: `${ADMIN}/AvailableFor.tsx#AvailableFor` },
+    condition: (data) =>
+      (list === "extras" || rowCount(data, list) > 1) &&
+      (["models", "batteries", "liftHeights"] as const).some(
+        (other) => other !== list && rowCount(data, other) > 1,
+      ),
+  },
+});
 
 const ONE_IS_A_SPEC =
   "Med flera kan kunden välja i konfiguratorn; med ett enda är det en del av trucken och visas bara som specifikation.";
@@ -260,7 +299,7 @@ export const TruckFamilies: CollectionConfig = {
               dbName: "truck_batteries",
               type: "array",
               localized: false,
-              validate: oneDefault("batteries", "Markera exakt ett batteri som förvalt."),
+              validate: validateChoiceList("batteries", "Markera exakt ett batteri som förvalt."),
               admin: {
                 description: `${ONE_IS_A_SPEC} Det förvalda batteriets kapacitet står på produktkortet.`,
                 initCollapsed: true,
@@ -291,6 +330,7 @@ export const TruckFamilies: CollectionConfig = {
                 },
                 { name: "description", label: "Text", type: "textarea", localized: true },
                 defaultField("batteries"),
+                availableForField("batteries"),
               ],
             },
             {
@@ -300,7 +340,7 @@ export const TruckFamilies: CollectionConfig = {
               dbName: "truck_lift_heights",
               type: "array",
               localized: false,
-              validate: oneDefault("liftHeights", "Markera exakt en mast som förvald."),
+              validate: validateChoiceList("liftHeights", "Markera exakt en mast som förvald."),
               admin: {
                 description: `${ONE_IS_A_SPEC} Bygghöjden visas under lyfthöjden och i offerten.`,
                 initCollapsed: true,
@@ -328,6 +368,7 @@ export const TruckFamilies: CollectionConfig = {
                   ],
                 },
                 defaultField("liftHeights", "Förvald"),
+                availableForField("liftHeights"),
               ],
             },
             {
@@ -370,6 +411,7 @@ export const TruckFamilies: CollectionConfig = {
                 },
                 { name: "description", label: "Text", type: "textarea", localized: true },
                 { name: "image", label: "Bild", type: "upload", relationTo: "images" },
+                availableForField("extras"),
               ],
             },
           ],
