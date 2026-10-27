@@ -21,12 +21,25 @@ type Configuration = {
 
 function HiddenConfiguration({
   familyKey,
+/**
+ * The form's action with the key the server uses to see a form sent twice as one request: made at
+ * the first send and kept for this form, so sending again after an error is the same request and a
+ * later form is never taken for an earlier one (`useId` is the same on every visit).
+ */
+function useKeyedAction(action: (formData: FormData) => void) {
+  const key = useRef<string | null>(null);
+  return (formData: FormData) => {
+    key.current ??= crypto.randomUUID();
+    formData.set("submissionKey", key.current);
+    action(formData);
+  };
+}
+
   financingKey,
   locale,
   selections,
   serviceAgreement = false,
-  submissionKey,
-}: Configuration & { submissionKey: string }) {
+}: Configuration) {
   return (
     <>
       <input type="hidden" name="familyKey" value={familyKey} />
@@ -34,7 +47,6 @@ function HiddenConfiguration({
       <input type="hidden" name="locale" value={locale} />
       <input type="hidden" name="selections" value={JSON.stringify(selections)} />
       <input type="hidden" name="serviceAgreement" value={serviceAgreement ? "1" : "0"} />
-      <input type="hidden" name="submissionKey" value={submissionKey} />
       <input className="hidden" tabIndex={-1} autoComplete="off" name="website" aria-hidden />
     </>
   );
@@ -48,13 +60,13 @@ export function QuoteCopyForm(configuration: Configuration) {
   const [state, formAction, pending] = useActionState(sendQuoteCopy, {
     ok: false,
   } satisfies QuoteCopyState);
-  const submissionKey = useId();
+  const keyedAction = useKeyedAction(formAction);
   const messageId = useId();
   const message = state.ok ? `Kopian är skickad till ${state.email}.` : state.message;
 
   return (
-    <form action={formAction} className="flex flex-col gap-(--spacing-2xs)">
-      <HiddenConfiguration {...configuration} submissionKey={submissionKey} />
+    <form action={keyedAction} className="flex flex-col gap-(--spacing-2xs)">
+      <HiddenConfiguration {...configuration} />
       <div className="flex items-end gap-(--spacing-2xs)">
         <label className="flex min-w-0 flex-1 flex-col gap-(--spacing-2xs)">
           <span className="text-text-m text-ui-primary">Skicka kopia till mig</span>
@@ -205,7 +217,7 @@ export function CallRequestForm({
   ...configuration
 }: Configuration & { onClose: () => void; headingId: string }) {
   const [state, formAction, pending] = useActionState(submitCallRequest, initialActionState);
-  const submissionKey = useId();
+  const keyedAction = useKeyedAction(formAction);
   const days = useMemo(() => callDays(), []);
   const values = state.formValues;
   const errors = state.fieldErrors ?? {};
@@ -241,7 +253,7 @@ export function CallRequestForm({
     <ContactForm
       type="call"
       fill
-      action={formAction}
+      action={keyedAction}
       heading={<span id={headingId}>Boka samtal</span>}
       text="Välj tid som passar dig. En specialist ringer upp och går igenom din konfiguration."
       onClose={onClose}
@@ -254,7 +266,7 @@ export function CallRequestForm({
         </div>
       }
     >
-      <HiddenConfiguration {...configuration} submissionKey={submissionKey} />
+      <HiddenConfiguration {...configuration} />
       <TextField
         number="01"
         label="Namn"
@@ -331,7 +343,7 @@ export function OrderRequestForm({
   headingId: string;
 }) {
   const [state, formAction, pending] = useActionState(submitOrderRequest, initialActionState);
-  const submissionKey = useId();
+  const keyedAction = useKeyedAction(formAction);
   const values = state.formValues;
   const errors = state.fieldErrors ?? {};
 
@@ -343,7 +355,7 @@ export function OrderRequestForm({
     <ContactForm
       type="order"
       fill
-      action={formAction}
+      action={keyedAction}
       heading={<span id={headingId}>Fortsätt beställning</span>}
       text="Fyll i företagsuppgifterna så skickar vi avtalet för digital signering. Därefter kontaktar en specialist dig, trucken förbereds för leverans och levereras normalt inom 4–6 veckor."
       onClose={onClose}
@@ -356,7 +368,7 @@ export function OrderRequestForm({
         </div>
       }
     >
-      <HiddenConfiguration {...configuration} submissionKey={submissionKey} />
+      <HiddenConfiguration {...configuration} />
       <TextField
         number="01"
         label="Företagsnamn *"
