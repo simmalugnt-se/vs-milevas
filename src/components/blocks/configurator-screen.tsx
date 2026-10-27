@@ -16,7 +16,7 @@ import type { ReactNode } from "react";
  * touch the row.
  * One screen high, so the step and its buttons fit in the window: the truck takes the room the
  * step leaves (below Desktop S at least 12rem, for the price box), and the screen grows only when
- * the step itself is taller. From Desktop S the top padding is the overlaid navigation's row, which
+ * the step itself is taller; from Desktop S the truck then keeps its size. From Desktop S the top padding is the overlaid navigation's row, which
  * the price box touches as in Figma; the step keeps `spacing/xl` more, so in a low window it stops
  * short of the navigation instead of touching it (the quote and the thank-you screen do the same). Figma draws 800, 1000 and 800px, 832px on its Konfigurator page.
  *
@@ -66,9 +66,11 @@ export function ConfiguratorScreen({
         }`}
       >
         {/* `spacing/md` from the step, above it or beside it, so the truck never touches it, and as
-            much from the right edge. */}
+            much from the right edge. From Desktop S at most one window high (less the screen's
+            padding) and at the bottom, so a step taller than the window (an open financing
+            choice) grows the screen without growing the truck. */}
         {image ? (
-          <div className="absolute inset-0 bottom-(--spacing-md) desktop-s:bottom-0 desktop-s:inset-x-(--spacing-md)">
+          <div className="absolute inset-0 bottom-(--spacing-md) desktop-s:top-auto desktop-s:bottom-0 desktop-s:inset-x-(--spacing-md) desktop-s:h-full desktop-s:max-h-[calc(100svh-var(--spacing-xl)*2)]">
             {image}
           </div>
         ) : null}

@@ -1,7 +1,7 @@
 # Truckdata i Payload: kartläggning och förslag
 
 > **2026-10-26:** trucktypen beskrivs som en produkt på en sida, och konfiguratorn bygger sina
-> steg av den datan. Avsnitt 10 beskriver schemat som det är nu; 5 och 9 visar tidigare steg.
+> steg av den datan. Avsnitt 10 och 11 beskriver schemat som det är nu; 5 och 9 visar tidigare steg.
 
 Skrivet 2026-10-23 inför Figmas nya konfigurator (`04 — Blocks` → Configurator, `9264:6653`), och
 byggt samma dag (se avsnitt 8).
@@ -24,6 +24,8 @@ navigationen och produktkorten, hämtar namn, bild och priser från trucktypen.
 | 2026-10-23 | En huvudbild per trucktyp; heron, menyn och korten beskär den var för sig. |
 | 2026-10-23 | Navigationens Modeller listar alla publicerade trucktyper i sorteringsordning. |
 | 2026-10-26 | Produktdata först: trucktypen beskrivs som en produkt (varianter, batterier, lyfthöjder, tillval) på en sida utan flikar; konfiguratorns steg byggs av listorna. Ett alternativ ensamt är en specifikation, inget steg. Varianternas namn räknas fram ur kapaciteten. |
+| 2026-10-27 | Stegens ordning och namn ställs in en gång för alla trucktyper i Konfiguratorinställningar. Valet av trucktyp och Lyftkapacitet ligger fast först, eftersom grundpriset sitter på varianten och allt annat läggs till det. Ett grundpris på trucktypen med tillägg per variant valdes bort: varje variant är en egen modell med eget listpris, och Figma visar varianten som offertens bas. Trucktyperna sorteras genom att dras i listan. |
+| 2026-10-27 | Kunden väljer avtalslängd för leasing och långtidshyra med Figmas reglage, inom längderna i Konfiguratorinställningar. Restvärde finns bara för leasing. Månadskostnaden räknas tills vidare som (totalpris − restvärde) / antal månader; den riktiga uträkningen bestäms senare (`TODO(financing)`). |
 | 2026-10-26 | Fasta fält i stället för kopplingar: specifikationerna och stegen (batteri, lyfthöjd, tillval) är fält på trucktypen, ett tomt fält eller steg visas inte. `truck-specs`, nycklarna och villkoren (`models`, `requires`, `excludes`) tas bort. |
 
 ## 1. Dagens schema
@@ -35,7 +37,7 @@ navigationen och produktkorten, hämtar namn, bild och priser från trucktypen.
 - `steps[]` → `groups[]` → `options[]`, tre nivåer. Ett val har pris med `priceMode` (ingår,
   pristillägg eller ersätt baspris), förval, artikelnummer, villkor och `specifications[]`.
 - Villkoren (`allOf`, `anyOf`, `noneOf`) pekar på andra val med fri text, `grupp.alternativ`.
-- `ConfiguratorSettings` (global): finansieringsformer med månadskostnad i procent av totalpriset, serviceavtal och offertens
+- `ConfiguratorSettings` (global): finansieringsformer (med månadskostnad: avtalslängder och, för leasing, restvärde), serviceavtal och offertens
   giltighetstid.
 - `ConfiguratorRequests`: kontaktuppgifter och en ögonblicksbild (`snapshot`, JSON) av offerten.
 
@@ -270,7 +272,7 @@ sida (migreringen `20261026_135318_truck_product_page`):
 | `batteries[]` | Benämning, `capacity` ("80 V 228 Ah"), text, pristillägg, förval |
 | `liftHeights[]`, `liftHeightHelp` | `liftHeight` och `buildHeight` i mm, pristillägg, förval; hjälptexten när det finns flera |
 | `extras[]` | Namn, text, bild, pris |
-| `key`, `sortOrder` (sidopanelen) | Nyckeln skapas ur namnet om den är tom |
+| `key` (sidopanelen) | Nyckeln skapas ur namnet om den är tom (ordningen: se avsnitt 11) |
 
 Konfiguratorn (`features/configurator/data.ts`) bygger stegen av listorna: Lyftkapacitet, Batteri
 och Lyfthöjd när det finns fler än ett, Tillval när det finns något, sedan Finansiering. Ett batteri
@@ -279,3 +281,30 @@ grundpriset. Produktkortet visar det förvalda batteriets kapacitet. Offertens s
 från trucktypen (körhastighet), varianten (vikt, vändradie), batteriet (batterikapacitet) och masten
 (bygghöjd), i ordningen i `TruckFamilies/specs.ts`. Listraderna i admin visar sitt innehåll
 (`TruckFamilies/RowLabels.tsx`).
+
+## 11. För redaktören (2026-10-27)
+
+Migreringen `20261027_091217_editor_steps_and_order`:
+
+- **Stegens ordning och namn** står i Konfiguratorinställningar, fliken Steg. Steg 1 är valet av
+  trucktyp och steg 2 alltid varianterna (Lyftkapacitet), eftersom grundpriset sitter på varianten;
+  `modelStepLabel` är deras namn. `steps[]` är de övriga stegen (`battery`, `lift-height`, `extras`),
+  en rad var med namnet i konfiguratorn, sorterade genom att dras. Listan visar alltid alla tre: en
+  rad som saknas läggs tillbaka på sin vanliga plats (`orderedSteps` i
+  `features/configurator/steps.ts`), och sajten gör likadant. Vilka steg en trucktyp får avgör
+  `stepRole` i samma fil.
+- **Trucktypens flikar:** Om trucktypen och Konfigurator. Överst i Konfigurator visar
+  `ConfiguratorOverview.tsx` vad konfiguratorn blir medan man skriver: stegen i ordning, vad som ingår
+  för att det är ensamt, vad som inte visas, priset med förvalen och listor som saknar ett förval.
+- **Förval:** med fler än en variant, ett batteri eller en mast måste exakt en vara förvald för att
+  trucktypen ska gå att publicera, och kryssrutan syns bara då. En ensam variant är förvald.
+- **Ordningen** mellan trucktyperna är Payloads `orderable` (`_order`, dras i listvyn) i stället för
+  `sortOrder`. Migreringen behåller den ordning siffrorna gav.
+- **Förhandsvisning:** trucktypen förhandsvisas i konfiguratorn på sitt första steg, med utkastet.
+- **Nyckeln** går inte att ändra när trucktypen har publicerats (`publishedAt`), eftersom delade
+  länkar och sparade konfigurationer pekar på den.
+- **Finansiering** (migreringen `20261027_092134_financing_terms`): ett sätt med månadskostnad har
+  kortaste och längsta avtalslängd, steg och förvald längd (`minMonths`, `maxMonths`, `monthsStep`,
+  `months`) och, för leasing, `residualPercent`. Konfiguratorn visar reglaget i valt
+  Financiering; den valda längden står i adressen (`months`) och följer med i offerten,
+  förfrågningarna och mejlen. `withTerm` och `calculateFinancingPrice` i `engine.ts` räknar.

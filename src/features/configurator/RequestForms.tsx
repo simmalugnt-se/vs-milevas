@@ -14,6 +14,8 @@ const initialActionState: ConfiguratorActionState = { ok: false };
 type Configuration = {
   familyKey: string;
   financingKey: string;
+  /** The chosen term of a monthly way to pay. */
+  months?: number;
   locale: string;
   selections: SelectionState;
   serviceAgreement?: boolean;
@@ -36,6 +38,7 @@ function useKeyedAction(action: (formData: FormData) => void) {
 function HiddenConfiguration({
   familyKey,
   financingKey,
+  months,
   locale,
   selections,
   serviceAgreement = false,
@@ -44,6 +47,7 @@ function HiddenConfiguration({
     <>
       <input type="hidden" name="familyKey" value={familyKey} />
       <input type="hidden" name="financingKey" value={financingKey} />
+      <input type="hidden" name="months" value={months ?? ""} />
       <input type="hidden" name="locale" value={locale} />
       <input type="hidden" name="selections" value={JSON.stringify(selections)} />
       <input type="hidden" name="serviceAgreement" value={serviceAgreement ? "1" : "0"} />

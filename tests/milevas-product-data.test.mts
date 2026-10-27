@@ -19,7 +19,7 @@ const truck: ConfiguratorFamily = {
   deliveryTime: "1 vecka",
   warranty: "Test",
   specs: [{ spec: "battery", value: "80 V 228 Ah" }],
-  modelChoice: { label: "Lyftkapacitet", heading: "Välj lyftkapacitet" },
+  modelChoice: { label: "Lyftkapacitet" },
   models: [
     { key: "small", label: "1,5 ton", price: 169000, capacityKg: 1500, default: true, specs: [] },
     {
@@ -55,7 +55,7 @@ const catalog: ConfiguratorCatalog = {
       key: "leasing",
       label: "Leasing",
       kind: "monthly",
-      monthlyPercent: 2,
+      months: 50,
       serviceAgreementEligible: true,
     },
   ],

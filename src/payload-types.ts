@@ -667,6 +667,7 @@ export interface Video {
  */
 export interface TruckFamily {
   id: string;
+  _order?: string | null;
   /**
    * I plural, i menyer och på kort. Exempel: "Elektriska motvikts|truckar". Skriv | där ett långt ord får avstavas, till exempel "Skjutstativ|truckar". Ordet visas helt när det får plats och som "Skjutstativ-truckar" när det måste brytas.
    */
@@ -707,7 +708,7 @@ export interface TruckFamily {
     newTab?: boolean | null;
   };
   /**
-   * En rad per variant; konfiguratorns första val. Namnet räknas fram ur kapaciteten ("1,6 ton").
+   * En rad per variant; kunden väljer en i konfiguratorn. Namnet räknas fram ur kapaciteten ("1,6 ton").
    */
   models?:
     | {
@@ -786,13 +787,9 @@ export interface TruckFamily {
       }[]
     | null;
   /**
-   * Konfiguratorns adress pekar på trucktypen med den. Skapas ur namnet om den är tom.
+   * Konfiguratorns adress pekar på trucktypen med den. Skapas ur namnet om den är tom och låses när trucktypen publiceras, eftersom delade länkar pekar på den.
    */
   key: string;
-  /**
-   * Lägst först, i navigationen och i konfiguratorns första val.
-   */
-  sortOrder: number;
   publishedAt?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -1650,6 +1647,7 @@ export interface ContactRequestsSelect<T extends boolean = true> {
  * via the `definition` "truck-families_select".
  */
 export interface TruckFamiliesSelect<T extends boolean = true> {
+  _order?: T;
   name?: T;
   singularName?: T;
   description?: T;
@@ -1708,7 +1706,6 @@ export interface TruckFamiliesSelect<T extends boolean = true> {
         id?: T;
       };
   key?: T;
-  sortOrder?: T;
   publishedAt?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -2036,17 +2033,34 @@ export interface Footer {
  */
 export interface ConfiguratorSetting {
   id: string;
+  /**
+   * Steg 1 är valet av trucktyp. Steg 2 är alltid trucktypens varianter (lyftkapacitet): grundpriset sitter på varianten och allt annat läggs till det.
+   */
+  modelStepLabel: string;
+  /**
+   * Dra raderna för att ändra ordningen. En trucktyp hoppar över ett steg den inte har något att välja i: ett batteri eller en mast som är ensam ingår i trucken.
+   */
+  steps?:
+    | {
+        step: 'battery' | 'lift-height' | 'extras';
+        label: string;
+        id?: string | null;
+      }[]
+    | null;
   quoteValidityDays: number;
   financingMethods: {
     key: string;
     label: string;
     description?: string | null;
     kind: 'purchase' | 'monthly';
+    minMonths?: number | null;
+    maxMonths?: number | null;
+    monthsStep?: number | null;
     months?: number | null;
     /**
-     * Till exempel 1,875: en truck för 200 000 kr kostar då 3 750 kr i månaden.
+     * Bara för leasing; lämnas tomt för hyra, som inte har något restvärde. Kunden väljer avtalslängd med ett reglage mellan kortaste och längsta. Månadskostnaden räknas tills vidare som (totalpris − restvärde) / antal månader.
      */
-    monthlyPercent?: number | null;
+    residualPercent?: number | null;
     /**
      * Visar serviceavtal som ett val för denna finansieringsform.
      */
@@ -2190,6 +2204,14 @@ export interface FooterSelect<T extends boolean = true> {
  * via the `definition` "configurator-settings_select".
  */
 export interface ConfiguratorSettingsSelect<T extends boolean = true> {
+  modelStepLabel?: T;
+  steps?:
+    | T
+    | {
+        step?: T;
+        label?: T;
+        id?: T;
+      };
   quoteValidityDays?: T;
   financingMethods?:
     | T
@@ -2198,8 +2220,11 @@ export interface ConfiguratorSettingsSelect<T extends boolean = true> {
         label?: T;
         description?: T;
         kind?: T;
+        minMonths?: T;
+        maxMonths?: T;
+        monthsStep?: T;
         months?: T;
-        monthlyPercent?: T;
+        residualPercent?: T;
         serviceAgreementEligible?: T;
         id?: T;
       };

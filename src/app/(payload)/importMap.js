@@ -28,12 +28,15 @@ import { MetaDescriptionComponent as MetaDescriptionComponent_a8a977ebc872c5d5ea
 import { MetaImageComponent as MetaImageComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client'
 import { PreviewComponent as PreviewComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client'
 import { VisualEditingAdminBridge as VisualEditingAdminBridge_ef98436ff3126b2eab6a99c3362cf8ba } from '@simmalugnt-se/payload-visual-editing/client'
+import { ConfiguratorOverview as ConfiguratorOverview_57704fd67194d755fba1507a48df81fb } from '../../payload/collections/TruckFamilies/ConfiguratorOverview.tsx'
 import { ModelRowLabel as ModelRowLabel_e70b1b18b28ca1f64b445135ddfbaaac } from '../../payload/collections/TruckFamilies/RowLabels.tsx'
 import { BatteryRowLabel as BatteryRowLabel_e70b1b18b28ca1f64b445135ddfbaaac } from '../../payload/collections/TruckFamilies/RowLabels.tsx'
 import { LiftHeightRowLabel as LiftHeightRowLabel_e70b1b18b28ca1f64b445135ddfbaaac } from '../../payload/collections/TruckFamilies/RowLabels.tsx'
 import { ExtraRowLabel as ExtraRowLabel_e70b1b18b28ca1f64b445135ddfbaaac } from '../../payload/collections/TruckFamilies/RowLabels.tsx'
 import { VideoField as VideoField_329793083ea1bbf314c92cf4b9d6ad01 } from '@simmalugnt-se/payload-mux/client'
 import { VideoDetails as VideoDetails_329793083ea1bbf314c92cf4b9d6ad01 } from '@simmalugnt-se/payload-mux/client'
+import { StepRowLabel as StepRowLabel_97779a339b1b6e65c5c46f0a2e9ae07d } from '../../payload/globals/ConfiguratorSettings/RowLabels.tsx'
+import { FinancingRowLabel as FinancingRowLabel_97779a339b1b6e65c5c46f0a2e9ae07d } from '../../payload/globals/ConfiguratorSettings/RowLabels.tsx'
 import { CacheTools as CacheTools_b88d10399ab5955969aafcb24963bfdc } from '../../payload/components/CacheTools'
 import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
 import { S3ClientUploadHandler as S3ClientUploadHandler_f97aa6c64367fa259c5bc0567239ef24 } from '@payloadcms/storage-s3/client'
@@ -70,12 +73,15 @@ export const importMap = {
   "@payloadcms/plugin-seo/client#MetaImageComponent": MetaImageComponent_a8a977ebc872c5d5ea7ee689724c0860,
   "@payloadcms/plugin-seo/client#PreviewComponent": PreviewComponent_a8a977ebc872c5d5ea7ee689724c0860,
   "@simmalugnt-se/payload-visual-editing/client#VisualEditingAdminBridge": VisualEditingAdminBridge_ef98436ff3126b2eab6a99c3362cf8ba,
+  "/payload/collections/TruckFamilies/ConfiguratorOverview.tsx#ConfiguratorOverview": ConfiguratorOverview_57704fd67194d755fba1507a48df81fb,
   "/payload/collections/TruckFamilies/RowLabels.tsx#ModelRowLabel": ModelRowLabel_e70b1b18b28ca1f64b445135ddfbaaac,
   "/payload/collections/TruckFamilies/RowLabels.tsx#BatteryRowLabel": BatteryRowLabel_e70b1b18b28ca1f64b445135ddfbaaac,
   "/payload/collections/TruckFamilies/RowLabels.tsx#LiftHeightRowLabel": LiftHeightRowLabel_e70b1b18b28ca1f64b445135ddfbaaac,
   "/payload/collections/TruckFamilies/RowLabels.tsx#ExtraRowLabel": ExtraRowLabel_e70b1b18b28ca1f64b445135ddfbaaac,
   "@simmalugnt-se/payload-mux/client#VideoField": VideoField_329793083ea1bbf314c92cf4b9d6ad01,
   "@simmalugnt-se/payload-mux/client#VideoDetails": VideoDetails_329793083ea1bbf314c92cf4b9d6ad01,
+  "/payload/globals/ConfiguratorSettings/RowLabels.tsx#StepRowLabel": StepRowLabel_97779a339b1b6e65c5c46f0a2e9ae07d,
+  "/payload/globals/ConfiguratorSettings/RowLabels.tsx#FinancingRowLabel": FinancingRowLabel_97779a339b1b6e65c5c46f0a2e9ae07d,
   "/payload/components/CacheTools#CacheTools": CacheTools_b88d10399ab5955969aafcb24963bfdc,
   "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1,
   "@payloadcms/storage-s3/client#S3ClientUploadHandler": S3ClientUploadHandler_f97aa6c64367fa259c5bc0567239ef24

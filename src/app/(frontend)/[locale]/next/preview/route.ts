@@ -5,7 +5,7 @@ import type { CollectionSlug, GlobalSlug, PayloadRequest } from "payload";
 
 import { getPayloadClient } from "@/payload/get-payload";
 
-const PREVIEW_COLLECTIONS = new Set<CollectionSlug>(["pages"]);
+const PREVIEW_COLLECTIONS = new Set<CollectionSlug>(["pages", "truck-families"]);
 const PREVIEW_GLOBALS = new Set<GlobalSlug>(["header", "footer"]);
 
 function normalizeRouteKey(value: string | null) {

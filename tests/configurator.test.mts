@@ -7,11 +7,14 @@ import {
   choiceDisplay,
   estimateTotal,
   familySteps,
+  financingLabel,
   firstIncompleteStep,
   firstInvalidSelectionStep,
   sanitizeSelections,
+  withTerm,
 } from "../src/features/configurator/engine.ts";
 import { takeRateLimit } from "../src/features/configurator/rate-limit.ts";
+import { orderedSteps, stepRole } from "../src/features/configurator/steps.ts";
 import type {
   ConfiguratorCatalog,
   ConfiguratorChoice,
@@ -44,7 +47,7 @@ const family: ConfiguratorFamily = {
     { spec: "weight", value: "3 000" },
     { spec: "build-height", value: "2130" },
   ],
-  modelChoice: { label: "Lyftkapacitet", heading: "Välj lyftkapacitet" },
+  modelChoice: { label: "Lyftkapacitet" },
   models: [
     {
       key: "small",
@@ -69,7 +72,6 @@ const family: ConfiguratorFamily = {
     {
       key: "mast",
       label: "Lyfthöjd",
-      heading: "Välj lyfthöjd",
       selectionMode: "single",
       required: true,
       options: [
@@ -85,7 +87,6 @@ const family: ConfiguratorFamily = {
     {
       key: "extras",
       label: "Tillval",
-      heading: "Välj tillval",
       selectionMode: "multiple",
       required: false,
       options: [
@@ -115,7 +116,9 @@ const catalog: ConfiguratorCatalog = {
       key: "leasing",
       label: "Leasing",
       kind: "monthly",
-      monthlyPercent: 1.875,
+      months: 48,
+      terms: [24, 36, 48, 60, 72, 84],
+      residualPercent: 10,
       serviceAgreementEligible: true,
     },
   ],
@@ -220,6 +223,27 @@ test("financing rounds to whole SEK", () => {
   assert.equal(calculateFinancingPrice(173900, catalog.financingMethods[1]), 3261);
 });
 
+test("a monthly price is the total less the residual value over the chosen term", () => {
+  const leasing = catalog.financingMethods[1];
+  assert.equal(calculateFinancingPrice(120000, withTerm(leasing, 60)), 1800);
+  assert.equal(calculateFinancingPrice(120000, withTerm(leasing, 48)), 2250);
+  assert.equal(calculateFinancingPrice(120000, { ...leasing, residualPercent: undefined }), 2500);
+  // A term the method does not offer gives its default.
+  assert.equal(withTerm(leasing, 50).months, 48);
+  assert.equal(withTerm({ ...leasing, months: 50 }).months, 48);
+  assert.equal(financingLabel(withTerm(leasing, 60)), "Leasing (60 mån)");
+  assert.equal(
+    financingLabel(withTerm(leasing, 60), { residual: true }),
+    "Leasing (60 mån, restvärde 10 %)",
+  );
+  assert.equal(financingLabel(catalog.financingMethods[0]), "Köp");
+
+  const quote = buildQuote(catalog, family.key, {}, "leasing", false, { months: 72 });
+  assert.ok(quote);
+  assert.equal(quote.financing.months, 72);
+  assert.equal(quote.financingPrice, Math.round((quote.totalPrice * 0.9) / 72));
+});
+
 test("service agreement is separate from the financed truck price", () => {
   const quote = buildQuote(catalog, family.key, { extras: ["alarm"] }, "leasing", true);
   assert.ok(quote);
@@ -243,6 +267,7 @@ test("shareable URL state round-trips and drops malformed references", () => {
     family,
     selections,
     financingKey: "leasing",
+    months: 60,
     serviceAgreement: true,
     step: 2,
   });
@@ -252,6 +277,7 @@ test("shareable URL state round-trips and drops malformed references", () => {
   const parsed = parseConfiguratorSearchParams(params);
   assert.equal(parsed.familyKey, family.key);
   assert.equal(parsed.financingKey, "leasing");
+  assert.equal(parsed.months, 60);
   assert.equal(parsed.serviceAgreement, true);
   assert.equal(parsed.step, 2);
   assert.deepEqual(parsed.selections, selections);
@@ -284,4 +310,38 @@ test("the rate limit allows a number of uses per window, then frees them as time
   assert.equal(await take(20), false);
   assert.equal(await take(1001), true);
   assert.equal(await takeRateLimit(payload, "copy:other@b.se", 2, 1000, 20), true);
+});
+
+test("the settings order the steps after the variants, and one they leave out goes back at its default place", () => {
+  assert.deepEqual(
+    orderedSteps([
+      { step: "extras", label: "Extrautrustning" },
+      { step: "battery", label: "" },
+      { step: "extras", label: "Dubblett" },
+      { step: "model", label: "Lyftkapacitet" },
+    ]),
+    [
+      { step: "extras", label: "Extrautrustning" },
+      { step: "lift-height", label: "Lyfthöjd" },
+      { step: "battery", label: "Batteri" },
+    ],
+  );
+  assert.deepEqual(
+    orderedSteps(null).map((step) => step.step),
+    ["battery", "lift-height", "extras"],
+  );
+  // Read in every locale at once, a name is an object and the step keeps its default name.
+  assert.deepEqual(orderedSteps([{ step: "battery", label: { sv: "Batteri" } }])[0], {
+    step: "battery",
+    label: "Batteri",
+  });
+});
+
+test("a battery or mast alone is part of the truck, variants and extras are a step when there are any", () => {
+  assert.equal(stepRole("model", 1), "choice");
+  assert.equal(stepRole("battery", 0), "none");
+  assert.equal(stepRole("battery", 1), "included");
+  assert.equal(stepRole("lift-height", 2), "choice");
+  assert.equal(stepRole("extras", 1), "choice");
+  assert.equal(stepRole("extras", 0), "none");
 });

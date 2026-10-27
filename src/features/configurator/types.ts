@@ -48,7 +48,6 @@ export type ConfiguratorOption = {
 export type ConfiguratorChoice = {
   key: string;
   label: string;
-  heading: string;
   /** Note under the step, followed by a "Kontakta oss" link. */
   help?: string;
   selectionMode: "single" | "multiple";
@@ -86,8 +85,8 @@ export type ConfiguratorFamily = {
   image?: { alt: string; url: string };
   brochure?: { title: string; url: string };
   specs: SpecValue[];
-  /** The model step's texts: "Lyftkapacitet", "Välj lyftkapacitet". */
-  modelChoice: { label: string; heading: string };
+  /** The variants' step, always first: its name from the settings ("Lyftkapacitet"). */
+  modelChoice: { label: string };
   models: ConfiguratorModel[];
   choices: ConfiguratorChoice[];
 };
@@ -97,9 +96,12 @@ export type FinancingMethod = {
   label: string;
   description?: string;
   kind: "purchase" | "monthly";
+  /** The term in months: the default in the catalogue, the chosen one in a quote. */
   months?: number;
-  /** The monthly cost as a percentage of the total price, e.g. 1.875. */
-  monthlyPercent?: number;
+  /** The terms to choose from with Figma's "Avtalslängd" slider, shortest first. */
+  terms?: number[];
+  /** "Restvärde": the share of the total price left at the end, e.g. 10. */
+  residualPercent?: number;
   serviceAgreementEligible: boolean;
 };
 

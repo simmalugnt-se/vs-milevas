@@ -4,6 +4,7 @@ import { TRUCK_SPECS, type TruckSpecName } from "@/payload/collections/TruckFami
 import { resolveLinkField } from "@/payload/utilities/link-field";
 import { getMediaImageURL } from "@/payload/utilities/media";
 import type { ConfiguratorSetting, Document, Image, TruckFamily } from "@/payload-types";
+import { type ChoiceStepKey, MODEL_STEP, orderedSteps, type StepSetting, stepRole } from "./steps";
 import type {
   ConfiguratorCatalog,
   ConfiguratorChoice,
@@ -13,6 +14,9 @@ import type {
   SpecValue,
 } from "./types";
 
+/** Figma's slider: 24 to 84 months, a year at a time. */
+const DEFAULT_TERMS = [24, 36, 48, 60, 72, 84];
+
 const DEFAULT_FINANCING: ConfiguratorCatalog["financingMethods"] = [
   { key: "purchase", label: "Köp", kind: "purchase", serviceAgreementEligible: true },
   {
@@ -20,7 +24,8 @@ const DEFAULT_FINANCING: ConfiguratorCatalog["financingMethods"] = [
     label: "Leasing",
     kind: "monthly",
     months: 48,
-    monthlyPercent: 1.875,
+    terms: DEFAULT_TERMS,
+    residualPercent: 10,
     serviceAgreementEligible: true,
   },
   {
@@ -28,10 +33,23 @@ const DEFAULT_FINANCING: ConfiguratorCatalog["financingMethods"] = [
     label: "Långtidshyra",
     kind: "monthly",
     months: 48,
-    monthlyPercent: 1.91667,
+    terms: DEFAULT_TERMS,
     serviceAgreementEligible: false,
   },
 ];
+
+/** The terms from the shortest to the longest a step apart, or the default term alone. */
+function termsBetween(
+  min: number | null | undefined,
+  max: number | null | undefined,
+  step: number | null | undefined,
+  fallback: number | undefined,
+): number[] {
+  if (!min || !max || !step || step <= 0 || max < min) return fallback ? [fallback] : [];
+  const terms: number[] = [];
+  for (let months = min; months <= max && terms.length < 60; months += step) terms.push(months);
+  return terms;
+}
 
 const DEFAULT_SERVICE_AGREEMENT: NonNullable<ConfiguratorCatalog["serviceAgreement"]> = {
   label: "Serviceavtal",
@@ -112,66 +130,47 @@ function brochureData(document: TruckFamily["brochure"]): ConfiguratorFamily["br
   return resolved.url ? { title: resolved.title, url: resolved.url } : undefined;
 }
 
+/** The configurator's steps as the settings name and order them. */
+type StepTexts = { modelStepLabel: string; steps: StepSetting[] };
+
 /**
  * The configurator's view of a family, built from its product data: the variants are the first
- * step (Lyftkapacitet), then a step for the batteries and the lift heights when there is more
- * than one to choose from, and for the extras when there are any. A battery or mast alone is part
- * of the truck: its specifications are the family's and its cost is in the base price. The steps'
- * texts and types are the configurator's, the same for every family.
+ * step (named by the settings, built by the engine), then the batteries, the lift heights and the
+ * extras in the settings' order, each as `stepRole` has it. A battery or mast alone is part of the
+ * truck: its specifications are the family's and its cost is in the base price.
  */
-function mapFamily(family: TruckFamily): ConfiguratorFamily {
+function mapFamily(family: TruckFamily, { modelStepLabel, steps }: StepTexts): ConfiguratorFamily {
   // Variants are what is configured; without them the truck type links to its contact link.
   const configurable = (family.models?.length ?? 0) > 0;
   const contactLink = configurable ? null : resolveLinkField(family.contactLink);
-  const batteries = (family.batteries ?? []).map(batteryOption);
-  const liftHeights = (family.liftHeights ?? []).map(liftHeightOption);
-  const extras = (family.extras ?? []).map(extraOption);
-  const fixed = [batteries, liftHeights].flatMap((list) => (list.length === 1 ? list : []));
+  const options: Record<ChoiceStepKey, ConfiguratorOption[]> = {
+    battery: (family.batteries ?? []).map(batteryOption),
+    "lift-height": (family.liftHeights ?? []).map(liftHeightOption),
+    extras: (family.extras ?? []).map(extraOption),
+  };
+  const fixed = steps.flatMap(({ step }) =>
+    stepRole(step, options[step].length) === "included" ? options[step] : [],
+  );
   const fixedPrice = fixed.reduce((sum, option) => sum + option.price, 0);
   const cardBattery =
     (family.batteries ?? []).find((battery) => battery.defaultSelected) ?? family.batteries?.[0];
 
-  const choices: ConfiguratorChoice[] = [
-    ...(batteries.length > 1
-      ? [
-          {
-            key: "battery",
-            label: "Batteri",
-            heading: "Välj batteri",
-            selectionMode: "single" as const,
-            required: true,
-            display: "stack" as const,
-            options: batteries,
-          },
-        ]
-      : []),
-    ...(liftHeights.length > 1
-      ? [
-          {
-            key: "lift-height",
-            label: "Lyfthöjd",
-            heading: "Välj lyfthöjd",
-            help: family.liftHeightHelp || undefined,
-            selectionMode: "single" as const,
-            required: true,
-            display: "stack" as const,
-            options: liftHeights,
-          },
-        ]
-      : []),
-    ...(extras.length > 0
-      ? [
-          {
-            key: "extras",
-            label: "Tillval",
-            heading: "Välj tillval",
-            selectionMode: "multiple" as const,
-            required: false,
-            options: extras,
-          },
-        ]
-      : []),
-  ];
+  const choices: ConfiguratorChoice[] = steps.flatMap(({ step, label }) => {
+    if (stepRole(step, options[step].length) !== "choice") return [];
+    const multiple = step === "extras";
+    return [
+      {
+        key: step,
+        label,
+        help: step === "lift-height" ? family.liftHeightHelp || undefined : undefined,
+        selectionMode: multiple ? ("multiple" as const) : ("single" as const),
+        required: !multiple,
+        display: multiple ? undefined : ("stack" as const),
+        options: options[step],
+      },
+    ];
+  });
+  const onlyModel = family.models?.length === 1;
 
   return {
     id: family.id,
@@ -192,7 +191,7 @@ function mapFamily(family: TruckFamily): ConfiguratorFamily {
       ...spec("battery", cardBattery?.capacity),
       ...fixed.flatMap((option) => option.specs),
     ],
-    modelChoice: { label: "Lyftkapacitet", heading: "Välj lyftkapacitet" },
+    modelChoice: { label: modelStepLabel },
     models: configurable
       ? (family.models ?? []).map((model) => ({
           key: model.id ?? String(model.capacityKg),
@@ -200,7 +199,7 @@ function mapFamily(family: TruckFamily): ConfiguratorFamily {
           sku: model.sku || undefined,
           price: model.price + fixedPrice,
           capacityKg: model.capacityKg,
-          default: model.defaultSelected === true,
+          default: model.defaultSelected === true || onlyModel,
           specs: [...spec("weight", model.weight), ...spec("turningRadius", model.turningRadius)],
         }))
       : [],
@@ -243,7 +242,17 @@ function mapSettings(
       description: method.description || undefined,
       kind: method.kind,
       months: method.months ?? undefined,
-      monthlyPercent: method.monthlyPercent ?? undefined,
+      terms:
+        method.kind === "monthly"
+          ? termsBetween(
+              method.minMonths,
+              method.maxMonths,
+              method.monthsStep,
+              method.months ?? undefined,
+            )
+          : undefined,
+      residualPercent:
+        method.kind === "monthly" ? (method.residualPercent ?? undefined) : undefined,
       serviceAgreementEligible: method.serviceAgreementEligible === true,
     })),
   };
@@ -272,7 +281,7 @@ async function fetchConfiguratorCatalog(
       draft,
       overrideAccess: draft,
       pagination: false,
-      sort: "sortOrder",
+      sort: "_order",
     }),
     payload.findGlobal({
       slug: "configurator-settings",
@@ -284,14 +293,19 @@ async function fetchConfiguratorCatalog(
   ]);
 
   return {
-    families: families.docs.map(mapFamily),
+    families: families.docs.map((family) =>
+      mapFamily(family, {
+        modelStepLabel: settings?.modelStepLabel || MODEL_STEP.label,
+        steps: orderedSteps(settings?.steps),
+      }),
+    ),
     specs: SPECS,
     ...mapSettings(settings),
   };
 }
 
 /** Bumped when the catalogue's shape changes, so a cache from before is not read as the new one. */
-const CATALOG_VERSION = "2026-10-26b";
+const CATALOG_VERSION = "2026-10-27c";
 
 const getCachedCatalog = (locale: TypedLocale) =>
   unstable_cache(

@@ -22,6 +22,8 @@ import * as migration_20261026_141712_swedish_only from './20261026_141712_swedi
 import * as migration_20261026_143440_financing_monthly_percent from './20261026_143440_financing_monthly_percent';
 import * as migration_20261026_143603_remove_unshown_header_footer_fields from './20261026_143603_remove_unshown_header_footer_fields';
 import * as migration_20261026_152506_hero_column_heading from './20261026_152506_hero_column_heading';
+import * as migration_20261027_091217_editor_steps_and_order from './20261027_091217_editor_steps_and_order';
+import * as migration_20261027_092134_financing_terms from './20261027_092134_financing_terms';
 
 export const migrations = [
   {
@@ -142,6 +144,16 @@ export const migrations = [
   {
     up: migration_20261026_152506_hero_column_heading.up,
     down: migration_20261026_152506_hero_column_heading.down,
-    name: '20261026_152506_hero_column_heading'
+    name: '20261026_152506_hero_column_heading',
+  },
+  {
+    up: migration_20261027_091217_editor_steps_and_order.up,
+    down: migration_20261027_091217_editor_steps_and_order.down,
+    name: '20261027_091217_editor_steps_and_order',
+  },
+  {
+    up: migration_20261027_092134_financing_terms.up,
+    down: migration_20261027_092134_financing_terms.down,
+    name: '20261027_092134_financing_terms'
   },
 ];

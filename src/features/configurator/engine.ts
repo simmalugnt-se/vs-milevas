@@ -24,7 +24,6 @@ export function familySteps(family: ConfiguratorFamily): ConfiguratorChoice[] {
   const modelChoice: ConfiguratorChoice = {
     key: MODEL_CHOICE,
     label: family.modelChoice.label,
-    heading: family.modelChoice.heading,
     selectionMode: "single",
     required: true,
     options: family.models.map((model) => ({
@@ -142,11 +141,45 @@ export function estimateTotal(family: ConfiguratorFamily, selections: SelectionS
   return chosenOptions(family, selections).reduce((sum, { option }) => sum + option.price, 0);
 }
 
+/**
+ * The method with its term: `months` if it is one of its terms, else its default, or the nearest
+ * term to the default when the default is not one of them.
+ */
+export function withTerm(financing: FinancingMethod, months?: number): FinancingMethod {
+  const terms = financing.terms ?? [];
+  if (financing.kind !== "monthly" || terms.length === 0) return financing;
+  if (months && terms.includes(months)) return { ...financing, months };
+  const fallback = financing.months ?? terms[0];
+  const nearest = terms.reduce((best, term) =>
+    Math.abs(term - fallback) < Math.abs(best - fallback) ? term : best,
+  );
+  return { ...financing, months: nearest };
+}
+
+/**
+ * The price for a way to pay: the total to buy, or a month's cost over its term. Placeholder until
+ * the real calculation is decided: the total less the residual value, spread evenly over the
+ * months, with no interest.
+ * TODO(financing): the real calculation, once the customer has said how it is done.
+ */
 export function calculateFinancingPrice(total: number, financing: FinancingMethod): number {
   if (financing.kind === "purchase") {
     return total;
   }
-  return Math.round((total * (financing.monthlyPercent ?? 0)) / 100);
+  const { months, residualPercent = 0 } = withTerm(financing, financing.months);
+  if (!months) return 0;
+  return Math.round((total * (1 - residualPercent / 100)) / months);
+}
+
+/** "Leasing (60 mån)", with "restvärde 10 %" too when asked for. */
+export function financingLabel(financing: FinancingMethod, { residual = false } = {}): string {
+  const details = [
+    financing.kind === "monthly" && financing.months ? `${financing.months} mån` : "",
+    residual && financing.kind === "monthly" && financing.residualPercent
+      ? `restvärde ${new Intl.NumberFormat("sv-SE").format(financing.residualPercent)} %`
+      : "",
+  ].filter(Boolean);
+  return details.length ? `${financing.label} (${details.join(", ")})` : financing.label;
 }
 
 /**
@@ -177,11 +210,15 @@ export function buildQuote(
   inputSelections: SelectionState,
   financingKey: string,
   includeServiceAgreement = false,
-  /** A call request may carry what is chosen so far; an order needs every step. */
-  { allowIncomplete = false }: { allowIncomplete?: boolean } = {},
+  /**
+   * A call request may carry what is chosen so far; an order needs every step. `months` is the
+   * chosen term of a monthly method; one it does not offer gives its default.
+   */
+  { allowIncomplete = false, months }: { allowIncomplete?: boolean; months?: number } = {},
 ): ConfiguratorQuote | null {
   const family = catalog.families.find((candidate) => candidate.key === familyKey);
-  const financing = catalog.financingMethods.find((candidate) => candidate.key === financingKey);
+  const method = catalog.financingMethods.find((candidate) => candidate.key === financingKey);
+  const financing = method ? withTerm(method, months) : undefined;
   if (!family || !financing || familySteps(family).length === 0) {
     return null;
   }

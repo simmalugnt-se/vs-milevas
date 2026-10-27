@@ -73,6 +73,7 @@ function validateBaseForm(formData: FormData) {
   const selections = parseSelections(textValue(formData, "selections", 10000));
   const submissionKey = textValue(formData, "submissionKey", 100);
   const serviceAgreement = textValue(formData, "serviceAgreement", 1) === "1";
+  const months = Number.parseInt(textValue(formData, "months", 4), 10);
 
   if (!familyKey || !financingKey || !selections || !submissionKey) {
     return null;
@@ -83,6 +84,7 @@ function validateBaseForm(formData: FormData) {
     financingKey,
     selections,
     serviceAgreement,
+    months: Number.isFinite(months) && months > 0 ? months : undefined,
     submissionKey,
   };
 }
@@ -130,7 +132,7 @@ async function submitRequest(
     base.financingKey,
     base.serviceAgreement,
     // "Boka samtal" is on every step, so a call carries what is chosen so far.
-    { allowIncomplete: requestType === "call" },
+    { allowIncomplete: requestType === "call", months: base.months },
   );
   if (!quote) {
     return { ok: false, message: "Konfigurationen är ofullständig eller inte längre giltig." };
@@ -278,6 +280,7 @@ export async function sendQuoteCopy(
         base.selections,
         base.financingKey,
         base.serviceAgreement,
+        { months: base.months },
       )
     : null;
   if (!quote) {

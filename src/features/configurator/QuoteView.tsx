@@ -6,6 +6,7 @@ import { ConfiguratorQuote } from "@/components/blocks/configurator-quote";
 import { ConfiguratorThanks } from "@/components/blocks/configurator-thanks";
 import { Button, TextLink } from "@/components/ui/button";
 import { PriceBox } from "@/components/ui/price-box";
+import { financingLabel } from "./engine";
 import { CallRequestForm, OrderRequestForm, QuoteCopyForm, RequestDialog } from "./RequestForms";
 import type { NextStep, ConfiguratorQuote as Quote } from "./types";
 
@@ -53,6 +54,7 @@ export function QuoteView({
   const configuration = {
     familyKey: quote.familyKey,
     financingKey: quote.financing.key,
+    months: quote.financing.kind === "monthly" ? quote.financing.months : undefined,
     locale,
     selections: quote.selections,
     serviceAgreement: Boolean(quote.serviceAgreement),
@@ -61,9 +63,7 @@ export function QuoteView({
   const financing =
     quote.financing.kind === "monthly"
       ? {
-          label: quote.financing.months
-            ? `${quote.financing.label} (${quote.financing.months} mån)`
-            : quote.financing.label,
+          label: financingLabel(quote.financing),
           value: `${formatPrice(quote.financingPrice)}/mån`,
         }
       : undefined;

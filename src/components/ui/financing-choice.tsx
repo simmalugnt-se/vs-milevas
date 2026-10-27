@@ -34,7 +34,9 @@ type FinancingChoiceProps = Omit<HTMLAttributes<HTMLDivElement>, "title"> & {
  * the part up to the thumb and the 16px thumb `ui-primary`. An invisible range input on top gives
  * it pointer and keyboard.
  * Selecting it moves as Figma's prototype (Click → Change to): in 0.18s `ease-out` the colors fade
- * and the panel opens and fades in. Hover, and going back to Default, change at once.
+ * and the panel opens and fades in. Hover, and going back to Default, change their colors at once,
+ * as in Figma, but the panel folds closed in the same 0.18s, like an accordion, so what is under it
+ * does not jump (decided 2026-10-27).
  */
 const motion = "duration-[180ms] ease-out motion-reduce:transition-none";
 
@@ -69,9 +71,14 @@ export function FinancingChoice({
         <span className="min-w-0 flex-1 text-display-s">{title}</span>
         {price ? <span className="shrink-0 whitespace-nowrap text-text-l">{price}</span> : null}
       </button>
-      {selected && (term || residual) ? (
+      {term || residual ? (
+        // Open only when selected, folding open and closed like an accordion; closed, it is
+        // inert, so the slider is not reached by keyboard.
         <div
-          className={`grid grid-rows-[1fr] transition-[grid-template-rows,opacity] starting:grid-rows-[0fr] starting:opacity-0 ${motion}`}
+          inert={!selected}
+          className={`grid transition-[grid-template-rows,opacity] ${motion} ${
+            selected ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+          }`}
         >
           <div className="min-h-0 overflow-hidden">
             <div className="flex flex-col gap-(--spacing-md) border-t border-border-primary px-(--spacing-sm) py-(--spacing-md)">

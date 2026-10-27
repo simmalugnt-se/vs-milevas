@@ -46,7 +46,6 @@ async function main() {
           name: `Test ${key}`,
           singularName: `Test ${key}`,
           key,
-          sortOrder: 0,
           deliveryTime: "1 vecka",
           warranty: "Test",
           models: configurable ? [{ capacityKg: 1500, price: 169900 }] : [],

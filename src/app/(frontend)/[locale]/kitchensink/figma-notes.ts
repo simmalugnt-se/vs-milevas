@@ -1277,10 +1277,10 @@ export const figmaNotes: FigmaNote[] = [
     topic: "Övergångar",
     figma:
       "Prototypen: choice byter läge direkt (Instant) vid hover och klick. Financiering tonar färgerna och fäller ut panelen, som tonar in, på 0,18 s `ease-out` när den klickas från Default; vägen tillbaka till Default är inte ritad",
-    code: "Choice byts direkt. FinancingChoice tonar och fälls ut när den väljs och stängs direkt när ett annat val väljs; utan rörelse när användaren valt reducerad rörelse",
-    why: "Prototypen visar bara övergången till valt",
-    status: "Lucka",
-    date: "2026-10-22",
+    code: "Choice byts direkt. FinancingChoice tonar och fälls ut när den väljs; när ett annat val väljs byts färgerna direkt och panelen fälls ihop på samma 0,18 s `ease-out`, som ett dragspel, så att det som ligger under inte hoppar. Utan rörelse när användaren valt reducerad rörelse. Från Desktop S behåller trucken sin storlek när ett utfällt val gör steget högre än fönstret",
+    why: "Prototypen visar bara övergången till valt; ihopfällningen beslutades 2026-10-27",
+    status: "Beslut",
+    date: "2026-10-27",
   },
   {
     target: "navigation",
@@ -2105,11 +2105,12 @@ export const figmaNotes: FigmaNote[] = [
   {
     target: "configurator",
     topic: "Finansiering",
-    figma: "Typ 5: tre rutor med titel och pris (Financiering-02)",
-    code: 'Det sista steget: finansieringssätten som typ 5 med pris (kr eller kr/mån), serviceavtalet som kryssruta under rutan när det går att välja, "Alla priser visas exkl. moms" som hjälptext och "Visa offert" i stället för "Nästa". Avtalslängd och restvärde (Financiering) används inte',
-    why: "Ramarna visar finansieringen utan reglage",
-    status: "Antagande",
-    date: "2026-10-23",
+    figma:
+      "Typ 5: tre rutor med titel och pris (Financiering-02); valt Financiering har reglage för avtalslängd (24–84 mån) och restvärde",
+    code: 'Det sista steget: finansieringssätten som typ 5 med pris (kr eller kr/mån), serviceavtalet som kryssruta under rutan när det går att välja, "Alla priser visas exkl. moms" som hjälptext och "Visa offert" i stället för "Nästa". Ett sätt med månadskostnad visar valt Financiering: reglaget för avtalslängd mellan kortaste och längsta längd i konfiguratorinställningarna, och restvärdet när det har ett (bara leasing). Titeln är då bara namnet; priset följer längden. Den valda längden följer med i adressen, offerten, förfrågningarna och mejlen. Månadskostnaden är tills vidare (totalpris − restvärde) / antal månader, utan ränta: `TODO(financing)` i `calculateFinancingPrice`',
+    why: "Kunden väljer avtalslängd själv (beslut 2026-10-27); hur månadskostnaden ska räknas bestäms senare",
+    status: "Platshållare",
+    date: "2026-10-27",
   },
   {
     target: "configurator",

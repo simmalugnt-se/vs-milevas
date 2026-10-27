@@ -16,16 +16,19 @@ import {
   choiceSatisfied,
   estimateTotal,
   familySteps,
+  financingLabel,
   firstIncompleteStep,
   firstInvalidSelectionStep,
   MODEL_CHOICE,
   sanitizeSelections,
+  withTerm,
 } from "./engine";
 import { CallRequestForm, RequestDialog } from "./RequestForms";
 import type {
   ConfiguratorCatalog,
   ConfiguratorChoice,
   ConfiguratorFamily,
+  FinancingMethod,
   SelectionState,
 } from "./types";
 import { buildConfiguratorSearchParams, parseConfiguratorSearchParams } from "./url-state";
@@ -35,6 +38,8 @@ type State = {
   familyKey?: string;
   selections: SelectionState;
   financingKey?: string;
+  /** The term chosen for the selected way to pay; without it, its default. */
+  months?: number;
   serviceAgreement: boolean;
   step: number;
 };
@@ -44,6 +49,7 @@ type Action =
   | { type: "selectFamily"; family: ConfiguratorFamily }
   | { type: "toggleOption"; family: ConfiguratorFamily; choice: ConfiguratorChoice; key: string }
   | { type: "selectFinancing"; key: string; serviceAgreementEligible: boolean }
+  | { type: "setMonths"; months: number }
   | { type: "toggleServiceAgreement" }
   | { type: "setStep"; step: number };
 
@@ -83,8 +89,11 @@ function reducer(state: State, action: Action): State {
       return {
         ...state,
         financingKey: action.key,
+        months: action.key === state.financingKey ? state.months : undefined,
         serviceAgreement: action.serviceAgreementEligible ? state.serviceAgreement : false,
       };
+    case "setMonths":
+      return { ...state, months: action.months };
     case "toggleServiceAgreement":
       return { ...state, serviceAgreement: !state.serviceAgreement };
     case "setStep":
@@ -137,6 +146,14 @@ export function ConfiguratorClient({
   const purchaseKey =
     catalog.financingMethods.find((method) => method.kind === "purchase")?.key ??
     catalog.financingMethods[0]?.key;
+  /** A way to pay with its term: the chosen one for the selected way, else its default. */
+  const termOf = (method: FinancingMethod) =>
+    withTerm(method, method.key === state.financingKey ? state.months : undefined);
+  const chosenFinancing = catalog.financingMethods.find(
+    (method) => method.key === state.financingKey,
+  );
+  const chosenMonths =
+    chosenFinancing?.kind === "monthly" ? termOf(chosenFinancing).months : undefined;
   useEffect(() => {
     const parsed = parseConfiguratorSearchParams(new URLSearchParams(window.location.search));
     const parsedFamily = catalog.families.find(
@@ -171,6 +188,7 @@ export function ConfiguratorClient({
         financingKey: catalog.financingMethods.some((method) => method.key === parsed.financingKey)
           ? parsed.financingKey
           : undefined,
+        months: parsed.months,
         serviceAgreement:
           parsed.serviceAgreement &&
           catalog.financingMethods.some(
@@ -190,12 +208,14 @@ export function ConfiguratorClient({
       family,
       selections: state.selections,
       financingKey: state.financingKey,
+      months: chosenMonths,
       serviceAgreement: state.serviceAgreement,
       step: state.step,
     });
     const query = params.toString();
     window.history.replaceState(null, "", `${window.location.pathname}${query ? `?${query}` : ""}`);
   }, [
+    chosenMonths,
     family,
     state.financingKey,
     state.hydrated,
@@ -222,6 +242,7 @@ export function ConfiguratorClient({
         family,
         selections: state.selections,
         financingKey: state.financingKey,
+        months: chosenMonths,
         serviceAgreement: state.serviceAgreement,
       })
     : null;
@@ -234,9 +255,7 @@ export function ConfiguratorClient({
       <ConfiguratorSkeleton
         priceRows={catalog.financingMethods
           .filter((method) => method.kind === "monthly")
-          .map((method) =>
-            method.months ? `${method.label} (${method.months} mån)` : method.label,
-          )}
+          .map((method) => financingLabel(withTerm(method)))}
       />
     );
   }
@@ -310,20 +329,40 @@ export function ConfiguratorClient({
         number={number}
         label="Finansiering"
         display="prices"
-        options={catalog.financingMethods.map((method) => ({
-          key: method.key,
-          title: method.months ? `${method.label} (${method.months} mån)` : method.label,
-          price: `${formatPrice(calculateFinancingPrice(totalPrice, method))}${
-            method.kind === "monthly" ? "/mån" : ""
-          }`,
-          selected: state.financingKey === method.key,
-          onSelect: () =>
-            dispatch({
-              type: "selectFinancing",
-              key: method.key,
-              serviceAgreementEligible: method.serviceAgreementEligible,
-            }),
-        }))}
+        options={catalog.financingMethods.map((method) => {
+          const termed = termOf(method);
+          const terms = method.terms ?? [];
+          return {
+            key: method.key,
+            // With a slider the term shows there; without, in the title as before.
+            title: terms.length > 1 ? method.label : financingLabel(termed),
+            price: `${formatPrice(calculateFinancingPrice(totalPrice, termed))}${
+              method.kind === "monthly" ? "/mån" : ""
+            }`,
+            selected: state.financingKey === method.key,
+            onSelect: () =>
+              dispatch({
+                type: "selectFinancing",
+                key: method.key,
+                serviceAgreementEligible: method.serviceAgreementEligible,
+              }),
+            term:
+              terms.length > 1 && termed.months
+                ? {
+                    label: "Avtalslängd",
+                    steps: terms,
+                    value: termed.months,
+                    onChange: (months: number) => dispatch({ type: "setMonths", months }),
+                  }
+                : undefined,
+            residual: termed.residualPercent
+              ? {
+                  label: "Restvärde",
+                  value: `${new Intl.NumberFormat("sv-SE").format(termed.residualPercent)}%`,
+                }
+              : undefined,
+          };
+        })}
         addon={
           selectedFinancing?.serviceAgreementEligible && agreement ? (
             <CheckboxChoice
@@ -384,10 +423,13 @@ export function ConfiguratorClient({
           <PriceBox
             totalLabel={family ? "Totalpris" : "Från"}
             total={formatPrice(totalPrice)}
-            rows={monthlyMethods.map((method) => ({
-              label: method.months ? `${method.label} (${method.months} mån)` : method.label,
-              value: `${formatPrice(calculateFinancingPrice(totalPrice, method))}/mån`,
-            }))}
+            rows={monthlyMethods.map((method) => {
+              const termed = termOf(method);
+              return {
+                label: financingLabel(termed),
+                value: `${formatPrice(calculateFinancingPrice(totalPrice, termed))}/mån`,
+              };
+            })}
           />
         }
         image={
@@ -443,6 +485,7 @@ export function ConfiguratorClient({
             headingId="call-request-heading"
             familyKey={family.key}
             financingKey={previewFinancing ?? "purchase"}
+            months={chosenMonths}
             locale={locale}
             selections={state.selections}
             serviceAgreement={state.serviceAgreement}

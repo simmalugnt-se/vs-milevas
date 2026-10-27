@@ -28,6 +28,7 @@ export default async function QuotePage({ params, searchParams }: QuotePageProps
   const catalog = await getConfiguratorCatalog(locale, false);
   const familyKey = typeof query.family === "string" ? query.family : "";
   const financingKey = typeof query.financing === "string" ? query.financing : "";
+  const months = Number.parseInt(typeof query.months === "string" ? query.months : "", 10);
   const selections = parseSelectionReferences(values(query.selection));
   const quote = buildQuote(
     catalog,
@@ -35,6 +36,7 @@ export default async function QuotePage({ params, searchParams }: QuotePageProps
     selections,
     financingKey,
     query.serviceAgreement === "1",
+    { months: Number.isFinite(months) ? months : undefined },
   );
   const configuratorHref = frontendPath("/configurator", locale);
 
@@ -69,6 +71,7 @@ export default async function QuotePage({ params, searchParams }: QuotePageProps
     family,
     selections: quote.selections,
     financingKey: quote.financing.key,
+    months: quote.financing.kind === "monthly" ? quote.financing.months : undefined,
     serviceAgreement: Boolean(quote.serviceAgreement),
     step: family ? familySteps(family).length + 1 : undefined,
   });

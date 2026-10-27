@@ -2,7 +2,7 @@ import type { CollectionSlug, GlobalSlug, PayloadRequest, TypedLocale } from "pa
 import { frontendPath } from "@/i18n/frontend-path";
 import { getTypedLocale } from "@/i18n/routing";
 
-type PreviewCollection = Extract<CollectionSlug, "pages">;
+type PreviewCollection = Extract<CollectionSlug, "pages" | "truck-families">;
 
 type PreviewPathData = {
   slug?: string | null;
@@ -58,6 +58,7 @@ export const generatePreviewPath = ({ collection, slug, req }: GeneratePreviewPa
   const locale = previewLocale(req);
 
   let unlocalizedPath: string | null = null;
+  let query = "";
 
   if (collection === "pages") {
     if (routeKey === "home") {
@@ -65,13 +66,17 @@ export const generatePreviewPath = ({ collection, slug, req }: GeneratePreviewPa
     } else {
       unlocalizedPath = `/${encodedSlug}`;
     }
+  } else if (collection === "truck-families") {
+    // A truck type has no page of its own: the configurator, opened on its first step.
+    unlocalizedPath = "/configurator";
+    query = `?${new URLSearchParams({ family: routeKey, step: "1" })}`;
   }
 
   if (!unlocalizedPath) {
     return null;
   }
 
-  const path = frontendPath(unlocalizedPath, locale);
+  const path = `${frontendPath(unlocalizedPath, locale)}${query}`;
 
   const encodedParams = new URLSearchParams({
     slug: encodedSlug,

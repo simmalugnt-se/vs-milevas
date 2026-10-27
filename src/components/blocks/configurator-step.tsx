@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { ComponentProps, ReactNode } from "react";
 import { Choice } from "@/components/ui/choice";
 import { ConfiguratorBox } from "@/components/ui/configurator-box";
 import { FinancingChoice } from "@/components/ui/financing-choice";
@@ -14,6 +14,9 @@ export type ConfiguratorStepOption = {
   selected?: boolean;
   disabled?: boolean;
   onSelect?: () => void;
+  /** `prices` only: the term slider and residual value of a way to pay, shown when selected. */
+  term?: ComponentProps<typeof FinancingChoice>["term"];
+  residual?: ComponentProps<typeof FinancingChoice>["residual"];
 };
 
 /**
@@ -58,6 +61,8 @@ export function ConfiguratorStep({
             selected={option.selected}
             onSelect={option.disabled ? undefined : option.onSelect}
             aria-disabled={option.disabled || undefined}
+            term={option.term}
+            residual={option.residual}
           />
         ))}
       </ConfiguratorBox>
