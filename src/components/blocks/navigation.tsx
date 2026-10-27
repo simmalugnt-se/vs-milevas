@@ -45,7 +45,9 @@ import { Link, usePathname } from "@/i18n/navigation";
  * blur are revealed from the top of the screen down with the panel, and back up as it closes (a
  * clip-path on their own layer), and the overlay fades in and out on the same curve. Moving to
  * another menu fades the labels in 0.18s and swaps the content at once. Below Desktop S, "[Meny]"
- * opens the accordion the same way and closes it at once.
+ * opens the accordion the same way and closes it at once; a click outside it, on the overlay,
+ * closes it too. In the accordion a menu folds open and closed on the same curve and time, so
+ * moving to another closes one as the other opens (Figma draws no motion for it).
  *
  * The Header global feeds it on the site (`src/payload/globals/Header/Component.tsx`).
  */
@@ -312,8 +314,10 @@ export function Navigation({
     >
       {/* The overlay over the whole screen, under the row and panel: where the fill has not reached
           yet it dims the page as below it, so no undimmed band runs ahead of the fill's edge. */}
+      {/* A click on it, outside the row and panel, closes the menu. */}
       <div
         aria-hidden
+        onClick={closeAll}
         className={`absolute inset-0 bg-navigation-overlay transition-opacity duration-[600ms] ${ease} starting:opacity-0 ${
           open ? "max-desktop-s:block" : "max-desktop-s:hidden"
         } ${desktopLook ? "desktop-s:block" : "desktop-s:hidden"} ${desktopOpen || open ? "opacity-100" : "opacity-0"}`}
@@ -474,12 +478,7 @@ export function Navigation({
                   {menus.map((menu, index) => {
                     const expanded = active === index;
                     return (
-                      <div
-                        key={index}
-                        className={`flex flex-col gap-(--spacing-2xs) ${accordionLines} ${
-                          expanded && menu.links?.length ? "pb-(--spacing-2xs)" : ""
-                        }`}
-                      >
+                      <div key={index} className={`flex flex-col ${accordionLines}`}>
                         {menu.links?.length ? (
                           <button
                             type="button"
@@ -508,8 +507,21 @@ export function Navigation({
                             {menu.label}
                           </NavLink>
                         ) : null}
-                        {expanded && menu.links?.length ? (
-                          <MenuLinks links={menu.links} isCurrent={isCurrent} />
+                        {/* Folds open and closed on the panel's curve, so moving to another menu
+                            closes one as the other opens; closed, it is inert. */}
+                        {menu.links?.length ? (
+                          <div
+                            inert={!expanded}
+                            className={`grid transition-[grid-template-rows,opacity] duration-[600ms] ${ease} ${
+                              expanded ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+                            }`}
+                          >
+                            <div className="min-h-0 overflow-hidden">
+                              <div className="py-(--spacing-2xs)">
+                                <MenuLinks links={menu.links} isCurrent={isCurrent} />
+                              </div>
+                            </div>
+                          </div>
                         ) : null}
                       </div>
                     );

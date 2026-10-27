@@ -1749,10 +1749,10 @@ export const figmaNotes: FigmaNote[] = [
     topic: "Stänga menyn",
     figma:
       "Prototypen stänger Desktop-menyn när pekaren lämnar raden (Mouse leave); inget om overlayn, Escape eller hur mobilmenyn stängs",
-    code: 'På Desktop stänger pekaren som lämnar raden menyn, och ett nytt klick på den; "[Meny]" stänger med ett klick. Klick på overlayn eller Escape gör inget',
-    why: "Inte ritat",
+    code: 'På Desktop stänger pekaren som lämnar raden menyn, och ett nytt klick på den; "[Meny]" stänger med ett klick, och ett klick utanför, på overlayn, stänger menyn. Escape gör inget',
+    why: "Inte ritat; klick utanför beslutat 2026-10-27",
     status: "Lucka",
-    date: "2026-10-21",
+    date: "2026-10-27",
   },
   {
     target: "navigation",
@@ -1779,10 +1779,10 @@ export const figmaNotes: FigmaNote[] = [
     topic: "Rörelse",
     figma:
       "Prototypen: öppna och stänga tar 0,6 s med `cubic-bezier(0.9, 0, 0.17, 1.01)`. Panelen växer, länkarna och bilden tonar in och de andra menyernas etiketter tonar till `ui-tertiary`; stängd krymper panelen över innehållet. Byte mellan öppna menyer tar 0,18 s",
-    code: "Som prototypen; fyllningen och overlayn går när panelen har stängts. Mobilmenyn öppnas likadant men stängs direkt, och truckbilderna och dragspelet byts direkt. Utan rörelse när användaren valt reducerad rörelse",
+    code: "Som prototypen; fyllningen och overlayn går när panelen har stängts. Mobilmenyn öppnas likadant men stängs direkt, och truckbilderna byts direkt. I dragspelet fälls en meny ut och ihop med panelens kurva och tid, så att ett byte stänger den ena medan den andra öppnas (beslut 2026-10-27). Utan rörelse när användaren valt reducerad rörelse",
     why: "Stängningen av mobilmenyn, dragspelet och truckbilderna har ingen övergång i prototypen",
     status: "Lucka",
-    date: "2026-10-22",
+    date: "2026-10-27",
   },
   {
     target: "navigation",
