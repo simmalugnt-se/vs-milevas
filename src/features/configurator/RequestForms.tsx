@@ -145,7 +145,12 @@ export function RequestDialog({
     if (!element) return;
     const root = document.documentElement;
     if (open) {
-      if (!element.open) element.showModal();
+      if (!element.open) {
+        element.showModal();
+        // `showModal` focuses the first field, which on a phone brings up the keyboard while the
+        // panel slides in; the dialog takes focus instead, and a screen reader reads its heading.
+        element.focus();
+      }
       // Draw the panel outside first, so the move to its place animates.
       element.getBoundingClientRect();
       element.dataset.state = "open";
@@ -177,12 +182,13 @@ export function RequestDialog({
   return (
     <dialog
       ref={dialog}
+      tabIndex={-1}
       aria-labelledby={labelledBy}
       onCancel={(event) => {
         event.preventDefault();
         onClose();
       }}
-      className="fixed inset-y-(--grid-margin) right-(--grid-margin) left-auto m-0 h-auto max-h-none w-[calc(100%-2*var(--grid-margin))] max-w-none translate-x-[calc(100%+var(--grid-margin))] bg-transparent p-0 transition-transform duration-1200 ease-[cubic-bezier(0.72,0,0.37,1)] backdrop:bg-transparent data-[state=open]:translate-x-0 motion-reduce:transition-none desktop-s:w-[calc(50%-0.75rem)]"
+      className="fixed inset-y-(--grid-margin) right-(--grid-margin) left-auto m-0 h-auto outline-none max-h-none w-[calc(100%-2*var(--grid-margin))] max-w-none translate-x-[calc(100%+var(--grid-margin))] bg-transparent p-0 transition-transform duration-1200 ease-[cubic-bezier(0.72,0,0.37,1)] backdrop:bg-transparent data-[state=open]:translate-x-0 motion-reduce:transition-none desktop-s:w-[calc(50%-0.75rem)]"
     >
       {shown ? children : null}
     </dialog>
