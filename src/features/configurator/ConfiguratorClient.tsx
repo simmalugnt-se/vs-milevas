@@ -421,6 +421,7 @@ export function ConfiguratorClient({
         wide={state.step === 0 || !family}
         price={
           <PriceBox
+            stackOnMobile
             totalLabel={family ? "Totalpris" : "Från"}
             total={formatPrice(totalPrice)}
             rows={monthlyMethods.map((method) => {
@@ -439,8 +440,8 @@ export function ConfiguratorClient({
               alt={family.image.alt}
               fill
               priority
-              sizes="(width >= 64rem) 60vw, 100vw"
-              className="object-contain"
+              sizes="60vw"
+              className="object-contain max-desktop-s:object-[50%_var(--truck-y,0px)]"
             />
           ) : null
         }

@@ -32,6 +32,7 @@ export function ConfiguratorSkeleton({ priceRows }: { priceRows: string[] }) {
       <ConfiguratorScreen
         price={
           <PriceBox
+            stackOnMobile
             totalLabel="Totalpris"
             total={<Bone className="w-28" />}
             rows={priceRows.map((label) => ({ label, value: <Bone className="w-16" /> }))}

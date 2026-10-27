@@ -9,7 +9,8 @@ import type { HTMLAttributes, ReactNode } from "react";
  * - `checkout` adds a note: a row and a Text XS text in `ui-tertiary` (Figma: the warranty).
  * Lines are drawn inside, as Figma's strokes are, so the box is Figma's height (109 and 193).
  * Figma's rows have no gap between label and value; here `spacing/2xs`, and the value stays on
- * one line.
+ * one line. `stackOnMobile` puts each label above its value below Tablet, so the box can be as
+ * narrow as its text (the configurator's, beside the truck on a phone), which Figma does not draw.
  */
 
 type PriceRow = { label: ReactNode; value: ReactNode };
@@ -23,10 +24,16 @@ type PriceBoxProps = HTMLAttributes<HTMLDivElement> & {
   rows?: PriceRow[];
   /** checkout: Figma's "Garanti", "4 år" with its text. */
   note?: PriceRow & { text: ReactNode };
+  /** Below Tablet, each label above its value. */
+  stackOnMobile?: boolean;
 };
 
 /** A line above each row, inside it: one line between rows, the frame drawn around them all. */
 const line = "shadow-[inset_0_var(--stroke-width)_var(--color-border-primary)]";
+
+/** Label and value above each other below Tablet, for `stackOnMobile`. */
+const stacked =
+  "max-tablet:flex-col max-tablet:items-start max-tablet:justify-start max-tablet:gap-(--spacing-3xs)";
 
 function Row({ label, value }: PriceRow) {
   return (
@@ -43,9 +50,11 @@ export function PriceBox({
   total,
   rows = [],
   note,
+  stackOnMobile = false,
   className,
   ...props
 }: PriceBoxProps) {
+  const stack = stackOnMobile ? stacked : "";
   const checkout = variant === "checkout";
   const rowPadding = checkout ? "px-(--spacing-2xs) py-(--spacing-xs)" : "p-(--spacing-2xs)";
 
@@ -55,7 +64,7 @@ export function PriceBox({
       {...props}
     >
       <div
-        className={`flex items-center justify-between gap-4 bg-bg-active px-(--spacing-2xs) py-(--spacing-xs) text-ui-primary`}
+        className={`flex items-center justify-between gap-4 bg-bg-active px-(--spacing-2xs) py-(--spacing-xs) text-ui-primary ${stack}`}
       >
         <p className="text-label-s">{totalLabel}</p>
         <p className="text-text-l whitespace-nowrap">{total}</p>
@@ -63,7 +72,7 @@ export function PriceBox({
       {rows.map((row, index) => (
         <dl
           key={index}
-          className={`flex items-center justify-between gap-(--spacing-2xs) bg-bg-fill ${line} ${rowPadding}`}
+          className={`flex items-center justify-between gap-(--spacing-2xs) bg-bg-fill ${line} ${rowPadding} ${stack}`}
         >
           <Row {...row} />
         </dl>

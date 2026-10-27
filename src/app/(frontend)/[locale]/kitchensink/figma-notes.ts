@@ -2113,6 +2113,15 @@ export const figmaNotes: FigmaNote[] = [
   },
   {
     target: "configurator",
+    topic: "Trucken och prisrutan under Desktop S",
+    figma: "Trucken över steget och bakom prisrutan, så stor som steget lämnar plats för",
+    code: "Prisrutan uppe till höger och steget under; trucken tar ytan till vänster om prisrutan, hela höjden ovanför steget, aldrig bakom rutan; den står centrerad mellan vänsterkanten och rutan, överst eller, när den är lägre än rutan, centrerad mot rutans höjd, och blir så stor som ytan tillåter, lika långt från rutan som rutan är från kanten. På Mobile står varje etikett i prisrutan över sitt värde och spalten är så bred som sitt innehåll (knappen eller prisrutans text); Tablet har Figmas 229px",
+    why: "Trucken såg ut att ligga gömd bakom rutan; den ska fylla ytan utom rutan (beslut 2026-10-27)",
+    status: "Beslut",
+    date: "2026-10-27",
+  },
+  {
+    target: "configurator",
     topic: "Finansiering",
     figma:
       "Typ 5: tre rutor med titel och pris (Financiering-02); valt Financiering har reglage för avtalslängd (24–84 mån) och restvärde",
