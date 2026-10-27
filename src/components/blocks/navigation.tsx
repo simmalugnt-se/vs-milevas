@@ -45,8 +45,8 @@ import { Link, usePathname } from "@/i18n/navigation";
  * blur are revealed from the top of the screen down with the panel, and back up as it closes (a
  * clip-path on their own layer), and the overlay fades in and out on the same curve. Moving to
  * another menu fades the labels in 0.18s and swaps the content at once. Below Desktop S, "[Meny]"
- * opens the accordion the same way and closes it at once; a click outside it, on the overlay,
- * closes it too. In the accordion a menu folds open and closed on the same curve and time, so
+ * opens and closes the accordion the same way, its fill revealed from the top of the screen as on
+ * Desktop; a click outside it, on the overlay, closes it too. In the accordion a menu folds open and closed on the same curve and time, so
  * moving to another closes one as the other opens (Figma draws no motion for it).
  *
  * The Header global feeds it on the site (`src/payload/globals/Header/Component.tsx`).
@@ -162,6 +162,8 @@ export function Navigation({
   // another open menu (the quicker fade).
   const [closing, setClosing] = useState<number | null>(null);
   const [moved, setMoved] = useState(false);
+  // Below Desktop S: "[Meny]" still shown while its panel closes.
+  const [mobileClosing, setMobileClosing] = useState(false);
   // Per part of the row, the mode of the element under it, or the navigation's own where none says;
   // null before it is read.
   const [under, setUnder] = useState<Record<string, "light" | "dark"> | null>(null);
@@ -182,6 +184,7 @@ export function Navigation({
   // The menu in the Desktop panel: the open one, or the one closing.
   const shownMenu = desktopOpen ? activeMenu : closing === null ? undefined : menus[closing];
   const desktopLook = desktopOpen || closing !== null;
+  const mobileLook = open || mobileClosing;
 
   useEffect(() => {
     if (closing === null) return;
@@ -189,6 +192,13 @@ export function Navigation({
     const timer = window.setTimeout(() => setClosing(null), reduce ? 0 : openTime);
     return () => window.clearTimeout(timer);
   }, [closing]);
+
+  useEffect(() => {
+    if (!mobileClosing) return;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const timer = window.setTimeout(() => setMobileClosing(false), reduce ? 0 : openTime);
+    return () => window.clearTimeout(timer);
+  }, [mobileClosing]);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: a new page (`pathname`) has other blocks under the navigation, so read again.
   useEffect(() => {
@@ -269,6 +279,7 @@ export function Navigation({
     setMoved(false);
     setClosing(desktopOpen ? active : null);
     setActive(null);
+    setMobileClosing(open);
     setOpen(false);
     setHovered(undefined);
   };
@@ -280,13 +291,9 @@ export function Navigation({
   // Figma's open look, per width: below Desktop S when "[Meny]" is open, from it when a menu is
   // open or closing.
   const openLook = [
-    open ? "max-desktop-s:mode-dark max-desktop-s:min-h-svh" : "",
+    mobileLook ? "max-desktop-s:mode-dark max-desktop-s:min-h-svh" : "",
     desktopLook ? "desktop-s:mode-dark desktop-s:min-h-svh" : "",
   ].join(" ");
-  // Below Desktop S the fill is on the row; from it, on the revealed layer below.
-  const fill = open
-    ? "max-desktop-s:bg-navigation-fill max-desktop-s:backdrop-blur-[0.625rem]"
-    : "";
 
   // The row's text changes colour with the open look (Light to Dark and back); the logo, the labels
   // and the login link change together, in the labels' time. `!` wins over the login link's own
@@ -295,7 +302,7 @@ export function Navigation({
 
   // Closed, a part of the row in the mode of what lies under it; open, the row's own look.
   const look = (key: string) =>
-    open || desktopLook || !under ? "" : `mode-${under[key] ?? color}`;
+    mobileLook || desktopLook || !under ? "" : `mode-${under[key] ?? color}`;
 
   const columns = (links: NavigationLink[]) =>
     links.length > 3
@@ -308,7 +315,9 @@ export function Navigation({
         if ((event.target as Element).closest("a")) closeAll();
       }}
       className={`relative isolate flex flex-col ${color === "dark" ? "mode-dark" : "mode-light"} ${openLook} ${
-        open || desktopLook || under ? "" : "[body:has(main_[data-navigation-start])_&]:mode-light"
+        mobileLook || desktopLook || under
+          ? ""
+          : "[body:has(main_[data-navigation-start])_&]:mode-light"
       }`}
       {...attributes}
     >
@@ -319,22 +328,25 @@ export function Navigation({
         aria-hidden
         onClick={closeAll}
         className={`absolute inset-0 bg-navigation-overlay transition-opacity duration-[600ms] ${ease} starting:opacity-0 ${
-          open ? "max-desktop-s:block" : "max-desktop-s:hidden"
+          mobileLook ? "max-desktop-s:block" : "max-desktop-s:hidden"
         } ${desktopLook ? "desktop-s:block" : "desktop-s:hidden"} ${desktopOpen || open ? "opacity-100" : "opacity-0"}`}
       />
       <div
         onPointerLeave={(event) => {
           if (event.pointerType === "mouse" && !open) closeMenu();
         }}
-        className={`relative isolate grid grid-cols-6 gap-x-(--grid-gap) overflow-hidden px-(--grid-gap) py-(--spacing-sm) text-ui-primary desktop-s:grid-cols-12 ${fill}`}
+        className={`relative isolate grid grid-cols-6 gap-x-(--grid-gap) overflow-hidden px-(--grid-gap) py-(--spacing-sm) text-ui-primary desktop-s:grid-cols-12`}
       >
-        {/* Desktop S and L: the fill, revealed from the top as the panel grows. Its edge reaches the
-            bottom of the row and panel together, since both move on the same curve and time. */}
+        {/* The fill, revealed from the top as the panel grows (from Desktop S a menu's, below it
+            "[Meny]"'s accordion), and back up as it closes. Its edge reaches the bottom of the row
+            and panel together, since both move on the same curve and time. */}
         <div
           aria-hidden
-          className={`pointer-events-none absolute inset-0 -z-10 hidden bg-navigation-fill backdrop-blur-[0.625rem] transition-[clip-path] duration-[600ms] desktop-s:block ${ease} ${
-            desktopOpen ? "[clip-path:inset(0)]" : "[clip-path:inset(0_0_100%_0)]"
-          }`}
+          className={`pointer-events-none absolute inset-0 -z-10 bg-navigation-fill backdrop-blur-[0.625rem] transition-[clip-path] duration-[600ms] ${ease} ${
+            open
+              ? "max-desktop-s:[clip-path:inset(0)]"
+              : "max-desktop-s:[clip-path:inset(0_0_100%_0)]"
+          } ${desktopOpen ? "desktop-s:[clip-path:inset(0)]" : "desktop-s:[clip-path:inset(0_0_100%_0)]"}`}
         />
         <div className="col-span-3 flex items-center pl-(--spacing-sm) tablet:col-span-4 tablet:items-start">
           <Link
@@ -422,6 +434,7 @@ export function Navigation({
             aria-controls={`${id}-accordion`}
             onClick={() => {
               setActive(open ? null : 0);
+              setMobileClosing(open);
               setOpen(!open);
             }}
             className={`py-(--spacing-2xs) text-label-s whitespace-nowrap text-ui-primary ${look("menu-button")} ${textMotion}`}
@@ -466,9 +479,15 @@ export function Navigation({
           </div>
         ) : null}
 
-        {/* Tablet and Mobile: the accordion, and on Tablet the open menu's image. */}
-        {open ? (
-          <div className={`col-span-full grid grid-rows-[1fr] desktop-s:hidden ${growing}`}>
+        {/* Tablet and Mobile: the accordion, and on Tablet the open menu's image; shut while it
+            closes. */}
+        {mobileLook ? (
+          <div
+            inert={!open}
+            className={`col-span-full grid desktop-s:hidden ${growing} ${
+              open ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+            }`}
+          >
             <div className="col-span-full grid min-h-0 grid-cols-subgrid overflow-hidden">
               <div className="col-span-full grid grid-cols-subgrid pt-(--spacing-2xl) pb-[calc(var(--spacing-xl)-var(--spacing-sm))]">
                 <div
