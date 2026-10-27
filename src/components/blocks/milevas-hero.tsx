@@ -334,13 +334,17 @@ export function MilevasHero({
     let frame = 0;
     let queued = 0;
     const timers: number[] = [];
+    // Where the browser has view timelines it keeps the parts in place itself (`hero-pinned`).
+    const pinned = CSS.supports("animation-timeline: view()");
     const sync = () => {
       queued = 0;
       const width = items[0]?.offsetWidth || 1;
       const left = list.scrollLeft;
-      items.forEach((item, index) =>
-        item?.style.setProperty("--shift", `${left - index * width}px`),
-      );
+      if (!pinned) {
+        items.forEach((item, index) =>
+          item?.style.setProperty("--shift", `${left - index * width}px`),
+        );
+      }
       setActive(Math.max(0, Math.min(items.length - 1, Math.round(left / width))));
       setHint(left < width * 0.12);
     };
@@ -425,7 +429,7 @@ export function MilevasHero({
     <section
       ref={sectionRef}
       id={id}
-      className="relative h-svh min-h-[37.5rem] overflow-hidden mode-dark bg-bg-fill desktop-s:cursor-none"
+      className="relative h-svh min-h-[37.5rem] overflow-hidden mode-dark bg-bg-fill [container-type:inline-size] [--hero-column-width:79.73cqw] tablet:[--hero-column-width:62.28cqw] desktop-s:cursor-none"
     >
       <ul
         ref={listRef}
@@ -441,7 +445,7 @@ export function MilevasHero({
             }}
             // Yellow: the navigation turns Light over it.
             data-navigation={lit && active === index ? "light" : undefined}
-            className={`h-full w-[79.73%] shrink-0 snap-start snap-always tablet:w-[62.28%] desktop-s:w-(--column-width) ${
+            className={`hero-column h-full w-[79.73%] shrink-0 snap-start snap-always tablet:w-[62.28%] desktop-s:w-(--column-width) ${
               index === 0 ? reveal : ""
             }`}
             style={{ "--column-width": columnWidth(index) } as CSSProperties}
@@ -457,25 +461,28 @@ export function MilevasHero({
               rows={column.rows}
               scrollLabel={!desktop && index === 0 && settled && hint ? "Skrolla" : undefined}
               data-state={lit && active === index ? "active" : undefined}
-              contentClassName="max-desktop-s:translate-x-(--shift) desktop-s:group-data-[state=active]/column:animate-[hero-info-in_380ms_cubic-bezier(0.23,1,0.32,1)_both]"
+              contentClassName="hero-pinned max-desktop-s:translate-x-(--shift) desktop-s:group-data-[state=active]/column:animate-[hero-info-in_380ms_cubic-bezier(0.23,1,0.32,1)_both]"
               className="min-w-0 desktop-s:cursor-none desktop-s:group-data-[linked]/linked:border-transparent [&_span]:break-words"
             >
-              <span
-                aria-hidden
-                className={`pointer-events-none absolute top-[clamp(9.875rem,27.25svh,16.375rem)] left-[calc(50%_+_var(--shift,0px))] h-[min(32.5svh,20rem)] w-[min(74.67vw,26.875rem)] -translate-x-1/2 desktop-s:top-[var(--ty,50%)] desktop-s:left-[var(--tx,50%)] desktop-s:size-[26.25rem] desktop-s:translate-y-[calc(-100%_+_11.875rem)] ${
-                  shown ? "" : "opacity-0"
-                }`}
-              >
-                {column.image}
-              </span>
-              <span
-                aria-hidden
-                className={`pointer-events-none absolute top-[clamp(25.625rem,59.875svh,36.875rem)] left-[calc(50%_+_var(--shift,0px))] flex max-w-[calc(100%_-_2rem)] -translate-x-1/2 items-center gap-(--spacing-xs) rounded-sm mode-dark bg-bg-fill p-(--spacing-xs) text-label-s whitespace-nowrap text-ui-primary desktop-s:hidden ${
-                  shown ? "" : "opacity-0"
-                }`}
-              >
-                {column.name}
-                <Icon name="arrow-right" />
+              {/* The truck and its name, held in place below Desktop S (`hero-pinned`). */}
+              <span aria-hidden className="hero-pinned pointer-events-none absolute inset-0">
+                <span
+                  aria-hidden
+                  className={`pointer-events-none absolute top-[clamp(9.875rem,27.25svh,16.375rem)] left-[calc(50%_+_var(--shift,0px))] h-[min(32.5svh,20rem)] w-[min(74.67vw,26.875rem)] -translate-x-1/2 desktop-s:top-[var(--ty,50%)] desktop-s:left-[var(--tx,50%)] desktop-s:size-[26.25rem] desktop-s:translate-y-[calc(-100%_+_11.875rem)] ${
+                    shown ? "" : "opacity-0"
+                  }`}
+                >
+                  {column.image}
+                </span>
+                <span
+                  aria-hidden
+                  className={`pointer-events-none absolute top-[clamp(25.625rem,59.875svh,36.875rem)] left-[calc(50%_+_var(--shift,0px))] flex max-w-[calc(100%_-_2rem)] -translate-x-1/2 items-center gap-(--spacing-xs) rounded-sm mode-dark bg-bg-fill p-(--spacing-xs) text-label-s whitespace-nowrap text-ui-primary desktop-s:hidden ${
+                    shown ? "" : "opacity-0"
+                  }`}
+                >
+                  {column.name}
+                  <Icon name="arrow-right" />
+                </span>
               </span>
             </TruckColumn>
           </li>
