@@ -232,7 +232,7 @@ export const designQuestions: DesignQuestion[] = [
   {
     target: "text-field",
     question:
-      "Fältets text är Text XS (12px). Safari på iPhone zoomar in sidan när man trycker i ett fält med mindre text än 16px. Ska fälten ha 16px på mobil?",
+      "Fältets text är Text XS (12px). Safari på iPhone zoomar in sidan när man trycker i ett fält med mindre text än 16px, så koden ger fälten 16px på pekskärmar. Ska de se ut så, eller ha en egen textstil på mobil?",
     figma: "8861:10820",
   },
   {
@@ -1336,6 +1336,15 @@ export const figmaNotes: FigmaNote[] = [
     why: "Fasta höjder undviks; de gamla ikonerna finns inte längre",
     status: "Beslut (teknisk)",
     date: "2026-10-21",
+  },
+  {
+    target: "text-field",
+    topic: "Textstorlek på pekskärm",
+    figma: "Text XS (12px) i fältet",
+    code: "Text XS, men minst 16px på pekskärmar (`pointer-coarse`), i alla fält och i Skicka kopia till mig",
+    why: "Safari på iPhone zoomar in sidan när man trycker i ett fält med mindre text än 16px och zoomar inte ut igen (beslut 2026-10-27)",
+    status: "Beslut",
+    date: "2026-10-27",
   },
   {
     target: "text-field",

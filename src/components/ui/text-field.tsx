@@ -22,8 +22,13 @@ type FieldProps = {
   className?: string;
 };
 
-const controlClassName =
-  "min-w-0 flex-1 self-stretch bg-transparent text-text-xs text-ui-primary caret-ui-primary outline-none placeholder:text-ui-tertiary";
+/**
+ * Text XS as in Figma, but at least 16px on a touch screen: Safari on iPhone zooms the page in on
+ * a field with smaller text, and does not zoom back out.
+ */
+export const fieldTextClassName = "text-text-xs pointer-coarse:text-[max(1rem,16px)]";
+
+const controlClassName = `min-w-0 flex-1 self-stretch bg-transparent text-ui-primary caret-ui-primary outline-none placeholder:text-ui-tertiary ${fieldTextClassName}`;
 
 /**
  * form from Figma "02 — Components" → "Form" (8861:10820): a Label S heading with its number, then

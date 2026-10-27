@@ -4,7 +4,7 @@ import { type ReactNode, useActionState, useEffect, useId, useMemo, useRef, useS
 import { Alternative } from "@/components/ui/alternative";
 import { Button } from "@/components/ui/button";
 import { ContactForm } from "@/components/ui/contact-form";
-import { TextAreaField, TextField } from "@/components/ui/text-field";
+import { fieldTextClassName, TextAreaField, TextField } from "@/components/ui/text-field";
 import { TimePicker, type TimePickerDay } from "@/components/ui/time-picker";
 import { sendQuoteCopy, submitCallRequest, submitOrderRequest } from "./actions";
 import type { ConfiguratorActionState, QuoteCopyState, SelectionState } from "./types";
@@ -83,7 +83,7 @@ export function QuoteCopyForm(configuration: Configuration) {
             defaultValue={state.email}
             aria-describedby={message ? messageId : undefined}
             aria-invalid={state.message && !state.ok ? true : undefined}
-            className="h-10 w-full rounded-sm bg-bg-fill px-(--spacing-sm) text-text-xs text-ui-primary ring-(length:--stroke-width) ring-border-primary ring-inset placeholder:text-ui-tertiary"
+            className={`h-10 w-full rounded-sm bg-bg-fill px-(--spacing-sm) text-ui-primary ring-(length:--stroke-width) ring-border-primary ring-inset placeholder:text-ui-tertiary ${fieldTextClassName}`}
           />
         </label>
         <Button type="submit" variant="secondary" size="s" iconRight="mail" disabled={pending}>
