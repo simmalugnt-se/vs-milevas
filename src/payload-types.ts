@@ -118,6 +118,7 @@ export interface Config {
   };
   locale: 'sv';
   widgets: {
+    'content-health': ContentHealthWidget;
     collections: CollectionsWidget;
   };
   user: User | PayloadMcpApiKey;
@@ -255,6 +256,10 @@ export interface Page {
                   relationTo: 'pages';
                   value: string | Page;
                 } | null;
+                /**
+                 * Valfritt: ankaret på ett block på sidan, utan #. Exempel: "kontakt".
+                 */
+                anchor?: string | null;
                 url?: string | null;
                 label: string;
                 newTab?: boolean | null;
@@ -286,6 +291,10 @@ export interface Page {
                   relationTo: 'pages';
                   value: string | Page;
                 } | null;
+                /**
+                 * Valfritt: ankaret på ett block på sidan, utan #. Exempel: "kontakt".
+                 */
+                anchor?: string | null;
                 url?: string | null;
                 label: string;
                 newTab?: boolean | null;
@@ -344,6 +353,10 @@ export interface Page {
             blockType: 'columns';
           }
         | {
+            /**
+             * Syns inte på sidan, som i designen, men läses av skärmläsare och sökmotorer: sidans huvudrubrik (H1) när konfiguratorn står först.
+             */
+            heading: string;
             id?: string | null;
             blockName?: string | null;
             blockType: 'configurator';
@@ -435,6 +448,10 @@ export interface Page {
                 relationTo: 'pages';
                 value: string | Page;
               } | null;
+              /**
+               * Valfritt: ankaret på ett block på sidan, utan #. Exempel: "kontakt".
+               */
+              anchor?: string | null;
               url?: string | null;
               label: string;
               newTab?: boolean | null;
@@ -505,6 +522,10 @@ export interface Page {
                 relationTo: 'pages';
                 value: string | Page;
               } | null;
+              /**
+               * Valfritt: ankaret på ett block på sidan, utan #. Exempel: "kontakt".
+               */
+              anchor?: string | null;
               url?: string | null;
               label: string;
               newTab?: boolean | null;
@@ -703,6 +724,10 @@ export interface TruckFamily {
       relationTo: 'pages';
       value: string | Page;
     } | null;
+    /**
+     * Valfritt: ankaret på ett block på sidan, utan #. Exempel: "kontakt".
+     */
+    anchor?: string | null;
     url?: string | null;
     label?: string | null;
     newTab?: boolean | null;
@@ -1274,6 +1299,7 @@ export interface PagesSelect<T extends boolean = true> {
                       | {
                           type?: T;
                           reference?: T;
+                          anchor?: T;
                           url?: T;
                           label?: T;
                           newTab?: T;
@@ -1310,6 +1336,7 @@ export interface PagesSelect<T extends boolean = true> {
                       | {
                           type?: T;
                           reference?: T;
+                          anchor?: T;
                           url?: T;
                           label?: T;
                           newTab?: T;
@@ -1352,6 +1379,7 @@ export interface PagesSelect<T extends boolean = true> {
         configurator?:
           | T
           | {
+              heading?: T;
               id?: T;
               blockName?: T;
             };
@@ -1404,6 +1432,7 @@ export interface PagesSelect<T extends boolean = true> {
                 | {
                     type?: T;
                     reference?: T;
+                    anchor?: T;
                     url?: T;
                     label?: T;
                     newTab?: T;
@@ -1464,6 +1493,7 @@ export interface PagesSelect<T extends boolean = true> {
                 | {
                     type?: T;
                     reference?: T;
+                    anchor?: T;
                     url?: T;
                     label?: T;
                     newTab?: T;
@@ -1661,6 +1691,7 @@ export interface TruckFamiliesSelect<T extends boolean = true> {
     | {
         type?: T;
         reference?: T;
+        anchor?: T;
         url?: T;
         label?: T;
         newTab?: T;
@@ -1899,6 +1930,10 @@ export interface Header {
             relationTo: 'pages';
             value: string | Page;
           } | null;
+          /**
+           * Valfritt: ankaret på ett block på sidan, utan #. Exempel: "kontakt".
+           */
+          anchor?: string | null;
           url?: string | null;
           label: string;
           newTab?: boolean | null;
@@ -1915,6 +1950,10 @@ export interface Header {
                   relationTo: 'pages';
                   value: string | Page;
                 } | null;
+                /**
+                 * Valfritt: ankaret på ett block på sidan, utan #. Exempel: "kontakt".
+                 */
+                anchor?: string | null;
                 url?: string | null;
                 label: string;
                 newTab?: boolean | null;
@@ -1940,6 +1979,10 @@ export interface Header {
         relationTo: 'pages';
         value: string | Page;
       } | null;
+      /**
+       * Valfritt: ankaret på ett block på sidan, utan #. Exempel: "kontakt".
+       */
+      anchor?: string | null;
       url?: string | null;
       label?: string | null;
       newTab?: boolean | null;
@@ -1957,6 +2000,10 @@ export interface Header {
       relationTo: 'pages';
       value: string | Page;
     } | null;
+    /**
+     * Valfritt: ankaret på ett block på sidan, utan #. Exempel: "kontakt".
+     */
+    anchor?: string | null;
     url?: string | null;
     label: string;
     newTab?: boolean | null;
@@ -1989,6 +2036,10 @@ export interface Footer {
                   relationTo: 'pages';
                   value: string | Page;
                 } | null;
+                /**
+                 * Valfritt: ankaret på ett block på sidan, utan #. Exempel: "kontakt".
+                 */
+                anchor?: string | null;
                 url?: string | null;
                 label: string;
                 newTab?: boolean | null;
@@ -2103,6 +2154,7 @@ export interface HeaderSelect<T extends boolean = true> {
           | {
               type?: T;
               reference?: T;
+              anchor?: T;
               url?: T;
               label?: T;
               newTab?: T;
@@ -2116,6 +2168,7 @@ export interface HeaderSelect<T extends boolean = true> {
                 | {
                     type?: T;
                     reference?: T;
+                    anchor?: T;
                     url?: T;
                     label?: T;
                     newTab?: T;
@@ -2134,6 +2187,7 @@ export interface HeaderSelect<T extends boolean = true> {
           | {
               type?: T;
               reference?: T;
+              anchor?: T;
               url?: T;
               label?: T;
               newTab?: T;
@@ -2147,6 +2201,7 @@ export interface HeaderSelect<T extends boolean = true> {
     | {
         type?: T;
         reference?: T;
+        anchor?: T;
         url?: T;
         label?: T;
         newTab?: T;
@@ -2174,6 +2229,7 @@ export interface FooterSelect<T extends boolean = true> {
                 | {
                     type?: T;
                     reference?: T;
+                    anchor?: T;
                     url?: T;
                     label?: T;
                     newTab?: T;
@@ -2247,6 +2303,35 @@ export interface ConfiguratorSettingsSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "content-health_widget".
+ */
+export interface ContentHealthWidget {
+  data?: {
+    checks?:
+      | (
+          | 'media.alt-missing'
+          | 'media.video-description-missing'
+          | 'seo.title-missing'
+          | 'seo.title-length'
+          | 'seo.title-duplicate'
+          | 'seo.description-missing'
+          | 'seo.description-length'
+          | 'seo.description-duplicate'
+          | 'seo.image-missing'
+          | 'content.h1-missing'
+          | 'content.h1-multiple'
+          | 'content.heading-skip'
+          | 'content.thin'
+          | 'links.broken'
+          | 'links.orphan'
+          | 'content.untranslated'
+        )[]
+      | null;
+  };
+  width: 'medium' | 'large' | 'x-large' | 'full';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

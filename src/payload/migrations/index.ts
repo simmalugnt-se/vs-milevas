@@ -24,6 +24,7 @@ import * as migration_20261026_143603_remove_unshown_header_footer_fields from '
 import * as migration_20261026_152506_hero_column_heading from './20261026_152506_hero_column_heading';
 import * as migration_20261027_091217_editor_steps_and_order from './20261027_091217_editor_steps_and_order';
 import * as migration_20261027_092134_financing_terms from './20261027_092134_financing_terms';
+import * as migration_20261027_123357_link_anchor from './20261027_123357_link_anchor';
 
 export const migrations = [
   {
@@ -154,6 +155,11 @@ export const migrations = [
   {
     up: migration_20261027_092134_financing_terms.up,
     down: migration_20261027_092134_financing_terms.down,
-    name: '20261027_092134_financing_terms'
+    name: '20261027_092134_financing_terms',
+  },
+  {
+    up: migration_20261027_123357_link_anchor.up,
+    down: migration_20261027_123357_link_anchor.down,
+    name: '20261027_123357_link_anchor'
   },
 ];

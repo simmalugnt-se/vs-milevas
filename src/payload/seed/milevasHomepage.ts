@@ -14,6 +14,39 @@ const familyKeys = [
 
 const externalLink = (label: string, url: string) => ({ type: "external" as const, label, url });
 
+/**
+ * A link to the page with `slug`, at a block's `anchor`; its address as an outside link while the
+ * page does not exist yet, so seeding in any order still gives a working menu.
+ */
+async function pageLink(payload: Payload, label: string, slug: string, anchor?: string) {
+  const { docs } = await payload.find({
+    collection: "pages",
+    where: { slug: { equals: slug } },
+    limit: 1,
+    depth: 0,
+    draft: true,
+    overrideAccess: true,
+  });
+  const page = docs[0];
+  if (!page) {
+    return externalLink(label, `${slug === "home" ? "/" : `/${slug}`}${anchor ? `#${anchor}` : ""}`);
+  }
+  return {
+    type: "internal" as const,
+    label,
+    reference: { relationTo: "pages" as const, value: page.id },
+    ...(anchor ? { anchor } : {}),
+  };
+}
+
+/** Menu links as label, page slug and anchor. */
+const pageLinks = (payload: Payload, rows: (readonly [string, string, string?])[]) =>
+  Promise.all(
+    rows.map(async ([label, slug, anchor]) => ({
+      link: await pageLink(payload, label, slug, anchor),
+    })),
+  );
+
 /** A Figma image from `scripts/figma-homepage-assets`, uploaded once. */
 async function uploadImage(payload: Payload, name: string, alt: string, extension = "png") {
   const filename = `milevas-home-${name}.${extension}`;
@@ -45,12 +78,10 @@ async function uploadImage(payload: Payload, name: string, alt: string, extensio
 
 /**
  * The Header global as Figma's navigation: the menus Modeller (the trucks, each with its image),
- * Tjänster and Om oss, and the login link. The links point at the start page's sections until the
- * pages exist; the login link at `/login`, where Figma's Login block will go.
+ * Tjänster and Om oss, and the login link. The links point at the pages and their sections; the
+ * login link at `/login`, where Figma's Login block will go.
  */
 export async function seedMilevasHeader(payload: Payload, publish = false) {
-  const links = (rows: (readonly [string, string])[]) =>
-    rows.map(([label, url]) => ({ link: externalLink(label, url) }));
   await payload.updateGlobal({
     slug: "header",
     locale: "sv",
@@ -64,18 +95,18 @@ export async function seedMilevasHeader(payload: Payload, publish = false) {
         },
         {
           link: { label: "Tjänster" },
-          links: links([
-            ["Hur det fungerar", "/#hur-det-fungerar"],
-            ["Finansiering", "/#finansiering"],
-            ["Bli återförsäljare", "/om-oss#kontakt"],
+          links: await pageLinks(payload, [
+            ["Hur det fungerar", "home", "hur-det-fungerar"],
+            ["Finansiering", "home", "finansiering"],
+            ["Bli återförsäljare", "om-oss", "kontakt"],
           ]),
         },
         {
           link: { label: "Om oss" },
-          links: links([
-            ["Om Baoli", "/om-oss"],
-            ["Service & eftermarknad", "/om-oss#service"],
-            ["Kontakt", "/om-oss#kontakt"],
+          links: await pageLinks(payload, [
+            ["Om Baoli", "om-oss"],
+            ["Service & eftermarknad", "om-oss", "service"],
+            ["Kontakt", "om-oss", "kontakt"],
           ]),
         },
       ],
@@ -87,8 +118,6 @@ export async function seedMilevasHeader(payload: Payload, publish = false) {
 
 /** The Footer global as Figma's footer: Produkter, Tjänster and Kontakt, and the copyright line. */
 export async function seedMilevasFooter(payload: Payload, publish = false) {
-  const links = (rows: (readonly [string, string])[]) =>
-    rows.map(([label, url]) => ({ link: externalLink(label, url) }));
   await payload.updateGlobal({
     slug: "footer",
     locale: "sv",
@@ -102,10 +131,10 @@ export async function seedMilevasFooter(payload: Payload, publish = false) {
         },
         {
           heading: "Tjänster",
-          links: links([
-            ["Konfigurator", "/configurator"],
-            ["Finansiering", "/#finansiering"],
-            ["Bli återförsäljare", "/om-oss#kontakt"],
+          links: await pageLinks(payload, [
+            ["Konfigurator", "configurator"],
+            ["Finansiering", "home", "finansiering"],
+            ["Bli återförsäljare", "om-oss", "kontakt"],
           ]),
         },
       ],
@@ -194,7 +223,7 @@ async function milevasImageTextBlock(payload: Payload) {
     heading: "Service du kan räkna med",
     text: "Baoli EMEA har ett av branschens största reservdelslager i Europa. Tillsammans med ett centralt produktlager i Italien med över 1 000 truckar redo för leverans ger det korta ledtider.",
     showButton: true,
-    cta: externalLink("Bygg din truck", "/configurator"),
+    cta: await pageLink(payload, "Bygg din truck", "configurator"),
   };
 }
 
@@ -385,7 +414,7 @@ export async function seedMilevasHomepage(
         { heading: "Besked", label: "-24h", text: "Enkel ansökningsprocess med svar inom 24h." },
       ],
       showButton: true,
-      cta: externalLink("Bygg din truck", "/configurator"),
+      cta: await pageLink(payload, "Bygg din truck", "configurator"),
     },
   ];
   const data = {
@@ -394,8 +423,6 @@ export async function seedMilevasHomepage(
     layout,
     _status: publish ? ("published" as const) : ("draft" as const),
   };
-  await seedMilevasHeader(payload, publish);
-  await seedMilevasFooter(payload, publish);
   await seedMilevasAboutPage(payload, publish);
   const page = existing.docs[0]
     ? await payload.update({
@@ -407,5 +434,8 @@ export async function seedMilevasHomepage(
         context,
       })
     : await payload.create({ collection: "pages", locale: "sv", draft: !publish, data, context });
+  // After the pages, so the menus link to them.
+  await seedMilevasHeader(payload, publish);
+  await seedMilevasFooter(payload, publish);
   return { page, seeded: true };
 }

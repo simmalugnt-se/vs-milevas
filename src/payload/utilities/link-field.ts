@@ -6,6 +6,8 @@ type LinkReference = {
 } | null;
 
 export type LinkFieldValue = {
+  /** A block's anchor on the internal link's page, without `#`. */
+  anchor?: string | null;
   label?: string | null;
   newTab?: boolean | null;
   reference?: LinkReference;
@@ -68,7 +70,9 @@ export function resolveLinkFieldHref(link?: LinkFieldValue | null) {
   }
 
   if (link.type === "internal") {
-    return getInternalHref(link.reference);
+    const href = getInternalHref(link.reference);
+    const anchor = asTrimmedString(link.anchor);
+    return href && anchor ? `${href}#${anchor}` : href;
   }
 
   const url = asTrimmedString(link.url);

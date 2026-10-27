@@ -1,5 +1,11 @@
 import type { Field } from "payload";
 
+/** An anchor as a block's id: lowercase letters, digits and hyphens, starting with a letter. */
+export const validateAnchor = (value: unknown) =>
+  !value || (typeof value === "string" && /^[a-z][a-z0-9-]*$/.test(value))
+    ? true
+    : "Använd gemener, siffror och bindestreck; börja med en bokstav.";
+
 /**
  * `required: false` lets the link's target be left empty, e.g. a menu that only opens its links;
  * `labelRequired` defaults to `required`.
@@ -44,6 +50,16 @@ export const link = ({
       admin: {
         condition: (_, siblingData) => siblingData?.type === "internal",
       },
+    },
+    {
+      name: "anchor",
+      type: "text",
+      label: "Del av sidan",
+      admin: {
+        description: 'Valfritt: ankaret på ett block på sidan, utan #. Exempel: "kontakt".',
+        condition: (_, siblingData) => siblingData?.type === "internal",
+      },
+      validate: validateAnchor,
     },
     {
       name: "url",
