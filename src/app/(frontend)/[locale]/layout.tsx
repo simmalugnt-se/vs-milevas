@@ -83,9 +83,10 @@ export default async function LocaleLayout({
       >
         <NextIntlClientProvider locale={locale}>
           <AdminBarSlot />
-          <div className="canvas min-h-screen">
+          {/* The main content grows on a short page, so the footer ends at the bottom of the window. */}
+          <div className="canvas flex min-h-screen flex-col">
             <SiteHeader locale={locale} />
-            <main className="flex w-full flex-col">{children}</main>
+            <main className="flex w-full flex-1 flex-col">{children}</main>
             <SiteFooter locale={locale} />
           </div>
           <GridOverlay />
