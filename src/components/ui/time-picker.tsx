@@ -27,8 +27,9 @@ type TimePickerProps = {
  * 9207:25835, `calendar-open` 9207:25710): a box on `bg-fill` with the choice and a chevron; open,
  * the day in Label S with arrows to the previous and next day, and its times four to a row in
  * boxes with a 1px border drawn inside. As in Figma, the calendar is 4px narrower than the box on
- * the right. Figma has no look for a chosen time, so the times look the same and the chosen one
- * shows in the box's text; the arrows look the same on the first and last day, but do nothing.
+ * the right. Figma has no look for a chosen time; the chosen one has black text and border
+ * (`ui-primary`, decided 2026-10-27) and shows in the box's text too. The arrows look the same on
+ * the first and last day, but do nothing.
  */
 export function TimePicker({
   name,
@@ -94,7 +95,11 @@ export function TimePicker({
                     type="button"
                     aria-pressed={value === option}
                     onClick={() => setValue(option)}
-                    className="flex w-full justify-center rounded-sm px-(--spacing-sm) py-(--spacing-2xs) whitespace-nowrap text-ui-tertiary ring-1 ring-border-primary ring-inset"
+                    className={`flex w-full justify-center rounded-sm px-(--spacing-sm) py-(--spacing-2xs) whitespace-nowrap ring-1 ring-inset ${
+                      value === option
+                        ? "text-ui-primary ring-ui-primary"
+                        : "text-ui-tertiary ring-border-primary"
+                    }`}
                   >
                     {time}
                   </button>

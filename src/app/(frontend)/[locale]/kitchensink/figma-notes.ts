@@ -250,7 +250,7 @@ export const designQuestions: DesignQuestion[] = [
   {
     target: "alternative",
     question:
-      "Kalendern visar inget valt läge för en tid, och alla tider är grå (`ui-tertiary`). Hur ser en vald tid ut, och finns det upptagna tider? Koden visar dem som Figma; den valda tiden syns bara i rutans text.",
+      "Kalendern visar inget valt läge för en tid, och alla tider är grå (`ui-tertiary`). Koden ger den valda tiden svart text och ram; stämmer det, och finns det upptagna tider?",
     figma: "9207:25710",
   },
   {
@@ -335,12 +335,6 @@ export const designQuestions: DesignQuestion[] = [
     target: "contact-form",
     question:
       'call och contact har platshållarrubriker ("Heading") på alla fält, och call har knapptexten "Skicka avtal för signering" från order. Vilka rubriker och vilken knapptext ska de ha?',
-    figma: "9321:47587",
-  },
-  {
-    target: "contact-form",
-    question:
-      'I call står ett alternativ ("Text") bredvid kalendern. Är det två val, till exempel "så snart som möjligt" och "välj tid", och hur visas det valda?',
     figma: "9321:47587",
   },
 
@@ -1227,10 +1221,10 @@ export const figmaNotes: FigmaNote[] = [
     topic: "Vald tid i kalendern",
     figma:
       "Alla tider ser likadana ut (`ui-tertiary`, ram `border-primary`); inget valt läge och ingen hover",
-    code: "Den valda tiden syns bara i rutans text. Tidigare fick den vald tid ram `border-secondary` och text `ui-primary`, och tiderna blev `ui-primary` vid hover",
-    why: "Ett val utan synlig markering; se frågan",
-    status: "Lucka",
-    date: "2026-10-21",
+    code: "Den valda tiden får svart text och ram (`ui-primary`) och syns i rutans text. Ingen hover",
+    why: "Det man klickar på ska synas som valt (beslut 2026-10-27)",
+    status: "Beslut",
+    date: "2026-10-27",
   },
   {
     target: "alternative",
@@ -2195,10 +2189,19 @@ export const figmaNotes: FigmaNote[] = [
     target: "configurator",
     topic: "Tid i kalendern",
     figma: 'En exempeldag, "Idag 12 oktober" med fyra tider',
-    code: "De fem närmaste vardagarna med tiderna 09–16 utom lunch. En vald tid gör samtalet till en bestämd tid, annars så snart som möjligt",
+    code: "De fem närmaste vardagarna med tiderna 09–16 utom lunch; i dag bara de tider som är kvar",
     why: "Inte ritat vilka dagar och tider som finns",
     status: "Antagande",
     date: "2026-10-23",
+  },
+  {
+    target: "configurator",
+    topic: "När ska vi ringa?",
+    figma: 'Ett alternativ ("Text") bredvid kalendern',
+    code: 'Två val bredvid varandra, "Så snart som möjligt" (förvalt) och "Jag önskar en särskild tid"; det andra visar kalendern, öppen, under dem. Utan vald tid stoppas bokningen med "Välj en tid i kalendern."',
+    why: "Kalendern behövs bara när man vill ha en särskild tid (beslut 2026-10-27); svarar på frågan vid contact-form",
+    status: "Beslut",
+    date: "2026-10-27",
   },
   {
     target: "configurator",

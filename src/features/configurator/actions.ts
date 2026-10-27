@@ -152,8 +152,14 @@ async function submitRequest(
     fieldErrors.email = "Ange en giltig e-postadress.";
   }
 
-  // A chosen time means a specific call; without one, as soon as possible.
-  const callPreference = preferredTime ? ("specific" as const) : ("asap" as const);
+  // "Jag önskar en särskild tid" needs a time from the calendar.
+  if (requestType === "call" && formValues.callPreference === "specific" && !preferredTime) {
+    fieldErrors.preferredTime = "Välj en tid i kalendern.";
+  }
+  const callPreference =
+    formValues.callPreference === "specific" && preferredTime
+      ? ("specific" as const)
+      : ("asap" as const);
 
   if (Object.keys(fieldErrors).length > 0) {
     return {

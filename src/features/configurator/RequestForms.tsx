@@ -19,8 +19,6 @@ type Configuration = {
   serviceAgreement?: boolean;
 };
 
-function HiddenConfiguration({
-  familyKey,
 /**
  * The form's action with the key the server uses to see a form sent twice as one request: made at
  * the first send and kept for this form, so sending again after an error is the same request and a
@@ -35,6 +33,8 @@ function useKeyedAction(action: (formData: FormData) => void) {
   };
 }
 
+function HiddenConfiguration({
+  familyKey,
   financingKey,
   locale,
   selections,
@@ -189,17 +189,26 @@ const dayFormat = new Intl.DateTimeFormat("sv-SE", { day: "numeric", month: "lon
 const weekdayFormat = new Intl.DateTimeFormat("sv-SE", { weekday: "long" });
 const callTimes = ["09:00", "10:00", "11:00", "13:00", "14:00", "15:00", "16:00"];
 
-/** The next five weekdays, from today, with the times a seller can call. */
+/**
+ * The next five weekdays, from today, with the times a seller can call; today only the times still
+ * ahead, and not at all once they have passed.
+ */
 function callDays(): TimePickerDay[] {
   const days: TimePickerDay[] = [];
-  const date = new Date();
+  const now = new Date();
+  const later = (time: string) => {
+    const [hours, minutes] = time.split(":").map(Number);
+    return hours * 60 + minutes > now.getHours() * 60 + now.getMinutes();
+  };
   for (let offset = 0; days.length < 5 && offset < 10; offset++) {
-    const day = new Date(date.getFullYear(), date.getMonth(), date.getDate() + offset);
+    const day = new Date(now.getFullYear(), now.getMonth(), now.getDate() + offset);
     if (day.getDay() === 0 || day.getDay() === 6) continue;
+    const times = offset === 0 ? callTimes.filter(later) : callTimes;
+    if (times.length === 0) continue;
     const name = offset === 0 ? "Idag" : offset === 1 ? "Imorgon" : weekdayFormat.format(day);
     days.push({
       label: `${name[0].toUpperCase()}${name.slice(1)} ${dayFormat.format(day)}`,
-      times: callTimes,
+      times,
     });
   }
   return days;
@@ -207,7 +216,9 @@ function callDays(): TimePickerDay[] {
 
 /**
  * The call request ("Boka samtal") as Figma's call popup: name, phone, company and e-mail, when
- * to call (as soon as possible, or a time from the calendar) and a message. It sends the
+ * to call and a message. When is two choices, "Så snart som möjligt" and "Jag önskar en särskild
+ * tid"; the second shows the calendar, open, under them (decided 2026-10-27; Figma has one choice
+ * beside the calendar). It sends the
  * configuration as it is; the server marks it incomplete when steps remain. Sent, it shows
  * Figma's call-booked: "Bokning bekräftad" and when and where the seller calls.
  */
@@ -221,6 +232,9 @@ export function CallRequestForm({
   const days = useMemo(() => callDays(), []);
   const values = state.formValues;
   const errors = state.fieldErrors ?? {};
+  // The choice is the radios' default, kept as it is chosen, as React resets the form after
+  // each send; the calendar shows for "specific".
+  const [when, setWhen] = useState<"asap" | "specific">(values?.callPreference ?? "asap");
 
   if (state.ok) {
     const when =
@@ -301,20 +315,42 @@ export function CallRequestForm({
         defaultValue={values?.email}
         error={errors.email}
       />
-      <fieldset className="grid grid-cols-2 gap-x-(--spacing-2xs) tablet:col-span-2">
+      <fieldset className="grid gap-(--spacing-2xs) tablet:col-span-2 tablet:grid-cols-2">
         <legend className="sr-only">När ska vi ringa?</legend>
         <Alternative
           name="callPreference"
           value="asap"
           number="05"
           label="När ska vi ringa?"
-          defaultChecked
+          defaultChecked={when === "asap"}
+          onChange={() => setWhen("asap")}
         >
           Så snart som möjligt
         </Alternative>
         <div className="flex flex-col justify-end">
-          <TimePicker name="preferredTime" days={days} placeholder="Välj tid i kalendern" />
+          <Alternative
+            name="callPreference"
+            value="specific"
+            defaultChecked={when === "specific"}
+            onChange={() => setWhen("specific")}
+          >
+            Jag önskar en särskild tid
+          </Alternative>
         </div>
+        {when === "specific" ? (
+          <div className="flex flex-col gap-(--spacing-2xs) tablet:col-span-2">
+            <TimePicker
+              name="preferredTime"
+              days={days}
+              placeholder="Välj tid i kalendern"
+              defaultValue={values?.preferredTime}
+              defaultOpen
+            />
+            {errors.preferredTime ? (
+              <p className="text-text-xs text-status-error">{errors.preferredTime}</p>
+            ) : null}
+          </div>
+        ) : null}
       </fieldset>
       <TextAreaField
         number="06"
