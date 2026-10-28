@@ -27,6 +27,7 @@ import * as migration_20261027_092134_financing_terms from './20261027_092134_fi
 import * as migration_20261027_123357_link_anchor from './20261027_123357_link_anchor';
 import * as migration_20261027_141811_dealers_requests_fields from './20261027_141811_dealers_requests_fields';
 import * as migration_20261027_144015_option_conditions_colored_headings from './20261027_144015_option_conditions_colored_headings';
+import * as migration_20261028_081856_option_images from './20261028_081856_option_images';
 
 export const migrations = [
   {
@@ -172,6 +173,11 @@ export const migrations = [
   {
     up: migration_20261027_144015_option_conditions_colored_headings.up,
     down: migration_20261027_144015_option_conditions_colored_headings.down,
-    name: '20261027_144015_option_conditions_colored_headings'
+    name: '20261027_144015_option_conditions_colored_headings',
+  },
+  {
+    up: migration_20261028_081856_option_images.up,
+    down: migration_20261028_081856_option_images.down,
+    name: '20261028_081856_option_images'
   },
 ];

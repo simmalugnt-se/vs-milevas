@@ -805,6 +805,10 @@ export interface TruckFamily {
          * Exempel: "1870 / 1850".
          */
         turningRadius?: string | null;
+        /**
+         * Valfri. Har något alternativ i steget en bild visas hela steget med bilder.
+         */
+        image?: (string | null) | Image;
         defaultSelected?: boolean | null;
         id?: string | null;
       }[]
@@ -827,6 +831,10 @@ export interface TruckFamily {
          */
         price: number;
         description?: string | null;
+        /**
+         * Valfri. Har något alternativ i steget en bild visas hela steget med bilder.
+         */
+        image?: (string | null) | Image;
         defaultSelected?: boolean | null;
         availableFor?: {
           models?: string[];
@@ -850,6 +858,10 @@ export interface TruckFamily {
          * 0 visas som "Ingår".
          */
         price: number;
+        /**
+         * Valfri. Har något alternativ i steget en bild visas hela steget med bilder.
+         */
+        image?: (string | null) | Image;
         defaultSelected?: boolean | null;
         availableFor?: {
           models?: string[];
@@ -874,6 +886,9 @@ export interface TruckFamily {
         label: string;
         price: number;
         description?: string | null;
+        /**
+         * Valfri. Har något alternativ i steget en bild visas hela steget med bilder.
+         */
         image?: (string | null) | Image;
         availableFor?: {
           models?: string[];
@@ -1893,6 +1908,7 @@ export interface TruckFamiliesSelect<T extends boolean = true> {
         price?: T;
         weight?: T;
         turningRadius?: T;
+        image?: T;
         defaultSelected?: T;
         id?: T;
       };
@@ -1903,6 +1919,7 @@ export interface TruckFamiliesSelect<T extends boolean = true> {
         capacity?: T;
         price?: T;
         description?: T;
+        image?: T;
         defaultSelected?: T;
         availableFor?: T;
         id?: T;
@@ -1913,6 +1930,7 @@ export interface TruckFamiliesSelect<T extends boolean = true> {
         liftHeight?: T;
         buildHeight?: T;
         price?: T;
+        image?: T;
         defaultSelected?: T;
         availableFor?: T;
         id?: T;

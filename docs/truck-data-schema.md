@@ -326,3 +326,9 @@ Migreringen `20261027_144015_option_conditions_colored_headings`:
   senare steg räknas inte.
 - **Publicering** stoppas när en lista att välja från inte lämnar något för en rad den har villkor på,
   till exempel inget batteri för 1,8 ton (`checkEveryRowHasOption`).
+
+## 13. Bilder i alla steg (2026-10-28)
+
+Migreringen `20261028_081856_option_images`: varianter, batterier och master har fått `image`, som
+tillvalen redan hade. Har något alternativ i ett steg en bild visas steget med bilder (`choiceDisplay`
+i `engine.ts`: fler än tre två per rad, annars rader med bilden till höger); utan bilder som förut.

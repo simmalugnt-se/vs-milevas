@@ -97,6 +97,7 @@ const batteryOption = (battery: Battery): ConfiguratorOption => ({
   key: battery.id ?? battery.label,
   label: hyphenate(battery.label),
   description: battery.description || undefined,
+  image: imageData(battery.image, plain(battery.label)),
   price: battery.price,
   default: battery.defaultSelected === true,
   specs: spec("batteryCapacity", battery.capacity),
@@ -106,6 +107,7 @@ const batteryOption = (battery: Battery): ConfiguratorOption => ({
 const liftHeightOption = (mast: LiftHeight): ConfiguratorOption => ({
   key: mast.id ?? String(mast.liftHeight),
   label: `${mast.liftHeight} mm`,
+  image: imageData(mast.image, `Lyfthöjd ${mast.liftHeight} mm`),
   description: mast.buildHeight
     ? `Truckens höjd med denna mast: ${mast.buildHeight} mm`
     : undefined,
@@ -169,7 +171,9 @@ function mapFamily(family: TruckFamily, { modelStepLabel, steps }: StepTexts): C
         help: step === "lift-height" ? family.liftHeightHelp || undefined : undefined,
         selectionMode: multiple ? ("multiple" as const) : ("single" as const),
         required: !multiple,
-        display: multiple ? undefined : ("stack" as const),
+        // Photos when any option has one (`choiceDisplay`), else stacked as Figma's type 2.
+        display:
+          multiple || options[step].some((option) => option.image) ? undefined : ("stack" as const),
         options: options[step],
       },
     ];
@@ -203,6 +207,7 @@ function mapFamily(family: TruckFamily, { modelStepLabel, steps }: StepTexts): C
           sku: model.sku || undefined,
           price: model.price + fixedPrice,
           capacityKg: model.capacityKg,
+          image: imageData(model.image, tons(model.capacityKg)),
           default: model.defaultSelected === true || onlyModel,
           specs: [...spec("weight", model.weight), ...spec("turningRadius", model.turningRadius)],
         }))

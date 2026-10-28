@@ -105,6 +105,20 @@ const availableForField = (list: ListName | "extras"): Field => ({
   },
 });
 
+/**
+ * A photo for the option. When any option of a step has one, the step shows them with photos
+ * (Figma's step types 3 and 4); without, as it was.
+ */
+const optionImageField: Field = {
+  name: "image",
+  label: "Bild",
+  type: "upload",
+  relationTo: "images",
+  admin: {
+    description: "Valfri. Har något alternativ i steget en bild visas hela steget med bilder.",
+  },
+};
+
 const ONE_IS_A_SPEC =
   "Med flera kan kunden välja i konfiguratorn; med ett enda är det en del av trucken och visas bara som specifikation.";
 
@@ -289,6 +303,7 @@ export const TruckFamilies: CollectionConfig = {
                     },
                   ],
                 },
+                optionImageField,
                 defaultField("models", "Förvald"),
               ],
             },
@@ -329,6 +344,7 @@ export const TruckFamilies: CollectionConfig = {
                   ],
                 },
                 { name: "description", label: "Text", type: "textarea", localized: true },
+                optionImageField,
                 defaultField("batteries"),
                 availableForField("batteries"),
               ],
@@ -367,6 +383,7 @@ export const TruckFamilies: CollectionConfig = {
                     extraPriceField,
                   ],
                 },
+                optionImageField,
                 defaultField("liftHeights", "Förvald"),
                 availableForField("liftHeights"),
               ],
@@ -410,7 +427,7 @@ export const TruckFamilies: CollectionConfig = {
                   ],
                 },
                 { name: "description", label: "Text", type: "textarea", localized: true },
-                { name: "image", label: "Bild", type: "upload", relationTo: "images" },
+                optionImageField,
                 availableForField("extras"),
               ],
             },

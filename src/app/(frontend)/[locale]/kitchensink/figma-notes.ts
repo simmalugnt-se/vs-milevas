@@ -1497,6 +1497,15 @@ export const figmaNotes: FigmaNote[] = [
   },
   {
     target: "configurator",
+    topic: "Bilder i alla steg",
+    figma: "Bilder bara i stegtyperna 3 och 4 (tillval i Figmas exempel)",
+    code: "Varianter, batterier, master och tillval kan ha en bild. Har något alternativ i ett steg en bild visas steget som Figmas typ 3 eller 4 (fler än tre alternativ två per rad, annars rader med bilden till höger); utan bilder som förut",
+    why: "Redaktören ska kunna visa bilder på fler val än tillvalen",
+    status: "Beslut",
+    date: "2026-10-28",
+  },
+  {
+    target: "configurator",
     topic: "Villkorade val",
     figma: "Alla alternativ visas alltid",
     code: 'Ett batteri, en mast eller ett tillval kan ha "Visas för" i admin: då visas det bara när kunden valt en av de ikryssade lyftkapaciteterna, batterierna eller masterna i stegen före. Alternativ som inte gäller döljs; ett val som inte längre gäller faller bort, och steget får sitt förval eller det första tillåtna',

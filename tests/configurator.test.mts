@@ -432,3 +432,16 @@ test("a list to choose from must leave something for every row it sets condition
     true,
   );
 });
+
+test("a model's photo goes with its option, and a step with photos shows them", () => {
+  const photo = { alt: "Liten", url: "/media/small.png" };
+  const withPhoto: ConfiguratorFamily = {
+    ...family,
+    models: family.models.map((model) =>
+      model.key === "small" ? { ...model, image: photo } : model,
+    ),
+  };
+  const [models] = familySteps(withPhoto);
+  assert.deepEqual(models.options[0].image, photo);
+  assert.equal(choiceDisplay(models), "imageRows");
+});

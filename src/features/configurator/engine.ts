@@ -31,6 +31,7 @@ export function familySteps(family: ConfiguratorFamily): ConfiguratorChoice[] {
       key: model.key,
       label: model.label,
       description: model.sku,
+      image: model.image,
       price: model.price,
       default: model.default,
       sku: model.sku,

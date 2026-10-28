@@ -69,6 +69,7 @@ export type ConfiguratorModel = {
   sku?: string;
   price: number;
   capacityKg?: number;
+  image?: { alt: string; url: string };
   default: boolean;
   specs: SpecValue[];
 };
