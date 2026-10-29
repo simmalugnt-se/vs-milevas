@@ -72,6 +72,8 @@ type FamilySeed = Omit<
   models: ModelSeed[];
   /** The model the configurator starts at, by name. */
   defaultModel: string;
+  /** "Serier": a series' text, by its name; the series come from the models. */
+  seriesTexts?: Record<string, string>;
   /**
    * The steps in the prototype's order: the models' fields, and the groups, which go under
    * Utrustning (one option) or Tillval (`multiple`).
@@ -161,6 +163,8 @@ const SMALL = [
   "KBE 20 Li G1",
 ];
 const LARGE = ["KBE 25 Li G1", "KBE 30 Li G1", "KBE 35 Li G1"];
+const KBS =
+  "Li-Ion-batteri, inget underhåll. Lätt och smidig (under 700 kg). Pålitlig för daglig användning i de flesta lager- och butiksmiljöer.";
 const ES =
   "Kraftfullt bly-syra-batteri för långa arbetspass. Robust chassi för intensiv drift. Klarar högre lyft, upp till 5,5 meter.";
 
@@ -535,8 +539,7 @@ const families: FamilySeed[] = [
         price: 40000,
         series: "KBS-serien",
         photo: "kbs",
-        description:
-          "Li-Ion-batteri, inget underhåll. Lätt och smidig (under 700 kg). Pålitlig för daglig användning i de flesta lager- och butiksmiljöer.",
+        description: KBS,
       },
       {
         name: "ES 12N",
@@ -557,6 +560,7 @@ const families: FamilySeed[] = [
       },
     ],
     defaultModel: "KBS 12N",
+    seriesTexts: { "KBS-serien": KBS, "ES-serien": ES },
     steps: [
       { property: "series" },
       { property: "capacity", label: "Kapacitet" },
@@ -572,14 +576,16 @@ const families: FamilySeed[] = [
       },
       {
         label: "Initiallyft",
+        // "Nej" first, so it is the default: Lovable starts at the series' price and calls it
+        // "Standard", though it lists "Ja" first.
         options: [
+          { label: "Nej", description: "Trucken körs på plant, jämnt underlag." },
           {
             label: "Ja, med initiallyft",
             price: 3800,
             description:
               "Initiallyft höjer stödbenen så att trucken klarar att köra över ojämna golv, ramper och trösklar med last. Bra i miljöer med ramper, trösklar eller ojämna golv.",
           },
-          { label: "Nej", description: "Trucken körs på plant, jämnt underlag." },
         ],
       },
     ],
@@ -778,7 +784,7 @@ async function placeholderBrochure(payload: Payload) {
 }
 
 async function upsertFamily(payload: Payload, seed: FamilySeed, brochure: string) {
-  const { models, defaultModel, steps, ...fields } = seed;
+  const { models, defaultModel, seriesTexts, steps, ...fields } = seed;
   const existing = await payload.find({
     collection: "truck-families",
     locale: "sv",
@@ -801,7 +807,10 @@ async function upsertFamily(payload: Payload, seed: FamilySeed, brochure: string
     ...fields,
     image: await uploadImage(payload, seed.image, seed.singularName),
     brochure: models.length ? brochure : undefined,
-    series: [...new Set(models.flatMap((model) => model.series ?? []))].map((name) => ({ name })),
+    series: [...new Set(models.flatMap((model) => model.series ?? []))].map((name) => ({
+      name,
+      description: seriesTexts?.[name],
+    })),
     // The groups point at the models, which need the family first.
     equipment: [],
     extras: [],

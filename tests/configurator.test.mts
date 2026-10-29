@@ -433,8 +433,8 @@ test("the model step shows each model with its text and photo, the cheapest firs
   assert.deepEqual(
     availableOptions(withPhoto, models, {}).map(({ key, price }) => [key, price]),
     [
-      ["small", 0],
-      ["large", 30000],
+      ["small", 120000],
+      ["large", 150000],
     ],
   );
 });
@@ -489,22 +489,22 @@ test("the model steps come first, then the model when they leave more than one, 
   });
 });
 
-test("a model step offers the values the models left have, with how much more the cheapest with each is", () => {
+test("a model step offers the values the models left have, with the price of the cheapest with each", () => {
   const [capacity, wheels] = familySteps(counterbalance);
   const offered = (choice: ConfiguratorChoice, selections: Record<string, string[]>) =>
     availableOptions(counterbalance, choice, selections).map(
       ({ key, label, price, description }) => ({ key, label, price, description }),
     );
   assert.deepEqual(offered(capacity, {}), [
-    { key: "1500", label: "1,5 ton", price: 0, description: "KBET 15 G1" },
-    { key: "1800", label: "1,8 ton", price: 10000, description: "KBET 18 G1 / KBE 18 G1" },
-    { key: "2500", label: "2,5 ton", price: 60000, description: "KBE 25 G1" },
+    { key: "1500", label: "1,5 ton", price: 150000, description: "KBET 15 G1" },
+    { key: "1800", label: "1,8 ton", price: 160000, description: "KBET 18 G1 / KBE 18 G1" },
+    { key: "2500", label: "2,5 ton", price: 210000, description: "KBE 25 G1" },
   ]);
   assert.deepEqual(
     offered(wheels, { capacity: ["1800"] }).map(({ key, price }) => [key, price]),
     [
-      ["3", 0],
-      ["4", 10000],
+      ["3", 160000],
+      ["4", 170000],
     ],
   );
 });
@@ -679,7 +679,7 @@ test("a group before the model is narrowed narrows the models to those its optio
   assert.equal(quote?.totalPrice, 173500);
 });
 
-test("a value one model has shows the model's text, and an equipment line its group's name", () => {
+test("a value one model has shows the model's text, a series its own, and an equipment line its group's name", () => {
   const described: ConfiguratorFamily = {
     ...counterbalance,
     models: counterbalance.models.map((model) =>
@@ -690,6 +690,19 @@ test("a value one model has shows the model's text, and an equipment line its gr
   assert.deepEqual(
     availableOptions(described, capacity, {}).map((option) => option.description),
     ["KBET 15 G1", "KBET 18 G1 / KBE 18 G1", "KBE 25 G1 — Batteri 206 Ah"],
+  );
+  const series: ConfiguratorFamily = {
+    ...described,
+    order: ["series"],
+    seriesTexts: { "KBE G1": "Li-Ion, fyra hjul" },
+    models: described.models.map((model) => ({
+      ...model,
+      series: model.key.startsWith("kbet") ? "KBET G1" : "KBE G1",
+    })),
+  };
+  assert.deepEqual(
+    availableOptions(series, familySteps(series)[0], {}).map((option) => option.description),
+    ["KBET 15 G1 / KBET 18 G1", "Li-Ion, fyra hjul"],
   );
   const quote = buildQuote(
     { ...catalog, families: [family] },

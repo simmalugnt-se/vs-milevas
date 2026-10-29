@@ -31,6 +31,7 @@ import * as migration_20261028_081856_option_images from './20261028_081856_opti
 import * as migration_20261029_095637_truck_models from './20261029_095637_truck_models';
 import * as migration_20261029_143003_financing_like_vs_truck from './20261029_143003_financing_like_vs_truck';
 import * as migration_20261029_152204_equipment_and_step_order from './20261029_152204_equipment_and_step_order';
+import * as migration_20261029_162214_series_text from './20261029_162214_series_text';
 
 export const migrations = [
   {
@@ -196,6 +197,11 @@ export const migrations = [
   {
     up: migration_20261029_152204_equipment_and_step_order.up,
     down: migration_20261029_152204_equipment_and_step_order.down,
-    name: '20261029_152204_equipment_and_step_order'
+    name: '20261029_152204_equipment_and_step_order',
+  },
+  {
+    up: migration_20261029_162214_series_text.up,
+    down: migration_20261029_162214_series_text.down,
+    name: '20261029_162214_series_text'
   },
 ];

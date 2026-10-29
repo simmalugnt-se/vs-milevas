@@ -373,7 +373,16 @@ export const TruckFamilies: CollectionConfig = {
               dbName: "truck_family_series",
               localized: false,
               admin: { description: "Listan modellerna väljer serie ur." },
-              fields: [{ name: "name", label: "Namn", type: "text", required: true }],
+              fields: [
+                { name: "name", label: "Namn", type: "text", required: true },
+                {
+                  name: "description",
+                  label: "Text",
+                  type: "textarea",
+                  localized: true,
+                  admin: { description: "Visas på seriens kort i konfiguratorn." },
+                },
+              ],
             },
             {
               name: "defaultModel",

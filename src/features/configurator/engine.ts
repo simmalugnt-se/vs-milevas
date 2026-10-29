@@ -74,6 +74,7 @@ function modelStepChoice(family: ConfiguratorFamily, step: ModelStep): Configura
         default: value.key === startKey,
         specs: [],
         ...(step === "model" ? { description: model.description, image: model.image } : {}),
+        ...(step === "series" ? { description: family.seriesTexts?.[value.label] } : {}),
       },
       low: Math.min(known?.low ?? Number.POSITIVE_INFINITY, model.price),
     });
@@ -200,8 +201,9 @@ function earlierSelections(
 
 /**
  * The options of a step the customer can choose from, after what is chosen in the steps before. In
- * a step from the models' fields each value comes with how much more the cheapest model with it is
- * than the cheapest left ("1,6 ton · +7 200 kr"), and the names of the models with it as its text, or the one model's name and text.
+ * a step from the models' fields each value comes with the price of the cheapest model with it
+ * ("1,6 ton", "Från 176 900 kr"), and as its text the series' own, or the names of the models
+ * with it and the one model's text.
  */
 export function availableOptions(
   family: ConfiguratorFamily,
@@ -215,18 +217,19 @@ export function availableOptions(
   return options.map((option) => {
     const models = modelsLeft(family, { ...earlier, [choice.key]: [option.key] });
     const model = cheapest(models) ?? now;
-    // One model with the value: its name and its text ("EP 16-N01 — Batteri Li-Ion 24 V / 20 Ah");
-    // more: their names.
+    // A model's or a series' own text; else the models' names, and the text of the one model
+    // ("EP 16-N01 — Batteri Li-Ion 24 V / 20 Ah").
+    const names = models.map((candidate) => candidate.label).join(" / ");
     const only = models.length === 1 ? models[0] : undefined;
     return {
       ...option,
       description:
-        choice.modelStep === "model"
+        choice.modelStep === "model" || option.description
           ? option.description
           : only?.description
-            ? `${only.label} — ${only.description}`
-            : models.map((candidate) => candidate.label).join(" / "),
-      price: model.price - now.price,
+            ? `${names} — ${only.description}`
+            : names,
+      price: model.price,
     };
   });
 }

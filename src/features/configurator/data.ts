@@ -192,6 +192,11 @@ function mapFamily(family: TruckFamily, models: TruckModel[]): ConfiguratorFamil
     cardSpec: family.cardSpec || undefined,
     specs: specRows(family.specs),
     defaultModel: idOf(family.defaultModel) ?? undefined,
+    seriesTexts: Object.fromEntries(
+      (family.series ?? []).flatMap(({ name, description }) =>
+        description ? [[name.trim(), description]] : [],
+      ),
+    ),
     models: configurable ? models.map((model) => mapModel(model, family.serviceRates)) : [],
     choices: configurable
       ? [
@@ -325,7 +330,7 @@ async function fetchConfiguratorCatalog(
 }
 
 /** Bumped when the catalogue's shape changes, so a cache from before is not read as the new one. */
-const CATALOG_VERSION = "2026-10-29f";
+const CATALOG_VERSION = "2026-10-29g";
 
 const getCachedCatalog = (locale: TypedLocale) =>
   unstable_cache(

@@ -115,8 +115,12 @@ function formatPrice(value: number) {
   }).format(value);
 }
 
-/** An option's price as an addition, or "Ingår" when it adds nothing. */
-function priceLabel(option: ConfiguratorOption) {
+/**
+ * An option's price as an addition, or "Ingår" when it adds nothing; a value of the models' fields
+ * as the price of the cheapest model with it ("Från 40 000 kr"), as in the Lovable prototype.
+ */
+function priceLabel(choice: ConfiguratorChoice, option: ConfiguratorOption) {
+  if (choice.modelStep) return `Från ${formatPrice(option.price)}`;
   return option.price === 0 ? "Ingår" : `+${formatPrice(option.price)}`;
 }
 
@@ -325,7 +329,7 @@ export function ConfiguratorClient({
         options={choice.options.map((option) => ({
           key: option.key,
           title: option.label,
-          price: priceLabel(option),
+          price: priceLabel(choice, option),
           text: option.description,
           selected: (state.selections[choice.key] ?? []).includes(option.key),
           image: option.image ? (

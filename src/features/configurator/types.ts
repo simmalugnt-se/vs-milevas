@@ -27,7 +27,10 @@ export type ConfiguratorOption = {
   label: string;
   description?: string;
   image?: ConfiguratorImage;
-  /** Added to the model's price; 0 is "Ingår". */
+  /**
+   * Added to the model's price; 0 is "Ingår". In a step from the models' fields, as offered
+   * (`availableOptions`), the price of the cheapest model with the value.
+   */
   price: number;
   /** In a step from the models' fields, the default model's value. */
   default: boolean;
@@ -95,6 +98,8 @@ export type ConfiguratorFamily = {
   specs: SpecValue[];
   /** The model the configuration starts at; without it the cheapest. */
   defaultModel?: string;
+  /** "Serier": each series' text, by name, for its card in the series step. */
+  seriesTexts?: Record<string, string>;
   models: ConfiguratorModel[];
   /** The groups of equipment and extras. */
   choices: ConfiguratorChoice[];

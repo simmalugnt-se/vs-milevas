@@ -389,7 +389,8 @@ trucktypen. En modell syns i konfiguratorn när den är publicerad.
 står i ordningen kommer sist, och utan Modell läggs den efter det sista av modellernas fält (det är
 inget steg när en modell är kvar). Ett steg från modellernas fält visar de värden modellerna som är
 kvar har, ett per värde (tal i storleksordning, serier och modeller från lägsta pris), med
-prisskillnaden mot den billigaste ("1,6 ton · +7 200 kr") och modellernas namn som text
+priset för den billigaste modellen med värdet ("1,6 ton", "Från 176 900 kr", som i Lovable) och
+modellernas namn som text, med deras text när de har samma
 (`availableOptions`). En grupps alternativ visas när någon av modellerna som är kvar har det, och
 ett valt alternativ lämnar bara de modellerna (`modelsLeft`), så Batteri kan stå före Hjulantal som
 i Lovable. Modellen är den billigaste som passar valen (`chosenModel`); den ger grundpriset,

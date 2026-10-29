@@ -811,6 +811,10 @@ export interface TruckFamily {
   series?:
     | {
         name: string;
+        /**
+         * Visas på seriens kort i konfiguratorn.
+         */
+        description?: string | null;
         id?: string | null;
       }[]
     | null;
@@ -2016,6 +2020,7 @@ export interface TruckFamiliesSelect<T extends boolean = true> {
     | T
     | {
         name?: T;
+        description?: T;
         id?: T;
       };
   defaultModel?: T;
