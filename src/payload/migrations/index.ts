@@ -28,6 +28,9 @@ import * as migration_20261027_123357_link_anchor from './20261027_123357_link_a
 import * as migration_20261027_141811_dealers_requests_fields from './20261027_141811_dealers_requests_fields';
 import * as migration_20261027_144015_option_conditions_colored_headings from './20261027_144015_option_conditions_colored_headings';
 import * as migration_20261028_081856_option_images from './20261028_081856_option_images';
+import * as migration_20261029_095637_truck_models from './20261029_095637_truck_models';
+import * as migration_20261029_143003_financing_like_vs_truck from './20261029_143003_financing_like_vs_truck';
+import * as migration_20261029_152204_equipment_and_step_order from './20261029_152204_equipment_and_step_order';
 
 export const migrations = [
   {
@@ -178,6 +181,21 @@ export const migrations = [
   {
     up: migration_20261028_081856_option_images.up,
     down: migration_20261028_081856_option_images.down,
-    name: '20261028_081856_option_images'
+    name: '20261028_081856_option_images',
+  },
+  {
+    up: migration_20261029_095637_truck_models.up,
+    down: migration_20261029_095637_truck_models.down,
+    name: '20261029_095637_truck_models',
+  },
+  {
+    up: migration_20261029_143003_financing_like_vs_truck.up,
+    down: migration_20261029_143003_financing_like_vs_truck.down,
+    name: '20261029_143003_financing_like_vs_truck',
+  },
+  {
+    up: migration_20261029_152204_equipment_and_step_order.up,
+    down: migration_20261029_152204_equipment_and_step_order.down,
+    name: '20261029_152204_equipment_and_step_order'
   },
 ];

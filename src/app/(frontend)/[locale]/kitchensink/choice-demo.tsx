@@ -32,8 +32,20 @@ export function ChoiceDemo() {
 }
 
 const financing = [
-  { id: "leasing", title: "Leasing", price: "3 561 kr/mån", term: true },
-  { id: "hyra", title: "Långtidshyra", price: "3 250 kr/mån", term: true },
+  {
+    id: "leasing",
+    title: "Leasing",
+    price: "3 561 kr/mån",
+    text: "Finansbolaget äger trucken och du betalar en fast, förutsägbar månadskostnad.",
+    term: true,
+  },
+  {
+    id: "hyra",
+    title: "Långtidshyra",
+    price: "3 250 kr/mån",
+    text: "All service ingår, från första dagen till sista.",
+    term: true,
+  },
   { id: "kop", title: "Köp", price: "169 900 kr", term: false },
 ];
 
@@ -48,6 +60,7 @@ export function FinancingChoiceDemo() {
           key={option.id}
           title={option.title}
           price={option.price}
+          text={option.text}
           selected={selected === option.id}
           bottom={index === financing.length - 1}
           onSelect={() => setSelected(option.id)}

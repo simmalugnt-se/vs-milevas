@@ -1,58 +1,52 @@
 /**
- * The configurator's steps after the truck type. The variants (Lyftkapacitet) are always the first
- * of them: the base price is theirs and everything else adds to it. The settings name that step and
- * order and name the others, listed here with their keys in the address, the list on the truck type
- * each is built from and their names when the settings give none. The truck type's lists decide
- * whether each is shown (see `stepRole`).
+ * The steps that come from the models' own fields, for "Steg i konfiguratorn": each offers the
+ * values the models have, and choosing one leaves the models with it. "Modell" offers the models
+ * themselves.
  */
-export const MODEL_STEP = { key: "model", list: "models", label: "Lyftkapacitet" } as const;
-
-export const CHOICE_STEPS = [
-  { key: "battery", list: "batteries", label: "Batteri" },
-  { key: "lift-height", list: "liftHeights", label: "Lyfthöjd" },
-  { key: "extras", list: "extras", label: "Tillval" },
+export const MODEL_STEPS = [
+  { key: "capacity", label: "Lyftkapacitet" },
+  { key: "wheels", label: "Hjulantal" },
+  { key: "series", label: "Serie" },
+  { key: "model", label: "Modell" },
 ] as const;
 
-export type ChoiceStepKey = (typeof CHOICE_STEPS)[number]["key"];
+export type ModelStep = (typeof MODEL_STEPS)[number]["key"];
+export type ModelProperty = Exclude<ModelStep, "model">;
 
-export type StepKey = ChoiceStepKey | typeof MODEL_STEP.key;
+export const isModelStep = (value: unknown): value is ModelStep =>
+  MODEL_STEPS.some((step) => step.key === value);
 
-export type StepSetting = { step: ChoiceStepKey; label: string };
+export const modelStepLabel = (step: ModelStep) =>
+  MODEL_STEPS.find((candidate) => candidate.key === step)?.label ?? step;
 
-const isStepKey = (value: unknown): value is ChoiceStepKey =>
-  CHOICE_STEPS.some((step) => step.key === value);
+/** "1,5 ton". */
+export const tons = (kg: number) =>
+  `${new Intl.NumberFormat("sv-SE", { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(kg / 1000)} ton`;
 
-/**
- * The steps after the variants in the settings' order, each once. One the settings leave out goes
- * back at its default place, or last, so a step is never lost to a removed row.
- */
-export function orderedSteps(
-  rows: Array<{ step?: string | null; label?: unknown }> | null | undefined,
-): StepSetting[] {
-  const steps: StepSetting[] = [];
-  for (const row of rows ?? []) {
-    if (isStepKey(row.step) && !steps.some((step) => step.step === row.step)) {
-      const fallback = CHOICE_STEPS.find((step) => step.key === row.step)?.label ?? "";
-      // A label read in every locale at once is an object; only a text names the step.
-      const label = typeof row.label === "string" ? row.label.trim() : "";
-      steps.push({ step: row.step, label: label || fallback });
-    }
+/** "KBET G1" → "kbet-g1": a value as a key in the address, which takes `[a-z0-9-]` only. */
+export const valueKey = (text: string) =>
+  text
+    .toLowerCase()
+    .replaceAll("å", "a")
+    .replaceAll("ä", "a")
+    .replaceAll("ö", "o")
+    .normalize("NFKD")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
+/** A model's value for a property: its key in the address and its name, or none. */
+export function propertyValue(
+  property: ModelProperty,
+  model: { capacityKg?: number | null; wheels?: string | null; series?: string | null },
+): { key: string; label: string } | undefined {
+  if (property === "capacity") {
+    return typeof model.capacityKg === "number"
+      ? { key: String(model.capacityKg), label: tons(model.capacityKg) }
+      : undefined;
   }
-  CHOICE_STEPS.forEach((step, index) => {
-    if (!steps.some((candidate) => candidate.step === step.key)) {
-      steps.splice(Math.min(index, steps.length), 0, { step: step.key, label: step.label });
-    }
-  });
-  return steps;
-}
-
-/**
- * What a list on the truck type becomes: the variants and the extras are a step when there are
- * any; a battery or mast is a step when there is more than one to choose from, part of the truck
- * when there is one and left out when there is none.
- */
-export function stepRole(step: StepKey, count: number): "choice" | "included" | "none" {
-  if (count === 0) return "none";
-  if (step === "model" || step === "extras" || count > 1) return "choice";
-  return "included";
+  if (property === "wheels") {
+    return model.wheels ? { key: model.wheels, label: `${model.wheels} hjul` } : undefined;
+  }
+  const series = model.series?.trim();
+  return series && valueKey(series) ? { key: valueKey(series), label: series } : undefined;
 }

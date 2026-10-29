@@ -253,6 +253,7 @@ export const cmsPlugins: Plugin[] = [
     collections: [
       "pages",
       "truck-families",
+      "truck-models",
       "configurator-requests",
       "contact-requests",
       "images",

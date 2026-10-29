@@ -13,7 +13,8 @@ export function CardSliderBlockComponent({ block }: LayoutBlockComponentProps<Ca
         const media = resolvePayloadMedia(card.image);
         return {
           ...editableBlock(card),
-          color: card.color,
+          // "Ingen färg" is the card's Static look: the image all the time, with no hover.
+          ...(card.color === "image" ? { static: true } : { color: card.color }),
           label: <span {...editableField("label")}>{card.label}</span>,
           heading: <span {...editableField("heading")}>{card.heading}</span>,
           text: card.text ? (

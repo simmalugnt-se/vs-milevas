@@ -4,8 +4,7 @@ import Image from "next/image";
 import { useCallback, useState } from "react";
 import { ConfiguratorQuote } from "@/components/blocks/configurator-quote";
 import { ConfiguratorThanks } from "@/components/blocks/configurator-thanks";
-import { Button, TextLink } from "@/components/ui/button";
-import { WithDealerPrice } from "@/components/ui/dealer-price";
+import { Button, ButtonLink, TextLink } from "@/components/ui/button";
 import { PriceBox } from "@/components/ui/price-box";
 import { useDealerPrice } from "@/features/dealers/DealerProvider";
 import { financingLabel } from "./engine";
@@ -28,6 +27,8 @@ type QuoteViewProps = {
   image?: { alt: string; url: string };
   warrantyNote?: string;
   nextSteps: NextStep[];
+  /** The chosen model's brochure, or the truck type's; linked under the specifications. */
+  brochure?: { title: string; url: string };
 };
 
 /**
@@ -43,10 +44,11 @@ export function QuoteView({
   image,
   warrantyNote,
   nextSteps,
+  brochure,
 }: QuoteViewProps) {
   const [dialog, setDialog] = useState<"call" | "order" | null>(null);
   const dealerPrice = useDealerPrice();
-  const dealerTotal = dealerPrice(quote.totalPrice);
+  const dealerTotal = dealerPrice(quote.totalPrice, quote.modelKey);
   const [ordered, setOrdered] = useState(false);
   const close = useCallback(() => setDialog(null), []);
   const onSent = useCallback(() => {
@@ -153,19 +155,9 @@ export function QuoteView({
               ),
               rows: quote.lines
                 .filter((line) => line.kind !== "service")
-                .map((line) => {
-                  const dealer = line.price === 0 ? null : dealerPrice(line.price);
-                  return {
-                    label: line.label,
-                    value: (
-                      <WithDealerPrice dealer={dealer === null ? undefined : formatPrice(dealer)}>
-                        {formatPrice(line.price)}
-                      </WithDealerPrice>
-                    ),
-                  };
-                }),
+                .map((line) => ({ label: line.label, value: formatPrice(line.price) })),
             },
-            ...(quote.specifications.length > 0
+            ...(quote.specifications.length > 0 || brochure
               ? [
                   {
                     heading: "Tekniska specifikationer",
@@ -173,6 +165,21 @@ export function QuoteView({
                       label: spec.label,
                       value: spec.value,
                     })),
+                    // Not in Figma: the brochure under the specifications (see figma-notes).
+                    footer: brochure ? (
+                      <ButtonLink
+                        href={brochure.url}
+                        target="_blank"
+                        rel="noopener"
+                        title={brochure.title}
+                        variant="secondary"
+                        border
+                        iconRight="open-in-new"
+                        className="w-full"
+                      >
+                        Produktbroschyr
+                      </ButtonLink>
+                    ) : undefined,
                   },
                 ]
               : []),

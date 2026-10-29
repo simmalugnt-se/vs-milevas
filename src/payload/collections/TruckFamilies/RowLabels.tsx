@@ -2,10 +2,11 @@
 
 import { useRowLabel } from "@payloadcms/ui";
 import { useEffect, useState } from "react";
+import { useStepChoices } from "./useStepChoices";
 
 /**
- * The truck type's list rows in the admin, named by what they hold ("1,6 ton · KBR 16 · 516 000
- * kr") instead of "Variant 01", so a row is found without opening it.
+ * The truck type's list rows in the admin, named by what they hold ("Stort batteri · +18 000 kr")
+ * instead of "Alternativ 01", so a row is found without opening it.
  */
 
 const price = (value: unknown, extra = false) => {
@@ -15,75 +16,75 @@ const price = (value: unknown, extra = false) => {
   return `${extra ? "+" : ""}${formatted} kr`;
 };
 
-const tons = (kg: unknown) =>
-  typeof kg === "number"
-    ? `${new Intl.NumberFormat("sv-SE", { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(kg / 1000)} ton`
-    : undefined;
-
 const join = (parts: Array<string | undefined | null | false>, fallback: string) =>
   parts.filter(Boolean).join(" · ") || fallback;
 
 const text = (value: unknown) =>
   typeof value === "string" ? value.replaceAll("|", "") : undefined;
 
-export function ModelRowLabel() {
-  const { data, rowNumber } = useRowLabel<Record<string, unknown>>();
-  return (
-    <span>
-      {join(
-        [
-          tons(data?.capacityKg),
-          text(data?.sku),
-          price(data?.price),
-          data?.defaultSelected === true && "förvald",
-        ],
-        `Variant ${(rowNumber ?? 0) + 1}`,
-      )}
-    </span>
-  );
-}
-
-export function BatteryRowLabel() {
-  const { data, rowNumber } = useRowLabel<Record<string, unknown>>();
+/** "Batteri · 6 alternativ · olika per modell", or "… · alla modeller". */
+export function GroupRowLabel() {
+  const { data, rowNumber } = useRowLabel<{
+    label?: string;
+    options?: Array<{ models?: unknown[] | null }>;
+  }>();
+  const options = data?.options ?? [];
+  const perModel = options.some((option) => (option.models ?? []).length > 0);
   return (
     <span>
       {join(
         [
           text(data?.label),
-          text(data?.capacity),
-          price(data?.price, true),
-          data?.defaultSelected === true && "förvalt",
+          `${options.length} alternativ`,
+          options.length > 0 && (perModel ? "olika per modell" : "alla modeller"),
         ],
-        `Batteri ${(rowNumber ?? 0) + 1}`,
+        `Grupp ${(rowNumber ?? 0) + 1}`,
       )}
     </span>
   );
 }
 
-export function LiftHeightRowLabel() {
-  const { data, rowNumber } = useRowLabel<Record<string, unknown>>();
+/** "Stort batteri 228 Ah (Li-Ion) · +18 000 kr · 6 modeller". */
+export function OptionRowLabel() {
+  const { data, rowNumber } = useRowLabel<{
+    label?: string;
+    price?: number;
+    models?: unknown[] | null;
+  }>();
+  const count = (data?.models ?? []).length;
   return (
     <span>
       {join(
         [
-          typeof data?.liftHeight === "number" && `${data.liftHeight} mm`,
-          typeof data?.buildHeight === "number" && `bygghöjd ${data.buildHeight} mm`,
+          text(data?.label),
           price(data?.price, true),
-          data?.defaultSelected === true && "förvald",
+          count > 0 && `${count} ${count === 1 ? "modell" : "modeller"}`,
         ],
-        `Mast ${(rowNumber ?? 0) + 1}`,
+        `Alternativ ${(rowNumber ?? 0) + 1}`,
       )}
     </span>
   );
 }
 
-export function ExtraRowLabel() {
-  const { data, rowNumber } = useRowLabel<Record<string, unknown>>();
+/** "Vikt: 3 293 kg". */
+export function SpecRowLabel() {
+  const { data, rowNumber } = useRowLabel<{ label?: string; value?: string }>();
+  const label = text(data?.label);
   return (
     <span>
-      {join([text(data?.label), price(data?.price, true)], `Tillval ${(rowNumber ?? 0) + 1}`)}
+      {label
+        ? `${label}${data?.value ? `: ${data.value}` : ""}`
+        : `Specifikation ${(rowNumber ?? 0) + 1}`}
     </span>
   );
+}
+
+/** "Batteri · från Utrustning", "Lyftkapacitet · från modellerna". */
+export function StepOrderRowLabel() {
+  const { data, rowNumber } = useRowLabel<{ step?: string }>();
+  const steps = useStepChoices();
+  const step = steps.find((candidate) => candidate.value === data?.step);
+  return <span>{step ? `${step.label} · ${step.source}` : `Steg ${(rowNumber ?? 0) + 1}`}</span>;
 }
 
 /** The truck type's name for a block's row that points at one (the hero's columns, the cards). */
@@ -107,4 +108,30 @@ export function FamilyRowLabel() {
   }, [id, family]);
 
   return <span>{text(name) ?? `Trucktyp ${(rowNumber ?? 0) + 1}`}</span>;
+}
+
+/** "0–2 000 kg · 18–10 kr/h", from the first band's price to the last's. */
+export function ServiceRateRowLabel() {
+  const { data, rowNumber } = useRowLabel<{
+    minKg?: number;
+    maxKg?: number;
+    upTo600?: number;
+    over3000?: number;
+  }>();
+  const kg = (value: number) => new Intl.NumberFormat("sv-SE").format(value);
+  const range =
+    typeof data?.minKg === "number"
+      ? typeof data.maxKg === "number"
+        ? `${kg(data.minKg)}–${kg(data.maxKg)} kg`
+        : `${kg(data.minKg)} kg och mer`
+      : undefined;
+  const rates = [data?.upTo600, data?.over3000].filter((rate) => typeof rate === "number");
+  return (
+    <span>
+      {join(
+        [range, rates.length ? `${[...new Set(rates)].map(kg).join("–")} kr/h` : undefined],
+        `Kapacitet ${(rowNumber ?? 0) + 1}`,
+      )}
+    </span>
+  );
 }

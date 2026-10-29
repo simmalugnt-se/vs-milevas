@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { quoteFields } from "../src/features/configurator/request-fields.ts";
 import type { ConfiguratorQuote } from "../src/features/configurator/types.ts";
-import { dealerPrice } from "../src/features/dealers/pricing.ts";
+import { dealerPrice, discountFor } from "../src/features/dealers/pricing.ts";
 import { readDealerSession, signDealerSession } from "../src/features/dealers/session-token.ts";
 
 const SECRET = "test-secret";
@@ -12,8 +12,16 @@ test("a dealer price is the customer price less the discount, in whole kronor", 
   assert.equal(dealerPrice(18_001, 12.5), 15_751);
   assert.equal(dealerPrice(1000, 0), 1000);
   assert.equal(dealerPrice(1000, 150), 0);
-  // A price's own percentage, later, wins over the common one.
+  // A price's own percentage wins over the common one.
   assert.equal(dealerPrice(1000, 15, 20), 800);
+});
+
+test("a model's own dealer discount wins over the shared one, also when it is 0", () => {
+  const session = { discountPercent: 15, modelDiscounts: { "kbet-15": 20, "kbe-25": 0 } };
+  assert.equal(discountFor(session, "kbet-15"), 20);
+  assert.equal(discountFor(session, "kbe-25"), 0);
+  assert.equal(discountFor(session, "kbe-18"), 15);
+  assert.equal(discountFor(session), 15);
 });
 
 test("a dealer session reads back only as signed and until it runs out", () => {

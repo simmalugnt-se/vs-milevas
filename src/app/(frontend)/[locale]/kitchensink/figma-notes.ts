@@ -407,7 +407,42 @@ export const designQuestions: DesignQuestion[] = [
   {
     target: "configurator",
     question:
-      "Hur ska ÅF-priset visas för en inloggad återförsäljare i konfiguratorns val, prisrutan och offerten? Koden har det under kundpriset i samma stil. Ska månadskostnaderna också ha ett ÅF-pris?",
+      "Långtidshyran räknas som hos VS Truck, där servicen beror på hur många timmar per år trucken körs. Figma har inget sätt för kunden att välja drifttimmar, så koden räknar på ett fast antal i Konfiguratorinställningar (500 h/år, som VS Truck förväljer). Ska kunden kunna välja drifttimmar, till exempel med ett reglage under avtalslängden när långtidshyra är vald, och vilka intervall ska det ha (VS Truck: 0–600, 600–1 200, 1 200–2 000, 2 000–3 000, 3 000+ h)?",
+  },
+  {
+    target: "configurator",
+    question:
+      "Hur ska ÅF-priset visas för en inloggad återförsäljare i konfiguratorn och offerten? Koden har bara raden \"Ditt ÅF-pris\" under totalpriset i prisrutan. Ska månadskostnaderna också ha ett ÅF-pris?",
+  },
+  {
+    target: "configurator",
+    question:
+      'Kunden vill ha Lovable-prototypens modellkort när man väljer modell eller serie (pallyftare, ledstaplare): bild, en tagg med kapaciteten, pris och en punktlista med tre fördelar. Koden har bara stegtypernas titel, pris, bild och en textrad, så punkterna står som meningar på en rad. Kan du rita ett modellkort?',
+    figma: "9264:6653",
+  },
+  {
+    target: "configurator",
+    question:
+      'Prototypen visar flera frågor i ett steg, "Gafflar och aggregat" (gaffellängd och sidoförskjutning) och "Tillval" (Bluespot och övriga tillval), och kunden vill ha det så. Koden har en fråga per steg. Hur ska ett steg med två frågor se ut?',
+    figma: "9264:6653",
+  },
+  {
+    target: "choice",
+    question:
+      "Priset står nu under titeln i stället för uppe till höger, eftersom långa titlar och ÅF-priser inte fick plats bredvid varandra (två per rad på Mobile blev ett par tecken per rad). Fungerar det, eller hur vill du lösa det?",
+    figma: "9207:30462",
+  },
+  {
+    target: "choice",
+    question:
+      'Finansieringsvalen har nu en text under titeln och priset ("Finansbolaget äger trucken …"), i samma stil som de andra valens text, eftersom kunden vill förklara vad formerna innebär. Stämmer placeringen och storleken, och ska den synas på alla val eller bara det valda?',
+    figma: "9207:32217",
+  },
+  {
+    target: "configurator",
+    question:
+      'Prototypen har en info-ikon med förklaring på vissa alternativ ("Triplexstativ med frilyft …" på masterna) och en förklaring under stegets rubrik (hytt, initiallyft). Koden lägger förklaringen i alternativets text, och stegets hjälptext följs alltid av "Kontakta oss så löser vi det". Ska alternativ och steg ha egna förklaringar?',
+    figma: "9264:6653",
   },
   {
     target: "text-boxinfo",
@@ -968,6 +1003,15 @@ export const figmaNotes: FigmaNote[] = [
     date: "2026-10-23",
   },
   {
+    target: "card-slider",
+    topic: "Kort utan färg",
+    figma: "Korten är White, Tejp eller gray och visar bilden vid hover; `Static` visar bilden hela tiden",
+    code: 'Färgen "Ingen färg (bilden syns alltid)" i admin ger kortet `Static`: bilden under det mörka lagret, taggen i Tejp och texten under rubriken, utan hover',
+    why: "Kunden vill kunna välja bort färgen som täcker bilden (Stefan Normann, Milevas_input 3)",
+    status: "Beslut",
+    date: "2026-10-29",
+  },
+  {
     target: "text-block",
     topic: "Pilen på Mobile",
     figma: "`arrow-up&forward` vriden nedåt, 28 × 48, ovanför texten",
@@ -1090,10 +1134,10 @@ export const figmaNotes: FigmaNote[] = [
     target: "configurator",
     topic: "Skärmens höjd",
     figma: "Skärmen är 800px hög (Tablet 1000, Konfigurator-sidan 832), truckens yta fast",
-    code: "En skärm hög i alla bredder, så att steget och knapparna får plats i fönstret; trucken tar platsen som blir över (minst 12rem under Desktop S, för prisrutan) och skärmen växer bara när steget självt är högre",
-    why: "I ett lägre fönster hamnade valen och knapparna under kanten. Under Desktop S börjar prisrutan dessutom under navigationsraden, där Figma låter den nudda raden",
+    code: "Från Desktop S en skärm hög, så att steget och knapparna får plats i fönstret, och skärmen växer bara när steget självt är högre; trucken står då kvar mot fönstrets nederkant medan steget scrollas (sticky) och prisrutan med Boka samtal under navigationsraden. Under Desktop S har trucken en fast yta, 4:3 så bred som platsen bredvid prisrutan och minst 12rem hög, och skärmen är så hög som sitt innehåll",
+    why: "I ett lägre fönster hamnade valen och knapparna under kanten. Under Desktop S tog trucken tidigare platsen som steget lämnade och växte och krympte när steget ändrades, till exempel när en finansieringsform fälldes ut (användarens beslut 2026-10-29)",
     status: "Beslut",
-    date: "2026-10-23",
+    date: "2026-10-29",
   },
   {
     target: "configurator",
@@ -1443,20 +1487,20 @@ export const figmaNotes: FigmaNote[] = [
     target: "choice",
     topic: "Den lilla bildens plats",
     figma: "`image=small`: bilden 124 × 93 ligger absolut till höger, över titeln och texten",
-    code: "Två kolumner `spacing/sm` isär: titeln över texten till vänster, priset över bilden till höger med `spacing/xs` emellan oavsett valets höjd, så texten aldrig hamnar bakom bilden; valet växer om innehållet behöver det",
-    why: "Användarens beslut: texten hamnade bakom bilden, bilden låg tätt under priset och i högre val långt ifrån det",
+    code: "Två kolumner `spacing/sm` isär: titeln över texten till vänster, priset över bilden till höger med `spacing/xs` emellan oavsett valets höjd, så texten aldrig hamnar bakom bilden; valet växer om innehållet behöver det. Ett foto smalare än rutan (ett kvadratiskt foto i 489:365) ligger mot rutans högerkant, i linje med priset (2026-10-29)",
+    why: "Användarens beslut: texten hamnade bakom bilden, bilden låg tätt under priset och i högre val långt ifrån det; ett centrerat kvadratiskt foto slutade en bit innan priset",
     status: "Beslut",
-    date: "2026-10-26",
+    date: "2026-10-29",
   },
   {
     target: "choice",
     topic: "Långa titlar och priser",
     figma:
       "Titeln tar platsen bredvid priset och radbryts där; ett ord som inte får plats bryts. Inget avstånd mellan titel och pris",
-    code: "Som Figma, men med minst `spacing/sm` mellan titel och pris, och ett långt ord bryts med bindestreck där redaktören satt `|` i truckdatans namn (mjukt bindestreck), annars var som helst (2026-10-26, användarens beslut). Tidigare flyttades priset till en rad under titeln, och långa ord avstavades automatiskt (`hyphens-auto`)",
-    why: 'Inte ritat; långa namn och priser (trucktypen, "FRÅN 169 900 KR") blir trånga när rutan är smal, till exempel från Desktop S till ungefär 1300px',
-    status: "Lucka",
-    date: "2026-10-21",
+    code: "Priset står på en egen rad under titeln, `spacing/2xs` under, i alla val utom finansieringen. Titeln har hela bredden, och ett långt ord bryts med bindestreck där redaktören satt `|` i truckdatans namn (mjukt bindestreck), annars var som helst. Tidigare (2026-10-26) bredvid titeln med minst `spacing/sm` emellan, och före det en gång under titeln med automatisk avstavning",
+    why: 'Användarens beslut 2026-10-29: med "Från"-priser, ÅF-priser (då) och långa tillvalsnamn trängdes titeln ihop till ett par tecken per rad, särskilt två per rad på Mobile',
+    status: "Beslut",
+    date: "2026-10-29",
   },
   {
     target: "choice",
@@ -1499,7 +1543,7 @@ export const figmaNotes: FigmaNote[] = [
     target: "configurator",
     topic: "Bilder i alla steg",
     figma: "Bilder bara i stegtyperna 3 och 4 (tillval i Figmas exempel)",
-    code: "Varianter, batterier, master och tillval kan ha en bild. Har något alternativ i ett steg en bild visas steget som Figmas typ 3 eller 4 (fler än tre alternativ två per rad, annars rader med bilden till höger); utan bilder som förut",
+    code: 'Modeller och frågornas alternativ kan ha en bild. Har något alternativ i ett steg en bild visas steget som Figmas typ 3 eller 4 (fler än tre alternativ två per rad, annars rader med bilden till höger); utan bilder som förut. En fråga kan välja "Kolumner" i admin (sedan 2026-10-29): en kolumn ger typ 4 med bilder och typ 2 utan, två kolumner typ 3 och typ 1',
     why: "Redaktören ska kunna visa bilder på fler val än tillvalen",
     status: "Beslut",
     date: "2026-10-28",
@@ -1508,10 +1552,38 @@ export const figmaNotes: FigmaNote[] = [
     target: "configurator",
     topic: "Villkorade val",
     figma: "Alla alternativ visas alltid",
-    code: 'Ett batteri, en mast eller ett tillval kan ha "Visas för" i admin: då visas det bara när kunden valt en av de ikryssade lyftkapaciteterna, batterierna eller masterna i stegen före. Alternativ som inte gäller döljs; ett val som inte längre gäller faller bort, och steget får sitt förval eller det första tillåtna',
-    why: "Alla batterier passar inte alla lyftkapaciteter; Figma har inget läge för ett alternativ som inte går att välja, så det döljs",
+    code: 'En frågas alternativ kan ha "Visas för" i admin: då visas det bara när kunden valt en av de ikryssade modellerna eller alternativen i frågorna före. Alternativ som inte gäller döljs; ett val som inte längre gäller faller bort, och steget får sitt förval eller det första tillåtna. Ett steg där bara ett alternativ är kvar visas inte; alternativet ingår i trucken',
+    why: "Alla batterier passar inte alla modeller; Figma har inget läge för ett alternativ som inte går att välja, så det döljs (sedan 2026-10-29 på modeller och frågor i stället för de fasta listorna)",
     status: "Beslut",
-    date: "2026-10-28",
+    date: "2026-10-29",
+  },
+  {
+    target: "choice",
+    topic: "Text under finansieringen",
+    figma: "`Type=Financiering` har titel och pris, inget mer",
+    code: 'Valfri text under titeln och priset, som <Choice>s text: Text XS, `ui-tertiary` och `ui-secondary` när valet är aktivt eller hovras, `spacing/md` under raden. Konfiguratorn visar finansieringsformens "Beskrivning" från Konfiguratorinställningar där, alltid och inte bara i den utfällda panelen',
+    why: "Kundens feedback 2026-10-28: det är inte självklart vad till exempel långtidshyra innebär; Lovable-prototypen har en text under varje form. Användarens beslut 2026-10-29; se frågan till designern",
+    status: "Beslut",
+    date: "2026-10-29",
+  },
+  {
+    target: "configurator",
+    topic: "Modeller, utrustning och stegens ordning per trucktyp",
+    figma:
+      "Ett flöde för alla truckar: trucktyp, Lyftkapacitet, Batteri, Lyfthöjd, Tillval, Finansiering",
+    code: 'Varje trucktyp har sina modeller (Baolis prislista), sin utrustning och sina tillval i grupper där varje alternativ skrivs en gång och en matris säger vilka modeller som har det, och en egen stegordning som blandar modellernas fält (Lyftkapacitet, Hjulantal, Serie, Modell) och grupperna, som i Lovable-prototypen (motviktstruckar: Lyftkapacitet, Batteri, Hjulantal, Lyfthöjd …). Ett steg från modellernas fält visar prisskillnaden mot den billigaste ("1,6 ton · +7 200 kr"); en grupp visar det modellerna som är kvar har. Förvalt är det första alternativet modellen har, så kunden behöver inte välja lyfthöjd själv som i prototypen. Steg med ett alternativ eller inget visas inte',
+    why: "Kundens feedback 2026-10-28, Baolis prislista och Lovable-prototypen. Användarens beslut 2026-10-29 efter en skiss: modellerna är grunden, varje alternativ definieras en gång, kopplingen till modellerna görs i en matris och ordningen bestäms per trucktyp",
+    status: "Beslut",
+    date: "2026-10-29",
+  },
+  {
+    target: "configurator",
+    topic: "Bilden följer valen",
+    figma: "Trucktypens bild bakom stegen",
+    code: "Den valda modellens bild, och när ett valt alternativ har en truckbild för modellen (till exempel med hytt) den; utan dem trucktypens huvudbild. Samma bild i offerten",
+    why: "Kundens feedback 2026-10-28: väljer man 3,5 ton och hytt ska den trucken synas",
+    status: "Beslut",
+    date: "2026-10-29",
   },
   {
     target: "hero",
@@ -1544,7 +1616,7 @@ export const figmaNotes: FigmaNote[] = [
     target: "product-card",
     topic: "ÅF-pris",
     figma: '`hover-INLOGGAD`: "Ditt ÅF-pris:" och "Kundpris:"',
-    code: "Samma för en inloggad återförsäljare: ÅF-priset är startpriset minus ÅF-rabatten i Konfiguratorinställningar → Återförsäljare, kundpriset står där leasingpriset annars står. Läses i webbläsaren efter sidan, så sidorna kan cachas för alla",
+    code: "Samma för en inloggad återförsäljare: ÅF-priset är startpriset minus startmodellens ÅF-rabatt (modellens egen, annars den gemensamma i Konfiguratorinställningar → Återförsäljare), kundpriset står där leasingpriset annars står. Läses i webbläsaren efter sidan, så sidorna kan cachas för alla",
     why: "Figmas inloggade läge",
     status: "Beslut",
     date: "2026-10-27",
@@ -1562,9 +1634,9 @@ export const figmaNotes: FigmaNote[] = [
     target: "configurator",
     topic: "ÅF-pris",
     figma: "Inget inloggat läge i konfiguratorn eller offerten",
-    code: 'För en inloggad återförsäljare: "ÅF 152 900 kr" under varje köppris i valen och i offertens rader (`WithDealerPrice`, samma textstil), och raden "Ditt ÅF-pris" först i prisrutan. Månadskostnaderna visar bara kundens pris. En förfrågan från en återförsäljare sparar återförsäljaren och ÅF-priserna',
-    why: "ÅF-priset ska synas överallt där ett pris visas; Figma visar inte hur",
-    status: "Lucka",
+    code: 'För en inloggad återförsäljare bara raden "Ditt ÅF-pris" under totalpriset i prisrutan, i konfiguratorn och i offerten; valen, finansieringen och offertens rader visar kundens priser. Rabatten är den valda modellens (antagande 2026-10-29: Baolis prislista har rabatt per modell och inget om tillvalen). Tidigare (2026-10-27) stod "ÅF 152 900 kr" också under varje köppris i valen och i offertens rader. En förfrågan från en återförsäljare sparar återförsäljaren och ÅF-priserna',
+    why: "Användarens beslut 2026-10-29: ÅF-priser överallt blev plottrigt, det räcker under totalpriset. Figma visar inte hur",
+    status: "Beslut",
     date: "2026-10-27",
   },
   {
@@ -2233,10 +2305,10 @@ export const figmaNotes: FigmaNote[] = [
     topic: "Finansiering",
     figma:
       "Typ 5: tre rutor med titel och pris (Financiering-02); valt Financiering har reglage för avtalslängd (24–84 mån) och restvärde",
-    code: 'Det sista steget: finansieringssätten som typ 5 med pris (kr eller kr/mån), serviceavtalet som kryssruta under rutan när det går att välja, "Alla priser visas exkl. moms" som hjälptext och "Visa offert" i stället för "Nästa". Ett sätt med månadskostnad visar valt Financiering: reglaget för avtalslängd mellan kortaste och längsta längd i konfiguratorinställningarna, och restvärdet när det har ett (bara leasing). Titeln är då bara namnet; priset följer längden. Den valda längden följer med i adressen, offerten, förfrågningarna och mejlen. Månadskostnaden är tills vidare (totalpris − restvärde) / antal månader, utan ränta: `TODO(financing)` i `calculateFinancingPrice`',
-    why: "Kunden väljer avtalslängd själv (beslut 2026-10-27); hur månadskostnaden ska räknas bestäms senare",
-    status: "Platshållare",
-    date: "2026-10-27",
+    code: 'Det sista steget: finansieringssätten som typ 5 med pris (kr eller kr/mån), serviceavtalet som kryssruta under rutan när det går att välja, "Alla priser visas exkl. moms" som hjälptext och "Visa offert" i stället för "Nästa". Ett sätt med månadskostnad visar valt Financiering: reglaget för avtalslängd mellan kortaste och längsta längd i konfiguratorinställningarna, och restvärdet för längden när det har ett (inte för hyra). Titeln är då bara namnet; priset följer längden. Den valda längden följer med i adressen, offerten, förfrågningarna och mejlen. Månadskostnaden räknas som hos VS Truck (`calculateFinancingPrice`): en annuitet i förskott med årsräntan, och restvärdet för avtalslängden kvar i slutet; långtidshyran lägger till service (drifttimmar per år × trucktypens timpris för modellens lyftkapacitet) och försäkring (en andel av totalpriset), båda per månad. Drifttimmarna står fast i inställningarna så länge kunden inte kan välja dem',
+    why: "Kunden väljer avtalslängd själv (beslut 2026-10-27); uträkningen följer VS Truck (beslut 2026-10-29)",
+    status: "Beslut",
+    date: "2026-10-29",
   },
   {
     target: "configurator",
@@ -2355,5 +2427,14 @@ export const figmaNotes: FigmaNote[] = [
     code: "Den gamla sidopanelen (valda tillval, artikelnummer, broschyr) är borttagen; valen syns i offerten",
     why: "Figma har bara totalpriset",
     status: "Antagande",
+  },
+  {
+    target: "configurator",
+    topic: "Produktbroschyr",
+    figma: "Ingen broschyr i offerten (`type=offert`)",
+    code: 'Knappen "Produktbroschyr" (secondary med kant, S, `open-in-new`) i full bredd under Tekniska specifikationer i offerten. Den öppnar den valda modellens broschyr, annars trucktypens, i en ny flik. Utan spec-rader står rubriken och knappen ensamma',
+    why: "Kunden vill kunna öppna broschyren för specen per modell (Stefan Normann, Milevas_input 3)",
+    status: "Beslut",
+    date: "2026-10-29",
   },
 ];

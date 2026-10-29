@@ -18,18 +18,13 @@ const truck: ConfiguratorFamily = {
   configurable: true,
   deliveryTime: "1 vecka",
   warranty: "Test",
-  specs: [{ spec: "battery", value: "80 V 228 Ah" }],
-  modelChoice: { label: "Lyftkapacitet" },
+  cardSpec: "80 V 228 Ah",
+  specs: [],
+  defaultModel: "small",
+  order: [],
   models: [
-    { key: "small", label: "1,5 ton", price: 169000, capacityKg: 1500, default: true, specs: [] },
-    {
-      key: "large",
-      label: "3,5 ton",
-      price: 276000,
-      capacityKg: 3500,
-      default: false,
-      specs: [{ spec: "battery", value: "80 V 460 Ah" }],
-    },
+    { key: "small", label: "KBE 15", price: 169000, capacityKg: 1500, specs: [] },
+    { key: "large", label: "KBE 35", price: 276000, capacityKg: 3500, specs: [] },
   ],
   choices: [],
 };
@@ -39,16 +34,11 @@ const contactOnly: ConfiguratorFamily = {
   id: "contact-family",
   key: "contact",
   configurable: false,
-  contactLink: { href: "/#kontakt" },
   models: [],
 };
 
 const catalog: ConfiguratorCatalog = {
   quoteValidityDays: 14,
-  specs: [
-    { key: "battery", label: "Batteri", sortOrder: 10, onCard: true, inQuote: false },
-    { key: "weight", label: "Vikt", unit: "kg", sortOrder: 50, onCard: false, inQuote: true },
-  ],
   nextSteps: [],
   financingMethods: [
     {
@@ -66,27 +56,27 @@ test("homepage prices match the configuration the card opens: the default model"
   assert.deepEqual(familyPrices(truck, catalog), {
     price: formatTruckPrice(169000),
     amount: 169000,
+    model: "small",
     leasing: formatTruckPrice(3380),
   });
   assert.deepEqual(familyPrices(contactOnly, catalog), {
     price: undefined,
     leasing: undefined,
     amount: undefined,
+    model: undefined,
   });
 });
 
-test("the card's specs are the models' capacity range and the default model's card specs", () => {
-  assert.deepEqual(familyCardSpecs(truck, catalog), ["1,5 – 3,5 ton", "80 V 228 Ah"]);
-  const large = { ...truck.models[1], default: true };
-  assert.deepEqual(familyCardSpecs({ ...truck, models: [large] }, catalog), [
+test("the card's specs are the models' capacity range and the truck type's card text", () => {
+  assert.deepEqual(familyCardSpecs(truck), ["1,5 – 3,5 ton", "80 V 228 Ah"]);
+  assert.deepEqual(familyCardSpecs({ ...truck, models: [truck.models[1]], cardSpec: undefined }), [
     "3,5 ton",
-    "80 V 460 Ah",
   ]);
 });
 
-test("a family links to its configurator, or to its contact link when it is not configurable", () => {
+test("a family links to its configurator, and one without models has no link", () => {
   assert.deepEqual(familyLink(truck), { href: "/configurator?family=truck&step=1" });
-  assert.deepEqual(familyLink(contactOnly), { href: "/#kontakt" });
+  assert.equal(familyLink(contactOnly), undefined);
 });
 
 test("homepage family references use stable ids and exclude families outside the visible catalog", () => {

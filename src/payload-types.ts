@@ -76,6 +76,7 @@ export interface Config {
     'contact-requests': ContactRequest;
     dealers: Dealer;
     'truck-families': TruckFamily;
+    'truck-models': TruckModel;
     users: User;
     videos: Video;
     redirects: Redirect;
@@ -86,7 +87,11 @@ export interface Config {
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
   };
-  collectionsJoins: {};
+  collectionsJoins: {
+    'truck-families': {
+      models: 'truck-models';
+    };
+  };
   collectionsSelect: {
     pages: PagesSelect<false> | PagesSelect<true>;
     images: ImagesSelect<false> | ImagesSelect<true>;
@@ -95,6 +100,7 @@ export interface Config {
     'contact-requests': ContactRequestsSelect<false> | ContactRequestsSelect<true>;
     dealers: DealersSelect<false> | DealersSelect<true>;
     'truck-families': TruckFamiliesSelect<false> | TruckFamiliesSelect<true>;
+    'truck-models': TruckModelsSelect<false> | TruckModelsSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     videos: VideosSelect<false> | VideosSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
@@ -604,7 +610,7 @@ export interface Page {
              * Numreras [01], [02] … i ordning.
              */
             cards: {
-              color: 'white' | 'tejp' | 'gray';
+              color: 'white' | 'tejp' | 'gray' | 'image';
               label: string;
               heading: string;
               /**
@@ -612,7 +618,7 @@ export interface Page {
                */
               text?: string | null;
               /**
-               * Visas i bildläget, under ett mörkt lager.
+               * Visas i bildläget, under ett mörkt lager: vid hover, och alltid med Ingen färg.
                */
               image: string | Image;
               id?: string | null;
@@ -747,159 +753,204 @@ export interface TruckFamily {
   id: string;
   _order?: string | null;
   /**
-   * I plural, i menyer och på kort. Exempel: "Elektriska motvikts|truckar". Skriv | där ett långt ord får avstavas, till exempel "Skjutstativ|truckar". Ordet visas helt när det får plats och som "Skjutstativ-truckar" när det måste brytas.
+   * Visas i menyn och på produktkorten. Skriv | där ordet får delas, till exempel "Motvikts|truckar".
    */
   name: string;
   /**
-   * Offertens rubrik. Exempel: "Elektrisk motvikts|truck".
+   * Rubrik i offerten.
    */
   singularName: string;
   description?: string | null;
   /**
-   * Frilagd truck med nederkanten mot marken. Heron, navigationen, produktkorten och konfiguratorn visar den.
+   * Frilagd bild på trucken.
    */
   image?: (string | null) | Image;
+  /**
+   * Gäller modeller utan egen broschyr.
+   */
   brochure?: (string | null) | Document;
   /**
-   * Lastad / olastad. Exempel: "15 / 15".
+   * Till exempel "80 V 228 Ah".
    */
-  travelSpeed?: string | null;
+  cardSpec?: string | null;
   /**
-   * Exempel: "4–6 veckor".
+   * Till exempel "4–6 veckor".
    */
   deliveryTime?: string | null;
   /**
-   * Kort, som "4 år". Förklaringen står i konfiguratorinställningarna.
+   * Till exempel "4 år".
    */
   warranty?: string | null;
   /**
-   * Dit kort och menyer länkar så länge trucktypen saknar varianter att konfigurera.
+   * Visas i offerten för alla modeller.
    */
-  contactLink?: {
-    type?: ('internal' | 'external') | null;
-    reference?: {
-      relationTo: 'pages';
-      value: string | Page;
-    } | null;
-    /**
-     * Valfritt: ankaret på ett block på sidan, utan #. Exempel: "kontakt".
-     */
-    anchor?: string | null;
-    url?: string | null;
-    label?: string | null;
-    newTab?: boolean | null;
-  };
-  /**
-   * En rad per variant; kunden väljer en i konfiguratorn. Namnet räknas fram ur kapaciteten ("1,6 ton").
-   */
-  models?:
-    | {
-        capacityKg: number;
-        /**
-         * Under kapaciteten i konfiguratorn, och i offerten.
-         */
-        sku?: string | null;
-        price: number;
-        weight?: string | null;
-        /**
-         * Exempel: "1870 / 1850".
-         */
-        turningRadius?: string | null;
-        /**
-         * Valfri. Har något alternativ i steget en bild visas hela steget med bilder.
-         */
-        image?: (string | null) | Image;
-        defaultSelected?: boolean | null;
-        id?: string | null;
-      }[]
-    | null;
-  /**
-   * Med flera kan kunden välja i konfiguratorn; med ett enda är det en del av trucken och visas bara som specifikation. Det förvalda batteriets kapacitet står på produktkortet.
-   */
-  batteries?:
+  specs?:
     | {
         /**
-         * Exempel: "Standard", "Stort batteri".
+         * Till exempel "Vikt".
          */
         label: string;
         /**
-         * Exempel: "80 V 228 Ah".
+         * Med enhet, till exempel "3 293 kg".
          */
-        capacity: string;
-        /**
-         * 0 visas som "Ingår".
-         */
-        price: number;
-        description?: string | null;
-        /**
-         * Valfri. Har något alternativ i steget en bild visas hela steget med bilder.
-         */
-        image?: (string | null) | Image;
-        defaultSelected?: boolean | null;
-        availableFor?: {
-          models?: string[];
-          batteries?: string[];
-          liftHeights?: string[];
-        };
+        value: string;
         id?: string | null;
       }[]
     | null;
   /**
-   * Med flera kan kunden välja i konfiguratorn; med ett enda är det en del av trucken och visas bara som specifikation. Bygghöjden visas under lyfthöjden och i offerten.
+   * En modell visas på sajten när den är publicerad.
    */
-  liftHeights?:
+  models?: {
+    docs?: (string | TruckModel)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  /**
+   * Listan modellerna väljer serie ur.
+   */
+  series?:
     | {
-        liftHeight: number;
-        /**
-         * Med den här masten.
-         */
-        buildHeight?: number | null;
-        /**
-         * 0 visas som "Ingår".
-         */
-        price: number;
-        /**
-         * Valfri. Har något alternativ i steget en bild visas hela steget med bilder.
-         */
-        image?: (string | null) | Image;
-        defaultSelected?: boolean | null;
-        availableFor?: {
-          models?: string[];
-          batteries?: string[];
-          liftHeights?: string[];
-        };
+        name: string;
         id?: string | null;
       }[]
     | null;
   /**
-   * Följd av "Kontakta oss". Exempel: "Behöver du hjälp med andra mastalternativ?".
+   * Konfiguratorn och produktkorten börjar med den.
    */
-  liftHeightHelp?: string | null;
+  defaultModel?: (string | null) | TruckModel;
   /**
-   * Kunden väljer fritt bland dem; inget krävs.
+   * Kunden väljer ett alternativ i varje grupp. Förvalt är det första alternativet i listan som modellen har.
+   */
+  equipment?:
+    | {
+        /**
+         * Till exempel "Batteri". Visas som stegets rubrik.
+         */
+        label: string;
+        options?:
+          | {
+              /**
+               * Skriv | där ordet får delas, till exempel "Motvikts|truckar".
+               */
+              label: string;
+              /**
+               * 0 visas som "Ingår".
+               */
+              price: number;
+              description?: string | null;
+              /**
+               * Valfri. Har något alternativ i gruppen en bild visas steget med bilder.
+               */
+              image?: (string | null) | Image;
+              /**
+               * Visas i offerten när alternativet är valt.
+               */
+              specs?:
+                | {
+                    /**
+                     * Till exempel "Vikt".
+                     */
+                    label: string;
+                    /**
+                     * Med enhet, till exempel "3 293 kg".
+                     */
+                    value: string;
+                    id?: string | null;
+                  }[]
+                | null;
+              models?: (string | TruckModel)[] | null;
+              id?: string | null;
+            }[]
+          | null;
+        columns?: ('auto' | 'one' | 'two') | null;
+        /**
+         * Valfri. Följs av "Kontakta oss".
+         */
+        help?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Kunden väljer fritt, flera eller inget.
    */
   extras?:
     | {
         /**
-         * Skriv | där ett långt ord får avstavas, till exempel "Skjutstativ|truckar". Ordet visas helt när det får plats och som "Skjutstativ-truckar" när det måste brytas.
+         * Till exempel "Batteri". Visas som stegets rubrik.
          */
         label: string;
-        price: number;
-        description?: string | null;
+        options?:
+          | {
+              /**
+               * Skriv | där ordet får delas, till exempel "Motvikts|truckar".
+               */
+              label: string;
+              /**
+               * 0 visas som "Ingår".
+               */
+              price: number;
+              description?: string | null;
+              /**
+               * Valfri. Har något alternativ i gruppen en bild visas steget med bilder.
+               */
+              image?: (string | null) | Image;
+              /**
+               * Visas i offerten när alternativet är valt.
+               */
+              specs?:
+                | {
+                    /**
+                     * Till exempel "Vikt".
+                     */
+                    label: string;
+                    /**
+                     * Med enhet, till exempel "3 293 kg".
+                     */
+                    value: string;
+                    id?: string | null;
+                  }[]
+                | null;
+              models?: (string | TruckModel)[] | null;
+              id?: string | null;
+            }[]
+          | null;
+        columns?: ('auto' | 'one' | 'two') | null;
         /**
-         * Valfri. Har något alternativ i steget en bild visas hela steget med bilder.
+         * Valfri. Följs av "Kontakta oss".
          */
-        image?: (string | null) | Image;
-        availableFor?: {
-          models?: string[];
-          batteries?: string[];
-          liftHeights?: string[];
-        };
+        help?: string | null;
         id?: string | null;
       }[]
     | null;
   /**
-   * Konfiguratorns adress pekar på trucktypen med den. Skapas ur namnet om den är tom och låses när trucktypen publiceras, eftersom delade länkar pekar på den.
+   * Ordningen kunden går igenom efter valet av trucktyp. Dra raderna för att ändra den. Ett steg med ett enda alternativ visas inte.
+   */
+  stepOrder?:
+    | {
+        step: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Servicen i en finansieringsform som är hyra: drifttimmar per år × timpriset för modellens lyftkapacitet / 12 i månaden. Den första raden som passar modellen gäller; utan rad ingår ingen service i priset.
+   */
+  serviceRates?:
+    | {
+        minKg: number;
+        /**
+         * Tomt: ingen övre gräns.
+         */
+        maxKg?: number | null;
+        upTo600?: number | null;
+        upTo1200?: number | null;
+        upTo2000?: number | null;
+        upTo3000?: number | null;
+        over3000?: number | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Används i konfiguratorns adress. Låses när trucktypen publiceras.
    */
   key: string;
   publishedAt?: string | null;
@@ -928,6 +979,65 @@ export interface Document {
   height?: number | null;
   focalX?: number | null;
   focalY?: number | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "truck-models".
+ */
+export interface TruckModel {
+  id: string;
+  family: string | TruckFamily;
+  name: string;
+  sku?: string | null;
+  series?: string | null;
+  capacityKg: number;
+  wheels?: ('3' | '4') | null;
+  /**
+   * Exklusive moms.
+   */
+  price: number;
+  /**
+   * Lämna tomt för den gemensamma rabatten.
+   */
+  dealerDiscountPercent?: number | null;
+  description?: string | null;
+  /**
+   * Frilagd bild på trucken.
+   */
+  image?: (string | null) | Image;
+  /**
+   * Lämna tomt för trucktypens broschyr.
+   */
+  brochure?: (string | null) | Document;
+  /**
+   * Visas i offerten för modellen.
+   */
+  specs?:
+    | {
+        /**
+         * Till exempel "Vikt".
+         */
+        label: string;
+        /**
+         * Med enhet, till exempel "3 293 kg".
+         */
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Bilden på trucken när kunden valt alternativet, till exempel med hytt.
+   */
+  optionImages?:
+    | {
+        option: string;
+        image: string | Image;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1319,6 +1429,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'truck-families';
         value: string | TruckFamily;
+      } | null)
+    | ({
+        relationTo: 'truck-models';
+        value: string | TruckModel;
       } | null)
     | ({
         relationTo: 'users';
@@ -1887,67 +2001,128 @@ export interface TruckFamiliesSelect<T extends boolean = true> {
   description?: T;
   image?: T;
   brochure?: T;
-  travelSpeed?: T;
+  cardSpec?: T;
   deliveryTime?: T;
   warranty?: T;
-  contactLink?:
-    | T
-    | {
-        type?: T;
-        reference?: T;
-        anchor?: T;
-        url?: T;
-        label?: T;
-        newTab?: T;
-      };
-  models?:
-    | T
-    | {
-        capacityKg?: T;
-        sku?: T;
-        price?: T;
-        weight?: T;
-        turningRadius?: T;
-        image?: T;
-        defaultSelected?: T;
-        id?: T;
-      };
-  batteries?:
+  specs?:
     | T
     | {
         label?: T;
-        capacity?: T;
-        price?: T;
-        description?: T;
-        image?: T;
-        defaultSelected?: T;
-        availableFor?: T;
+        value?: T;
         id?: T;
       };
-  liftHeights?:
+  models?: T;
+  series?:
     | T
     | {
-        liftHeight?: T;
-        buildHeight?: T;
-        price?: T;
-        image?: T;
-        defaultSelected?: T;
-        availableFor?: T;
+        name?: T;
         id?: T;
       };
-  liftHeightHelp?: T;
+  defaultModel?: T;
+  equipment?:
+    | T
+    | {
+        label?: T;
+        options?:
+          | T
+          | {
+              label?: T;
+              price?: T;
+              description?: T;
+              image?: T;
+              specs?:
+                | T
+                | {
+                    label?: T;
+                    value?: T;
+                    id?: T;
+                  };
+              models?: T;
+              id?: T;
+            };
+        columns?: T;
+        help?: T;
+        id?: T;
+      };
   extras?:
     | T
     | {
         label?: T;
-        price?: T;
-        description?: T;
-        image?: T;
-        availableFor?: T;
+        options?:
+          | T
+          | {
+              label?: T;
+              price?: T;
+              description?: T;
+              image?: T;
+              specs?:
+                | T
+                | {
+                    label?: T;
+                    value?: T;
+                    id?: T;
+                  };
+              models?: T;
+              id?: T;
+            };
+        columns?: T;
+        help?: T;
+        id?: T;
+      };
+  stepOrder?:
+    | T
+    | {
+        step?: T;
+        id?: T;
+      };
+  serviceRates?:
+    | T
+    | {
+        minKg?: T;
+        maxKg?: T;
+        upTo600?: T;
+        upTo1200?: T;
+        upTo2000?: T;
+        upTo3000?: T;
+        over3000?: T;
         id?: T;
       };
   key?: T;
   publishedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "truck-models_select".
+ */
+export interface TruckModelsSelect<T extends boolean = true> {
+  family?: T;
+  name?: T;
+  sku?: T;
+  series?: T;
+  capacityKg?: T;
+  wheels?: T;
+  price?: T;
+  dealerDiscountPercent?: T;
+  description?: T;
+  image?: T;
+  brochure?: T;
+  specs?:
+    | T
+    | {
+        label?: T;
+        value?: T;
+        id?: T;
+      };
+  optionImages?:
+    | T
+    | {
+        option?: T;
+        image?: T;
+        id?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
@@ -2294,20 +2469,6 @@ export interface Footer {
  */
 export interface ConfiguratorSetting {
   id: string;
-  /**
-   * Steg 1 är valet av trucktyp. Steg 2 är alltid trucktypens varianter (lyftkapacitet): grundpriset sitter på varianten och allt annat läggs till det.
-   */
-  modelStepLabel: string;
-  /**
-   * Dra raderna för att ändra ordningen. En trucktyp hoppar över ett steg den inte har något att välja i: ett batteri eller en mast som är ensam ingår i trucken.
-   */
-  steps?:
-    | {
-        step: 'battery' | 'lift-height' | 'extras';
-        label: string;
-        id?: string | null;
-      }[]
-    | null;
   quoteValidityDays: number;
   financingMethods: {
     key: string;
@@ -2319,9 +2480,36 @@ export interface ConfiguratorSetting {
     monthsStep?: number | null;
     months?: number | null;
     /**
-     * Bara för leasing; lämnas tomt för hyra, som inte har något restvärde. Kunden väljer avtalslängd med ett reglage mellan kortaste och längsta. Månadskostnaden räknas tills vidare som (totalpris − restvärde) / antal månader.
+     * Månadskostnaden är en annuitet som betalas i början av varje månad, som VS Truck räknar: totalpriset lånas till årsräntan / 12 över avtalslängden och restvärdet står kvar i slutet. Tomt: ingen ränta.
+     */
+    interestRate?: number | null;
+    /**
+     * Restvärdet för de avtalslängder som ligger i ett spann; den första raden som passar gäller.
+     */
+    residualValues?:
+      | {
+          minMonths: number;
+          maxMonths: number;
+          percent: number;
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * Andel av totalpriset som står kvar i slutet, för de avtalslängder tabellen ovan inte tar upp. Kunden väljer avtalslängd med ett reglage mellan kortaste och längsta.
      */
     residualPercent?: number | null;
+    /**
+     * Som långtidshyran hos VS Truck: månadskostnaden får service efter drifttimmar (timpriset står på trucktypen, under Långtidshyra) och försäkring, och kunden ser inget restvärde.
+     */
+    rental?: boolean | null;
+    /**
+     * Servicen räknas på dem: drifttimmar × timpris / 12 i månaden.
+     */
+    driveHoursPerYear?: number | null;
+    /**
+     * Totalpris × procent / 12 i månaden.
+     */
+    insurancePercent?: number | null;
     /**
      * Visar serviceavtal som ett val för denna finansieringsform.
      */
@@ -2338,7 +2526,7 @@ export interface ConfiguratorSetting {
    */
   warrantyNote?: string | null;
   /**
-   * Dras av från alla priser för inloggade återförsäljare, som ser sitt ÅF-pris bredvid kundpriset. 0 visar inget ÅF-pris. Godkänn återförsäljare under Förfrågningar → Återförsäljare.
+   * Gäller modellerna utan egen ÅF-rabatt: dras av från modellens pris och tillvalen för inloggade återförsäljare, som ser sitt ÅF-pris bredvid kundpriset. 0 visar inget ÅF-pris. Godkänn återförsäljare under Förfrågningar → Återförsäljare.
    */
   dealerDiscountPercent?: number | null;
   /**
@@ -2474,14 +2662,6 @@ export interface FooterSelect<T extends boolean = true> {
  * via the `definition` "configurator-settings_select".
  */
 export interface ConfiguratorSettingsSelect<T extends boolean = true> {
-  modelStepLabel?: T;
-  steps?:
-    | T
-    | {
-        step?: T;
-        label?: T;
-        id?: T;
-      };
   quoteValidityDays?: T;
   financingMethods?:
     | T
@@ -2494,7 +2674,19 @@ export interface ConfiguratorSettingsSelect<T extends boolean = true> {
         maxMonths?: T;
         monthsStep?: T;
         months?: T;
+        interestRate?: T;
+        residualValues?:
+          | T
+          | {
+              minMonths?: T;
+              maxMonths?: T;
+              percent?: T;
+              id?: T;
+            };
         residualPercent?: T;
+        rental?: T;
+        driveHoursPerYear?: T;
+        insurancePercent?: T;
         serviceAgreementEligible?: T;
         id?: T;
       };
@@ -2574,6 +2766,10 @@ export interface TaskSchedulePublish {
       | ({
           relationTo: 'truck-families';
           value: string | TruckFamily;
+        } | null)
+      | ({
+          relationTo: 'truck-models';
+          value: string | TruckModel;
         } | null);
     global?: ('header' | 'footer' | 'configurator-settings') | null;
     user?:

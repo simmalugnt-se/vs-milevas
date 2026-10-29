@@ -34,6 +34,7 @@ export const CardSliderBlock: Block = {
             { label: "Vit", value: "white" },
             { label: "Gul (Tejp)", value: "tejp" },
             { label: "Grå", value: "gray" },
+            { label: "Ingen färg (bilden syns alltid)", value: "image" },
           ],
         },
         { name: "label", label: "Etikett", type: "text", required: true, localized: true },
@@ -51,7 +52,10 @@ export const CardSliderBlock: Block = {
           type: "upload",
           relationTo: "images",
           required: true,
-          admin: { description: "Visas i bildläget, under ett mörkt lager." },
+          admin: {
+            description:
+              "Visas i bildläget, under ett mörkt lager: vid hover, och alltid med Ingen färg.",
+          },
         },
       ],
     },

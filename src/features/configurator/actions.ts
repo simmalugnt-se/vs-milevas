@@ -3,7 +3,12 @@
 import { randomBytes } from "node:crypto";
 import { headers } from "next/headers";
 import type { TypedLocale } from "payload";
-import { currentDealer, dealerDiscountPercent } from "@/features/dealers/session";
+import { discountFor } from "@/features/dealers/pricing";
+import {
+  currentDealer,
+  dealerDiscountPercent,
+  dealerModelDiscounts,
+} from "@/features/dealers/session";
 import { getPayloadClient } from "@/payload/get-payload";
 import { getConfiguratorCatalog } from "./data";
 import { buildQuote } from "./engine";
@@ -181,7 +186,14 @@ async function submitRequest(
         id: signedIn.id,
         email: signedIn.email,
         company: signedIn.company,
-        discountPercent: await dealerDiscountPercent(),
+        // The chosen model's discount, which its options get too.
+        discountPercent: discountFor(
+          {
+            discountPercent: await dealerDiscountPercent(),
+            modelDiscounts: await dealerModelDiscounts(),
+          },
+          quote.modelKey,
+        ),
       }
     : undefined;
   const fields = quoteFields(quote, dealer);

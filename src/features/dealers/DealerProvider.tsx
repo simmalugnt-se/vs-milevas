@@ -2,7 +2,7 @@
 
 import { createContext, type ReactNode, useCallback, useContext, useEffect, useState } from "react";
 import { getDealerSession } from "./actions";
-import { type DealerSession, dealerPrice } from "./pricing";
+import { type DealerSession, dealerPrice, discountFor } from "./pricing";
 import { DEALER_HINT_COOKIE } from "./session-hint";
 
 type DealerContextValue = {
@@ -49,14 +49,18 @@ export function useDealer() {
 }
 
 /**
- * The dealer price of a customer price, or null when no dealer is signed in or there is no
- * discount: then nothing beside the customer price is shown.
+ * The dealer price of a customer price, with the discount of the model it is for (or of the chosen
+ * model, for an option); null when no dealer is signed in or there is no discount: then nothing
+ * beside the customer price is shown.
  */
 export function useDealerPrice() {
   const { dealer } = useDealer();
   return useCallback(
-    (price: number): number | null =>
-      dealer && dealer.discountPercent > 0 ? dealerPrice(price, dealer.discountPercent) : null,
+    (price: number, model?: string): number | null => {
+      if (!dealer) return null;
+      const percent = discountFor(dealer, model);
+      return percent > 0 ? dealerPrice(price, percent) : null;
+    },
     [dealer],
   );
 }

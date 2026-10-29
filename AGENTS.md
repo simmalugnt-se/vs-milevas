@@ -15,10 +15,11 @@ to date with it at commit `ed9d953` (2026-10-01). `README.md` has setup, scripts
 a plugin.
 
 - Milevas' own parts: the truck configurator (`src/features/configurator`, `TruckFamilies`,
-  `ConfiguratorRequests`, `ConfiguratorSettings`, the `configurator` block), dealers
+  `TruckModels`, `ConfiguratorRequests`, `ConfiguratorSettings`, the `configurator` block), dealers
   (`src/features/dealers`, `Dealers`: they apply on /login, an editor accepts them, and they see
-  dealer prices beside customer prices; they sign in with the site's own cookie, never Payload's, and
-  only `users` count as editors in access checks, `isEditorUser`), the temporary landing
+  dealer prices beside customer prices, with the model's own discount or the shared one; they
+  sign in with the site's own cookie, never Payload's, and only `users` count as editors in
+  access checks, `isEditorUser`), the temporary landing
   page (`MILEVAS_LANDING_ONLY` in `src/proxy.ts`) and Swedish: the admin is in Swedish only, and
   `sv` is the only locale in `src/i18n/routing.ts` for now (the multi-locale code stays). Everything else
   follows the boilerplate; keep it close so later updates merge cleanly.

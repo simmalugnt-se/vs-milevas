@@ -40,6 +40,7 @@ export async function MilevasHeroBlockComponent({
         ) : undefined,
         heading: block.columnHeading,
         amount: prices.amount,
+        model: prices.model,
         rows: [
           ...(prices.price ? [{ label: "Från", value: prices.price }] : []),
           ...(prices.leasing ? [{ label: "Leasing från:", value: `${prices.leasing}/mån` }] : []),

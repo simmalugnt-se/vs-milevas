@@ -1,66 +1,7 @@
-import type { ArrayField, GlobalConfig } from "payload";
-import { CHOICE_STEPS, MODEL_STEP, orderedSteps } from "@/features/configurator/steps.ts";
+import type { GlobalConfig } from "payload";
 import { ADMIN_GROUPS } from "@/payload/admin-groups.ts";
 import { isAuthenticated, isEditorUser } from "../../access/isAuthenticated.ts";
 import { revalidateConfiguratorSettings } from "./hooks/revalidate.ts";
-
-/**
- * The steps after the variants, one row each, dragged into the order the configurator shows them in.
- * A row read without the steps (before any is saved, or after one is removed) gets the missing ones
- * back, so the list always shows every step.
- */
-const stepsField: ArrayField = {
-  name: "steps",
-  label: "Övriga steg",
-  labels: { singular: "Steg", plural: "Steg" },
-  type: "array",
-  localized: false,
-  maxRows: CHOICE_STEPS.length,
-  admin: {
-    initCollapsed: true,
-    description:
-      "Dra raderna för att ändra ordningen. En trucktyp hoppar över ett steg den inte har något att välja i: ett batteri eller en mast som är ensam ingår i trucken.",
-    components: {
-      RowLabel: "/payload/globals/ConfiguratorSettings/RowLabels.tsx#StepRowLabel",
-    },
-  },
-  hooks: {
-    afterRead: [
-      ({ value, req }) => {
-        // Read in every locale at once (as when a version is saved), the rows stay as they are.
-        if (req.locale === "all") return value;
-        const rows = Array.isArray(value) ? (value as Array<Record<string, unknown>>) : [];
-        return orderedSteps(rows as Array<{ step?: string; label?: unknown }>).map(
-          // A row added here keeps the step as its id, so it stays collapsed or open between reads.
-          (step) => rows.find((row) => row.step === step.step) ?? { ...step, id: step.step },
-        );
-      },
-    ],
-  },
-  fields: [
-    {
-      type: "row",
-      fields: [
-        {
-          name: "step",
-          label: "Steg",
-          type: "select",
-          required: true,
-          options: CHOICE_STEPS.map((step) => ({ label: step.label, value: step.key })),
-          admin: { readOnly: true, width: "50%" },
-        },
-        {
-          name: "label",
-          label: "Namn i konfiguratorn",
-          type: "text",
-          localized: true,
-          required: true,
-          admin: { width: "50%" },
-        },
-      ],
-    },
-  ],
-};
 
 export const ConfiguratorSettings: GlobalConfig = {
   slug: "configurator-settings",
@@ -74,25 +15,6 @@ export const ConfiguratorSettings: GlobalConfig = {
     {
       type: "tabs",
       tabs: [
-        {
-          label: "Steg",
-          fields: [
-            {
-              name: "modelStepLabel",
-              label: "Namn på steg 2",
-              type: "text",
-              localized: true,
-              required: true,
-              defaultValue: MODEL_STEP.label,
-              hooks: { afterRead: [({ value }) => value || MODEL_STEP.label] },
-              admin: {
-                description:
-                  "Steg 1 är valet av trucktyp. Steg 2 är alltid trucktypens varianter (lyftkapacitet): grundpriset sitter på varianten och allt annat läggs till det.",
-              },
-            },
-            stepsField,
-          ],
-        },
         {
           label: "Offert och finansiering",
           fields: [
@@ -172,8 +94,70 @@ export const ConfiguratorSettings: GlobalConfig = {
                   ],
                 },
                 {
+                  name: "interestRate",
+                  label: "Årsränta (%)",
+                  type: "number",
+                  min: 0,
+                  admin: {
+                    condition: (_, siblingData) => siblingData?.kind === "monthly",
+                    step: 0.01,
+                    description:
+                      "Månadskostnaden är en annuitet som betalas i början av varje månad, som VS Truck räknar: totalpriset lånas till årsräntan / 12 över avtalslängden och restvärdet står kvar i slutet. Tomt: ingen ränta.",
+                  },
+                },
+                {
+                  name: "residualValues",
+                  label: "Restvärde per avtalslängd",
+                  labels: { singular: "Restvärde", plural: "Restvärden" },
+                  type: "array",
+                  // The table's full name passes Postgres' 63 characters in the versions.
+                  dbName: "configurator_financing_residuals",
+                  localized: false,
+                  admin: {
+                    condition: (_, siblingData) => siblingData?.kind === "monthly",
+                    description:
+                      "Restvärdet för de avtalslängder som ligger i ett spann; den första raden som passar gäller.",
+                    components: {
+                      RowLabel:
+                        "/payload/globals/ConfiguratorSettings/RowLabels.tsx#ResidualValueRowLabel",
+                    },
+                  },
+                  fields: [
+                    {
+                      type: "row",
+                      fields: [
+                        {
+                          name: "minMonths",
+                          label: "Från (mån)",
+                          type: "number",
+                          required: true,
+                          min: 0,
+                          admin: { width: "33%" },
+                        },
+                        {
+                          name: "maxMonths",
+                          label: "Till och med (mån)",
+                          type: "number",
+                          required: true,
+                          min: 0,
+                          admin: { width: "33%" },
+                        },
+                        {
+                          name: "percent",
+                          label: "Restvärde (%)",
+                          type: "number",
+                          required: true,
+                          min: 0,
+                          max: 100,
+                          admin: { width: "33%", step: 0.1 },
+                        },
+                      ],
+                    },
+                  ],
+                },
+                {
                   name: "residualPercent",
-                  label: "Restvärde (% av totalpriset)",
+                  label: "Restvärde för övriga avtalslängder (%)",
                   type: "number",
                   min: 0,
                   max: 100,
@@ -181,8 +165,49 @@ export const ConfiguratorSettings: GlobalConfig = {
                     condition: (_, siblingData) => siblingData?.kind === "monthly",
                     step: 0.1,
                     description:
-                      "Bara för leasing; lämnas tomt för hyra, som inte har något restvärde. Kunden väljer avtalslängd med ett reglage mellan kortaste och längsta. Månadskostnaden räknas tills vidare som (totalpris − restvärde) / antal månader.",
+                      "Andel av totalpriset som står kvar i slutet, för de avtalslängder tabellen ovan inte tar upp. Kunden väljer avtalslängd med ett reglage mellan kortaste och längsta.",
                   },
+                },
+                {
+                  name: "rental",
+                  label: "Hyra: service och försäkring ingår",
+                  type: "checkbox",
+                  defaultValue: false,
+                  admin: {
+                    condition: (_, siblingData) => siblingData?.kind === "monthly",
+                    description:
+                      "Som långtidshyran hos VS Truck: månadskostnaden får service efter drifttimmar (timpriset står på trucktypen, under Långtidshyra) och försäkring, och kunden ser inget restvärde.",
+                  },
+                },
+                {
+                  type: "row",
+                  admin: {
+                    condition: (_, siblingData) =>
+                      siblingData?.kind === "monthly" && siblingData?.rental === true,
+                  },
+                  fields: [
+                    {
+                      name: "driveHoursPerYear",
+                      label: "Drifttimmar per år",
+                      type: "number",
+                      min: 0,
+                      admin: {
+                        width: "50%",
+                        description: "Servicen räknas på dem: drifttimmar × timpris / 12 i månaden.",
+                      },
+                    },
+                    {
+                      name: "insurancePercent",
+                      label: "Försäkring (% av totalpriset per år)",
+                      type: "number",
+                      min: 0,
+                      admin: {
+                        width: "50%",
+                        step: 0.01,
+                        description: "Totalpris × procent / 12 i månaden.",
+                      },
+                    },
+                  ],
                 },
                 {
                   name: "serviceAgreementEligible",
@@ -242,7 +267,7 @@ export const ConfiguratorSettings: GlobalConfig = {
           fields: [
             {
               name: "dealerDiscountPercent",
-              label: "ÅF-rabatt (%)",
+              label: "Gemensam ÅF-rabatt (%)",
               type: "number",
               min: 0,
               max: 100,
@@ -252,7 +277,7 @@ export const ConfiguratorSettings: GlobalConfig = {
               admin: {
                 step: 0.1,
                 description:
-                  "Dras av från alla priser för inloggade återförsäljare, som ser sitt ÅF-pris bredvid kundpriset. 0 visar inget ÅF-pris. Godkänn återförsäljare under Förfrågningar → Återförsäljare.",
+                  "Gäller modellerna utan egen ÅF-rabatt: dras av från modellens pris och tillvalen för inloggade återförsäljare, som ser sitt ÅF-pris bredvid kundpriset. 0 visar inget ÅF-pris. Godkänn återförsäljare under Förfrågningar → Återförsäljare.",
               },
             },
           ],

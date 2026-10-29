@@ -9,8 +9,10 @@ import { type ReactNode, useLayoutEffect, useRef } from "react";
  *   5 and 7. The columns are the page grid's (`grid/margin` at the sides, `grid/gap` between),
  *   where Figma has `spacing/md` at the sides (see figma-notes); the truck keeps `spacing/md` from
  *   the step inside its columns, and as much from the right edge; below Desktop S above it.
- * - Tablet and Mobile: the price box at the top right and the step under it; the truck takes the
- *   room above the step left of the price box, never behind it, centred between the left edge and
+ * - Tablet and Mobile: the price box at the top right and the step under it; the truck stands
+ *   left of the price box, never behind it, in a 4:3 area as wide as the room there (at least
+ *   12rem high), so it keeps its size whatever the step holds (decided 2026-10-29; it used to take
+ *   the room the step left, and grew and shrank with it). It is centred between the left edge and
  *   the box: at the top, or centred on the box when it is lower than the box (`useTruckOffset`).
  *   As far from the box as the box is from the edge (`spacing/sm`, on Tablet `spacing/xl`). Decided 2026-10-27; Figma has the truck behind the price box.
  *   `spacing/xl` and `spacing/sm` at the sides.
@@ -20,8 +22,10 @@ import { type ReactNode, useLayoutEffect, useRef } from "react";
  *   the buttons `spacing/2xs` apart, the buttons `spacing/3xs` apart.
  * Below Desktop S the price box starts under the overlaid navigation's row, where Figma has it
  * touch the row.
- * One screen high, so the step and its buttons fit in the window, and the screen grows only when
- * the step itself is taller (the truck's row is then as high as the price box). From Desktop S the
+ * From Desktop S one screen high, so the step and its buttons fit in the window, and the screen
+ * grows only when the step itself is taller; below it as high as its content. From Desktop S the
+ * truck then sticks to the bottom of the window while the step scrolls, and the price box and
+ * "Boka samtal" to the top, under the navigation's row. From Desktop S the
  * top padding is the overlaid navigation's row, which
  * the price box touches as in Figma; the step keeps `spacing/xl` more, so in a low window it stops
  * short of the navigation instead of touching it (the quote and the thank-you screen do the same). Figma draws 800, 1000 and 800px, 832px on its Konfigurator page.
@@ -103,7 +107,7 @@ export function ConfiguratorScreen({
 }: ConfiguratorScreenProps) {
   const { row, box } = useTruckOffset();
   return (
-    <section className="grid min-h-svh grid-rows-[1fr_auto] bg-bg-fill-secondary px-(--spacing-sm) pt-[calc(var(--spacing-sm)*3+1rem)] pb-(--spacing-xl) tablet:px-(--spacing-xl) tablet:pt-[calc(var(--spacing-sm)*3+1.5rem)] desktop-s:pt-(--spacing-xl) desktop-s:grid-cols-12 desktop-s:grid-rows-1 desktop-s:gap-x-(--grid-gap) desktop-s:px-(--grid-margin)">
+    <section className="grid grid-rows-[auto_auto] bg-bg-fill-secondary px-(--spacing-sm) pt-[calc(var(--spacing-sm)*3+1rem)] pb-(--spacing-xl) tablet:px-(--spacing-xl) tablet:pt-[calc(var(--spacing-sm)*3+1.5rem)] desktop-s:pt-(--spacing-xl) desktop-s:min-h-svh desktop-s:grid-cols-12 desktop-s:grid-rows-1 desktop-s:gap-x-(--grid-gap) desktop-s:px-(--grid-margin)">
       <div
         ref={row}
         className={`relative row-start-1 flex min-w-0 items-start justify-end gap-(--spacing-sm) pb-(--spacing-md) tablet:gap-(--spacing-xl) desktop-s:flex-col desktop-s:items-end desktop-s:justify-start desktop-s:pb-0 ${
@@ -113,22 +117,28 @@ export function ConfiguratorScreen({
         }`}
       >
         {/* `spacing/md` from the step, above it or beside it, so the truck never touches it, and as
-            much from the right edge. Below Desktop S left of the price box, as high as the room above
-            the step. From Desktop S at most one window high (less the screen's padding) and at the bottom,
-            so a step taller than the window (an open financing choice) grows the screen without
-            growing the truck. */}
+            much from the right edge. Below Desktop S left of the price box, 4:3 and at least 12rem
+            high, the same whatever the step holds. From Desktop S at most one window high (less the screen's padding) and at the
+            bottom, so a step taller than the window (an open financing choice) grows the screen
+            without growing the truck; the truck then sticks to the window's bottom while the step
+            scrolls, and comes to rest at the bottom of the screen (decided 2026-10-29). */}
         {image ? (
           <div
             data-truck
-            className="relative flex-1 self-stretch desktop-s:absolute desktop-s:inset-0 desktop-s:top-auto desktop-s:bottom-0 desktop-s:inset-x-(--spacing-md) desktop-s:h-full desktop-s:max-h-[calc(100svh-var(--spacing-xl)*2)]"
+            className="relative aspect-[4/3] min-h-48 flex-1 self-stretch desktop-s:aspect-auto desktop-s:min-h-0 desktop-s:absolute desktop-s:inset-y-0 desktop-s:inset-x-(--spacing-md) desktop-s:flex desktop-s:flex-col desktop-s:justify-end"
           >
-            {image}
+            <div className="relative size-full desktop-s:sticky desktop-s:bottom-(--spacing-xl) desktop-s:h-[calc(100svh-var(--spacing-xl)*2)] desktop-s:max-h-full desktop-s:shrink-0">
+              {/* `next/image` with `fill` wants a relative parent, not a sticky one. */}
+              <div className="relative size-full">{image}</div>
+            </div>
           </div>
         ) : null}
-        {/* Fades as the request popup opens, as on the quote (Figma 9321:55718). */}
+        {/* Fades as the request popup opens, as on the quote (Figma 9321:55718). From Desktop S it
+            stays under the navigation's row, where it starts, while a step taller than the window
+            scrolls (decided 2026-10-29). */}
         <div
           ref={box}
-          className="relative flex w-max shrink-0 flex-col gap-(--spacing-2xs) tablet:w-[14.3125rem] transition-opacity duration-1200 ease-[cubic-bezier(0.72,0,0.37,1)] motion-reduce:transition-none [html[data-request-popup=open]_&]:opacity-0 desktop-s:w-[16.4375rem]"
+          className="relative flex w-max shrink-0 flex-col desktop-s:sticky desktop-s:top-(--spacing-xl) gap-(--spacing-2xs) tablet:w-[14.3125rem] transition-opacity duration-1200 ease-[cubic-bezier(0.72,0,0.37,1)] motion-reduce:transition-none [html[data-request-popup=open]_&]:opacity-0 desktop-s:w-[16.4375rem]"
         >
           {price}
           {contact}

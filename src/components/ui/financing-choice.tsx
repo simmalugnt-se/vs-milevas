@@ -5,6 +5,8 @@ import type { HTMLAttributes, ReactNode } from "react";
 type FinancingChoiceProps = Omit<HTMLAttributes<HTMLDivElement>, "title"> & {
   title: ReactNode;
   price?: ReactNode;
+  /** What the way to pay means, under the title as <Choice>'s text (not in Figma). */
+  text?: ReactNode;
   /** Figma's `active`: Tejp, and the term and residual value under the head. */
   selected?: boolean;
   /** Figma's `bottom`: rounded bottom corners. */
@@ -37,12 +39,15 @@ type FinancingChoiceProps = Omit<HTMLAttributes<HTMLDivElement>, "title"> & {
  * and the panel opens and fades in. Hover, and going back to Default, change their colors at once,
  * as in Figma, but the panel folds closed in the same 0.18s, like an accordion, so what is under it
  * does not jump (decided 2026-10-27).
+ * `text` explains the way to pay under the title and price, in <Choice>'s text style and gap; Figma
+ * has no text here (see figma-notes, 2026-10-29).
  */
 const motion = "duration-[180ms] ease-out motion-reduce:transition-none";
 
 export function FinancingChoice({
   title,
   price,
+  text,
   selected = false,
   bottom = false,
   onSelect,
@@ -57,7 +62,7 @@ export function FinancingChoice({
 
   return (
     <div
-      className={`flex w-full flex-col bg-bg-fill text-ui-primary wrap-break-word ring-(length:--stroke-width) ring-border-primary ring-inset hover:mode-tejp data-[state=hover]:mode-tejp ${
+      className={`group/financing flex w-full flex-col bg-bg-fill text-ui-primary wrap-break-word ring-(length:--stroke-width) ring-border-primary ring-inset hover:mode-tejp data-[state=hover]:mode-tejp ${
         selected ? `mode-tejp transition-[color,background-color,box-shadow] ${motion}` : ""
       } ${bottom ? "rounded-b-sm" : ""} ${className ?? ""}`}
       {...props}
@@ -66,10 +71,23 @@ export function FinancingChoice({
         type="button"
         aria-pressed={selected}
         onClick={onSelect}
-        className="flex w-full items-start gap-(--spacing-md) px-(--spacing-sm) py-(--spacing-md) text-left"
+        className="flex w-full flex-col gap-(--spacing-md) px-(--spacing-sm) py-(--spacing-md) text-left"
       >
-        <span className="min-w-0 flex-1 text-display-s">{title}</span>
-        {price ? <span className="shrink-0 whitespace-nowrap text-text-l">{price}</span> : null}
+        <span className="flex w-full items-start gap-(--spacing-md)">
+          <span className="min-w-0 flex-1 text-display-s">{title}</span>
+          {price ? <span className="shrink-0 whitespace-nowrap text-text-l">{price}</span> : null}
+        </span>
+        {text ? (
+          <span
+            className={`block w-full text-text-xs ${
+              selected
+                ? "text-ui-secondary"
+                : "text-ui-tertiary group-hover/financing:text-ui-secondary group-data-[state=hover]/financing:text-ui-secondary"
+            }`}
+          >
+            {text}
+          </span>
+        ) : null}
       </button>
       {term || residual ? (
         // Open only when selected, folding open and closed like an accordion; closed, it is

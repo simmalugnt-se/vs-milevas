@@ -218,7 +218,7 @@ export default function ComponentsPage() {
         <Section
           id="choice"
           figma="9207:30462"
-          api='<Choice title price? text? textSize="s|m" selected? bottom? image? imageSize?> · <FinancingChoice title price? selected? bottom? onSelect? term? residual?>'
+          api='<Choice title price? text? textSize="s|m" selected? bottom? image? imageSize?> · <FinancingChoice title price? text? selected? bottom? onSelect? term? residual?>'
           description='En button med aria-pressed, i Figmas bredd (368px). data-state="hover" visar hover utan pekare.'
         >
           <div className="grid grid-cols-[repeat(auto-fill,23rem)] items-start gap-6">
@@ -282,6 +282,19 @@ export default function ComponentsPage() {
                   residual={
                     type === "Financiering" ? { label: "Restvärde", value: "10%" } : undefined
                   }
+                />
+              </Example>
+            ))}
+            {(["default", "active"] as const).map((state) => (
+              <Example
+                key={`text-${state}`}
+                label={`Financiering · ${state} · med text (inte i Figma)`}
+              >
+                <FinancingChoice
+                  title="Leasing"
+                  price="3 561 kr/mån"
+                  text="Finansbolaget äger trucken och du betalar en fast, förutsägbar månadskostnad."
+                  selected={state === "active"}
                 />
               </Example>
             ))}

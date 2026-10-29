@@ -49,6 +49,26 @@ export async function dealerDiscountPercent(): Promise<number> {
   return settings?.dealerDiscountPercent ?? 0;
 }
 
+/** The models' own dealer discounts, by model id; editors only, so read past access. */
+export async function dealerModelDiscounts(): Promise<Record<string, number>> {
+  const payload = await getPayloadClient();
+  const models = await payload.find({
+    collection: "truck-models",
+    depth: 0,
+    pagination: false,
+    overrideAccess: true,
+    where: { dealerDiscountPercent: { exists: true } },
+    select: { dealerDiscountPercent: true },
+  });
+  return Object.fromEntries(
+    models.docs.flatMap((model) =>
+      typeof model.dealerDiscountPercent === "number"
+        ? [[model.id, model.dealerDiscountPercent]]
+        : [],
+    ),
+  );
+}
+
 /**
  * The signed-in dealer, read again on every call so a dealer set back to pending or rejected, or
  * deleted, is signed out at once.
@@ -71,5 +91,6 @@ export async function currentDealerSession(): Promise<DealerSession | null> {
     company: dealer.company,
     name: dealer.name || undefined,
     discountPercent: await dealerDiscountPercent(),
+    modelDiscounts: await dealerModelDiscounts(),
   };
 }

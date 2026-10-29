@@ -25,7 +25,8 @@ export type ConfiguratorStepOption = {
  * - `stack`: under each other (type 2, the mast with its help line).
  * - `images`: two per row with a photo between title and text (type 3, `Choice` `image=big`).
  * - `imageRows`: under each other with a photo on the right (type 4, `image=small`).
- * - `prices`: title and price only, large (type 5, Figma's finance box of `Financiering-02`).
+ * - `prices`: title and price, large (type 5, Figma's finance box of `Financiering-02`), and the
+ *   way to pay's text under them when it has one.
  */
 export type ConfiguratorStepDisplay = "grid" | "stack" | "images" | "imageRows" | "prices";
 
@@ -58,6 +59,7 @@ export function ConfiguratorStep({
             key={option.key}
             title={option.title}
             price={option.price}
+            text={option.text}
             selected={option.selected}
             onSelect={option.disabled ? undefined : option.onSelect}
             aria-disabled={option.disabled || undefined}

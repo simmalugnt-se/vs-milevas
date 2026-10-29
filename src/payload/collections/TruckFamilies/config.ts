@@ -1,16 +1,20 @@
-import type { CollectionConfig, Field, FieldHook, Validate } from "payload";
+import type {
+  ArrayField,
+  CollectionConfig,
+  FieldHook,
+  PayloadRequest,
+  Validate,
+  Where,
+} from "payload";
+import { DRIVE_HOUR_BANDS } from "@/features/configurator/service-rates.ts";
+import { isModelStep, type ModelProperty, propertyValue } from "@/features/configurator/steps.ts";
 import { ADMIN_GROUPS } from "@/payload/admin-groups.ts";
 import { authenticatedOrPublished } from "../../access/authenticatedOrPublished.ts";
 import { isAuthenticated } from "../../access/isAuthenticated.ts";
-import { link } from "../../fields/link.ts";
 import { populatePublishedAt } from "../../hooks/populatePublishedAt.ts";
 import { generatePreviewPath } from "../../utilities/preview.ts";
-import { type ConditionList, checkEveryRowHasOption } from "./conditions.ts";
+import { HYPHEN_HINT, optionFields, specsField } from "./fields.ts";
 import { revalidateTruckFamily, revalidateTruckFamilyDelete } from "./hooks/revalidate.ts";
-
-/** For a name that may be too long for its box; `hyphenate` in the configurator's data reads it. */
-const HYPHEN_HINT =
-  'Skriv | där ett långt ord får avstavas, till exempel "Skjutstativ|truckar". Ordet visas helt när det får plats och som "Skjutstativ-truckar" när det måste brytas.';
 
 const ADMIN = "/payload/collections/TruckFamilies";
 const ROW_LABELS = `${ADMIN}/RowLabels.tsx`;
@@ -30,105 +34,203 @@ const slugify = (text: string) =>
 const keyFromName: FieldHook = ({ value, data }) =>
   value || (typeof data?.name === "string" ? slugify(data.name) : value);
 
-/** An option's extra cost; one alone is part of the truck, its cost in the base price. */
-const extraPriceField: Field = {
-  name: "price",
-  label: "Pristillägg",
-  type: "number",
-  min: 0,
-  defaultValue: 0,
-  required: true,
-  admin: { description: '0 visas som "Ingår".' },
-};
+/** The truck type's own models, for its fields that point at one. */
+const ownModels = ({ id }: { id?: number | string }): Where =>
+  id ? { family: { equals: id } } : { id: { exists: false } };
 
-type ListName = "models" | "batteries" | "liftHeights";
-
-const rowCount = (data: unknown, list: ListName) => {
-  const rows = (data as Record<string, unknown> | undefined)?.[list];
-  return Array.isArray(rows) ? rows.length : 0;
-};
-
-/** Förvalt, shown only when there is more than one to choose from. */
-const defaultField = (list: ListName, label = "Förvalt"): Field => ({
-  name: "defaultSelected",
-  label,
-  type: "checkbox",
-  defaultValue: false,
-  admin: { condition: (data) => rowCount(data, list) > 1 },
-});
-
-/** With more than one row, exactly one is where the configurator starts. */
-const oneDefault =
-  (list: ListName, message: string): Validate =>
-  (_value, { siblingData }) => {
-    const rows = (siblingData as Record<string, unknown> | undefined)?.[list];
-    if (!Array.isArray(rows) || rows.length < 2) return true;
-    const defaults = rows.filter((row) => row?.defaultSelected === true).length;
-    return defaults === 1 || message;
-  };
-
-/** Both checks on a list the customer chooses one from. */
-const validateChoiceList =
-  (list: ListName & ConditionList, message: string): Validate =>
-  (value, args) => {
-    const one = oneDefault(list, message)(value, args);
-    if (one !== true) return one;
-    return checkEveryRowHasOption(list, args.data as Parameters<typeof checkEveryRowHasOption>[1]);
-  };
+/** The family's models, for the checks that need them on save. */
+async function familyModels(req: PayloadRequest, id: number | string | undefined) {
+  if (!id) return [];
+  const found = await req.payload.find({
+    collection: "truck-models",
+    where: { family: { equals: id } },
+    depth: 0,
+    limit: 200,
+    pagination: false,
+    req,
+  });
+  return found.docs;
+}
 
 /**
- * "Visas för": the lift capacities, batteries and masts a row is shown with (`conditions.ts`). Shown
- * where there is something to choose between, in this list and another.
+ * The steps' order: each step once, and steps from the models' fields that tell every model apart
+ * (or Modell among them, or none, when the customer chooses the model itself), so a configuration
+ * always ends at one model.
  */
-const availableForField = (list: ListName | "extras"): Field => ({
-  name: "availableFor",
-  label: "Visas för",
-  type: "json",
-  typescriptSchema: [
-    () => ({
-      type: "object",
-      additionalProperties: false,
-      properties: {
-        models: { type: "array", items: { type: "string" } },
-        batteries: { type: "array", items: { type: "string" } },
-        liftHeights: { type: "array", items: { type: "string" } },
-      },
-    }),
+const stepsTellModelsApart: Validate = async (value, { req, id }) => {
+  if (!Array.isArray(value)) return true;
+  const keys = (value as Array<{ step?: string }>)
+    .map((row) => row.step)
+    .filter(Boolean) as string[];
+  if (new Set(keys).size !== keys.length) return "Varje steg får bara finnas en gång.";
+  // Without steps from the models' fields the customer chooses the model itself.
+  const fields = keys.filter(isModelStep) as ModelProperty[];
+  if (keys.includes("model") || fields.length === 0) return true;
+  const seen = new Map<string, string[]>();
+  for (const model of await familyModels(req, id)) {
+    const key = fields.map((field) => propertyValue(field, model)?.label ?? "–").join(", ");
+    seen.set(key, [...(seen.get(key) ?? []), model.name]);
+  }
+  const clashes = [...seen].filter(([, names]) => names.length > 1);
+  if (clashes.length === 0) return true;
+  return clashes
+    .map(
+      ([values, names]) =>
+        `${names.join(" och ")} går inte att skilja åt (${values || "inga steg från modellerna"}). Lägg till Hjulantal, Serie eller Modell.`,
+    )
+    .join(" ");
+};
+
+/** A group's options: written once; the matrix sets which models have each. */
+const optionsField = (dbName: string, specsDbName: string): ArrayField => ({
+  name: "options",
+  label: "Alternativ",
+  labels: { singular: "Alternativ", plural: "Alternativ" },
+  type: "array",
+  dbName,
+  localized: false,
+  minRows: 1,
+  admin: {
+    initCollapsed: true,
+    components: { RowLabel: `${ROW_LABELS}#OptionRowLabel` },
+  },
+  fields: [
+    ...optionFields(),
+    specsField({ dbName: specsDbName, description: "Visas i offerten när alternativet är valt." }),
+    {
+      // Set with the group's matrix; none: every model.
+      name: "models",
+      type: "relationship",
+      relationTo: "truck-models",
+      hasMany: true,
+      admin: { hidden: true },
+    },
   ],
+});
+
+/** A group of equipment or extras: a name, its options, which models have them, how it shows. */
+const groupField = ({
+  name,
+  label,
+  description,
+  dbName,
+  optionsDbName,
+  specsDbName,
+}: {
+  name: string;
+  label: string;
+  description: string;
+  dbName: string;
+  optionsDbName: string;
+  specsDbName: string;
+}): ArrayField => ({
+  name,
+  label,
+  labels: { singular: "Grupp", plural: "Grupper" },
+  type: "array",
+  dbName,
+  localized: false,
   admin: {
-    components: { Field: `${ADMIN}/AvailableFor.tsx#AvailableFor` },
-    condition: (data) =>
-      (list === "extras" || rowCount(data, list) > 1) &&
-      (["models", "batteries", "liftHeights"] as const).some(
-        (other) => other !== list && rowCount(data, other) > 1,
-      ),
+    initCollapsed: true,
+    description,
+    components: { RowLabel: `${ROW_LABELS}#GroupRowLabel` },
   },
+  fields: [
+    {
+      name: "label",
+      label: "Namn",
+      type: "text",
+      localized: true,
+      required: true,
+      admin: { description: 'Till exempel "Batteri". Visas som stegets rubrik.' },
+    },
+    optionsField(optionsDbName, specsDbName),
+    {
+      name: "modelMatrix",
+      type: "ui",
+      admin: { components: { Field: `${ADMIN}/ModelMatrix.tsx#ModelMatrix` } },
+    },
+    {
+      type: "row",
+      fields: [
+        {
+          name: "columns",
+          label: "Kolumner",
+          type: "select",
+          defaultValue: "auto",
+          options: [
+            { label: "Automatiskt", value: "auto" },
+            { label: "En kolumn", value: "one" },
+            { label: "Två kolumner", value: "two" },
+          ],
+          admin: { width: "50%" },
+        },
+        {
+          name: "help",
+          label: "Text under alternativen",
+          type: "text",
+          localized: true,
+          admin: { width: "50%", description: 'Valfri. Följs av "Kontakta oss".' },
+        },
+      ],
+    },
+  ],
 });
 
 /**
- * A photo for the option. When any option of a step has one, the step shows them with photos
- * (Figma's step types 3 and 4); without, as it was.
+ * Long-term rental's service, as VS Truck prices it: kronor per drive hour by the model's lift
+ * capacity and the hours a year (`DRIVE_HOUR_BANDS`).
  */
-const optionImageField: Field = {
-  name: "image",
-  label: "Bild",
-  type: "upload",
-  relationTo: "images",
+const serviceRatesField: ArrayField = {
+  name: "serviceRates",
+  label: "Servicekostnad per drifttimme",
+  labels: { singular: "Kapacitet", plural: "Kapaciteter" },
+  type: "array",
+  localized: false,
   admin: {
-    description: "Valfri. Har något alternativ i steget en bild visas hela steget med bilder.",
+    description:
+      "Servicen i en finansieringsform som är hyra: drifttimmar per år × timpriset för modellens lyftkapacitet / 12 i månaden. Den första raden som passar modellen gäller; utan rad ingår ingen service i priset.",
+    components: { RowLabel: `${ROW_LABELS}#ServiceRateRowLabel` },
   },
+  fields: [
+    {
+      type: "row",
+      fields: [
+        {
+          name: "minKg",
+          label: "Lyftkapacitet från (kg)",
+          type: "number",
+          required: true,
+          min: 0,
+          admin: { width: "50%" },
+        },
+        {
+          name: "maxKg",
+          label: "Till och med (kg)",
+          type: "number",
+          min: 0,
+          admin: { width: "50%", description: "Tomt: ingen övre gräns." },
+        },
+      ],
+    },
+    {
+      type: "row",
+      fields: DRIVE_HOUR_BANDS.map(({ key, label }) => ({
+        name: key,
+        label: `${label} (kr/h)`,
+        type: "number" as const,
+        min: 0,
+        admin: { width: "20%", step: 0.5 },
+      })),
+    },
+  ],
 };
 
-const ONE_IS_A_SPEC =
-  "Med flera kan kunden välja i konfiguratorn; med ett enda är det en del av trucken och visas bara som specifikation.";
-
 /**
- * A truck family (Figma's product category), described as a product on one page: what it is, its
- * lift capacities, batteries, lift heights and extras. The hero, the navigation, the product cards
- * and the quote read it, and the configurator builds its steps from it: a list with more than one
- * entry is a choice, one entry is part of the truck, an empty one is left out. Without variants the
- * truck type cannot be configured, and its cards and menus link to `contactLink`. See
- * `docs/truck-data-schema.md`.
+ * A truck family (Figma's product category): what it is, its models (`truck-models`), its groups of
+ * equipment and extras with the models that have each option, and the steps' order. The hero, the
+ * navigation, the product cards and the quote read it. Without published models it is not shown on
+ * the site. See `docs/truck-data-schema.md`.
  */
 export const TruckFamilies: CollectionConfig = {
   slug: "truck-families",
@@ -167,7 +269,7 @@ export const TruckFamilies: CollectionConfig = {
       type: "tabs",
       tabs: [
         {
-          label: "Om trucktypen",
+          label: "Allmänt",
           fields: [
             {
               type: "row",
@@ -179,7 +281,8 @@ export const TruckFamilies: CollectionConfig = {
                   localized: true,
                   required: true,
                   admin: {
-                    description: `I plural, i menyer och på kort. Exempel: "Elektriska motvikts|truckar". ${HYPHEN_HINT}`,
+                    width: "50%",
+                    description: `Visas i menyn och på produktkorten. ${HYPHEN_HINT}`,
                   },
                 },
                 {
@@ -188,256 +291,160 @@ export const TruckFamilies: CollectionConfig = {
                   type: "text",
                   localized: true,
                   required: true,
-                  admin: { description: 'Offertens rubrik. Exempel: "Elektrisk motvikts|truck".' },
+                  admin: { width: "50%", description: "Rubrik i offerten." },
                 },
               ],
             },
             { name: "description", label: "Beskrivning", type: "textarea", localized: true },
             {
-              name: "image",
-              label: "Huvudbild",
-              type: "upload",
-              relationTo: "images",
-              localized: false,
-              admin: {
-                description:
-                  "Frilagd truck med nederkanten mot marken. Heron, navigationen, produktkorten och konfiguratorn visar den.",
-              },
+              type: "row",
+              fields: [
+                {
+                  name: "image",
+                  label: "Bild",
+                  type: "upload",
+                  relationTo: "images",
+                  localized: false,
+                  admin: { width: "50%", description: "Frilagd bild på trucken." },
+                },
+                {
+                  name: "brochure",
+                  label: "Broschyr",
+                  type: "upload",
+                  relationTo: "documents",
+                  admin: { width: "50%", description: "Gäller modeller utan egen broschyr." },
+                },
+              ],
             },
-            { name: "brochure", label: "Broschyr", type: "upload", relationTo: "documents" },
             {
               type: "row",
               fields: [
                 {
-                  name: "travelSpeed",
-                  label: "Körhastighet (km/h)",
+                  name: "cardSpec",
+                  label: "Text på produktkortet",
                   type: "text",
                   localized: true,
-                  admin: { description: 'Lastad / olastad. Exempel: "15 / 15".' },
+                  admin: { width: "33%", description: 'Till exempel "80 V 228 Ah".' },
                 },
                 {
                   name: "deliveryTime",
-                  label: "Uppskattad leverans",
+                  label: "Leveranstid",
                   type: "text",
                   localized: true,
-                  admin: { description: 'Exempel: "4–6 veckor".' },
+                  admin: { width: "33%", description: 'Till exempel "4–6 veckor".' },
                 },
                 {
                   name: "warranty",
                   label: "Garanti",
                   type: "text",
                   localized: true,
-                  admin: {
-                    description:
-                      'Kort, som "4 år". Förklaringen står i konfiguratorinställningarna.',
-                  },
+                  admin: { width: "33%", description: 'Till exempel "4 år".' },
                 },
               ],
             },
-            {
-              ...link({ name: "contactLink", required: false }),
-              label: "Länk utan varianter",
-              admin: {
-                hideGutter: true,
-                description:
-                  "Dit kort och menyer länkar så länge trucktypen saknar varianter att konfigurera.",
-                condition: (data) => (data?.models?.length ?? 0) === 0,
-              },
-            } as Field,
+            specsField({
+              dbName: "truck_family_specs",
+              description: "Visas i offerten för alla modeller.",
+            }),
           ],
         },
         {
-          label: "Konfigurator",
+          label: "Modeller",
           fields: [
             {
-              name: "configuratorOverview",
-              type: "ui",
-              admin: {
-                components: { Field: `${ADMIN}/ConfiguratorOverview.tsx#ConfiguratorOverview` },
-              },
-            },
-            {
               name: "models",
-              label: "Lyftkapacitet",
-              labels: { singular: "Variant", plural: "Varianter" },
-              dbName: "truck_models",
+              label: "Modeller",
+              type: "join",
+              collection: "truck-models",
+              on: "family",
+              defaultSort: "capacityKg",
+              defaultLimit: 100,
+              admin: {
+                allowCreate: true,
+                defaultColumns: ["name", "series", "capacityKg", "wheels", "price", "_status"],
+                description: "En modell visas på sajten när den är publicerad.",
+              },
+            },
+            {
+              name: "series",
+              label: "Serier",
+              labels: { singular: "Serie", plural: "Serier" },
               type: "array",
+              dbName: "truck_family_series",
               localized: false,
-              validate: oneDefault("models", "Markera exakt en variant som förvald."),
-              admin: {
-                description:
-                  'En rad per variant; kunden väljer en i konfiguratorn. Namnet räknas fram ur kapaciteten ("1,6 ton").',
-                initCollapsed: true,
-                components: { RowLabel: `${ROW_LABELS}#ModelRowLabel` },
-              },
-              fields: [
-                {
-                  type: "row",
-                  fields: [
-                    {
-                      name: "capacityKg",
-                      label: "Lyftkapacitet (kg)",
-                      type: "number",
-                      min: 0,
-                      required: true,
-                    },
-                    {
-                      name: "sku",
-                      label: "Artikelnummer",
-                      type: "text",
-                      admin: { description: "Under kapaciteten i konfiguratorn, och i offerten." },
-                    },
-                    { name: "price", label: "Grundpris", type: "number", required: true, min: 0 },
-                  ],
-                },
-                {
-                  type: "row",
-                  fields: [
-                    { name: "weight", label: "Vikt (kg)", type: "text", localized: true },
-                    {
-                      name: "turningRadius",
-                      label: "Vändradie (mm)",
-                      type: "text",
-                      localized: true,
-                      admin: { description: 'Exempel: "1870 / 1850".' },
-                    },
-                  ],
-                },
-                optionImageField,
-                defaultField("models", "Förvald"),
-              ],
+              admin: { description: "Listan modellerna väljer serie ur." },
+              fields: [{ name: "name", label: "Namn", type: "text", required: true }],
             },
             {
-              name: "batteries",
-              label: "Batteri",
-              labels: { singular: "Batteri", plural: "Batterier" },
-              dbName: "truck_batteries",
-              type: "array",
-              localized: false,
-              validate: validateChoiceList("batteries", "Markera exakt ett batteri som förvalt."),
-              admin: {
-                description: `${ONE_IS_A_SPEC} Det förvalda batteriets kapacitet står på produktkortet.`,
-                initCollapsed: true,
-                components: { RowLabel: `${ROW_LABELS}#BatteryRowLabel` },
-              },
-              fields: [
-                {
-                  type: "row",
-                  fields: [
-                    {
-                      name: "label",
-                      label: "Benämning",
-                      type: "text",
-                      localized: true,
-                      required: true,
-                      admin: { description: 'Exempel: "Standard", "Stort batteri".' },
-                    },
-                    {
-                      name: "capacity",
-                      label: "Kapacitet",
-                      type: "text",
-                      localized: true,
-                      required: true,
-                      admin: { description: 'Exempel: "80 V 228 Ah".' },
-                    },
-                    extraPriceField,
-                  ],
-                },
-                { name: "description", label: "Text", type: "textarea", localized: true },
-                optionImageField,
-                defaultField("batteries"),
-                availableForField("batteries"),
-              ],
+              name: "defaultModel",
+              label: "Förvald modell",
+              type: "relationship",
+              relationTo: "truck-models",
+              filterOptions: ownModels,
+              admin: { description: "Konfiguratorn och produktkorten börjar med den." },
             },
-            {
-              name: "liftHeights",
-              label: "Lyfthöjd",
-              labels: { singular: "Mast", plural: "Master" },
-              dbName: "truck_lift_heights",
-              type: "array",
-              localized: false,
-              validate: validateChoiceList("liftHeights", "Markera exakt en mast som förvald."),
-              admin: {
-                description: `${ONE_IS_A_SPEC} Bygghöjden visas under lyfthöjden och i offerten.`,
-                initCollapsed: true,
-                components: { RowLabel: `${ROW_LABELS}#LiftHeightRowLabel` },
-              },
-              fields: [
-                {
-                  type: "row",
-                  fields: [
-                    {
-                      name: "liftHeight",
-                      label: "Lyfthöjd (mm)",
-                      type: "number",
-                      min: 0,
-                      required: true,
-                    },
-                    {
-                      name: "buildHeight",
-                      label: "Truckens bygghöjd (mm)",
-                      type: "number",
-                      min: 0,
-                      admin: { description: "Med den här masten." },
-                    },
-                    extraPriceField,
-                  ],
-                },
-                optionImageField,
-                defaultField("liftHeights", "Förvald"),
-                availableForField("liftHeights"),
-              ],
-            },
-            {
-              name: "liftHeightHelp",
-              label: "Hjälptext under lyfthöjderna",
-              type: "textarea",
-              localized: true,
-              admin: {
-                description:
-                  'Följd av "Kontakta oss". Exempel: "Behöver du hjälp med andra mastalternativ?".',
-                condition: (data) => (data?.liftHeights?.length ?? 0) > 1,
-              },
-            },
-            {
+          ],
+        },
+        {
+          label: "Utrustning",
+          fields: [
+            groupField({
+              name: "equipment",
+              label: "Utrustning",
+              description:
+                "Kunden väljer ett alternativ i varje grupp. Förvalt är det första alternativet i listan som modellen har.",
+              dbName: "truck_questions",
+              optionsDbName: "truck_question_options",
+              specsDbName: "truck_option_specs",
+            }),
+            groupField({
               name: "extras",
               label: "Tillval",
-              labels: { singular: "Tillval", plural: "Tillval" },
-              dbName: "truck_extras",
+              description: "Kunden väljer fritt, flera eller inget.",
+              dbName: "truck_extra_groups",
+              optionsDbName: "truck_extra_options",
+              specsDbName: "truck_extra_option_specs",
+            }),
+          ],
+        },
+        {
+          label: "Steg i konfiguratorn",
+          fields: [
+            {
+              name: "stepOrder",
+              label: "Steg i konfiguratorn",
+              labels: { singular: "Steg", plural: "Steg" },
               type: "array",
+              dbName: "truck_step_order",
               localized: false,
+              validate: stepsTellModelsApart,
               admin: {
-                description: "Kunden väljer fritt bland dem; inget krävs.",
                 initCollapsed: true,
-                components: { RowLabel: `${ROW_LABELS}#ExtraRowLabel` },
+                description:
+                  "Ordningen kunden går igenom efter valet av trucktyp. Dra raderna för att ändra den. Ett steg med ett enda alternativ visas inte.",
+                components: { RowLabel: `${ROW_LABELS}#StepOrderRowLabel` },
               },
               fields: [
                 {
-                  type: "row",
-                  fields: [
-                    {
-                      name: "label",
-                      label: "Namn",
-                      type: "text",
-                      localized: true,
-                      required: true,
-                      admin: { description: HYPHEN_HINT },
-                    },
-                    { ...extraPriceField, admin: undefined } as Field,
-                  ],
+                  name: "step",
+                  label: "Steg",
+                  type: "text",
+                  required: true,
+                  admin: { components: { Field: `${ADMIN}/StepSelect.tsx#StepSelect` } },
                 },
-                { name: "description", label: "Text", type: "textarea", localized: true },
-                optionImageField,
-                availableForField("extras"),
               ],
             },
           ],
+        },
+        {
+          label: "Långtidshyra",
+          fields: [serviceRatesField],
         },
       ],
     },
     {
       name: "key",
-      label: "Nyckel i adressen",
+      label: "Adress",
       type: "text",
       required: true,
       localized: false,
@@ -446,8 +453,7 @@ export const TruckFamilies: CollectionConfig = {
       access: { update: ({ doc }) => !doc?.publishedAt },
       admin: {
         position: "sidebar",
-        description:
-          "Konfiguratorns adress pekar på trucktypen med den. Skapas ur namnet om den är tom och låses när trucktypen publiceras, eftersom delade länkar pekar på den.",
+        description: "Används i konfiguratorns adress. Låses när trucktypen publiceras.",
       },
       validate: (value: unknown) =>
         typeof value === "string" && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value)

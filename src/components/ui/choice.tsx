@@ -4,19 +4,19 @@ import type { ButtonHTMLAttributes, ReactNode } from "react";
  * choice from Figma "02 — Components" → "Configurator" (9207:30462): one option in a configurator
  * step, a `bg-fill` box with a `stroke/width` frame in `border-primary`, `spacing/sm` around and
  * `spacing/md` between the parts. The frame is drawn inside, as Figma's stroke is.
- * - Top: the title in Display XS, and the price in Label S (`ui-secondary`) top right, at least
- *   `spacing/sm` from the title. A word too long for the box breaks at its soft hyphens (the truck
- *   data's `|`), otherwise anywhere, as in Figma.
+ * - Top: the title in Display XS, and under it the price in Label S (`ui-secondary`),
+ *   `spacing/2xs` apart, so the title has the whole width (Figma has the price top right; decided
+ *   2026-10-29, see figma-notes). A word too long for the box breaks at its soft hyphens (the
+ *   truck data's `|`), otherwise anywhere, as in Figma.
  * - Text S is Text XS, text M is Text M; `ui-tertiary`, `ui-secondary` when active or hovered.
  * - Active (`selected`) and hover are both Tejp: the yellow `bg-fill` and the darker frame.
  * - `bottom` rounds the bottom corners (`radius-sm`), for the last choice of a box.
  * - With a `big` image the parts are `spacing/2xs` apart and the choice is Figma's 262px high at
  *   234.5, 368 and 469px wide: the 489:365 image takes the height between title and text and, in a
  *   narrow choice, reaches past the padding at the sides as in Figma.
- * - With a `small` image the choice is two columns `spacing/sm` apart: the title over the text on
- *   the left, the price over the 124 × 93 image on the right, `spacing/xs` between them however
- *   high the choice is, so the text never runs under the image. Figma lays the image over title and
- *   text in a 140px choice; this is at least that high (see figma-notes).
+ * - With a `small` image the choice is two columns `spacing/sm` apart: the title, price and text on
+ *   the left, the 124 × 93 image on the right, so the text never runs under the image. Figma lays
+ *   the image over title and text in a 140px choice; this is at least that high (see figma-notes).
  * Pass `data-state="hover"` to show hover without a pointer.
  */
 
@@ -75,12 +75,12 @@ export function Choice({
     </span>
   ) : null;
 
-  const titleElement = (
-    <span className="min-w-0 flex-1 text-display-xs text-ui-primary">{title}</span>
+  const head = (
+    <span className="flex w-full min-w-0 flex-col items-start gap-(--spacing-2xs)">
+      <span className="block w-full text-display-xs text-ui-primary">{title}</span>
+      {price ? <span className="text-label-s text-ui-secondary">{price}</span> : null}
+    </span>
   );
-  const priceElement = price ? (
-    <span className="shrink-0 whitespace-nowrap text-label-s text-ui-secondary">{price}</span>
-  ) : null;
   const small = Boolean(image) && imageSize === "small";
 
   return (
@@ -97,22 +97,21 @@ export function Choice({
       {small ? (
         <>
           <span className="flex min-w-0 flex-1 flex-col justify-between gap-(--spacing-xs) self-stretch">
-            {titleElement}
+            {head}
             {textElement}
           </span>
           <span className={`flex shrink-0 flex-col items-end ${imageClasses.small.wrapper}`}>
-            {priceElement}
-            <span className={`relative block aspect-[489/365] ${imageClasses.small.image}`}>
+            {/* A photo narrower than the box keeps to its right edge. */}
+            <span
+              className={`relative block aspect-[489/365] [&_img]:object-right ${imageClasses.small.image}`}
+            >
               {image}
             </span>
           </span>
         </>
       ) : (
         <>
-          <span className="flex w-full items-start justify-between gap-(--spacing-sm)">
-            {titleElement}
-            {priceElement}
-          </span>
+          {head}
           {image ? (
             <span className={`flex min-h-0 w-full flex-1 p-2 ${imageClasses.big.wrapper}`}>
               <span

@@ -30,6 +30,8 @@ type Column = {
    * and "Kundpris:" instead of `rows`, as on the product card's `hover-INLOGGAD`.
    */
   amount?: number;
+  /** The model `amount` is the price of, for its dealer discount. */
+  model?: string;
   /** The truck, e.g. a `next/image` with `fill`, `object-contain` and `object-bottom`. */
   image?: ReactNode;
   attributes?: HTMLAttributes<HTMLAnchorElement>;
@@ -96,8 +98,8 @@ const formatPrice = (value: number) =>
 
 export function MilevasHero({ lines, prompt, columns, activeColumn = 3, id }: MilevasHeroProps) {
   const dealerPrice = useDealerPrice();
-  const dealerRows = ({ amount }: Column) => {
-    const dealer = amount === undefined ? null : dealerPrice(amount);
+  const dealerRows = ({ amount, model }: Column) => {
+    const dealer = amount === undefined ? null : dealerPrice(amount, model);
     if (dealer === null || amount === undefined) return null;
     return [
       { label: "Ditt ÅF-pris:", value: formatPrice(dealer) },

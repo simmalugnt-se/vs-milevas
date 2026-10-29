@@ -1,7 +1,7 @@
 import type { HTMLAttributes } from "react";
 import { ColorImageCard, type ColorImageCardProps } from "@/components/ui/color-image-card";
 
-export type CardSliderCard = Omit<ColorImageCardProps, "number" | "static" | "staticBelowDesktop">;
+export type CardSliderCard = Omit<ColorImageCardProps, "number" | "staticBelowDesktop">;
 
 type CardSliderProps = HTMLAttributes<HTMLElement> & {
   cards: CardSliderCard[];
@@ -16,7 +16,7 @@ type CardSliderProps = HTMLAttributes<HTMLElement> & {
  * - Desktop L and S: 518.67 × 388, the card's own proportion, the same width in both.
  * - Tablet: 455 × 388. Mobile: 310 × 312.
  * Below Desktop S the first card shows the image look, as Figma draws it; from Desktop S it shows
- * it on hover.
+ * it on hover. A `static` card (the editor's "Ingen färg") shows it all the time.
  */
 export function CardSlider({ cards, label, ...attributes }: CardSliderProps) {
   return (

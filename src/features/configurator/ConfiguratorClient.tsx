@@ -8,7 +8,6 @@ import { ConfiguratorSkeleton } from "@/components/blocks/configurator-skeleton"
 import { ConfiguratorStep } from "@/components/blocks/configurator-step";
 import { Button, ButtonLink } from "@/components/ui/button";
 import { CheckboxChoice } from "@/components/ui/checkbox-choice";
-import { WithDealerPrice } from "@/components/ui/dealer-price";
 import { PriceBox } from "@/components/ui/price-box";
 import { useDealerPrice } from "@/features/dealers/DealerProvider";
 import { frontendPath } from "@/i18n/frontend-path";
@@ -17,13 +16,16 @@ import {
   calculateFinancingPrice,
   choiceDisplay,
   choiceSatisfied,
+  chosenModel,
   estimateTotal,
-  familySteps,
   financingLabel,
   firstIncompleteStep,
   firstInvalidSelectionStep,
-  MODEL_CHOICE,
+  isConfigurable,
   sanitizeSelections,
+  shownResidualPercent,
+  truckImage,
+  visibleSteps,
   withTerm,
 } from "./engine";
 import { CallRequestForm, RequestDialog } from "./RequestForms";
@@ -31,6 +33,7 @@ import type {
   ConfiguratorCatalog,
   ConfiguratorChoice,
   ConfiguratorFamily,
+  ConfiguratorOption,
   FinancingMethod,
   SelectionState,
 } from "./types";
@@ -112,23 +115,9 @@ function formatPrice(value: number) {
   }).format(value);
 }
 
-/** A model's price as it is; an option's as an addition, or "Ingår" when it adds nothing. */
-function priceLabel(choice: ConfiguratorChoice, price: number) {
-  if (choice.key === MODEL_CHOICE) return formatPrice(price);
-  return price === 0 ? "Ingår" : `+${formatPrice(price)}`;
-}
-
-/** A price with the signed-in dealer's beside it; `dealerPrice` gives null for everyone else. */
-function withDealer(
-  text: string,
-  price: number,
-  dealerPrice: (price: number) => number | null,
-  format: (price: number) => string = formatPrice,
-): ReactNode {
-  const dealer = price === 0 ? null : dealerPrice(price);
-  return (
-    <WithDealerPrice dealer={dealer === null ? undefined : format(dealer)}>{text}</WithDealerPrice>
-  );
+/** An option's price as an addition, or "Ingår" when it adds nothing. */
+function priceLabel(option: ConfiguratorOption) {
+  return option.price === 0 ? "Ingår" : `+${formatPrice(option.price)}`;
 }
 
 /** The price the configuration starts at: the defaults. */
@@ -139,7 +128,7 @@ const stepNumber = (index: number) => String(index + 1).padStart(2, "0");
 
 /**
  * The truck configurator on Figma's step screen (`ConfiguratorScreen`): truck type, the family's
- * steps (its model, then its choices, each as its Figma step type), then financing, one screen
+ * steps (in the editor's order, each as its Figma step type), then financing, one screen
  * each, numbered `[01]`, `[02]` and so on. The price box shows the total and the monthly prices;
  * "Boka samtal" opens the call request in a dialog once a truck type is chosen; "Visa offert"
  * leads to the quote page.
@@ -154,9 +143,12 @@ export function ConfiguratorClient({
   const [state, dispatch] = useReducer(reducer, initialState);
   const dealerPrice = useDealerPrice();
   const [callOpen, setCallOpen] = useState(false);
-  const families = catalog.families.filter((candidate) => familySteps(candidate).length > 0);
+  const families = catalog.families.filter(isConfigurable);
   const family = families.find((candidate) => candidate.key === state.familyKey);
-  const steps = family ? familySteps(family) : [];
+  // The steps there is something to choose in, after what is chosen so far.
+  const steps = family ? visibleSteps(family, state.selections) : [];
+  const model = family ? chosenModel(family, state.selections) : undefined;
+  const modelKey = model?.key;
   const maxStep = family ? steps.length + 1 : 0;
   const currentConfigStep = family && state.step > 0 ? steps[state.step - 1] : undefined;
   const financingStep = Boolean(family && state.step === maxStep);
@@ -174,7 +166,7 @@ export function ConfiguratorClient({
   useEffect(() => {
     const parsed = parseConfiguratorSearchParams(new URLSearchParams(window.location.search));
     const parsedFamily = catalog.families.find(
-      (candidate) => candidate.key === parsed.familyKey && familySteps(candidate).length > 0,
+      (candidate) => candidate.key === parsed.familyKey && isConfigurable(candidate),
     );
     if (!parsedFamily) {
       dispatch({
@@ -193,7 +185,10 @@ export function ConfiguratorClient({
     const selections = sanitizeSelections(parsedFamily, parsed.selections, true);
     const incomplete = firstIncompleteStep(parsedFamily, selections);
     const invalid = firstInvalidSelectionStep(parsedFamily, parsed.selections, selections);
-    const desiredStep = Math.min(parsed.step ?? 0, familySteps(parsedFamily).length + 1);
+    const desiredStep = Math.min(
+      parsed.step ?? 0,
+      visibleSteps(parsedFamily, selections).length + 1,
+    );
     const earliestAffected = [incomplete, invalid]
       .filter((value): value is number => value !== null)
       .reduce<number | null>((earliest, value) => Math.min(earliest ?? value, value), null);
@@ -242,6 +237,8 @@ export function ConfiguratorClient({
   ]);
 
   const previewFinancing = state.financingKey ?? purchaseKey;
+  // The truck as configured: the chosen model, with a cab if one is chosen and has a photo.
+  const shownImage = family ? truckImage(family, state.selections) : undefined;
   const total = family ? estimateTotal(family, state.selections) : null;
   const selectedFinancing = catalog.financingMethods.find(
     (method) => method.key === state.financingKey,
@@ -284,7 +281,7 @@ export function ConfiguratorClient({
   const lowestPrice = Math.min(...families.map(startPrice));
   const monthlyMethods = catalog.financingMethods.filter((method) => method.kind === "monthly");
   const totalPrice = total ?? lowestPrice;
-  const dealerTotal = dealerPrice(totalPrice);
+  const dealerTotal = dealerPrice(totalPrice, modelKey);
   const number = stepNumber(state.step);
 
   let step: ReactNode;
@@ -298,11 +295,7 @@ export function ConfiguratorClient({
         options={families.map((candidate) => ({
           key: candidate.key,
           title: candidate.name,
-          price: withDealer(
-            `Från ${formatPrice(startPrice(candidate))}`,
-            startPrice(candidate),
-            dealerPrice,
-          ),
+          price: `Från ${formatPrice(startPrice(candidate))}`,
           text: candidate.description,
           selected: family?.key === candidate.key,
           image: candidate.image ? (
@@ -332,12 +325,7 @@ export function ConfiguratorClient({
         options={choice.options.map((option) => ({
           key: option.key,
           title: option.label,
-          price: withDealer(
-            priceLabel(choice, option.price),
-            option.price,
-            dealerPrice,
-            choice.key === MODEL_CHOICE ? formatPrice : (price) => `+${formatPrice(price)}`,
-          ),
+          price: priceLabel(option),
           text: option.description,
           selected: (state.selections[choice.key] ?? []).includes(option.key),
           image: option.image ? (
@@ -363,15 +351,17 @@ export function ConfiguratorClient({
         options={catalog.financingMethods.map((method) => {
           const termed = termOf(method);
           const terms = method.terms ?? [];
+          const residual = shownResidualPercent(termed);
           return {
             key: method.key,
             // With a slider the term shows there; without, in the title as before.
             title: terms.length > 1 ? method.label : financingLabel(termed),
-            // Dealer prices on purchase prices only; a month's cost is the customer's.
+            // "Beskrivning" in the configurator settings.
+            text: method.description,
             price:
               method.kind === "monthly"
-                ? `${formatPrice(calculateFinancingPrice(totalPrice, termed))}/mån`
-                : withDealer(formatPrice(totalPrice), totalPrice, dealerPrice),
+                ? `${formatPrice(calculateFinancingPrice(totalPrice, termed, model))}/mån`
+                : formatPrice(totalPrice),
             selected: state.financingKey === method.key,
             onSelect: () =>
               dispatch({
@@ -388,11 +378,8 @@ export function ConfiguratorClient({
                     onChange: (months: number) => dispatch({ type: "setMonths", months }),
                   }
                 : undefined,
-            residual: termed.residualPercent
-              ? {
-                  label: "Restvärde",
-                  value: `${new Intl.NumberFormat("sv-SE").format(termed.residualPercent)}%`,
-                }
+            residual: residual
+              ? { label: "Restvärde", value: `${new Intl.NumberFormat("sv-SE").format(residual)}%` }
               : undefined,
           };
         })}
@@ -465,17 +452,17 @@ export function ConfiguratorClient({
                 const termed = termOf(method);
                 return {
                   label: financingLabel(termed),
-                  value: `${formatPrice(calculateFinancingPrice(totalPrice, termed))}/mån`,
+                  value: `${formatPrice(calculateFinancingPrice(totalPrice, termed, model))}/mån`,
                 };
               }),
             ]}
           />
         }
         image={
-          family?.image ? (
+          shownImage ? (
             <Image
-              src={family.image.url}
-              alt={family.image.alt}
+              src={shownImage.url}
+              alt={shownImage.alt}
               fill
               priority
               sizes="60vw"

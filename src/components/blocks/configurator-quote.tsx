@@ -5,6 +5,8 @@ export type QuoteTable = {
   /** Beside the heading from Desktop S (Figma: "Tillbaka till konfigurator" by Konfiguration). */
   action?: ReactNode;
   rows: Array<{ label: ReactNode; value: ReactNode }>;
+  /** Under the rows (not in Figma): the brochure's button under "Tekniska specifikationer". */
+  footer?: ReactNode;
 };
 
 type ConfiguratorQuoteProps = {
@@ -32,28 +34,32 @@ const divider =
 
 /**
  * Text L heading over rows of Text XS label and Text S value, as the checkout price box's: one box
- * with a `border-primary` line around it (`radius-sm`) and one between the rows.
+ * with a `border-primary` line around it (`radius-sm`) and one between the rows, and the footer
+ * under them; without rows the heading and the footer alone.
  */
-function Table({ heading, action, rows }: QuoteTable) {
+function Table({ heading, action, rows, footer }: QuoteTable) {
   return (
     <section className="flex flex-col gap-(--spacing-sm)">
       <div className="flex items-center justify-between gap-(--spacing-sm)">
         <h2 className="text-text-l text-ui-primary">{heading}</h2>
         {action}
       </div>
-      <dl className="flex flex-col overflow-hidden rounded-sm outline-solid outline-(length:--stroke-width) outline-offset-[calc(var(--stroke-width)*-1)] outline-border-primary">
-        {rows.map((row, index) => (
-          <div
-            key={index}
-            className={`flex items-center justify-between gap-(--spacing-2xs) bg-bg-fill px-(--spacing-2xs) py-(--spacing-xs) ${divider}`}
-          >
-            <dt className="text-text-xs text-ui-secondary">{row.label}</dt>
-            <dd className="text-right whitespace-nowrap text-text-s text-ui-primary">
-              {row.value}
-            </dd>
-          </div>
-        ))}
-      </dl>
+      {rows.length > 0 ? (
+        <dl className="flex flex-col overflow-hidden rounded-sm outline-solid outline-(length:--stroke-width) outline-offset-[calc(var(--stroke-width)*-1)] outline-border-primary">
+          {rows.map((row, index) => (
+            <div
+              key={index}
+              className={`flex items-center justify-between gap-(--spacing-2xs) bg-bg-fill px-(--spacing-2xs) py-(--spacing-xs) ${divider}`}
+            >
+              <dt className="text-text-xs text-ui-secondary">{row.label}</dt>
+              <dd className="text-right whitespace-nowrap text-text-s text-ui-primary">
+                {row.value}
+              </dd>
+            </div>
+          ))}
+        </dl>
+      ) : null}
+      {footer}
     </section>
   );
 }

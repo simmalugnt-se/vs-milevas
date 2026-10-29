@@ -1,29 +1,19 @@
+import type { ServiceHourlyRates } from "./service-rates";
+import type { ModelStep } from "./steps";
+
 /** A choice's options, keyed by choice: `{ model: ["kbet-18"], battery: ["large-li-ion"] }`. */
 export type SelectionState = Record<string, string[]>;
 
-/** A specification from `TRUCK_SPECS`: how a value is named, ordered and shown. */
-export type ConfiguratorSpec = {
-  key: string;
-  label: string;
-  unit?: string;
-  sortOrder: number;
-  /** Shown on the product card after the lift capacity (Figma: the battery). */
-  onCard: boolean;
-  /** Listed under Tekniska specifikationer in the quote. */
-  inQuote: boolean;
-};
-
-/** A value for a specification type, by its key. */
+/** A specification: a heading and its value, as the quote lists it ("Vikt", "3 293 kg"). */
 export type SpecValue = {
-  spec: string;
-  value: string;
-};
-
-/** A specification as the quote shows it: the type's label and the value with its unit. */
-export type ConfiguratorSpecification = {
   label: string;
   value: string;
 };
+
+export type ConfiguratorSpecification = SpecValue;
+
+/** A photo: what the site needs to show it. */
+export type ConfiguratorImage = { alt: string; url: string };
 
 /**
  * Figma's step types (`9264:6653`): `grid` six to a box, two per row (type 1); `stack` under each
@@ -36,42 +26,54 @@ export type ConfiguratorOption = {
   key: string;
   label: string;
   description?: string;
-  image?: { alt: string; url: string };
-  /** Added to the model's price; 0 is "Ingår". The model choice's options carry the model price. */
+  image?: ConfiguratorImage;
+  /** Added to the model's price; 0 is "Ingår". */
   price: number;
+  /** In a step from the models' fields, the default model's value. */
   default: boolean;
-  sku?: string;
   specs: SpecValue[];
-  /**
-   * Shown only for these options of other steps, by step key: `{ model: ["…"] }` shows a battery
-   * only with those lift capacities. A step left out, or one after this, sets no condition.
-   */
-  availableFor?: Record<string, string[]>;
+  /** In a group, the models that have it; none: every model. */
+  models?: string[];
 };
 
-/** One step of the configurator: one set of options. */
+/**
+ * One step of the configurator: a heading and its options. A step from the models' fields
+ * (`modelStep`) offers the values the models have; a group (a battery, a cab, extras) its own
+ * options, some of which only some models have.
+ */
 export type ConfiguratorChoice = {
   key: string;
   label: string;
+  /** For a step from the models' fields: which. */
+  modelStep?: ModelStep;
   /** Note under the step, followed by a "Kontakta oss" link. */
   help?: string;
   selectionMode: "single" | "multiple";
   required: boolean;
-  /** The step type; without it the content decides (see `choiceDisplay`). */
+  /** A group's "Kolumner": automatic, one or two (see `choiceDisplay`). */
+  columns?: "auto" | "one" | "two";
+  /** The step type; without it the columns and the content decide (see `choiceDisplay`). */
   display?: ChoiceDisplay;
   options: ConfiguratorOption[];
 };
 
 export type ConfiguratorModel = {
   key: string;
+  /** The model's name, "KBET 15 G1". */
   label: string;
-  /** Under the label in the model step, as in Figma. */
   sku?: string;
-  price: number;
+  series?: string;
   capacityKg?: number;
-  image?: { alt: string; url: string };
-  default: boolean;
+  wheels?: string;
+  description?: string;
+  price: number;
+  image?: ConfiguratorImage;
+  brochure?: { title: string; url: string };
   specs: SpecValue[];
+  /** Its photo with an option chosen, as with a cab: the option's key and the photo. */
+  optionImages?: Array<{ option: string; image: ConfiguratorImage }>;
+  /** Its truck type's service price per drive hour for its lift capacity, for a rental. */
+  serviceHourlyRates?: ServiceHourlyRates;
 };
 
 export type ConfiguratorFamily = {
@@ -81,20 +83,26 @@ export type ConfiguratorFamily = {
   /** For the quote's heading: "Elektrisk motviktstruck". */
   singularName: string;
   description?: string;
-  /** Off for a family without variants: no models or choices, and it links to `contactLink`. */
+  /** Off for a family without published models; it is then not shown on the site. */
   configurable: boolean;
-  /** Where the family's cards and links go when it is not configurable. */
-  contactLink?: { href: string; rel?: string; target?: "_blank" };
   deliveryTime: string;
   warranty: string;
-  /** The family's one image: heroes, menus, cards and the configurator crop it as they need. */
-  image?: { alt: string; url: string };
+  /** The family's main image: heroes, menus, cards, and the configurator until a model has one. */
+  image?: ConfiguratorImage;
   brochure?: { title: string; url: string };
+  /** After the lift capacity on the product card ("80 V 228 Ah"). */
+  cardSpec?: string;
   specs: SpecValue[];
-  /** The variants' step, always first: its name from the settings ("Lyftkapacitet"). */
-  modelChoice: { label: string };
+  /** The model the configuration starts at; without it the cheapest. */
+  defaultModel?: string;
   models: ConfiguratorModel[];
+  /** The groups of equipment and extras. */
   choices: ConfiguratorChoice[];
+  /**
+   * "Steg i konfiguratorn": the steps' keys in order, a model field's (`capacity`, `wheels`,
+   * `series`, `model`) or a group's.
+   */
+  order: string[];
 };
 
 export type FinancingMethod = {
@@ -106,8 +114,17 @@ export type FinancingMethod = {
   months?: number;
   /** The terms to choose from with Figma's "Avtalslängd" slider, shortest first. */
   terms?: number[];
-  /** "Restvärde": the share of the total price left at the end, e.g. 10. */
+  /** Yearly interest in percent, 5.95; none is no interest. */
+  interestRate?: number;
+  /** "Restvärde" by term: the share of the total price left at the end, the first that fits. */
+  residualValues?: Array<{ minMonths: number; maxMonths: number; percent: number }>;
+  /** "Restvärde" for the terms `residualValues` leaves out, e.g. 10. */
   residualPercent?: number;
+  /**
+   * A rental (VS Truck's long-term rental): the month's cost adds service for the drive hours a
+   * year and insurance, and the customer sees no residual value.
+   */
+  rental?: { driveHoursPerYear: number; insurancePercent: number };
   serviceAgreementEligible: boolean;
 };
 
@@ -125,7 +142,6 @@ export type NextStep = {
 
 export type ConfiguratorCatalog = {
   families: ConfiguratorFamily[];
-  specs: ConfiguratorSpec[];
   financingMethods: FinancingMethod[];
   serviceAgreement?: ServiceAgreement;
   quoteValidityDays: number;
@@ -149,10 +165,12 @@ export type ConfiguratorQuote = {
   /** The family in singular, for the quote's heading. */
   familySingularName?: string;
   modelKey?: string;
+  /** The model's name, "KBE 18 Li G1". */
+  modelName?: string;
   sku?: string;
   selections: SelectionState;
   selectedOptions: Array<{
-    /** The choice's key; `model` for the model. */
+    /** The step's key. */
     groupKey: string;
     optionKey: string;
     label: string;

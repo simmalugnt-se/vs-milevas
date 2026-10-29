@@ -1,5 +1,5 @@
 import { dealerPrice } from "@/features/dealers/pricing";
-import { financingLabel, MODEL_CHOICE } from "./engine";
+import { financingLabel } from "./engine";
 import type { ConfiguratorQuote } from "./types";
 
 /** Labels keep their soft hyphens (`|` in the CMS) for the site; Admin shows them plain. */
@@ -17,7 +17,10 @@ export function quoteFields(
     dealer && dealer.discountPercent > 0 ? dealerPrice(price, dealer.discountPercent) : undefined;
   return {
     familyName: plain(quote.familySingularName ?? quote.familyName),
-    model: plain(quote.selectedOptions.find((option) => option.groupKey === MODEL_CHOICE)?.label),
+    // Older snapshots have the model as the model step's option.
+    model: plain(
+      quote.modelName ?? quote.selectedOptions.find((option) => option.groupKey === "model")?.label,
+    ),
     sku: quote.sku || undefined,
     // Older snapshots have no `complete` and are whole.
     complete: quote.complete !== false,

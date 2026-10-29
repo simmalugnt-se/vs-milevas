@@ -27,7 +27,7 @@ export async function ProductGridBlockComponent({
         brand: block.brand ?? "",
         category: block.category ?? "",
         name: family.name,
-        specs: familyCardSpecs(family, catalog),
+        specs: familyCardSpecs(family),
         ...familyPrices(family, catalog),
         // The truck type's main image, always whole: a cut-out truck on its bottom edge.
         image: family.image ? (
