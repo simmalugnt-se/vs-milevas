@@ -1,7 +1,7 @@
 /**
  * Truck models as their own collection (`truck-models`), and the truck type's groups in place of its
  * fixed lists. This migration changes the schema and keeps the old rows aside (`mig_*`); the data is
- * moved by the branch's last migration, `20261029_152204_equipment_and_step_order`, once every
+ * moved by `20261030_090742_choice_groups`, the last migration that changes the truck types, once every
  * table the truck types use exists (the Local API writes all of them).
  *
  * The old variants' table has the new collection's name, so the old rows are copied aside first,

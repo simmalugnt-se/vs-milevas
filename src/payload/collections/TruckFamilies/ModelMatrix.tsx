@@ -12,7 +12,7 @@ const plain = (value: unknown) => (typeof value === "string" ? value.replaceAll(
 const ids = (models: Option["models"]) =>
   (models ?? []).map((model) => (typeof model === "object" ? model.id : model));
 
-/** The value at a dotted path in the form's data: `equipment.0` → the first group. */
+/** The value at a dotted path in the form's data: `choices.0` → the first group. */
 function at(data: unknown, path: string): unknown {
   return path.split(".").reduce<unknown>((value, key) => {
     if (value && typeof value === "object") return (value as Record<string, unknown>)[key];
@@ -23,7 +23,7 @@ function at(data: unknown, path: string): unknown {
 /**
  * "Modeller" on a group: which models have each option, as a matrix of the options by the models.
  * An option every model has stores no models; while all do, the matrix stays folded. An option
- * keeps one model at least: its last can't be unticked. Under Utrustning the cell of each model's
+ * keeps one model at least: its last can't be unticked. Without "Flerval" the cell of each model's
  * first option, its default, is marked.
  */
 export const ModelMatrix: UIFieldClientComponent = ({ path }) => {
@@ -33,11 +33,11 @@ export const ModelMatrix: UIFieldClientComponent = ({ path }) => {
   const models = useFamilyModels();
   const [open, setOpen] = useState(false);
   const group = at(reduceFieldsToValues(fields, true), groupPath) as
-    | { options?: Option[] }
+    | { options?: Option[]; multiple?: boolean }
     | undefined;
   const options = group?.options ?? [];
   const forAll = options.every((option) => ids(option.models).length === 0);
-  const single = groupPath.startsWith("equipment");
+  const single = !group?.multiple;
 
   if (models.length === 0 || options.length === 0) return null;
 

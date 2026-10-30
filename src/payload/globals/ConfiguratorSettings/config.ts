@@ -1,4 +1,5 @@
 import type { GlobalConfig } from "payload";
+import { DRIVE_HOUR_BANDS } from "@/features/configurator/service-rates.ts";
 import { ADMIN_GROUPS } from "@/payload/admin-groups.ts";
 import { isAuthenticated, isEditorUser } from "../../access/isAuthenticated.ts";
 import { revalidateConfiguratorSettings } from "./hooks/revalidate.ts";
@@ -171,7 +172,6 @@ export const ConfiguratorSettings: GlobalConfig = {
                   defaultValue: false,
                   admin: {
                     condition: (_, siblingData) => siblingData?.kind === "monthly",
-                    description: "Timpriset för service anges på trucktypen, under Långtidshyra.",
                   },
                 },
                 {
@@ -194,6 +194,66 @@ export const ConfiguratorSettings: GlobalConfig = {
                       type: "number",
                       min: 0,
                       admin: { width: "50%", step: 0.01 },
+                    },
+                  ],
+                },
+                {
+                  // VS Truck's service prices: kronor per drive hour by truck type, the model's lift
+                  // capacity and the drive hours a year (`DRIVE_HOUR_BANDS`).
+                  name: "serviceRates",
+                  label: "Servicekostnad per drifttimme",
+                  labels: { singular: "Rad", plural: "Rader" },
+                  type: "array",
+                  dbName: "cs_service_rates",
+                  localized: false,
+                  admin: {
+                    condition: (_, siblingData) =>
+                      siblingData?.kind === "monthly" && siblingData?.rental === true,
+                    initCollapsed: true,
+                    description:
+                      "Den första raden som passar modellens trucktyp och lyftkapacitet gäller.",
+                    components: {
+                      RowLabel:
+                        "/payload/globals/ConfiguratorSettings/RowLabels.tsx#ServiceRateRowLabel",
+                    },
+                  },
+                  fields: [
+                    {
+                      name: "family",
+                      label: "Trucktyp",
+                      type: "relationship",
+                      relationTo: "truck-families",
+                      required: true,
+                    },
+                    {
+                      type: "row",
+                      fields: [
+                        {
+                          name: "minKg",
+                          label: "Lyftkapacitet från (kg)",
+                          type: "number",
+                          required: true,
+                          min: 0,
+                          admin: { width: "50%" },
+                        },
+                        {
+                          name: "maxKg",
+                          label: "Till och med (kg)",
+                          type: "number",
+                          min: 0,
+                          admin: { width: "50%", description: "Tomt: ingen övre gräns." },
+                        },
+                      ],
+                    },
+                    {
+                      type: "row",
+                      fields: DRIVE_HOUR_BANDS.map(({ key, label }) => ({
+                        name: key,
+                        label: `${label} (kr/h)`,
+                        type: "number" as const,
+                        min: 0,
+                        admin: { width: "20%", step: 0.5 },
+                      })),
                     },
                   ],
                 },

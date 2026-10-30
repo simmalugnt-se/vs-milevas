@@ -1568,11 +1568,11 @@ export const figmaNotes: FigmaNote[] = [
   },
   {
     target: "configurator",
-    topic: "Modeller, utrustning och stegens ordning per trucktyp",
+    topic: "Modeller, val och stegens ordning per trucktyp",
     figma:
       "Ett flöde för alla truckar: trucktyp, Lyftkapacitet, Batteri, Lyfthöjd, Tillval, Finansiering",
-    code: 'Varje trucktyp har sina modeller (Baolis prislista), sin utrustning och sina tillval i grupper där varje alternativ skrivs en gång och en matris säger vilka modeller som har det, och en egen stegordning som blandar modellernas fält (Lyftkapacitet, Hjulantal, Serie, Modell) och grupperna, som i Lovable-prototypen (motviktstruckar: Lyftkapacitet, Batteri, Hjulantal, Lyfthöjd …). Ett steg från modellernas fält visar priset för den billigaste modellen med värdet ("1,6 ton", "Från 176 900 kr", som i Lovable; tidigare prisskillnaden, "+7 200 kr" och "Ingår"); en grupp visar det modellerna som är kvar har. Förvalt är det första alternativet modellen har, så kunden behöver inte välja lyfthöjd själv som i prototypen. Steg med ett alternativ eller inget visas inte',
-    why: "Kundens feedback 2026-10-28, Baolis prislista och Lovable-prototypen. Användarens beslut 2026-10-29 efter en skiss: modellerna är grunden, varje alternativ definieras en gång, kopplingen till modellerna görs i en matris och ordningen bestäms per trucktyp",
+    code: 'Varje trucktyp har sina modeller (Baolis prislista) och sina val i grupper (ett alternativ, eller valfritt antal med "Flerval"; sedan 2026-10-30 en lista, tidigare Utrustning och Tillval för sig) där varje alternativ skrivs en gång och en matris säger vilka modeller som har det, och en egen stegordning som blandar modellernas fält (Lyftkapacitet, Hjulantal, Serie, Modell) och grupperna, som i Lovable-prototypen (motviktstruckar: Lyftkapacitet, Batteri, Hjulantal, Lyfthöjd …). Ett steg från modellernas fält visar priset för den billigaste modellen med värdet ("1,6 ton", "Från 176 900 kr", som i Lovable; tidigare prisskillnaden, "+7 200 kr" och "Ingår"); en grupp visar det modellerna som är kvar har. Förvalt är det första alternativet modellen har, så kunden behöver inte välja lyfthöjd själv som i prototypen. Steg med ett alternativ eller inget visas inte',
+    why: "Kundens feedback 2026-10-28, Baolis prislista och Lovable-prototypen. Användarens beslut 2026-10-29 efter en skiss: modellerna är grunden, varje alternativ definieras en gång, kopplingen till modellerna görs i en matris och ordningen bestäms per trucktyp. 2026-10-30: en lista Val, eftersom ett tillval med ett val (Bluespot) annars hamnade under Utrustning",
     status: "Beslut",
     date: "2026-10-29",
   },

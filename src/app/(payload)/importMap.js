@@ -38,7 +38,6 @@ import { ModelMatrix as ModelMatrix_6cc7303b25a417199400244b6b3036f7 } from '../
 import { GroupRowLabel as GroupRowLabel_e70b1b18b28ca1f64b445135ddfbaaac } from '../../payload/collections/TruckFamilies/RowLabels.tsx'
 import { StepSelect as StepSelect_f59b9a9b16960c1a8e936c9a83d14942 } from '../../payload/collections/TruckFamilies/StepSelect.tsx'
 import { StepOrderRowLabel as StepOrderRowLabel_e70b1b18b28ca1f64b445135ddfbaaac } from '../../payload/collections/TruckFamilies/RowLabels.tsx'
-import { ServiceRateRowLabel as ServiceRateRowLabel_e70b1b18b28ca1f64b445135ddfbaaac } from '../../payload/collections/TruckFamilies/RowLabels.tsx'
 import { SeriesSelect as SeriesSelect_4040b9ff7ce51ab95916187a93981ce8 } from '../../payload/collections/TruckModels/SeriesSelect.tsx'
 import { EquipmentSummary as EquipmentSummary_e3b4be32cf165f6701bed82dc8444f0d } from '../../payload/collections/TruckModels/EquipmentSummary.tsx'
 import { OptionSelect as OptionSelect_979ab6738514504d0e543009b223bd28 } from '../../payload/collections/TruckModels/OptionSelect.tsx'
@@ -46,6 +45,7 @@ import { OptionImageRowLabel as OptionImageRowLabel_085799bf796e6dc98b5d85286cde
 import { VideoField as VideoField_329793083ea1bbf314c92cf4b9d6ad01 } from '@simmalugnt-se/payload-mux/client'
 import { VideoDetails as VideoDetails_329793083ea1bbf314c92cf4b9d6ad01 } from '@simmalugnt-se/payload-mux/client'
 import { ResidualValueRowLabel as ResidualValueRowLabel_97779a339b1b6e65c5c46f0a2e9ae07d } from '../../payload/globals/ConfiguratorSettings/RowLabels.tsx'
+import { ServiceRateRowLabel as ServiceRateRowLabel_97779a339b1b6e65c5c46f0a2e9ae07d } from '../../payload/globals/ConfiguratorSettings/RowLabels.tsx'
 import { FinancingRowLabel as FinancingRowLabel_97779a339b1b6e65c5c46f0a2e9ae07d } from '../../payload/globals/ConfiguratorSettings/RowLabels.tsx'
 import { SearchAction as SearchAction_2d36a4e55a20b328e037a52d763a3b15 } from '@simmalugnt-se/payload-search/client'
 import { CacheTools as CacheTools_b88d10399ab5955969aafcb24963bfdc } from '../../payload/components/CacheTools'
@@ -98,7 +98,6 @@ export const importMap = {
   "/payload/collections/TruckFamilies/RowLabels.tsx#GroupRowLabel": GroupRowLabel_e70b1b18b28ca1f64b445135ddfbaaac,
   "/payload/collections/TruckFamilies/StepSelect.tsx#StepSelect": StepSelect_f59b9a9b16960c1a8e936c9a83d14942,
   "/payload/collections/TruckFamilies/RowLabels.tsx#StepOrderRowLabel": StepOrderRowLabel_e70b1b18b28ca1f64b445135ddfbaaac,
-  "/payload/collections/TruckFamilies/RowLabels.tsx#ServiceRateRowLabel": ServiceRateRowLabel_e70b1b18b28ca1f64b445135ddfbaaac,
   "/payload/collections/TruckModels/SeriesSelect.tsx#SeriesSelect": SeriesSelect_4040b9ff7ce51ab95916187a93981ce8,
   "/payload/collections/TruckModels/EquipmentSummary.tsx#EquipmentSummary": EquipmentSummary_e3b4be32cf165f6701bed82dc8444f0d,
   "/payload/collections/TruckModels/OptionSelect.tsx#OptionSelect": OptionSelect_979ab6738514504d0e543009b223bd28,
@@ -106,6 +105,7 @@ export const importMap = {
   "@simmalugnt-se/payload-mux/client#VideoField": VideoField_329793083ea1bbf314c92cf4b9d6ad01,
   "@simmalugnt-se/payload-mux/client#VideoDetails": VideoDetails_329793083ea1bbf314c92cf4b9d6ad01,
   "/payload/globals/ConfiguratorSettings/RowLabels.tsx#ResidualValueRowLabel": ResidualValueRowLabel_97779a339b1b6e65c5c46f0a2e9ae07d,
+  "/payload/globals/ConfiguratorSettings/RowLabels.tsx#ServiceRateRowLabel": ServiceRateRowLabel_97779a339b1b6e65c5c46f0a2e9ae07d,
   "/payload/globals/ConfiguratorSettings/RowLabels.tsx#FinancingRowLabel": FinancingRowLabel_97779a339b1b6e65c5c46f0a2e9ae07d,
   "@simmalugnt-se/payload-search/client#SearchAction": SearchAction_2d36a4e55a20b328e037a52d763a3b15,
   "/payload/components/CacheTools#CacheTools": CacheTools_b88d10399ab5955969aafcb24963bfdc,

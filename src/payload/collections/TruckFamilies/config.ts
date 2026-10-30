@@ -6,7 +6,6 @@ import type {
   Validate,
   Where,
 } from "payload";
-import { DRIVE_HOUR_BANDS } from "@/features/configurator/service-rates.ts";
 import { isModelStep, type ModelProperty, propertyValue } from "@/features/configurator/steps.ts";
 import { ADMIN_GROUPS } from "@/payload/admin-groups.ts";
 import { authenticatedOrPublished } from "../../access/authenticatedOrPublished.ts";
@@ -108,31 +107,20 @@ const optionsField = (dbName: string, specsDbName: string): ArrayField => ({
   ],
 });
 
-/** A group of equipment or extras: a name, its options, which models have them, how it shows. */
-const groupField = ({
-  name,
-  label,
-  description,
-  dbName,
-  optionsDbName,
-  specsDbName,
-}: {
-  name: string;
-  label: string;
-  description: string;
-  dbName: string;
-  optionsDbName: string;
-  specsDbName: string;
-}): ArrayField => ({
-  name,
-  label,
-  labels: { singular: "Grupp", plural: "Grupper" },
+/**
+ * "Val": the truck type's groups of options (Batteri, Hytt, Bluespot …), each a step: one option, or
+ * any with "Flerval"; the options and which models have them, and how it shows.
+ */
+const choicesField: ArrayField = {
+  name: "choices",
+  label: "Val",
+  labels: { singular: "Val", plural: "Val" },
   type: "array",
-  dbName,
+  dbName: "truck_questions",
   localized: false,
   admin: {
     initCollapsed: true,
-    description,
+    description: "Det första alternativet en modell har är förvalt för den, utom vid flerval.",
     components: { RowLabel: `${ROW_LABELS}#GroupRowLabel` },
   },
   fields: [
@@ -144,7 +132,13 @@ const groupField = ({
       required: true,
       admin: { description: 'Till exempel "Batteri". Visas som stegets rubrik.' },
     },
-    optionsField(optionsDbName, specsDbName),
+    {
+      name: "multiple",
+      label: "Flerval",
+      type: "checkbox",
+      defaultValue: false,
+    },
+    optionsField("truck_question_options", "truck_option_specs"),
     {
       name: "modelMatrix",
       type: "ui",
@@ -175,59 +169,11 @@ const groupField = ({
       ],
     },
   ],
-});
-
-/**
- * Long-term rental's service, as VS Truck prices it: kronor per drive hour by the model's lift
- * capacity and the hours a year (`DRIVE_HOUR_BANDS`).
- */
-const serviceRatesField: ArrayField = {
-  name: "serviceRates",
-  label: "Servicekostnad per drifttimme",
-  labels: { singular: "Kapacitet", plural: "Kapaciteter" },
-  type: "array",
-  localized: false,
-  admin: {
-    description: "Den första raden som passar modellens lyftkapacitet gäller.",
-    components: { RowLabel: `${ROW_LABELS}#ServiceRateRowLabel` },
-  },
-  fields: [
-    {
-      type: "row",
-      fields: [
-        {
-          name: "minKg",
-          label: "Lyftkapacitet från (kg)",
-          type: "number",
-          required: true,
-          min: 0,
-          admin: { width: "50%" },
-        },
-        {
-          name: "maxKg",
-          label: "Till och med (kg)",
-          type: "number",
-          min: 0,
-          admin: { width: "50%", description: "Tomt: ingen övre gräns." },
-        },
-      ],
-    },
-    {
-      type: "row",
-      fields: DRIVE_HOUR_BANDS.map(({ key, label }) => ({
-        name: key,
-        label: `${label} (kr/h)`,
-        type: "number" as const,
-        min: 0,
-        admin: { width: "20%", step: 0.5 },
-      })),
-    },
-  ],
 };
 
 /**
  * A truck family (Figma's product category): what it is, its models (`truck-models`), its groups of
- * equipment and extras with the models that have each option, and the steps' order. The hero, the
+ * options ("Val") with the models that have each option, and the steps' order. The hero, the
  * navigation, the product cards and the quote read it. Without published models it is not shown on
  * the site. See `docs/truck-data-schema.md`.
  */
@@ -394,26 +340,8 @@ export const TruckFamilies: CollectionConfig = {
           ],
         },
         {
-          label: "Utrustning",
-          fields: [
-            groupField({
-              name: "equipment",
-              label: "Utrustning",
-              description:
-                "Kunden väljer ett alternativ i varje grupp. Förvalt är det första alternativet i listan som modellen har.",
-              dbName: "truck_questions",
-              optionsDbName: "truck_question_options",
-              specsDbName: "truck_option_specs",
-            }),
-            groupField({
-              name: "extras",
-              label: "Tillval",
-              description: "Kunden väljer fritt, flera eller inget.",
-              dbName: "truck_extra_groups",
-              optionsDbName: "truck_extra_options",
-              specsDbName: "truck_extra_option_specs",
-            }),
-          ],
+          label: "Val",
+          fields: [choicesField],
         },
         {
           label: "Steg i konfiguratorn",
@@ -443,10 +371,6 @@ export const TruckFamilies: CollectionConfig = {
               ],
             },
           ],
-        },
-        {
-          label: "Långtidshyra",
-          fields: [serviceRatesField],
         },
       ],
     },

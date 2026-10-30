@@ -15,6 +15,32 @@ export type DriveHourBand = (typeof DRIVE_HOUR_BANDS)[number]["key"];
 /** Kronor per drive hour in each band. */
 export type ServiceHourlyRates = Partial<Record<DriveHourBand, number>>;
 
+/** A row of "Servicekostnad per drifttimme": a truck type (its id) and a lift capacity range. */
+export type ServiceRate = {
+  family: string;
+  minKg: number;
+  /** None: no upper limit. */
+  maxKg?: number;
+  rates: ServiceHourlyRates;
+};
+
+/** The price per drive hour for a model: the first row for its truck type and lift capacity. */
+export function serviceHourlyRate(
+  rows: ServiceRate[],
+  model: { family?: string; capacityKg?: number } | undefined,
+  hours: number,
+): number {
+  const capacity = model?.capacityKg;
+  if (!model?.family || typeof capacity !== "number") return 0;
+  const row = rows.find(
+    ({ family, minKg, maxKg }) =>
+      family === model.family &&
+      capacity >= minKg &&
+      (typeof maxKg !== "number" || capacity <= maxKg),
+  );
+  return row?.rates[driveHourBand(hours)] ?? 0;
+}
+
 /** The band a year's drive hours fall in. */
 export function driveHourBand(hours: number): DriveHourBand {
   return (DRIVE_HOUR_BANDS.find((band) => hours <= band.maxHours) ?? DRIVE_HOUR_BANDS[4]).key;

@@ -28,7 +28,7 @@ navigationen och produktkorten, hämtar namn, bild och priser från trucktypen.
 | 2026-10-27 | Stegens ordning och namn ställs in en gång för alla trucktyper i Konfiguratorinställningar. Valet av trucktyp och Lyftkapacitet ligger fast först, eftersom grundpriset sitter på varianten och allt annat läggs till det. Ett grundpris på trucktypen med tillägg per variant valdes bort: varje variant är en egen modell med eget listpris, och Figma visar varianten som offertens bas. Trucktyperna sorteras genom att dras i listan. |
 | 2026-10-27 | Kunden väljer avtalslängd för leasing och långtidshyra med Figmas reglage, inom längderna i Konfiguratorinställningar. Restvärde finns bara för leasing. Månadskostnaden räknas tills vidare som (totalpris − restvärde) / antal månader; den riktiga uträkningen bestäms senare (`TODO(financing)`). |
 | 2026-10-29 | Modellerna är en egen samling (`truck-models`) med pris och ÅF-rabatt per modell, och varje trucktyp har egna frågor och ett eget sätt att välja modell (avsnitt 14). Det ersätter de fasta listorna och stegens gemensamma ordning från 2026-10-26 och 2026-10-27: Baolis prislista har flera modeller med samma kapacitet (KBET 18 och KBE 18), och kundens feedback vill ha olika flöden per trucktyp. ÅF-rabatten anges i procent. |
-| 2026-10-29 | Leasing och långtidshyra räknas som hos VS Truck (`vs-truck/src/utils/helpers.ts`): en annuitet (Excels PMT) som betalas i början av varje månad, med årsränta och ett restvärde per avtalslängd kvar i slutet. En finansieringsform som är hyra lägger till service, drifttimmar per år × trucktypens timpris för modellens lyftkapacitet / 12, och försäkring, totalpris × procent / 12, och visar inget restvärde. Allt räknas på totalpriset med tillval. Drifttimmarna står fast i inställningarna tills kunden kan välja dem (fråga i figma-notes). Räntan, restvärdena och timpriserna i seeden är VS Truck:s. Det ersätter platshållaren från 2026-10-27. |
+| 2026-10-29 | Leasing och långtidshyra räknas som hos VS Truck (`vs-truck/src/utils/helpers.ts`): en annuitet (Excels PMT) som betalas i början av varje månad, med årsränta och ett restvärde per avtalslängd kvar i slutet. En finansieringsform som är hyra lägger till service, drifttimmar per år × timpriset för modellens trucktyp och lyftkapacitet (finansieringsformens "Servicekostnad per drifttimme" i Konfiguratorinställningar sedan 2026-10-30, tidigare på trucktypen) / 12, och försäkring, totalpris × procent / 12, och visar inget restvärde. Allt räknas på totalpriset med tillval. Drifttimmarna står fast i inställningarna tills kunden kan välja dem (fråga i figma-notes). Räntan, restvärdena och timpriserna i seeden är VS Truck:s. Det ersätter platshållaren från 2026-10-27. |
 | 2026-10-26 | Fasta fält i stället för kopplingar: specifikationerna och stegen (batteri, lyfthöjd, tillval) är fält på trucktypen, ett tomt fält eller steg visas inte. `truck-specs`, nycklarna och villkoren (`models`, `requires`, `excludes`) tas bort. |
 
 ## 1. Dagens schema
@@ -336,18 +336,22 @@ Migreringen `20261028_081856_option_images`: varianter, batterier och master har
 tillvalen redan hade. Har något alternativ i ett steg en bild visas steget med bilder (`choiceDisplay`
 i `engine.ts`: fler än tre två per rad, annars rader med bilden till höger); utan bilder som förut.
 
-## 14. Modeller, utrustning och stegens ordning (2026-10-29)
+## 14. Modeller, val och stegens ordning (2026-10-29, Val 2026-10-30)
 
-Två migreringar. `20261029_095637_truck_models` byter schema och sparar undan den gamla datan
-(`mig_*`); den gamla varianttabellen hade den nya samlingens namn (`truck_models`).
-`20261029_152204_equipment_and_step_order`, grenens sista, lägger till det sista av schemat och flyttar
-sedan datan med Local API, när alla tabeller som trucktyperna skriver till finns (också
-Långtidshyrans från `20261029_143003_financing_like_vs_truck`): varianterna blir modeller som kunden
-väljer efter lyftkapacitet, batterierna och masterna grupper under Utrustning och tillvalen en grupp
-under Tillval, i den ordning inställningarna gav dem; ett alternativ som bara visades för vissa
-varianter gäller de modellerna, och det förvalda läggs först. En databas utan den gamla datan
-(seedad sedan) har inget att flytta. `down` återställer bara schemat. Den som ändrar trucktypernas
-fält senare flyttar dataflytten till den nya sista migreringen.
+`20261029_095637_truck_models` byter schema och sparar undan den gamla datan (`mig_*`); den gamla
+varianttabellen hade den nya samlingens namn (`truck_models`). `20261029_152204_equipment_and_step_order`
+och `20261029_162214_series_text` lägger till resten av schemat. `20261030_090742_choice_groups`,
+den sista som ändrar trucktyperna, slår ihop Utrustning och Tillval till en lista, Val (`choices[]`): tillvalens grupper
+flyttas in efter utrustningens med "Flerval" och behåller sina id:n, och alternativens modeller följer
+med (`down` flyttar tillbaka dem). Sedan flyttar den datan med Local API, när alla tabeller som
+trucktyperna skriver till finns: varianterna blir modeller som kunden väljer efter lyftkapacitet,
+batterierna och masterna grupper och tillvalen en grupp med Flerval, i den ordning inställningarna gav
+dem; ett alternativ som bara visades för vissa varianter gäller de modellerna, och det förvalda läggs
+först. En databas utan den gamla datan (seedad sedan, eller migrerad när flytten låg i 152204) har
+inget att flytta. Den som ändrar trucktypernas eller modellernas fält senare flyttar dataflytten till
+den nya migreringen. `20261030_101939_service_rates_in_settings` flyttar långtidshyrans servicepriser
+från trucktyperna till finansieringsformen i Konfiguratorinställningar, en rad per trucktyp och
+lyftkapacitet.
 
 **Modell** (`truck-models`, `TruckModels/config.ts`), en rad per modell som i Baolis prislista:
 
@@ -363,8 +367,8 @@ fält senare flyttar dataflytten till den nya sista migreringen.
 | `specs[]` | Rubrik och värde; ersätter trucktypens rad med samma rubrik |
 | `optionImages[]` | "Bilder med tillval": ett alternativ modellen har (dess rad-id, `OptionSelect.tsx`) och modellens bild med det, som med hytt |
 
-Modellsidan visar också vilken utrustning modellen har (`EquipmentSummary.tsx`); den ändras på
-trucktypen. En modell syns i konfiguratorn när den är publicerad.
+Modellsidan visar också vilka alternativ modellen har i de val som skiljer sig mellan modellerna
+(`EquipmentSummary.tsx`); de ändras på trucktypen. En modell syns i konfiguratorn när den är publicerad.
 
 **Trucktypen** har flikarna:
 
@@ -373,24 +377,22 @@ trucktypen. En modell syns i konfiguratorn när den är publicerad.
   visas inte på sajten (`familyLink` ger ingen länk); "Länk utan modeller" är borttagen.
 - **Modeller:** modellerna (ett `join`-fält), `series[]` (listan modellerna väljer serie ur) och
   `defaultModel` (där konfiguratorn, heron och korten börjar; utan den den billigaste).
-- **Utrustning:** `equipment[]` (tabellen `truck_questions`), grupper där kunden väljer ett
-  alternativ, och `extras[]` (`truck_extra_groups`), grupper där kunden väljer fritt. En grupp har
-  namn, alternativ (namn, pris, text, bild, specifikationer), kolumner (`columns`, se
-  `choiceDisplay`) och text under alternativen. Varje alternativ skrivs en gång; `models` säger
+- **Val:** `choices[]` (tabellen `truck_questions`), grupper med ett alternativ, eller valfritt
+  antal med `multiple` ("Flerval"; inget förval). En grupp har namn, alternativ (namn, pris, text,
+  bild, specifikationer), kolumner (`columns`, se `choiceDisplay`) och text under alternativen. Varje alternativ skrivs en gång; `models` säger
   vilka modeller som har det, inga är alla. Det sätts med matrisen (`ModelMatrix.tsx`), som är
   hopfälld så länge alla modeller har allt. Förvalt är det första alternativet i listan som modellen
   har; det finns ingen förvalsruta.
 - **Steg i konfiguratorn:** `stepOrder[]`, stegen i ordning: ett av modellernas fält (`capacity`,
   `wheels`, `series`, `model`) eller en grupp (dess rad-id, `StepSelect.tsx`). Sparas inte om
   stegen från modellernas fält inte skiljer modellerna åt (utan Modell bland dem).
-- **Långtidshyra:** servicekostnad per drifttimme (se finansieringen).
 
 **Konfiguratorn** (`engine.ts`) bygger stegen i den ordningen (`familySteps`); en grupp som inte
 står i ordningen kommer sist, och utan Modell läggs den efter det sista av modellernas fält (det är
 inget steg när en modell är kvar). Ett steg från modellernas fält visar de värden modellerna som är
 kvar har, ett per värde (tal i storleksordning, serier och modeller från lägsta pris), med
-priset för den billigaste modellen med värdet ("1,6 ton", "Från 176 900 kr", som i Lovable) och
-modellernas namn som text, med deras text när de har samma
+priset för den billigaste modellen med värdet ("1,6 ton", "Från 176 900 kr", som i Lovable) och som
+text seriens egen (`series[].description`), annars modellernas namn och den enda modellens text
 (`availableOptions`). En grupps alternativ visas när någon av modellerna som är kvar har det, och
 ett valt alternativ lämnar bara de modellerna (`modelsLeft`), så Batteri kan stå före Hjulantal som
 i Lovable. Modellen är den billigaste som passar valen (`chosenModel`); den ger grundpriset,

@@ -823,66 +823,15 @@ export interface TruckFamily {
    */
   defaultModel?: (string | null) | TruckModel;
   /**
-   * Kunden väljer ett alternativ i varje grupp. Förvalt är det första alternativet i listan som modellen har.
+   * Det första alternativet en modell har är förvalt för den, utom vid flerval.
    */
-  equipment?:
+  choices?:
     | {
         /**
          * Till exempel "Batteri". Visas som stegets rubrik.
          */
         label: string;
-        options?:
-          | {
-              /**
-               * Skriv | där ordet får delas, till exempel "Motvikts|truckar".
-               */
-              label: string;
-              /**
-               * 0 visas som "Ingår".
-               */
-              price: number;
-              description?: string | null;
-              /**
-               * Valfri. Har något alternativ i gruppen en bild visas steget med bilder.
-               */
-              image?: (string | null) | Image;
-              /**
-               * Visas i offerten när alternativet är valt.
-               */
-              specs?:
-                | {
-                    /**
-                     * Till exempel "Vikt".
-                     */
-                    label: string;
-                    /**
-                     * Med enhet, till exempel "3 293 kg".
-                     */
-                    value: string;
-                    id?: string | null;
-                  }[]
-                | null;
-              models?: (string | TruckModel)[] | null;
-              id?: string | null;
-            }[]
-          | null;
-        columns?: ('auto' | 'one' | 'two') | null;
-        /**
-         * Valfri. Följs av "Kontakta oss".
-         */
-        help?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  /**
-   * Kunden väljer fritt, flera eller inget.
-   */
-  extras?:
-    | {
-        /**
-         * Till exempel "Batteri". Visas som stegets rubrik.
-         */
-        label: string;
+        multiple?: boolean | null;
         options?:
           | {
               /**
@@ -932,24 +881,6 @@ export interface TruckFamily {
   stepOrder?:
     | {
         step: string;
-        id?: string | null;
-      }[]
-    | null;
-  /**
-   * Den första raden som passar modellens lyftkapacitet gäller.
-   */
-  serviceRates?:
-    | {
-        minKg: number;
-        /**
-         * Tomt: ingen övre gräns.
-         */
-        maxKg?: number | null;
-        upTo600?: number | null;
-        upTo1200?: number | null;
-        upTo2000?: number | null;
-        upTo3000?: number | null;
-        over3000?: number | null;
         id?: string | null;
       }[]
     | null;
@@ -2024,35 +1955,11 @@ export interface TruckFamiliesSelect<T extends boolean = true> {
         id?: T;
       };
   defaultModel?: T;
-  equipment?:
+  choices?:
     | T
     | {
         label?: T;
-        options?:
-          | T
-          | {
-              label?: T;
-              price?: T;
-              description?: T;
-              image?: T;
-              specs?:
-                | T
-                | {
-                    label?: T;
-                    value?: T;
-                    id?: T;
-                  };
-              models?: T;
-              id?: T;
-            };
-        columns?: T;
-        help?: T;
-        id?: T;
-      };
-  extras?:
-    | T
-    | {
-        label?: T;
+        multiple?: T;
         options?:
           | T
           | {
@@ -2078,18 +1985,6 @@ export interface TruckFamiliesSelect<T extends boolean = true> {
     | T
     | {
         step?: T;
-        id?: T;
-      };
-  serviceRates?:
-    | T
-    | {
-        minKg?: T;
-        maxKg?: T;
-        upTo600?: T;
-        upTo1200?: T;
-        upTo2000?: T;
-        upTo3000?: T;
-        over3000?: T;
         id?: T;
       };
   key?: T;
@@ -2500,12 +2395,28 @@ export interface ConfiguratorSetting {
         }[]
       | null;
     residualPercent?: number | null;
-    /**
-     * Timpriset för service anges på trucktypen, under Långtidshyra.
-     */
     rental?: boolean | null;
     driveHoursPerYear?: number | null;
     insurancePercent?: number | null;
+    /**
+     * Den första raden som passar modellens trucktyp och lyftkapacitet gäller.
+     */
+    serviceRates?:
+      | {
+          family: string | TruckFamily;
+          minKg: number;
+          /**
+           * Tomt: ingen övre gräns.
+           */
+          maxKg?: number | null;
+          upTo600?: number | null;
+          upTo1200?: number | null;
+          upTo2000?: number | null;
+          upTo3000?: number | null;
+          over3000?: number | null;
+          id?: string | null;
+        }[]
+      | null;
     /**
      * Visar serviceavtal som ett val för denna finansieringsform.
      */
@@ -2683,6 +2594,19 @@ export interface ConfiguratorSettingsSelect<T extends boolean = true> {
         rental?: T;
         driveHoursPerYear?: T;
         insurancePercent?: T;
+        serviceRates?:
+          | T
+          | {
+              family?: T;
+              minKg?: T;
+              maxKg?: T;
+              upTo600?: T;
+              upTo1200?: T;
+              upTo2000?: T;
+              upTo3000?: T;
+              over3000?: T;
+              id?: T;
+            };
         serviceAgreementEligible?: T;
         id?: T;
       };

@@ -1,4 +1,4 @@
-import { driveHourBand } from "./service-rates";
+import { serviceHourlyRate } from "./service-rates";
 import { isModelStep, type ModelStep, modelStepLabel, propertyValue } from "./steps";
 import type {
   ChoiceDisplay,
@@ -97,7 +97,7 @@ function modelStepChoice(family: ConfiguratorFamily, step: ModelStep): Configura
 
 /**
  * The configurator's steps for a family, in its order: steps from the models' fields (lift
- * capacity, wheels, series, the model) and the truck type's groups of equipment and extras.
+ * capacity, wheels, series, the model) and the truck type's groups of options ("Val").
  */
 export function familySteps(family: ConfiguratorFamily): ConfiguratorChoice[] {
   if (!isConfigurable(family)) return [];
@@ -426,8 +426,9 @@ export function shownResidualPercent(financing: FinancingMethod): number | undef
  * The price for a way to pay: the total to buy, or a month's cost over its term, as VS Truck
  * reckons leasing and long-term rental. The month's cost is an annuity paid at the start of each
  * month on the total, at the yearly interest / 12, with the residual value left at the end, rounded
- * up. A rental adds service, the drive hours a year × the model's price per hour in their band, and
- * insurance, a share of the total a year, both a twelfth a month.
+ * up. A rental adds service, the drive hours a year × the price per hour in their band for the
+ * model's truck type and lift capacity, and insurance, a share of the total a year, both a twelfth
+ * a month.
  */
 export function calculateFinancingPrice(
   total: number,
@@ -443,7 +444,7 @@ export function calculateFinancingPrice(
   const residual = total * ((residualPercentFor(termed) ?? 0) / 100);
   const capital = Math.ceil(pmt(interestRate / 100 / 12, months, -total, residual, 1));
   if (!rental) return capital;
-  const hourlyRate = model?.serviceHourlyRates?.[driveHourBand(rental.driveHoursPerYear)] ?? 0;
+  const hourlyRate = serviceHourlyRate(rental.serviceRates, model, rental.driveHoursPerYear);
   const service = (rental.driveHoursPerYear * hourlyRate) / 12;
   const insurance = (total * (rental.insurancePercent / 100)) / 12;
   return Math.round(capital + service + insurance);
@@ -477,8 +478,8 @@ export function resolveSpecifications(layers: SpecValue[][]): ConfiguratorSpecif
 }
 
 /**
- * A chosen option as the quote's line: under Utrustning with the group's name, "Gaffellängd: 1150
- * mm", unless the name says it already ("Standard batteri 206 Ah"); an extra as it is.
+ * A chosen option as the quote's line: with the group's name, "Gaffellängd: 1150 mm", unless the
+ * name says it already ("Standard batteri 206 Ah"); in a group with "Flerval" as it is.
  */
 function lineLabel(choice: ConfiguratorChoice, option: ConfiguratorOption): string {
   const plain = (text: string) => text.replaceAll("|", "").replaceAll("\u00ad", "").toLowerCase();

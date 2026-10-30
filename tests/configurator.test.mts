@@ -249,13 +249,23 @@ const vsTruckRental: FinancingMethod = {
     { minMonths: 61, maxMonths: 84, percent: 10 },
   ],
   residualPercent: 20,
-  rental: { driveHoursPerYear: 500, insurancePercent: 1.2 },
+  rental: {
+    driveHoursPerYear: 500,
+    insurancePercent: 1.2,
+    serviceRates: [
+      {
+        family: "trucks",
+        minKg: 0,
+        maxKg: 2000,
+        rates: { upTo600: 18, upTo1200: 15, upTo2000: 14, upTo3000: 12, over3000: 10 },
+      },
+      { family: "trucks", minKg: 2001, rates: { upTo600: 26 } },
+      { family: "other", minKg: 0, rates: { upTo600: 99 } },
+    ],
+  },
   serviceAgreementEligible: false,
 };
-const rentedModel = {
-  ...family.models[0],
-  serviceHourlyRates: { upTo600: 18, upTo1200: 15, upTo2000: 14, upTo3000: 12, over3000: 10 },
-};
+const rentedModel = { ...family.models[0], family: "trucks", capacityKg: 1500 };
 
 test("leasing is VS Truck's annuity, paid in advance, with the residual value for the term", () => {
   const price = (total: number, months: number) =>
@@ -278,7 +288,16 @@ test("long-term rental adds service for the drive hours and insurance, as VS Tru
   const price = (total: number, months: number, driveHoursPerYear = 500) =>
     calculateFinancingPrice(
       total,
-      withTerm({ ...vsTruckRental, rental: { driveHoursPerYear, insurancePercent: 1.2 } }, months),
+      withTerm(
+        {
+          ...vsTruckRental,
+          rental: {
+            ...(vsTruckRental.rental as NonNullable<FinancingMethod["rental"]>),
+            driveHoursPerYear,
+          },
+        },
+        months,
+      ),
       rentedModel,
     );
   assert.equal(price(120000, 48), 3230);
@@ -287,7 +306,15 @@ test("long-term rental adds service for the drive hours and insurance, as VS Tru
   assert.equal(price(173900, 84), 3282);
   // 1 500 hours fall in the 1 200–2 000 band.
   assert.equal(price(120000, 48, 1500), 4230);
-  // Without the model's rates no service is added; the customer never sees the residual value.
+  // The row for the model's truck type and lift capacity: 2 500 kg is the second row.
+  assert.equal(
+    calculateFinancingPrice(120000, withTerm(vsTruckRental, 48), {
+      ...rentedModel,
+      capacityKg: 2500,
+    }),
+    3230 + Math.round((500 * (26 - 18)) / 12),
+  );
+  // Without a row for the model no service is added; the customer never sees the residual value.
   assert.equal(
     calculateFinancingPrice(120000, withTerm(vsTruckRental, 48)),
     3230 - Math.round((500 * 18) / 12),
@@ -729,7 +756,7 @@ test("a value one model has shows the model's text, a series its own, and an equ
   );
 });
 
-test("a half-filled draft in Live Preview leaves out what has no name yet instead of failing", async () => {
+test("a group is one choice, or any with Flerval; a half-filled draft leaves out what has no name yet", async () => {
   const { mapFamily, mapSettings } = await import("../src/features/configurator/data.ts");
   const draft = {
     id: "family",
@@ -737,7 +764,7 @@ test("a half-filled draft in Live Preview leaves out what has no name yet instea
     name: "Ledstaplare",
     singularName: "Ledstaplare",
     series: [{ id: "s1", name: null, description: "Utan namn" }],
-    equipment: [
+    choices: [
       {
         id: "battery",
         label: "Batteri",
@@ -748,8 +775,8 @@ test("a half-filled draft in Live Preview leaves out what has no name yet instea
         ],
       },
       { id: "empty", label: null, options: [{ id: "d", label: "Ja", price: 0 }] },
+      { id: "extras", label: "Tillval", multiple: true, options: [{ id: "e", label: "Larm" }] },
     ],
-    extras: [],
     stepOrder: [
       { id: "o1", step: null },
       { id: "o2", step: "battery" },
@@ -766,8 +793,15 @@ test("a half-filled draft in Live Preview leaves out what has no name yet instea
     ["KBS 12N"],
   );
   assert.deepEqual(
-    family.choices.map((choice) => [choice.label, choice.options.map((option) => option.label)]),
-    [["Batteri", ["Standard"]]],
+    family.choices.map((choice) => [
+      choice.label,
+      choice.selectionMode,
+      choice.options.map((option) => option.label),
+    ]),
+    [
+      ["Batteri", "single", ["Standard"]],
+      ["Tillval", "multiple", ["Larm"]],
+    ],
   );
   assert.deepEqual(family.order, ["battery"]);
   assert.deepEqual(family.seriesTexts, {});

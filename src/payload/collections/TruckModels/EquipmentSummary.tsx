@@ -5,7 +5,7 @@ import type { UIFieldClientComponent } from "payload";
 import { hasOption, useFamily } from "./useFamily";
 
 /**
- * "Utrustning" on a model: what it has of the groups that differ between the models, read from its
+ * "Val" on a model: what it has of the groups that differ between the models, read from its
  * truck type, where it is changed.
  */
 export const EquipmentSummary: UIFieldClientComponent = ({ path }) => {
@@ -18,7 +18,7 @@ export const EquipmentSummary: UIFieldClientComponent = ({ path }) => {
   );
   return (
     <div className="field-type" style={{ marginBottom: "var(--base)" }}>
-      <FieldLabel label="Utrustning" path={path} />
+      <FieldLabel label="Val" path={path} />
       <div
         style={{
           background: "var(--theme-elevation-50)",
@@ -41,7 +41,7 @@ export const EquipmentSummary: UIFieldClientComponent = ({ path }) => {
             ? "Allt annat finns för alla modeller. "
             : "Allt finns för alla modeller. "}
           <a href={`/admin/collections/truck-families/${family.id}`}>
-            Ändra under trucktypens Utrustning
+            Ändra under trucktypens Val
           </a>
         </div>
       </div>

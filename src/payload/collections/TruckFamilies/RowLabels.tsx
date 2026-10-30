@@ -22,10 +22,11 @@ const join = (parts: Array<string | undefined | null | false>, fallback: string)
 const text = (value: unknown) =>
   typeof value === "string" ? value.replaceAll("|", "").trim() || undefined : undefined;
 
-/** "Batteri · 6 alternativ · olika per modell", or "… · alla modeller". */
+/** "Batteri · 6 alternativ · olika per modell", "Övriga tillval · flerval · 3 alternativ · …". */
 export function GroupRowLabel() {
   const { data, rowNumber } = useRowLabel<{
     label?: string;
+    multiple?: boolean;
     options?: Array<{ models?: unknown[] | null }>;
   }>();
   const options = data?.options ?? [];
@@ -34,12 +35,13 @@ export function GroupRowLabel() {
     <span>
       {join(
         [
-          // Unnamed, as "Grupp 2": the configurator leaves it out until it has a name.
-          text(data?.label) ?? `Grupp ${(rowNumber ?? 0) + 1}`,
+          // Unnamed, as "Val 2": the configurator leaves it out until it has a name.
+          text(data?.label) ?? `Val ${(rowNumber ?? 0) + 1}`,
+          data?.multiple && "flerval",
           `${options.length} alternativ`,
           options.length > 0 && (perModel ? "olika per modell" : "alla modeller"),
         ],
-        `Grupp ${(rowNumber ?? 0) + 1}`,
+        `Val ${(rowNumber ?? 0) + 1}`,
       )}
     </span>
   );
@@ -81,7 +83,7 @@ export function SpecRowLabel() {
   );
 }
 
-/** "Batteri · från Utrustning", "Lyftkapacitet · från modellerna". */
+/** "Batteri · enkelval", "Lyftkapacitet · från modellerna". */
 export function StepOrderRowLabel() {
   const { data, rowNumber } = useRowLabel<{ step?: string }>();
   const steps = useStepChoices();
@@ -89,10 +91,8 @@ export function StepOrderRowLabel() {
   return <span>{step ? `${step.label} · ${step.source}` : `Steg ${(rowNumber ?? 0) + 1}`}</span>;
 }
 
-/** The truck type's name for a block's row that points at one (the hero's columns, the cards). */
-export function FamilyRowLabel() {
-  const { data, rowNumber } = useRowLabel<{ family?: string | { id: string; name?: string } }>();
-  const family = data?.family;
+/** A truck type's name, from the row's value: the document, or its id, read once. */
+export function useFamilyName(family: string | { id: string; name?: string } | null | undefined) {
   const id = typeof family === "object" ? family?.id : family;
   const [name, setName] = useState(typeof family === "object" ? family?.name : undefined);
 
@@ -109,31 +109,12 @@ export function FamilyRowLabel() {
     return () => controller.abort();
   }, [id, family]);
 
-  return <span>{text(name) ?? `Trucktyp ${(rowNumber ?? 0) + 1}`}</span>;
+  return text(name);
 }
 
-/** "0–2 000 kg · 18–10 kr/h", from the first band's price to the last's. */
-export function ServiceRateRowLabel() {
-  const { data, rowNumber } = useRowLabel<{
-    minKg?: number;
-    maxKg?: number;
-    upTo600?: number;
-    over3000?: number;
-  }>();
-  const kg = (value: number) => new Intl.NumberFormat("sv-SE").format(value);
-  const range =
-    typeof data?.minKg === "number"
-      ? typeof data.maxKg === "number"
-        ? `${kg(data.minKg)}–${kg(data.maxKg)} kg`
-        : `${kg(data.minKg)} kg och mer`
-      : undefined;
-  const rates = [data?.upTo600, data?.over3000].filter((rate) => typeof rate === "number");
-  return (
-    <span>
-      {join(
-        [range, rates.length ? `${[...new Set(rates)].map(kg).join("–")} kr/h` : undefined],
-        `Kapacitet ${(rowNumber ?? 0) + 1}`,
-      )}
-    </span>
-  );
+/** The truck type's name for a block's row that points at one (the hero's columns, the cards). */
+export function FamilyRowLabel() {
+  const { data, rowNumber } = useRowLabel<{ family?: string | { id: string; name?: string } }>();
+  const name = useFamilyName(data?.family);
+  return <span>{name ?? `Trucktyp ${(rowNumber ?? 0) + 1}`}</span>;
 }

@@ -65,18 +65,20 @@ type ModelStepSeed = { property: ModelStep; label?: string };
 
 type FamilySeed = Omit<
   FamilyInput,
-  "image" | "brochure" | "models" | "defaultModel" | "series" | "equipment" | "extras" | "stepOrder"
+  "image" | "brochure" | "models" | "defaultModel" | "series" | "choices" | "stepOrder"
 > & {
   /** `scripts/figma-homepage-assets/hero-<image>.png`, the family's main image. */
   image: string;
+  /** Long-term rental's service price per drive hour, written to the configurator settings. */
+  serviceRates: ServiceRateSeed[];
   models: ModelSeed[];
   /** The model the configurator starts at, by name. */
   defaultModel: string;
   /** "Serier": a series' text, by its name; the series come from the models. */
   seriesTexts?: Record<string, string>;
   /**
-   * The steps in the prototype's order: the models' fields, and the groups, which go under
-   * Utrustning (one option) or Tillval (`multiple`).
+   * The steps in the prototype's order: the models' fields, and the groups, which go under Val
+   * (`multiple`: "Flerval").
    */
   steps: Array<QuestionSeed | ModelStepSeed>;
 };
@@ -174,6 +176,8 @@ const standardDelivery = "4–6 veckor";
  * Long-term rental's service per drive hour by lift capacity, from VS Truck's electric trucks of
  * the type (2026-10), until Milevas has its own; the pallet trucks take the low lifters'.
  */
+type ServiceRateSeed = ReturnType<typeof serviceRate>;
+
 const serviceRate = (minKg: number, maxKg: number | null, [a, b, c, d, e]: number[]) => ({
   minKg,
   maxKg,
@@ -784,7 +788,7 @@ async function placeholderBrochure(payload: Payload) {
 }
 
 async function upsertFamily(payload: Payload, seed: FamilySeed, brochure: string) {
-  const { models, defaultModel, seriesTexts, steps, ...fields } = seed;
+  const { models, defaultModel, seriesTexts, steps, serviceRates: _serviceRates, ...fields } = seed;
   const existing = await payload.find({
     collection: "truck-families",
     locale: "sv",
@@ -812,8 +816,7 @@ async function upsertFamily(payload: Payload, seed: FamilySeed, brochure: string
       description: seriesTexts?.[name],
     })),
     // The groups point at the models, which need the family first.
-    equipment: [],
-    extras: [],
+    choices: [],
     stepOrder: [],
     _status: "published",
   };
@@ -863,8 +866,8 @@ async function upsertFamily(payload: Payload, seed: FamilySeed, brochure: string
     }
   }
 
-  // Groups under Utrustning (one option) and Tillval (any); an option lists the models that have
-  // it, or none for every model. A model's photo with an option (a cab) goes on the model.
+  // The groups under Val, one option each or any with "Flerval"; an option lists the models that
+  // have it, or none for every model. A model's photo with an option (a cab) goes on the model.
   const questions = steps.filter((step): step is QuestionSeed => !("property" in step));
   const optionData = async ({
     models: names,
@@ -879,8 +882,9 @@ async function upsertFamily(payload: Payload, seed: FamilySeed, brochure: string
     image: await photo(payload, key),
     models: names ? names.flatMap((name) => ids.get(name) ?? []) : [],
   });
-  const group = async ({ options: rows, multiple: _multiple, ...question }: QuestionSeed) => ({
+  const group = async ({ options: rows, multiple = false, ...question }: QuestionSeed) => ({
     ...question,
+    multiple,
     options: await Promise.all(rows.map(optionData)),
   });
   const saved = await payload.update({
@@ -888,14 +892,13 @@ async function upsertFamily(payload: Payload, seed: FamilySeed, brochure: string
     id: family.id,
     data: {
       defaultModel: ids.get(defaultModel),
-      equipment: await Promise.all(questions.filter((q) => !q.multiple).map(group)),
-      extras: await Promise.all(questions.filter((q) => q.multiple).map(group)),
+      choices: await Promise.all(questions.map(group)),
       _status: "published",
     },
   });
 
   // The steps' order: the models' fields and the groups, as the seed lists them.
-  const savedGroups = [...(saved.equipment ?? []), ...(saved.extras ?? [])];
+  const savedGroups = saved.choices ?? [];
   const groupId = (question: QuestionSeed) =>
     savedGroups.find((row) => row.label === question.label)?.id;
   await payload.update({
@@ -932,6 +935,7 @@ async function upsertFamily(payload: Payload, seed: FamilySeed, brochure: string
       }
     }
   }
+  return family.id;
 }
 
 async function seed() {
@@ -941,8 +945,11 @@ async function seed() {
   try {
     const brochure = await placeholderBrochure(payload);
 
+    // Each truck type's service prices, as rows of the long-term rental with its id.
+    const serviceRates = [];
     for (const family of families) {
-      await upsertFamily(payload, family, brochure);
+      const id = await upsertFamily(payload, family, brochure);
+      serviceRates.push(...family.serviceRates.map((rate) => ({ family: id, ...rate })));
     }
 
     await payload.updateGlobal({
@@ -1005,6 +1012,7 @@ async function seed() {
             rental: true,
             driveHoursPerYear: 500,
             insurancePercent: 1.2,
+            serviceRates,
             serviceAgreementEligible: false,
           },
         ],

@@ -10,8 +10,7 @@ export type Family = { id: string; series: string[]; groups: FamilyGroup[] };
 type Saved = {
   id: string;
   series?: Array<{ name?: string }>;
-  equipment?: SavedGroup[];
-  extras?: SavedGroup[];
+  choices?: SavedGroup[];
 };
 type SavedGroup = {
   id?: string;
@@ -40,7 +39,7 @@ function fetchFamily(id: string): Promise<Family | null> {
         ? [
             {
               id: group.id,
-              label: plain(group.label) || "Grupp",
+              label: plain(group.label) || "Val",
               options: (group.options ?? []).flatMap((option) => {
                 if (!option.id) return [];
                 // Options of the same name are told apart by their values ("150 Ah").
@@ -69,7 +68,7 @@ function fetchFamily(id: string): Promise<Family | null> {
         ? {
             id: doc.id,
             series: (doc.series ?? []).map((row) => row.name ?? "").filter(Boolean),
-            groups: [...groups(doc.equipment), ...groups(doc.extras)],
+            groups: groups(doc.choices),
           }
         : null,
     )

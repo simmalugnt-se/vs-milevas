@@ -4,7 +4,7 @@ import { SelectInput, useField } from "@payloadcms/ui";
 import type { TextFieldClientComponent } from "payload";
 import { useStepChoices } from "./useStepChoices";
 
-/** A step in "Steg i konfiguratorn": a field of the models, or a group under Utrustning. */
+/** A step in "Steg i konfiguratorn": a field of the models, or a group under Val. */
 export const StepSelect: TextFieldClientComponent = ({ path, field }) => {
   const { value, setValue, showError } = useField<string>({ path });
   const choices = useStepChoices();

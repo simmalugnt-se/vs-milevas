@@ -8,7 +8,7 @@ import type {
   TruckFamily,
   TruckModel,
 } from "@/payload-types";
-import { DRIVE_HOUR_BANDS, type ServiceHourlyRates } from "./service-rates";
+import { DRIVE_HOUR_BANDS, type ServiceRate } from "./service-rates";
 import type {
   ConfiguratorCatalog,
   ConfiguratorChoice,
@@ -52,7 +52,7 @@ const DEFAULT_FINANCING: ConfiguratorCatalog["financingMethods"] = [
       { minMonths: 61, maxMonths: 84, percent: 10 },
     ],
     residualPercent: 20,
-    rental: { driveHoursPerYear: 500, insurancePercent: 1.2 },
+    rental: { driveHoursPerYear: 500, insurancePercent: 1.2, serviceRates: [] },
     serviceAgreementEligible: false,
   },
 ];
@@ -110,7 +110,7 @@ function brochureData(document: string | Document | null | undefined) {
 const idOf = (value: string | { id: string } | null | undefined) =>
   typeof value === "object" ? value?.id : value;
 
-type Group = NonNullable<TruckFamily["equipment"]>[number];
+type Group = NonNullable<TruckFamily["choices"]>[number];
 type GroupOption = NonNullable<Group["options"]>[number];
 
 /**
@@ -135,8 +135,8 @@ const groupOption = (option: GroupOption): ConfiguratorOption[] => {
   ];
 };
 
-/** A group is a step with its row id as its key: one option under Utrustning, any under Tillval. */
-const groupChoice = (group: Group, multiple: boolean): ConfiguratorChoice[] => {
+/** A group is a step with its row id as its key: one option, or any with "Flerval". */
+const groupChoice = (group: Group): ConfiguratorChoice[] => {
   const label = filled(group.label);
   if (!label) return [];
   return [
@@ -144,40 +144,21 @@ const groupChoice = (group: Group, multiple: boolean): ConfiguratorChoice[] => {
       key: group.id ?? label,
       label,
       help: group.help || undefined,
-      selectionMode: multiple ? "multiple" : "single",
-      required: !multiple,
+      selectionMode: group.multiple ? "multiple" : "single",
+      required: !group.multiple,
       columns: group.columns ?? "auto",
       options: (group.options ?? []).flatMap(groupOption),
     },
   ];
 };
 
-type ServiceRate = NonNullable<TruckFamily["serviceRates"]>[number];
-
-/** The first of the truck type's service rates whose lift capacity fits the model. */
-function serviceHourlyRates(
-  rates: ServiceRate[] | null | undefined,
-  capacityKg: number | null | undefined,
-): ServiceHourlyRates | undefined {
-  if (typeof capacityKg !== "number") return undefined;
-  const rate = (rates ?? []).find(
-    ({ minKg, maxKg }) =>
-      capacityKg >= (minKg ?? 0) && (typeof maxKg !== "number" || capacityKg <= maxKg),
-  );
-  if (!rate) return undefined;
-  return Object.fromEntries(
-    DRIVE_HOUR_BANDS.flatMap(({ key }) =>
-      typeof rate[key] === "number" ? [[key, rate[key]]] : [],
-    ),
-  );
-}
-
 /** A model without its name or price yet is no model to configure. */
 const isComplete = (model: TruckModel) =>
   Boolean(filled(model.name)) && typeof model.price === "number";
 
-const mapModel = (model: TruckModel, rates?: ServiceRate[] | null): ConfiguratorModel => ({
+const mapModel = (model: TruckModel): ConfiguratorModel => ({
   key: model.id,
+  family: idOf(model.family) ?? undefined,
   label: model.name.trim(),
   sku: model.sku || undefined,
   series: model.series || undefined,
@@ -192,12 +173,11 @@ const mapModel = (model: TruckModel, rates?: ServiceRate[] | null): Configurator
     const data = imageData(image, model.name);
     return option && data ? [{ option, image: data }] : [];
   }),
-  serviceHourlyRates: serviceHourlyRates(rates, model.capacityKg),
 });
 
 /**
  * The configurator's view of a family, built from its product data and its published models: the
- * models, the groups of equipment and extras, and the steps' order (the engine builds the steps).
+ * models, the groups of options ("Val"), and the steps' order (the engine builds the steps).
  */
 export function mapFamily(family: TruckFamily, allModels: TruckModel[]): ConfiguratorFamily {
   // Models are what is configured; without them the truck type is not shown.
@@ -222,15 +202,34 @@ export function mapFamily(family: TruckFamily, allModels: TruckModel[]): Configu
         filled(name) && description ? [[name.trim(), description]] : [],
       ),
     ),
-    models: configurable ? models.map((model) => mapModel(model, family.serviceRates)) : [],
-    choices: configurable
-      ? [
-          ...(family.equipment ?? []).flatMap((group) => groupChoice(group, false)),
-          ...(family.extras ?? []).flatMap((group) => groupChoice(group, true)),
-        ]
-      : [],
+    models: configurable ? models.map(mapModel) : [],
+    choices: configurable ? (family.choices ?? []).flatMap(groupChoice) : [],
     order: (family.stepOrder ?? []).flatMap(({ step }) => step || []),
   };
+}
+
+type SettingsServiceRate = NonNullable<
+  NonNullable<ConfiguratorSetting["financingMethods"]>[number]["serviceRates"]
+>[number];
+
+/** "Servicekostnad per drifttimme" rows with a truck type and a lift capacity to start from. */
+function serviceRateRows(rows: SettingsServiceRate[] | null | undefined): ServiceRate[] {
+  return (rows ?? []).flatMap((row) => {
+    const family = idOf(row.family);
+    if (!family || typeof row.minKg !== "number") return [];
+    return [
+      {
+        family,
+        minKg: row.minKg,
+        maxKg: row.maxKg ?? undefined,
+        rates: Object.fromEntries(
+          DRIVE_HOUR_BANDS.flatMap(({ key }) =>
+            typeof row[key] === "number" ? [[key, row[key]]] : [],
+          ),
+        ),
+      },
+    ];
+  });
 }
 
 type ResidualRow = { minMonths: number; maxMonths: number; percent: number };
@@ -306,6 +305,7 @@ export function mapSettings(
               ? {
                   driveHoursPerYear: method.driveHoursPerYear ?? 0,
                   insurancePercent: method.insurancePercent ?? 0,
+                  serviceRates: serviceRateRows(method.serviceRates),
                 }
               : undefined,
           }
@@ -371,7 +371,7 @@ async function fetchConfiguratorCatalog(
 }
 
 /** Bumped when the catalogue's shape changes, so a cache from before is not read as the new one. */
-const CATALOG_VERSION = "2026-10-29g";
+const CATALOG_VERSION = "2026-10-30a";
 
 const getCachedCatalog = (locale: TypedLocale) =>
   unstable_cache(

@@ -1,4 +1,4 @@
-import type { ServiceHourlyRates } from "./service-rates";
+import type { ServiceRate } from "./service-rates";
 import type { ModelStep } from "./steps";
 
 /** A choice's options, keyed by choice: `{ model: ["kbet-18"], battery: ["large-li-ion"] }`. */
@@ -75,8 +75,8 @@ export type ConfiguratorModel = {
   specs: SpecValue[];
   /** Its photo with an option chosen, as with a cab: the option's key and the photo. */
   optionImages?: Array<{ option: string; image: ConfiguratorImage }>;
-  /** Its truck type's service price per drive hour for its lift capacity, for a rental. */
-  serviceHourlyRates?: ServiceHourlyRates;
+  /** Its truck type's id, for a rental's service price. */
+  family?: string;
 };
 
 export type ConfiguratorFamily = {
@@ -101,7 +101,7 @@ export type ConfiguratorFamily = {
   /** "Serier": each series' text, by name, for its card in the series step. */
   seriesTexts?: Record<string, string>;
   models: ConfiguratorModel[];
-  /** The groups of equipment and extras. */
+  /** The groups of options ("Val"), one option each or any with "Flerval". */
   choices: ConfiguratorChoice[];
   /**
    * "Steg i konfiguratorn": the steps' keys in order, a model field's (`capacity`, `wheels`,
@@ -127,9 +127,10 @@ export type FinancingMethod = {
   residualPercent?: number;
   /**
    * A rental (VS Truck's long-term rental): the month's cost adds service for the drive hours a
-   * year and insurance, and the customer sees no residual value.
+   * year, priced per truck type and lift capacity, and insurance, and the customer sees no residual
+   * value.
    */
-  rental?: { driveHoursPerYear: number; insurancePercent: number };
+  rental?: { driveHoursPerYear: number; insurancePercent: number; serviceRates: ServiceRate[] };
   serviceAgreementEligible: boolean;
 };
 

@@ -13,7 +13,7 @@ const ADMIN = "/payload/collections/TruckModels";
 /**
  * A model of a truck type, as Baoli's price list has them: "KBET 15 G1" in the series "KBET G1",
  * with its own lift capacity, price, dealer discount and specifications, and its photos with an
- * option chosen (with a cab). Which options it has is set on its truck type, under Utrustning; the
+ * option chosen (with a cab). Which options it has is set on its truck type, under Val; the
  * model shows them. See `docs/truck-data-schema.md`, section 14.
  */
 export const TruckModels: CollectionConfig = {
