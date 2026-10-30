@@ -74,8 +74,7 @@ export const Header: GlobalConfig = {
           relationTo: "images",
           label: "Bild",
           admin: {
-            description:
-              "Den fyrkantiga bilden bredvid den öppna menyn (desktop och surfplatta). Visas inte för trucktyperna; där är rutan tom tills en trucktyp pekas på.",
+            description: "Den fyrkantiga bilden bredvid den öppna menyn.",
           },
         },
       ],

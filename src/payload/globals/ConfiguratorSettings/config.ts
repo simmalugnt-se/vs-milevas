@@ -101,8 +101,7 @@ export const ConfiguratorSettings: GlobalConfig = {
                   admin: {
                     condition: (_, siblingData) => siblingData?.kind === "monthly",
                     step: 0.01,
-                    description:
-                      "Månadskostnaden är en annuitet som betalas i början av varje månad, som VS Truck räknar: totalpriset lånas till årsräntan / 12 över avtalslängden och restvärdet står kvar i slutet. Tomt: ingen ränta.",
+                    description: "Tomt: ingen ränta.",
                   },
                 },
                 {
@@ -115,8 +114,7 @@ export const ConfiguratorSettings: GlobalConfig = {
                   localized: false,
                   admin: {
                     condition: (_, siblingData) => siblingData?.kind === "monthly",
-                    description:
-                      "Restvärdet för de avtalslängder som ligger i ett spann; den första raden som passar gäller.",
+                    description: "Andel av totalpriset. Den första raden som passar gäller.",
                     components: {
                       RowLabel:
                         "/payload/globals/ConfiguratorSettings/RowLabels.tsx#ResidualValueRowLabel",
@@ -164,8 +162,6 @@ export const ConfiguratorSettings: GlobalConfig = {
                   admin: {
                     condition: (_, siblingData) => siblingData?.kind === "monthly",
                     step: 0.1,
-                    description:
-                      "Andel av totalpriset som står kvar i slutet, för de avtalslängder tabellen ovan inte tar upp. Kunden väljer avtalslängd med ett reglage mellan kortaste och längsta.",
                   },
                 },
                 {
@@ -175,8 +171,7 @@ export const ConfiguratorSettings: GlobalConfig = {
                   defaultValue: false,
                   admin: {
                     condition: (_, siblingData) => siblingData?.kind === "monthly",
-                    description:
-                      "Som långtidshyran hos VS Truck: månadskostnaden får service efter drifttimmar (timpriset står på trucktypen, under Långtidshyra) och försäkring, och kunden ser inget restvärde.",
+                    description: "Timpriset för service anges på trucktypen, under Långtidshyra.",
                   },
                 },
                 {
@@ -191,21 +186,14 @@ export const ConfiguratorSettings: GlobalConfig = {
                       label: "Drifttimmar per år",
                       type: "number",
                       min: 0,
-                      admin: {
-                        width: "50%",
-                        description: "Servicen räknas på dem: drifttimmar × timpris / 12 i månaden.",
-                      },
+                      admin: { width: "50%" },
                     },
                     {
                       name: "insurancePercent",
                       label: "Försäkring (% av totalpriset per år)",
                       type: "number",
                       min: 0,
-                      admin: {
-                        width: "50%",
-                        step: 0.01,
-                        description: "Totalpris × procent / 12 i månaden.",
-                      },
+                      admin: { width: "50%", step: 0.01 },
                     },
                   ],
                 },
@@ -276,8 +264,7 @@ export const ConfiguratorSettings: GlobalConfig = {
               access: { read: ({ req }) => isEditorUser(req.user) },
               admin: {
                 step: 0.1,
-                description:
-                  "Gäller modellerna utan egen ÅF-rabatt: dras av från modellens pris och tillvalen för inloggade återförsäljare, som ser sitt ÅF-pris bredvid kundpriset. 0 visar inget ÅF-pris. Godkänn återförsäljare under Förfrågningar → Återförsäljare.",
+                description: "Gäller modeller utan egen ÅF-rabatt. 0: inget ÅF-pris.",
               },
             },
           ],

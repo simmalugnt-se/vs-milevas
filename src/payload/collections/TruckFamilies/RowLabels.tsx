@@ -20,7 +20,7 @@ const join = (parts: Array<string | undefined | null | false>, fallback: string)
   parts.filter(Boolean).join(" · ") || fallback;
 
 const text = (value: unknown) =>
-  typeof value === "string" ? value.replaceAll("|", "") : undefined;
+  typeof value === "string" ? value.replaceAll("|", "").trim() || undefined : undefined;
 
 /** "Batteri · 6 alternativ · olika per modell", or "… · alla modeller". */
 export function GroupRowLabel() {
@@ -34,7 +34,8 @@ export function GroupRowLabel() {
     <span>
       {join(
         [
-          text(data?.label),
+          // Unnamed, as "Grupp 2": the configurator leaves it out until it has a name.
+          text(data?.label) ?? `Grupp ${(rowNumber ?? 0) + 1}`,
           `${options.length} alternativ`,
           options.length > 0 && (perModel ? "olika per modell" : "alla modeller"),
         ],
@@ -56,7 +57,8 @@ export function OptionRowLabel() {
     <span>
       {join(
         [
-          text(data?.label),
+          // Unnamed, as the matrix calls it: the configurator leaves it out until it has a name.
+          text(data?.label) ?? `Alternativ ${(rowNumber ?? 0) + 1}`,
           price(data?.price, true),
           count > 0 && `${count} ${count === 1 ? "modell" : "modeller"}`,
         ],

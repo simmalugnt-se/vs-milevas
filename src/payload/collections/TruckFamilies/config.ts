@@ -188,8 +188,7 @@ const serviceRatesField: ArrayField = {
   type: "array",
   localized: false,
   admin: {
-    description:
-      "Servicen i en finansieringsform som är hyra: drifttimmar per år × timpriset för modellens lyftkapacitet / 12 i månaden. Den första raden som passar modellen gäller; utan rad ingår ingen service i priset.",
+    description: "Den första raden som passar modellens lyftkapacitet gäller.",
     components: { RowLabel: `${ROW_LABELS}#ServiceRateRowLabel` },
   },
   fields: [

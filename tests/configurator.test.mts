@@ -33,6 +33,7 @@ import {
   parseConfiguratorSearchParams,
   parseSelectionReferences,
 } from "../src/features/configurator/url-state.ts";
+import type { ConfiguratorSetting, TruckFamily, TruckModel } from "../src/payload-types.ts";
 
 const option = (overrides: Partial<ConfiguratorOption>): ConfiguratorOption => ({
   key: "standard",
@@ -726,4 +727,64 @@ test("a value one model has shows the model's text, a series its own, and an equ
     buildQuote({ ...catalog, families: [short] }, short.key, {}, "purchase")?.lines[1]?.label,
     "Lyfthöjd: 4700 mm",
   );
+});
+
+test("a half-filled draft in Live Preview leaves out what has no name yet instead of failing", async () => {
+  const { mapFamily, mapSettings } = await import("../src/features/configurator/data.ts");
+  const draft = {
+    id: "family",
+    key: "draft",
+    name: "Ledstaplare",
+    singularName: "Ledstaplare",
+    series: [{ id: "s1", name: null, description: "Utan namn" }],
+    equipment: [
+      {
+        id: "battery",
+        label: "Batteri",
+        options: [
+          { id: "a", label: "Standard", price: 0 },
+          { id: "b", label: null, price: null },
+          { id: "c", label: "  ", price: 1000 },
+        ],
+      },
+      { id: "empty", label: null, options: [{ id: "d", label: "Ja", price: 0 }] },
+    ],
+    extras: [],
+    stepOrder: [
+      { id: "o1", step: null },
+      { id: "o2", step: "battery" },
+    ],
+  } as unknown as TruckFamily;
+  const models = [
+    { id: "m1", name: "KBS 12N", price: 40000, capacityKg: 1200, family: "family" },
+    { id: "m2", name: null, price: 50000, capacityKg: 1600, family: "family" },
+    { id: "m3", name: "ES 16N", price: null, capacityKg: null, family: "family" },
+  ] as unknown as TruckModel[];
+  const family = mapFamily(draft, models);
+  assert.deepEqual(
+    family.models.map((model) => model.label),
+    ["KBS 12N"],
+  );
+  assert.deepEqual(
+    family.choices.map((choice) => [choice.label, choice.options.map((option) => option.label)]),
+    [["Batteri", ["Standard"]]],
+  );
+  assert.deepEqual(family.order, ["battery"]);
+  assert.deepEqual(family.seriesTexts, {});
+  assert.equal(estimateTotal(family, sanitizeSelections(family, {})), 40000);
+
+  const settings = mapSettings({
+    financingMethods: [
+      { id: "f1", key: "purchase", label: "Köp", kind: "purchase" },
+      { id: "f2", key: null, label: null, kind: "monthly" },
+    ],
+    nextSteps: [{ id: "n1", heading: null }],
+    serviceAgreement: { label: null, annualPrice: null },
+  } as unknown as ConfiguratorSetting);
+  assert.deepEqual(
+    settings.financingMethods.map((method) => method.key),
+    ["purchase"],
+  );
+  assert.deepEqual(settings.nextSteps, []);
+  assert.equal(settings.serviceAgreement?.label, "Serviceavtal");
 });

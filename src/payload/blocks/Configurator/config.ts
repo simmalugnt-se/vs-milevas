@@ -27,8 +27,7 @@ export const ConfiguratorBlock: Block = {
       required: true,
       defaultValue: "Bygg din truck",
       admin: {
-        description:
-          "Syns inte på sidan, som i designen, men läses av skärmläsare och sökmotorer: sidans huvudrubrik (H1) när konfiguratorn står först.",
+        description: "Syns inte på sidan, men läses av skärmläsare och sökmotorer.",
       },
     },
   ],

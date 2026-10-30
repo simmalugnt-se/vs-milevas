@@ -381,7 +381,7 @@ export interface Page {
           }
         | {
             /**
-             * Syns inte på sidan, som i designen, men läses av skärmläsare och sökmotorer: sidans huvudrubrik (H1) när konfiguratorn står först.
+             * Syns inte på sidan, men läses av skärmläsare och sökmotorer.
              */
             heading: string;
             id?: string | null;
@@ -462,7 +462,7 @@ export interface Page {
             };
             text?: string | null;
             /**
-             * En kolumn per logotyp. Direkt efter Milevas: Hero delar blocken streck, som flyttas när man scrollar.
+             * En kolumn per logotyp.
              */
             logos: {
               image: string | Image;
@@ -650,7 +650,7 @@ export interface Page {
              */
             anchor?: string | null;
             /**
-             * E-post, telefon och sociala länkar hämtas från sidfoten (Allmänt → Sidfot), så de bara ändras på ett ställe. Formuläret sparas i Förfrågningar → Meddelanden.
+             * E-post, telefon och sociala länkar hämtas från sidfoten (Allmänt → Sidfot).
              */
             heading: string;
             id?: string | null;
@@ -936,7 +936,7 @@ export interface TruckFamily {
       }[]
     | null;
   /**
-   * Servicen i en finansieringsform som är hyra: drifttimmar per år × timpriset för modellens lyftkapacitet / 12 i månaden. Den första raden som passar modellen gäller; utan rad ingår ingen service i priset.
+   * Den första raden som passar modellens lyftkapacitet gäller.
    */
   serviceRates?:
     | {
@@ -2356,7 +2356,7 @@ export interface Header {
             }[]
           | null;
         /**
-         * Den fyrkantiga bilden bredvid den öppna menyn (desktop och surfplatta). Visas inte för trucktyperna; där är rutan tom tills en trucktyp pekas på.
+         * Den fyrkantiga bilden bredvid den öppna menyn.
          */
         image?: (string | null) | Image;
         id?: string | null;
@@ -2485,11 +2485,11 @@ export interface ConfiguratorSetting {
     monthsStep?: number | null;
     months?: number | null;
     /**
-     * Månadskostnaden är en annuitet som betalas i början av varje månad, som VS Truck räknar: totalpriset lånas till årsräntan / 12 över avtalslängden och restvärdet står kvar i slutet. Tomt: ingen ränta.
+     * Tomt: ingen ränta.
      */
     interestRate?: number | null;
     /**
-     * Restvärdet för de avtalslängder som ligger i ett spann; den första raden som passar gäller.
+     * Andel av totalpriset. Den första raden som passar gäller.
      */
     residualValues?:
       | {
@@ -2499,21 +2499,12 @@ export interface ConfiguratorSetting {
           id?: string | null;
         }[]
       | null;
-    /**
-     * Andel av totalpriset som står kvar i slutet, för de avtalslängder tabellen ovan inte tar upp. Kunden väljer avtalslängd med ett reglage mellan kortaste och längsta.
-     */
     residualPercent?: number | null;
     /**
-     * Som långtidshyran hos VS Truck: månadskostnaden får service efter drifttimmar (timpriset står på trucktypen, under Långtidshyra) och försäkring, och kunden ser inget restvärde.
+     * Timpriset för service anges på trucktypen, under Långtidshyra.
      */
     rental?: boolean | null;
-    /**
-     * Servicen räknas på dem: drifttimmar × timpris / 12 i månaden.
-     */
     driveHoursPerYear?: number | null;
-    /**
-     * Totalpris × procent / 12 i månaden.
-     */
     insurancePercent?: number | null;
     /**
      * Visar serviceavtal som ett val för denna finansieringsform.
@@ -2531,7 +2522,7 @@ export interface ConfiguratorSetting {
    */
   warrantyNote?: string | null;
   /**
-   * Gäller modellerna utan egen ÅF-rabatt: dras av från modellens pris och tillvalen för inloggade återförsäljare, som ser sitt ÅF-pris bredvid kundpriset. 0 visar inget ÅF-pris. Godkänn återförsäljare under Förfrågningar → Återförsäljare.
+   * Gäller modeller utan egen ÅF-rabatt. 0: inget ÅF-pris.
    */
   dealerDiscountPercent?: number | null;
   /**

@@ -21,8 +21,7 @@ export const TextColumnsBlock: Block = {
       minRows: 1,
       maxRows: 6,
       admin: {
-        description:
-          "En kolumn per logotyp. Direkt efter Milevas: Hero delar blocken streck, som flyttas när man scrollar.",
+        description: "En kolumn per logotyp.",
       },
       fields: [
         { name: "image", label: "Bild", type: "upload", relationTo: "images", required: true },

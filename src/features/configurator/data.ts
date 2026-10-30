@@ -76,10 +76,19 @@ const DEFAULT_SERVICE_AGREEMENT: NonNullable<ConfiguratorCatalog["serviceAgreeme
   annualPrice: 2856,
 };
 
+/*
+ * Live Preview reads drafts as the editor types, where a required field can still be empty: a row
+ * without its name (or a model without its price) is left out until it is filled in, and nothing
+ * here may assume a required field is set.
+ */
+
+/** A text that is filled in, trimmed; otherwise undefined. */
+const filled = (text: string | null | undefined) => text?.trim() || undefined;
+
 /** `|` in a name is where it may break, shown as a hyphen only then (a soft hyphen). */
-const hyphenate = (text: string) => text.replaceAll("|", "\u00AD");
+const hyphenate = (text: string | null | undefined) => (text ?? "").replaceAll("|", "\u00AD");
 /** The name without its break marks, for alt texts. */
-const plain = (text: string) => text.replaceAll("|", "");
+const plain = (text: string | null | undefined) => (text ?? "").replaceAll("|", "");
 
 /** The rows of a specifications field, without empty ones. */
 const specRows = (rows: Array<{ label: string; value: string }> | null | undefined): SpecValue[] =>
@@ -108,30 +117,40 @@ type GroupOption = NonNullable<Group["options"]>[number];
  * An option keeps its row id as its key, so the URL and the quote point at it; its models are the
  * ones that have it, none: every model.
  */
-const groupOption = (option: GroupOption): ConfiguratorOption => {
+const groupOption = (option: GroupOption): ConfiguratorOption[] => {
+  const label = filled(option.label);
+  if (!label) return [];
   const models = (option.models ?? []).flatMap((model) => idOf(model) ?? []);
-  return {
-    key: option.id ?? option.label,
-    label: hyphenate(option.label),
-    description: option.description || undefined,
-    image: imageData(option.image, plain(option.label)),
-    price: option.price,
-    default: false,
-    specs: specRows(option.specs),
-    models: models.length ? models : undefined,
-  };
+  return [
+    {
+      key: option.id ?? label,
+      label: hyphenate(label),
+      description: option.description || undefined,
+      image: imageData(option.image, plain(label)),
+      price: option.price ?? 0,
+      default: false,
+      specs: specRows(option.specs),
+      models: models.length ? models : undefined,
+    },
+  ];
 };
 
 /** A group is a step with its row id as its key: one option under Utrustning, any under Tillval. */
-const groupChoice = (group: Group, multiple: boolean): ConfiguratorChoice => ({
-  key: group.id ?? group.label,
-  label: group.label,
-  help: group.help || undefined,
-  selectionMode: multiple ? "multiple" : "single",
-  required: !multiple,
-  columns: group.columns ?? "auto",
-  options: (group.options ?? []).map(groupOption),
-});
+const groupChoice = (group: Group, multiple: boolean): ConfiguratorChoice[] => {
+  const label = filled(group.label);
+  if (!label) return [];
+  return [
+    {
+      key: group.id ?? label,
+      label,
+      help: group.help || undefined,
+      selectionMode: multiple ? "multiple" : "single",
+      required: !multiple,
+      columns: group.columns ?? "auto",
+      options: (group.options ?? []).flatMap(groupOption),
+    },
+  ];
+};
 
 type ServiceRate = NonNullable<TruckFamily["serviceRates"]>[number];
 
@@ -142,7 +161,8 @@ function serviceHourlyRates(
 ): ServiceHourlyRates | undefined {
   if (typeof capacityKg !== "number") return undefined;
   const rate = (rates ?? []).find(
-    ({ minKg, maxKg }) => capacityKg >= minKg && (typeof maxKg !== "number" || capacityKg <= maxKg),
+    ({ minKg, maxKg }) =>
+      capacityKg >= (minKg ?? 0) && (typeof maxKg !== "number" || capacityKg <= maxKg),
   );
   if (!rate) return undefined;
   return Object.fromEntries(
@@ -152,12 +172,16 @@ function serviceHourlyRates(
   );
 }
 
+/** A model without its name or price yet is no model to configure. */
+const isComplete = (model: TruckModel) =>
+  Boolean(filled(model.name)) && typeof model.price === "number";
+
 const mapModel = (model: TruckModel, rates?: ServiceRate[] | null): ConfiguratorModel => ({
   key: model.id,
-  label: model.name,
+  label: model.name.trim(),
   sku: model.sku || undefined,
   series: model.series || undefined,
-  capacityKg: model.capacityKg,
+  capacityKg: model.capacityKg ?? undefined,
   wheels: model.wheels || undefined,
   description: model.description || undefined,
   price: model.price,
@@ -166,7 +190,7 @@ const mapModel = (model: TruckModel, rates?: ServiceRate[] | null): Configurator
   specs: specRows(model.specs),
   optionImages: (model.optionImages ?? []).flatMap(({ option, image }) => {
     const data = imageData(image, model.name);
-    return data ? [{ option, image: data }] : [];
+    return option && data ? [{ option, image: data }] : [];
   }),
   serviceHourlyRates: serviceHourlyRates(rates, model.capacityKg),
 });
@@ -175,12 +199,13 @@ const mapModel = (model: TruckModel, rates?: ServiceRate[] | null): Configurator
  * The configurator's view of a family, built from its product data and its published models: the
  * models, the groups of equipment and extras, and the steps' order (the engine builds the steps).
  */
-function mapFamily(family: TruckFamily, models: TruckModel[]): ConfiguratorFamily {
+export function mapFamily(family: TruckFamily, allModels: TruckModel[]): ConfiguratorFamily {
   // Models are what is configured; without them the truck type is not shown.
+  const models = allModels.filter(isComplete);
   const configurable = models.length > 0;
   return {
     id: family.id,
-    key: family.key,
+    key: family.key ?? "",
     name: hyphenate(family.name),
     singularName: hyphenate(family.singularName),
     description: family.description || undefined,
@@ -194,29 +219,49 @@ function mapFamily(family: TruckFamily, models: TruckModel[]): ConfiguratorFamil
     defaultModel: idOf(family.defaultModel) ?? undefined,
     seriesTexts: Object.fromEntries(
       (family.series ?? []).flatMap(({ name, description }) =>
-        description ? [[name.trim(), description]] : [],
+        filled(name) && description ? [[name.trim(), description]] : [],
       ),
     ),
     models: configurable ? models.map((model) => mapModel(model, family.serviceRates)) : [],
     choices: configurable
       ? [
-          ...(family.equipment ?? []).map((group) => groupChoice(group, false)),
-          ...(family.extras ?? []).map((group) => groupChoice(group, true)),
+          ...(family.equipment ?? []).flatMap((group) => groupChoice(group, false)),
+          ...(family.extras ?? []).flatMap((group) => groupChoice(group, true)),
         ]
       : [],
-    order: (family.stepOrder ?? []).map(({ step }) => step),
+    order: (family.stepOrder ?? []).flatMap(({ step }) => step || []),
   };
 }
 
-function mapSettings(settings: ConfiguratorSetting | null): Omit<ConfiguratorCatalog, "families"> {
+type ResidualRow = { minMonths: number; maxMonths: number; percent: number };
+
+/** "Restvärde" rows with all three numbers filled in, or none. */
+function residualRows(rows: Array<Partial<ResidualRow>> | null | undefined) {
+  const complete = (rows ?? []).filter(
+    (row): row is ResidualRow =>
+      typeof row.minMonths === "number" &&
+      typeof row.maxMonths === "number" &&
+      typeof row.percent === "number",
+  );
+  return complete.length
+    ? complete.map(({ minMonths, maxMonths, percent }) => ({ minMonths, maxMonths, percent }))
+    : undefined;
+}
+
+export function mapSettings(
+  settings: ConfiguratorSetting | null,
+): Omit<ConfiguratorCatalog, "families"> {
   const extras = {
     warrantyNote: settings?.warrantyNote || undefined,
-    nextSteps: (settings?.nextSteps ?? []).map((step) => ({
-      heading: step.heading,
-      text: step.text || undefined,
-    })),
+    nextSteps: (settings?.nextSteps ?? []).flatMap((step) =>
+      filled(step.heading) ? [{ heading: step.heading, text: step.text || undefined }] : [],
+    ),
   };
-  if (!settings?.financingMethods?.length) {
+  // A way to pay without its key, name or kind yet is left out.
+  const methods = (settings?.financingMethods ?? []).filter(
+    (method) => filled(method.key) && filled(method.label) && method.kind,
+  );
+  if (!settings || !methods.length) {
     return {
       ...extras,
       financingMethods: DEFAULT_FINANCING,
@@ -228,14 +273,16 @@ function mapSettings(settings: ConfiguratorSetting | null): Omit<ConfiguratorCat
   return {
     ...extras,
     quoteValidityDays: settings.quoteValidityDays || 14,
-    serviceAgreement: settings.serviceAgreement
-      ? {
-          label: settings.serviceAgreement.label,
-          description: settings.serviceAgreement.description || undefined,
-          annualPrice: settings.serviceAgreement.annualPrice,
-        }
-      : DEFAULT_SERVICE_AGREEMENT,
-    financingMethods: settings.financingMethods.map((method) => ({
+    serviceAgreement:
+      filled(settings.serviceAgreement?.label) &&
+      typeof settings.serviceAgreement?.annualPrice === "number"
+        ? {
+            label: settings.serviceAgreement.label,
+            description: settings.serviceAgreement.description || undefined,
+            annualPrice: settings.serviceAgreement.annualPrice,
+          }
+        : DEFAULT_SERVICE_AGREEMENT,
+    financingMethods: methods.map((method) => ({
       key: method.key,
       label: method.label,
       description: method.description || undefined,
@@ -253,13 +300,7 @@ function mapSettings(settings: ConfiguratorSetting | null): Omit<ConfiguratorCat
       ...(method.kind === "monthly"
         ? {
             interestRate: method.interestRate ?? undefined,
-            residualValues: method.residualValues?.length
-              ? method.residualValues.map(({ minMonths, maxMonths, percent }) => ({
-                  minMonths,
-                  maxMonths,
-                  percent,
-                }))
-              : undefined,
+            residualValues: residualRows(method.residualValues),
             residualPercent: method.residualPercent ?? undefined,
             rental: method.rental
               ? {
