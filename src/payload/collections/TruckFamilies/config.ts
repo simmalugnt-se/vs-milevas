@@ -6,7 +6,12 @@ import type {
   Validate,
   Where,
 } from "payload";
-import { isModelStep, type ModelProperty, propertyValue } from "@/features/configurator/steps.ts";
+import {
+  isModelStep,
+  MODEL_STEPS,
+  type ModelProperty,
+  propertyValue,
+} from "@/features/configurator/steps.ts";
 import { ADMIN_GROUPS } from "@/payload/admin-groups.ts";
 import { authenticatedOrPublished } from "../../access/authenticatedOrPublished.ts";
 import { isAuthenticated } from "../../access/isAuthenticated.ts";
@@ -52,18 +57,18 @@ async function familyModels(req: PayloadRequest, id: number | string | undefined
 }
 
 /**
- * The steps' order: each step once, and steps from the models' fields that tell every model apart
- * (or Modell among them, or none, when the customer chooses the model itself), so a configuration
- * always ends at one model.
+ * The steps under Val: each step from the models' fields once, and together they tell every model
+ * apart (or Modell among them, or none, when the customer chooses the model itself), so a
+ * configuration always ends at one model.
  */
 const stepsTellModelsApart: Validate = async (value, { req, id }) => {
   if (!Array.isArray(value)) return true;
-  const keys = (value as Array<{ step?: string }>)
-    .map((row) => row.step)
-    .filter(Boolean) as string[];
-  if (new Set(keys).size !== keys.length) return "Varje steg får bara finnas en gång.";
+  const keys = (value as Array<{ kind?: string | null }>)
+    .map((row) => row.kind)
+    .filter(isModelStep);
+  if (new Set(keys).size !== keys.length) return "Varje steg från modellerna får bara finnas en gång.";
   // Without steps from the models' fields the customer chooses the model itself.
-  const fields = keys.filter(isModelStep) as ModelProperty[];
+  const fields = keys.filter((key): key is ModelProperty => key !== "model");
   if (keys.includes("model") || fields.length === 0) return true;
   const seen = new Map<string, string[]>();
   for (const model of await familyModels(req, id)) {
@@ -80,6 +85,10 @@ const stepsTellModelsApart: Validate = async (value, { req, id }) => {
     .join(" ");
 };
 
+/** A row under Val with its own options, not a step from the models' fields. */
+const ownOptions = (_: unknown, sibling: { kind?: string | null }) =>
+  !sibling?.kind || sibling.kind === "own";
+
 /** A group's options: written once; the matrix sets which models have each. */
 const optionsField = (dbName: string, specsDbName: string): ArrayField => ({
   name: "options",
@@ -90,6 +99,7 @@ const optionsField = (dbName: string, specsDbName: string): ArrayField => ({
   localized: false,
   minRows: 1,
   admin: {
+    condition: ownOptions,
     initCollapsed: true,
     components: { RowLabel: `${ROW_LABELS}#OptionRowLabel` },
   },
@@ -108,8 +118,9 @@ const optionsField = (dbName: string, specsDbName: string): ArrayField => ({
 });
 
 /**
- * "Val": the truck type's groups of options (Batteri, Hytt, Bluespot …), each a step: one option, or
- * any with "Flerval"; the options and which models have them, and how it shows.
+ * "Val": the configurator's steps in order. A group of options (Batteri, Hytt, Bluespot …), one
+ * option or any with "Flerval", with the options, which models have them and how it shows; or a
+ * step from the models' fields (Lyftkapacitet, Hjulantal, Serie, Modell).
  */
 const choicesField: ArrayField = {
   name: "choices",
@@ -118,34 +129,54 @@ const choicesField: ArrayField = {
   type: "array",
   dbName: "truck_questions",
   localized: false,
+  validate: stepsTellModelsApart,
   admin: {
     initCollapsed: true,
-    description: "Det första alternativet en modell har är förvalt för den, utom vid flerval.",
+    description:
+      "Stegen i den ordning kunden går igenom dem. Ett steg med ett enda alternativ visas inte. Det första alternativet en modell har är förvalt för den, utom vid flerval.",
     components: { RowLabel: `${ROW_LABELS}#GroupRowLabel` },
   },
   fields: [
+    {
+      name: "kind",
+      label: "Typ",
+      type: "select",
+      defaultValue: "own",
+      options: [
+        { label: "Egna alternativ", value: "own" },
+        ...MODEL_STEPS.map(({ key, label }) => ({ label: `${label} från modellerna`, value: key })),
+      ],
+    },
     {
       name: "label",
       label: "Namn",
       type: "text",
       localized: true,
       required: true,
-      admin: { description: 'Till exempel "Batteri". Visas som stegets rubrik.' },
+      admin: {
+        condition: ownOptions,
+        description: 'Till exempel "Batteri". Visas som stegets rubrik.',
+      },
     },
     {
       name: "multiple",
       label: "Flerval",
       type: "checkbox",
       defaultValue: false,
+      admin: { condition: ownOptions },
     },
     optionsField("truck_question_options", "truck_option_specs"),
     {
       name: "modelMatrix",
       type: "ui",
-      admin: { components: { Field: `${ADMIN}/ModelMatrix.tsx#ModelMatrix` } },
+      admin: {
+        condition: ownOptions,
+        components: { Field: `${ADMIN}/ModelMatrix.tsx#ModelMatrix` },
+      },
     },
     {
       type: "row",
+      admin: { condition: ownOptions },
       fields: [
         {
           name: "columns",
@@ -167,6 +198,12 @@ const choicesField: ArrayField = {
           admin: { width: "50%", description: 'Valfri. Följs av "Kontakta oss".' },
         },
       ],
+    },
+    {
+      name: "withPrevious",
+      label: "Visa med föregående steg",
+      type: "checkbox",
+      defaultValue: false,
     },
   ],
 };
@@ -342,41 +379,6 @@ export const TruckFamilies: CollectionConfig = {
         {
           label: "Val",
           fields: [choicesField],
-        },
-        {
-          label: "Steg i konfiguratorn",
-          fields: [
-            {
-              name: "stepOrder",
-              label: "Steg i konfiguratorn",
-              labels: { singular: "Steg", plural: "Steg" },
-              type: "array",
-              dbName: "truck_step_order",
-              localized: false,
-              validate: stepsTellModelsApart,
-              admin: {
-                initCollapsed: true,
-                description:
-                  "Ordningen kunden går igenom efter valet av trucktyp. Dra raderna för att ändra den. Ett steg med ett enda alternativ visas inte.",
-                components: { RowLabel: `${ROW_LABELS}#StepOrderRowLabel` },
-              },
-              fields: [
-                {
-                  name: "step",
-                  label: "Steg",
-                  type: "text",
-                  required: true,
-                  admin: { components: { Field: `${ADMIN}/StepSelect.tsx#StepSelect` } },
-                },
-                {
-                  name: "withPrevious",
-                  label: "Visa med föregående steg",
-                  type: "checkbox",
-                  defaultValue: false,
-                },
-              ],
-            },
-          ],
         },
       ],
     },

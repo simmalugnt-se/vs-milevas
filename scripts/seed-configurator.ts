@@ -65,7 +65,7 @@ type ModelStepSeed = { property: ModelStep; label?: string };
 
 type FamilySeed = Omit<
   FamilyInput,
-  "image" | "brochure" | "models" | "defaultModel" | "series" | "choices" | "stepOrder"
+  "image" | "brochure" | "models" | "defaultModel" | "series" | "choices"
 > & {
   /** `scripts/figma-homepage-assets/hero-<image>.png`, the family's main image. */
   image: string;
@@ -817,7 +817,6 @@ async function upsertFamily(payload: Payload, seed: FamilySeed, brochure: string
     })),
     // The groups point at the models, which need the family first.
     choices: [],
-    stepOrder: [],
     _status: "published",
   };
   const family = existing.docs[0]
@@ -887,31 +886,19 @@ async function upsertFamily(payload: Payload, seed: FamilySeed, brochure: string
     multiple,
     options: await Promise.all(rows.map(optionData)),
   });
+  // Val in the seed's order: the groups and the steps from the models' fields.
   const saved = await payload.update({
     ...options,
     id: family.id,
     data: {
       defaultModel: ids.get(defaultModel),
-      choices: await Promise.all(questions.map(group)),
+      choices: await Promise.all(
+        steps.map((step) => ("property" in step ? { kind: step.property } : group(step))),
+      ),
       _status: "published",
     },
   });
-
-  // The steps' order: the models' fields and the groups, as the seed lists them.
   const savedGroups = saved.choices ?? [];
-  const groupId = (question: QuestionSeed) =>
-    savedGroups.find((row) => row.label === question.label)?.id;
-  await payload.update({
-    ...options,
-    id: family.id,
-    data: {
-      stepOrder: steps.flatMap((step) => {
-        const key = "property" in step ? step.property : groupId(step);
-        return key ? [{ step: key }] : [];
-      }),
-      _status: "published",
-    },
-  });
 
   // Each model's photos with an option (the cab).
   for (const question of questions) {

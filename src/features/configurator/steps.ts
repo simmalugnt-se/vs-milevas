@@ -1,5 +1,5 @@
 /**
- * The steps that come from the models' own fields, for "Steg i konfiguratorn": each offers the
+ * The steps that come from the models' own fields, a row's type under Val: each offers the
  * values the models have, and choosing one leaves the models with it. "Modell" offers the models
  * themselves.
  */

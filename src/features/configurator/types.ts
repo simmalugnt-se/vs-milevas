@@ -104,11 +104,11 @@ export type ConfiguratorFamily = {
   /** The groups of options ("Val"), one option each or any with "Flerval". */
   choices: ConfiguratorChoice[];
   /**
-   * "Steg i konfiguratorn": the steps' keys in order, a model field's (`capacity`, `wheels`,
-   * `series`, `model`) or a group's.
+   * The rows under Val as steps, in order: a model field's key (`capacity`, `wheels`, `series`,
+   * `model`) or a group's.
    */
   order: string[];
-  /** The steps marked "Visa med föregående steg": on the screen of the step before. */
+  /** The rows marked "Visa med föregående steg": on the screen of the step before. */
   withPrevious?: string[];
 };
 

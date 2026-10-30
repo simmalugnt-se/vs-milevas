@@ -35,6 +35,7 @@ import * as migration_20261029_162214_series_text from './20261029_162214_series
 import * as migration_20261030_090742_choice_groups from './20261030_090742_choice_groups';
 import * as migration_20261030_101939_service_rates_in_settings from './20261030_101939_service_rates_in_settings';
 import * as migration_20261030_131846_steps_with_previous from './20261030_131846_steps_with_previous';
+import * as migration_20261030_151750_steps_under_choices from './20261030_151750_steps_under_choices';
 
 export const migrations = [
   {
@@ -220,6 +221,11 @@ export const migrations = [
   {
     up: migration_20261030_131846_steps_with_previous.up,
     down: migration_20261030_131846_steps_with_previous.down,
-    name: '20261030_131846_steps_with_previous'
+    name: '20261030_131846_steps_with_previous',
+  },
+  {
+    up: migration_20261030_151750_steps_under_choices.up,
+    down: migration_20261030_151750_steps_under_choices.down,
+    name: '20261030_151750_steps_under_choices'
   },
 ];

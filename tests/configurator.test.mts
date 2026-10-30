@@ -788,7 +788,7 @@ test("a value one model has shows the model's text, a series its own, and an equ
   );
 });
 
-test("a group is one choice, or any with Flerval; a half-filled draft leaves out what has no name yet", async () => {
+test("a group is one choice, or any with Flerval; a half-filled draft leaves out what has no name yet; Val is the steps' order", async () => {
   const { mapFamily, mapSettings } = await import("../src/features/configurator/data.ts");
   const draft = {
     id: "family",
@@ -797,6 +797,7 @@ test("a group is one choice, or any with Flerval; a half-filled draft leaves out
     singularName: "Ledstaplare",
     series: [{ id: "s1", name: null, description: "Utan namn" }],
     choices: [
+      { id: "lift", kind: "capacity", label: null, options: [] },
       {
         id: "battery",
         label: "Batteri",
@@ -807,11 +808,13 @@ test("a group is one choice, or any with Flerval; a half-filled draft leaves out
         ],
       },
       { id: "empty", label: null, options: [{ id: "d", label: "Ja", price: 0 }] },
-      { id: "extras", label: "Tillval", multiple: true, options: [{ id: "e", label: "Larm" }] },
-    ],
-    stepOrder: [
-      { id: "o1", step: null },
-      { id: "o2", step: "battery" },
+      {
+        id: "extras",
+        label: "Tillval",
+        multiple: true,
+        withPrevious: true,
+        options: [{ id: "e", label: "Larm" }],
+      },
     ],
   } as unknown as TruckFamily;
   const models = [
@@ -835,7 +838,9 @@ test("a group is one choice, or any with Flerval; a half-filled draft leaves out
       ["Tillval", "multiple", ["Larm"]],
     ],
   );
-  assert.deepEqual(family.order, ["battery"]);
+  // A step from the models' fields under Val is no group; the rows' order is the steps'.
+  assert.deepEqual(family.order, ["capacity", "battery", "empty", "extras"]);
+  assert.deepEqual(family.withPrevious, ["extras"]);
   assert.deepEqual(family.seriesTexts, {});
   assert.equal(estimateTotal(family, sanitizeSelections(family, {})), 40000);
 

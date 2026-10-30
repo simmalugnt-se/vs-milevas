@@ -9,6 +9,7 @@ import type {
   TruckModel,
 } from "@/payload-types";
 import { DRIVE_HOUR_BANDS, type ServiceRate } from "./service-rates";
+import { isModelStep } from "./steps";
 import type {
   ConfiguratorCatalog,
   ConfiguratorChoice,
@@ -175,6 +176,10 @@ const mapModel = (model: TruckModel): ConfiguratorModel => ({
   }),
 });
 
+/** A row under Val as a step: a model field's key, or the group's id. */
+const stepKey = (row: NonNullable<TruckFamily["choices"]>[number]) =>
+  isModelStep(row.kind) ? row.kind : (row.id ?? "");
+
 /**
  * The configurator's view of a family, built from its product data and its published models: the
  * models, the groups of options ("Val"), and the steps' order (the engine builds the steps).
@@ -183,6 +188,7 @@ export function mapFamily(family: TruckFamily, allModels: TruckModel[]): Configu
   // Models are what is configured; without them the truck type is not shown.
   const models = allModels.filter(isComplete);
   const configurable = models.length > 0;
+  const steps = family.choices ?? [];
   return {
     id: family.id,
     key: family.key ?? "",
@@ -203,11 +209,11 @@ export function mapFamily(family: TruckFamily, allModels: TruckModel[]): Configu
       ),
     ),
     models: configurable ? models.map(mapModel) : [],
-    choices: configurable ? (family.choices ?? []).flatMap(groupChoice) : [],
-    order: (family.stepOrder ?? []).flatMap(({ step }) => step || []),
-    withPrevious: (family.stepOrder ?? []).flatMap(({ step, withPrevious }) =>
-      step && withPrevious ? [step] : [],
-    ),
+    choices: configurable
+      ? (family.choices ?? []).filter((row) => !isModelStep(row.kind)).flatMap(groupChoice)
+      : [],
+    order: steps.map(stepKey),
+    withPrevious: steps.flatMap((row) => (row.withPrevious ? [stepKey(row)] : [])),
   };
 }
 

@@ -14,6 +14,8 @@ type Saved = {
 };
 type SavedGroup = {
   id?: string;
+  /** "own" or none for a group; a step from the models' fields has no options. */
+  kind?: string | null;
   label?: string;
   options?: Array<{
     id?: string;
@@ -35,7 +37,7 @@ function fetchFamily(id: string): Promise<Family | null> {
   const query = new URLSearchParams({ depth: "0", draft: "true" });
   const groups = (list: SavedGroup[] | undefined) =>
     (list ?? []).flatMap((group) =>
-      group.id
+      group.id && (!group.kind || group.kind === "own")
         ? [
             {
               id: group.id,

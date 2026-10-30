@@ -823,14 +823,15 @@ export interface TruckFamily {
    */
   defaultModel?: (string | null) | TruckModel;
   /**
-   * Det första alternativet en modell har är förvalt för den, utom vid flerval.
+   * Stegen i den ordning kunden går igenom dem. Ett steg med ett enda alternativ visas inte. Det första alternativet en modell har är förvalt för den, utom vid flerval.
    */
   choices?:
     | {
+        kind?: ('own' | 'capacity' | 'wheels' | 'series' | 'model') | null;
         /**
          * Till exempel "Batteri". Visas som stegets rubrik.
          */
-        label: string;
+        label?: string | null;
         multiple?: boolean | null;
         options?:
           | {
@@ -872,15 +873,6 @@ export interface TruckFamily {
          * Valfri. Följs av "Kontakta oss".
          */
         help?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  /**
-   * Ordningen kunden går igenom efter valet av trucktyp. Dra raderna för att ändra den. Ett steg med ett enda alternativ visas inte.
-   */
-  stepOrder?:
-    | {
-        step: string;
         withPrevious?: boolean | null;
         id?: string | null;
       }[]
@@ -1959,6 +1951,7 @@ export interface TruckFamiliesSelect<T extends boolean = true> {
   choices?:
     | T
     | {
+        kind?: T;
         label?: T;
         multiple?: T;
         options?:
@@ -1980,12 +1973,6 @@ export interface TruckFamiliesSelect<T extends boolean = true> {
             };
         columns?: T;
         help?: T;
-        id?: T;
-      };
-  stepOrder?:
-    | T
-    | {
-        step?: T;
         withPrevious?: T;
         id?: T;
       };

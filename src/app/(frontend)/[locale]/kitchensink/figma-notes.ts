@@ -2449,7 +2449,7 @@ export const figmaNotes: FigmaNote[] = [
     topic: "Två steg på samma skärm",
     figma:
       "Bluespot och Övriga tillval på samma skärm, numrerade [01] och [02], `spacing/2xs` mellan rutorna (`9264:6653`). Ingen hjälptext under",
-    code: 'Ett steg med "Visa med föregående steg" i trucktypens stegordning står på skärmen före, med sitt eget nummer i ordningen (till exempel [09] och [10]). "Nästa" kräver att alla stegen på skärmen är klara. Har flera av stegen en text under alternativen står de på var sin rad i samma ruta',
+    code: 'Ett steg med "Visa med föregående steg" under trucktypens Val står på skärmen före, med sitt eget nummer i ordningen (till exempel [09] och [10]). "Nästa" kräver att alla stegen på skärmen är klara. Har flera av stegen en text under alternativen står de på var sin rad i samma ruta',
     why: "Figma ritar två steg tillsammans men inte hur numren eller hjälptexterna blir",
     status: "Antagande",
     date: "2026-10-30",

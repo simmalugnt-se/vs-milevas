@@ -340,18 +340,20 @@ i `engine.ts`: fler än tre två per rad, annars rader med bilden till höger); 
 
 `20261029_095637_truck_models` byter schema och sparar undan den gamla datan (`mig_*`); den gamla
 varianttabellen hade den nya samlingens namn (`truck_models`). `20261029_152204_equipment_and_step_order`
-och `20261029_162214_series_text` lägger till resten av schemat. `20261030_090742_choice_groups`,
-den sista som ändrar trucktyperna, slår ihop Utrustning och Tillval till en lista, Val (`choices[]`): tillvalens grupper
+och `20261029_162214_series_text` lägger till resten av schemat. `20261030_090742_choice_groups` slår ihop Utrustning och Tillval till en lista, Val (`choices[]`): tillvalens grupper
 flyttas in efter utrustningens med "Flerval" och behåller sina id:n, och alternativens modeller följer
-med (`down` flyttar tillbaka dem). Sedan flyttar den datan med Local API, när alla tabeller som
+med (`down` flyttar tillbaka dem). Den sista migreringen som ändrar trucktyperna,
+`20261030_151750_steps_under_choices`, flyttar datan med Local API, när alla tabeller som
 trucktyperna skriver till finns: varianterna blir modeller som kunden väljer efter lyftkapacitet,
-batterierna och masterna grupper och tillvalen en grupp med Flerval, i den ordning inställningarna gav
-dem; ett alternativ som bara visades för vissa varianter gäller de modellerna, och det förvalda läggs
-först. En databas utan den gamla datan (seedad sedan, eller migrerad när flytten låg i 152204) har
-inget att flytta. Den som ändrar trucktypernas eller modellernas fält senare flyttar dataflytten till
+batterierna och masterna grupper och tillvalen en grupp med Flerval, efter Lyftkapacitet under Val
+och i den ordning inställningarna gav dem; ett alternativ som bara visades för vissa varianter gäller de modellerna, och det förvalda läggs
+först. En databas utan den gamla datan (seedad sedan, eller migrerad när flytten låg i en tidigare
+migrering) har inget att flytta. Den som ändrar trucktypernas eller modellernas fält senare flyttar dataflytten till
 den nya migreringen. `20261030_101939_service_rates_in_settings` flyttar långtidshyrans servicepriser
 från trucktyperna till finansieringsformen i Konfiguratorinställningar, en rad per trucktyp och
-lyftkapacitet.
+lyftkapacitet. `20261030_151750_steps_under_choices` flyttar "Steg i konfiguratorn" (`stepOrder[]`,
+`truck_step_order`) in under Val: grupperna får sina platser i den ordningen, modellernas fält blir
+egna rader och grupper som inte stod i den kommer sist (`down` flyttar tillbaka den).
 
 **Modell** (`truck-models`, `TruckModels/config.ts`), en rad per modell som i Baolis prislista:
 
@@ -377,20 +379,20 @@ Modellsidan visar också vilka alternativ modellen har i de val som skiljer sig 
   visas inte på sajten (`familyLink` ger ingen länk); "Länk utan modeller" är borttagen.
 - **Modeller:** modellerna (ett `join`-fält), `series[]` (listan modellerna väljer serie ur) och
   `defaultModel` (där konfiguratorn, heron och korten börjar; utan den den billigaste).
-- **Val:** `choices[]` (tabellen `truck_questions`), grupper med ett alternativ, eller valfritt
-  antal med `multiple` ("Flerval"; inget förval). En grupp har namn, alternativ (namn, pris, text,
-  bild, specifikationer), kolumner (`columns`, se `choiceDisplay`) och text under alternativen. Varje alternativ skrivs en gång; `models` säger
-  vilka modeller som har det, inga är alla. Det sätts med matrisen (`ModelMatrix.tsx`), som är
-  hopfälld så länge alla modeller har allt. Förvalt är det första alternativet i listan som modellen
-  har; det finns ingen förvalsruta.
-- **Steg i konfiguratorn:** `stepOrder[]`, stegen i ordning: ett av modellernas fält (`capacity`,
-  `wheels`, `series`, `model`) eller en grupp (dess rad-id, `StepSelect.tsx`). Sparas inte om
-  stegen från modellernas fält inte skiljer modellerna åt (utan Modell bland dem). Ett steg med
-  `withPrevious` ("Visa med föregående steg") står på samma skärm som det synliga steget före
-  (`stepScreens`); konfiguratorns `step` och `firstIncompleteStep` räknar skärmar.
+- **Val:** `choices[]` (tabellen `truck_questions`), konfiguratorns steg i ordning. En rad har en
+  typ (`kind`): `own`, en grupp med egna alternativ, eller ett av modellernas fält (`capacity`,
+  `wheels`, `series`, `model`), som bara har typen. En grupp har ett alternativ, eller valfritt
+  antal med `multiple` ("Flerval"; inget förval), och har namn, alternativ (namn, pris, text, bild,
+  specifikationer), kolumner (`columns`, se `choiceDisplay`) och text under alternativen. Varje
+  alternativ skrivs en gång; `models` säger vilka modeller som har det, inga är alla. Det sätts med
+  matrisen (`ModelMatrix.tsx`), som är hopfälld så länge alla modeller har allt. Förvalt är det
+  första alternativet i listan som modellen har; det finns ingen förvalsruta. Sparas inte om ett av
+  modellernas fält står två gånger, eller om de inte skiljer modellerna åt (utan Modell bland dem).
+  En rad med `withPrevious` ("Visa med föregående steg") står på samma skärm som det synliga steget
+  före (`stepScreens`); konfiguratorns `step` och `firstIncompleteStep` räknar skärmar. `mapFamily`
+  ger grupperna som `choices` och raderna som `order` (ett fälts nyckel eller gruppens rad-id).
 
-**Konfiguratorn** (`engine.ts`) bygger stegen i den ordningen (`familySteps`); en grupp som inte
-står i ordningen kommer sist, och utan Modell läggs den efter det sista av modellernas fält (det är
+**Konfiguratorn** (`engine.ts`) bygger stegen i den ordningen (`familySteps`); utan Modell läggs den efter det sista av modellernas fält (det är
 inget steg när en modell är kvar). Ett steg från modellernas fält visar de värden modellerna som är
 kvar har, ett per värde (tal i storleksordning, serier och modeller från lägsta pris), med
 priset för den billigaste modellen med värdet ("1,6 ton", "Från 176 900 kr", som i Lovable) och som

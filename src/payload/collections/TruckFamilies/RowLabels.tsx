@@ -2,7 +2,7 @@
 
 import { useRowLabel } from "@payloadcms/ui";
 import { useEffect, useState } from "react";
-import { useStepChoices } from "./useStepChoices";
+import { isModelStep, modelStepLabel } from "@/features/configurator/steps";
 
 /**
  * The truck type's list rows in the admin, named by what they hold ("Stort batteri · +18 000 kr")
@@ -22,27 +22,32 @@ const join = (parts: Array<string | undefined | null | false>, fallback: string)
 const text = (value: unknown) =>
   typeof value === "string" ? value.replaceAll("|", "").trim() || undefined : undefined;
 
-/** "Batteri · 6 alternativ · olika per modell", "Övriga tillval · flerval · 3 alternativ · …". */
+/**
+ * "Batteri · 6 alternativ · olika per modell", "Övriga tillval · flerval · 3 alternativ · … · med
+ * föregående", "Lyftkapacitet · från modellerna".
+ */
 export function GroupRowLabel() {
   const { data, rowNumber } = useRowLabel<{
+    kind?: string | null;
     label?: string;
     multiple?: boolean;
     options?: Array<{ models?: unknown[] | null }>;
+    withPrevious?: boolean;
   }>();
   const options = data?.options ?? [];
   const perModel = options.some((option) => (option.models ?? []).length > 0);
+  const parts = isModelStep(data?.kind)
+    ? [modelStepLabel(data.kind), "från modellerna"]
+    : [
+        // Unnamed, as "Val 2": the configurator leaves it out until it has a name.
+        text(data?.label) ?? `Val ${(rowNumber ?? 0) + 1}`,
+        data?.multiple && "flerval",
+        `${options.length} alternativ`,
+        options.length > 0 && (perModel ? "olika per modell" : "alla modeller"),
+      ];
   return (
     <span>
-      {join(
-        [
-          // Unnamed, as "Val 2": the configurator leaves it out until it has a name.
-          text(data?.label) ?? `Val ${(rowNumber ?? 0) + 1}`,
-          data?.multiple && "flerval",
-          `${options.length} alternativ`,
-          options.length > 0 && (perModel ? "olika per modell" : "alla modeller"),
-        ],
-        `Val ${(rowNumber ?? 0) + 1}`,
-      )}
+      {join([...parts, data?.withPrevious && "med föregående"], `Val ${(rowNumber ?? 0) + 1}`)}
     </span>
   );
 }
@@ -81,15 +86,6 @@ export function SpecRowLabel() {
         : `Specifikation ${(rowNumber ?? 0) + 1}`}
     </span>
   );
-}
-
-/** "Batteri · enkelval", "Lyftkapacitet · från modellerna", "… · med föregående". */
-export function StepOrderRowLabel() {
-  const { data, rowNumber } = useRowLabel<{ step?: string; withPrevious?: boolean }>();
-  const steps = useStepChoices();
-  const step = steps.find((candidate) => candidate.value === data?.step);
-  const label = step ? `${step.label} · ${step.source}` : `Steg ${(rowNumber ?? 0) + 1}`;
-  return <span>{data?.withPrevious ? `${label} · med föregående` : label}</span>;
 }
 
 /** A truck type's name, from the row's value: the document, or its id, read once. */
