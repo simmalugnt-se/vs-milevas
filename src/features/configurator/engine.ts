@@ -250,6 +250,24 @@ export function visibleSteps(
 }
 
 /**
+ * The visible steps by screen: a step marked "Visa med föregående steg" shares the screen of the
+ * visible step before it, or has its own when it is the first.
+ */
+export function stepScreens(
+  family: ConfiguratorFamily,
+  selections: SelectionState,
+): ConfiguratorChoice[][] {
+  const withPrevious = new Set(family.withPrevious ?? []);
+  const screens: ConfiguratorChoice[][] = [];
+  for (const choice of visibleSteps(family, selections)) {
+    const last = screens.at(-1);
+    if (last && withPrevious.has(choice.key)) last.push(choice);
+    else screens.push([choice]);
+  }
+  return screens;
+}
+
+/**
  * The selections as they can be: step by step, only options the steps before allow. A single
  * choice with nothing valid chosen gets its default: in a step from the models' fields the default
  * model's value, in a group the first option the models left have; an optional step stays empty.
@@ -295,22 +313,22 @@ export function choiceSatisfied(choice: ConfiguratorChoice, selections: Selectio
   return !choice.required || (selections[choice.key]?.length ?? 0) > 0;
 }
 
-/** The first visible step not done, by its place among the visible steps. */
+/** The first screen with a visible step not done, by its place among the screens. */
 export function firstIncompleteStep(
   family: ConfiguratorFamily,
   selections: SelectionState,
 ): number | null {
-  for (const [stepIndex, choice] of visibleSteps(family, selections).entries()) {
-    if (!choiceSatisfied(choice, selections)) {
-      return stepIndex;
+  for (const [screenIndex, screen] of stepScreens(family, selections).entries()) {
+    if (screen.some((choice) => !choiceSatisfied(choice, selections))) {
+      return screenIndex;
     }
   }
   return null;
 }
 
 /**
- * The first visible step where something asked for was dropped, by its place among the visible
- * steps; a step the family does not have at all is the first.
+ * The first screen with a visible step where something asked for was dropped, by its place among
+ * the screens; a step the family does not have at all is the first.
  */
 export function firstInvalidSelectionStep(
   family: ConfiguratorFamily,
@@ -319,7 +337,9 @@ export function firstInvalidSelectionStep(
 ): number | null {
   const known = new Set(familySteps(family).map((choice) => choice.key));
   const stepOf = new Map(
-    visibleSteps(family, sanitized).map((choice, stepIndex) => [choice.key, stepIndex]),
+    stepScreens(family, sanitized).flatMap((screen, screenIndex) =>
+      screen.map((choice) => [choice.key, screenIndex] as const),
+    ),
   );
   let firstInvalid: number | null = null;
 

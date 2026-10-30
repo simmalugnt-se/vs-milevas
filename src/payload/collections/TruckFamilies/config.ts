@@ -368,6 +368,12 @@ export const TruckFamilies: CollectionConfig = {
                   required: true,
                   admin: { components: { Field: `${ADMIN}/StepSelect.tsx#StepSelect` } },
                 },
+                {
+                  name: "withPrevious",
+                  label: "Visa med föregående steg",
+                  type: "checkbox",
+                  defaultValue: false,
+                },
               ],
             },
           ],

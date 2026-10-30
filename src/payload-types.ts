@@ -881,6 +881,7 @@ export interface TruckFamily {
   stepOrder?:
     | {
         step: string;
+        withPrevious?: boolean | null;
         id?: string | null;
       }[]
     | null;
@@ -1985,6 +1986,7 @@ export interface TruckFamiliesSelect<T extends boolean = true> {
     | T
     | {
         step?: T;
+        withPrevious?: T;
         id?: T;
       };
   key?: T;

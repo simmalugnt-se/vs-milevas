@@ -3,11 +3,11 @@
 import { type ReactNode, useActionState, useEffect, useId, useMemo, useRef, useState } from "react";
 import { Alternative } from "@/components/ui/alternative";
 import { Button } from "@/components/ui/button";
-import { ContactForm } from "@/components/ui/contact-form";
+import { ContactForm, ContactFormInfo } from "@/components/ui/contact-form";
 import { fieldTextClassName, TextAreaField, TextField } from "@/components/ui/text-field";
 import { TimePicker, type TimePickerDay } from "@/components/ui/time-picker";
 import { sendQuoteCopy, submitCallRequest, submitOrderRequest } from "./actions";
-import type { ConfiguratorActionState, QuoteCopyState, SelectionState } from "./types";
+import type { ConfiguratorActionState, NextStep, QuoteCopyState, SelectionState } from "./types";
 
 const initialActionState: ConfiguratorActionState = { ok: false };
 
@@ -128,11 +128,14 @@ export function RequestDialog({
   open,
   onClose,
   labelledBy,
+  wide = false,
   children,
 }: {
   open: boolean;
   onClose: () => void;
   labelledBy: string;
+  /** The whole width from Desktop S too, as the order popup with "Vad händer nu?". */
+  wide?: boolean;
   children: ReactNode;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
@@ -188,7 +191,7 @@ export function RequestDialog({
         event.preventDefault();
         onClose();
       }}
-      className="fixed inset-y-(--grid-margin) right-(--grid-margin) left-auto m-0 h-auto outline-none max-h-none w-[calc(100%-2*var(--grid-margin))] max-w-none translate-x-[calc(100%+var(--grid-margin))] bg-transparent p-0 transition-transform duration-1200 ease-[cubic-bezier(0.72,0,0.37,1)] backdrop:bg-transparent data-[state=open]:translate-x-0 motion-reduce:transition-none desktop-s:w-[calc(50%-0.75rem)]"
+      className={`fixed inset-y-(--grid-margin) right-(--grid-margin) left-auto m-0 h-auto outline-none max-h-none w-[calc(100%-2*var(--grid-margin))] max-w-none translate-x-[calc(100%+var(--grid-margin))] bg-transparent p-0 transition-transform duration-1200 ease-[cubic-bezier(0.72,0,0.37,1)] backdrop:bg-transparent data-[state=open]:translate-x-0 motion-reduce:transition-none ${wide ? "" : "desktop-s:w-[calc(50%-0.75rem)]"}`}
     >
       {shown ? children : null}
     </dialog>
@@ -375,18 +378,21 @@ export function CallRequestForm({
 
 /**
  * The order ("Fortsätt beställning") as Figma's order popup: company, organisation number, e-mail
- * and phone, and "Skicka avtal för signering". Sent, it hands the reference to `onSent`, which
- * shows the thank-you screen.
+ * and phone, and "Skicka avtal för signering", with "Vad händer nu?" beside it. Sent, it hands the
+ * reference to `onSent`, which shows the thank-you screen.
  */
 export function OrderRequestForm({
   onClose,
   onSent,
   headingId,
+  nextSteps,
   ...configuration
 }: Configuration & {
   onClose: () => void;
   onSent: (reference: string) => void;
   headingId: string;
+  /** "Vad händer nu?" from the configurator settings. */
+  nextSteps: NextStep[];
 }) {
   const [state, formAction, pending] = useActionState(submitOrderRequest, initialActionState);
   const keyedAction = useKeyedAction(formAction);
@@ -405,6 +411,11 @@ export function OrderRequestForm({
       heading={<span id={headingId}>Fortsätt beställning</span>}
       text="Fyll i företagsuppgifterna så skickar vi avtalet för digital signering. Därefter kontaktar en specialist dig, trucken förbereds för leverans och levereras normalt inom 4–6 veckor."
       onClose={onClose}
+      aside={
+        nextSteps.length > 0 ? (
+          <ContactFormInfo heading="Vad händer nu?" steps={nextSteps} />
+        ) : undefined
+      }
       submit={
         <div className="flex flex-col gap-(--spacing-2xs)">
           <FormMessage state={state} />

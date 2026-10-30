@@ -108,6 +108,8 @@ export type ConfiguratorFamily = {
    * `series`, `model`) or a group's.
    */
   order: string[];
+  /** The steps marked "Visa med föregående steg": on the screen of the step before. */
+  withPrevious?: string[];
 };
 
 export type FinancingMethod = {

@@ -83,12 +83,13 @@ export function SpecRowLabel() {
   );
 }
 
-/** "Batteri · enkelval", "Lyftkapacitet · från modellerna". */
+/** "Batteri · enkelval", "Lyftkapacitet · från modellerna", "… · med föregående". */
 export function StepOrderRowLabel() {
-  const { data, rowNumber } = useRowLabel<{ step?: string }>();
+  const { data, rowNumber } = useRowLabel<{ step?: string; withPrevious?: boolean }>();
   const steps = useStepChoices();
   const step = steps.find((candidate) => candidate.value === data?.step);
-  return <span>{step ? `${step.label} · ${step.source}` : `Steg ${(rowNumber ?? 0) + 1}`}</span>;
+  const label = step ? `${step.label} · ${step.source}` : `Steg ${(rowNumber ?? 0) + 1}`;
+  return <span>{data?.withPrevious ? `${label} · med föregående` : label}</span>;
 }
 
 /** A truck type's name, from the row's value: the document, or its id, read once. */

@@ -2,7 +2,7 @@
 
 import { Alternative } from "@/components/ui/alternative";
 import { Button } from "@/components/ui/button";
-import { ContactForm, type ContactFormType } from "@/components/ui/contact-form";
+import { ContactForm, ContactFormInfo, type ContactFormType } from "@/components/ui/contact-form";
 import { TextAreaField, TextField } from "@/components/ui/text-field";
 import { TimePicker } from "@/components/ui/time-picker";
 
@@ -16,6 +16,15 @@ const sendButton = (
     Skicka avtal för signering
   </Button>
 );
+
+/** Figma's "Vad händer nu?" beside the order form (9613:21687). */
+const nextSteps = [
+  { heading: "Bekräftelse", text: "Du får en bekräftelse direkt via mejl." },
+  { heading: "Personlig kontakt", text: "En säljare hör av sig inom kort." },
+  { heading: "Plockning", text: "Din truck plockas ut från Baolis lager i Rolo, Italien." },
+  { heading: "Avtal", text: "Du får ett digitalt avtal att signera (BankID)." },
+  { heading: "Leverans", text: "Beräknad leverans 4–6 veckor." },
+];
 
 /**
  * contact-form's three types with Figma's texts and placeholders ("Heading", "Supporting text"); the
@@ -33,6 +42,7 @@ export function ContactFormDemo({ type }: { type: ContactFormType }) {
         submit={sendButton}
         onClose={() => {}}
         onSubmit={onSubmit}
+        aside={<ContactFormInfo heading="Vad händer nu?" steps={nextSteps} />}
       >
         <TextField number="01" label="Företagsnamn *" placeholder={placeholder} />
         <TextField number="02" label="Organisationsnummer *" placeholder={placeholder} />

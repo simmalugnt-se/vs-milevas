@@ -25,7 +25,7 @@ import {
   sanitizeSelections,
   shownResidualPercent,
   truckImage,
-  visibleSteps,
+  stepScreens,
   withTerm,
 } from "./engine";
 import { CallRequestForm, RequestDialog } from "./RequestForms";
@@ -133,7 +133,8 @@ const stepNumber = (index: number) => String(index + 1).padStart(2, "0");
 /**
  * The truck configurator on Figma's step screen (`ConfiguratorScreen`): truck type, the family's
  * steps (in the editor's order, each as its Figma step type), then financing, one screen
- * each, numbered `[01]`, `[02]` and so on. The price box shows the total and the monthly prices;
+ * each, numbered `[01]`, `[02]` and so on; a step marked "Visa med föregående steg" shares the
+ * screen before, as Bluespot and Övriga tillval in Figma (`9264:6653`), with its own number. The price box shows the total and the monthly prices;
  * "Boka samtal" opens the call request in a dialog once a truck type is chosen; "Visa offert"
  * leads to the quote page.
  */
@@ -149,12 +150,14 @@ export function ConfiguratorClient({
   const [callOpen, setCallOpen] = useState(false);
   const families = catalog.families.filter(isConfigurable);
   const family = families.find((candidate) => candidate.key === state.familyKey);
-  // The steps there is something to choose in, after what is chosen so far.
-  const steps = family ? visibleSteps(family, state.selections) : [];
+  // The steps there is something to choose in, after what is chosen so far, by screen.
+  const screens = family ? stepScreens(family, state.selections) : [];
   const model = family ? chosenModel(family, state.selections) : undefined;
   const modelKey = model?.key;
-  const maxStep = family ? steps.length + 1 : 0;
-  const currentConfigStep = family && state.step > 0 ? steps[state.step - 1] : undefined;
+  const maxStep = family ? screens.length + 1 : 0;
+  const currentSteps = (family && state.step > 0 ? screens[state.step - 1] : undefined) ?? [];
+  // Each step's number: the truck type is [01], the steps follow on, then financing.
+  const firstNumber = 1 + screens.slice(0, Math.max(0, state.step - 1)).flat().length;
   const financingStep = Boolean(family && state.step === maxStep);
   const purchaseKey =
     catalog.financingMethods.find((method) => method.kind === "purchase")?.key ??
@@ -191,7 +194,7 @@ export function ConfiguratorClient({
     const invalid = firstInvalidSelectionStep(parsedFamily, parsed.selections, selections);
     const desiredStep = Math.min(
       parsed.step ?? 0,
-      visibleSteps(parsedFamily, selections).length + 1,
+      stepScreens(parsedFamily, selections).length + 1,
     );
     const earliestAffected = [incomplete, invalid]
       .filter((value): value is number => value !== null)
@@ -253,7 +256,8 @@ export function ConfiguratorClient({
       ? Boolean(family)
       : financingStep
         ? Boolean(state.financingKey)
-        : Boolean(currentConfigStep && choiceSatisfied(currentConfigStep, state.selections));
+        : currentSteps.length > 0 &&
+          currentSteps.every((choice) => choiceSatisfied(choice, state.selections));
 
   const quoteParams = family
     ? buildConfiguratorSearchParams({
@@ -286,7 +290,7 @@ export function ConfiguratorClient({
   const monthlyMethods = catalog.financingMethods.filter((method) => method.kind === "monthly");
   const totalPrice = total ?? lowestPrice;
   const dealerTotal = dealerPrice(totalPrice, modelKey);
-  const number = stepNumber(state.step);
+  const number = stepNumber(financingStep ? firstNumber : state.step);
 
   let step: ReactNode;
   if (state.step === 0 || !family) {
@@ -315,36 +319,39 @@ export function ConfiguratorClient({
         }))}
       />
     );
-  } else if (currentConfigStep) {
-    // Only what the steps before allow, e.g. the batteries for the chosen lift capacity.
-    const choice = {
-      ...currentConfigStep,
-      options: availableOptions(family, currentConfigStep, state.selections),
-    };
-    step = (
-      <ConfiguratorStep
-        number={number}
-        label={choice.label}
-        display={choiceDisplay(choice)}
-        options={choice.options.map((option) => ({
-          key: option.key,
-          title: option.label,
-          price: priceLabel(choice, option),
-          text: option.description,
-          selected: (state.selections[choice.key] ?? []).includes(option.key),
-          image: option.image ? (
-            <Image
-              src={option.image.url}
-              alt=""
-              fill
-              sizes="(width >= 64rem) 15vw, 40vw"
-              className="object-contain"
-            />
-          ) : undefined,
-          onSelect: () => dispatch({ type: "toggleOption", family, choice, key: option.key }),
-        }))}
-      />
-    );
+  } else if (currentSteps.length > 0) {
+    step = currentSteps.map((current, index) => {
+      // Only what the steps before allow, e.g. the batteries for the chosen lift capacity.
+      const choice = {
+        ...current,
+        options: availableOptions(family, current, state.selections),
+      };
+      return (
+        <ConfiguratorStep
+          key={choice.key}
+          number={stepNumber(firstNumber + index)}
+          label={choice.label}
+          display={choiceDisplay(choice)}
+          options={choice.options.map((option) => ({
+            key: option.key,
+            title: option.label,
+            price: priceLabel(choice, option),
+            text: option.description,
+            selected: (state.selections[choice.key] ?? []).includes(option.key),
+            image: option.image ? (
+              <Image
+                src={option.image.url}
+                alt=""
+                fill
+                sizes="(width >= 64rem) 15vw, 40vw"
+                className="object-contain"
+              />
+            ) : undefined,
+            onSelect: () => dispatch({ type: "toggleOption", family, choice, key: option.key }),
+          }))}
+        />
+      );
+    });
   } else {
     const agreement = catalog.serviceAgreement;
     step = (
@@ -401,21 +408,25 @@ export function ConfiguratorClient({
     );
   }
 
-  const help = currentConfigStep?.help ? (
-    <>
-      {currentConfigStep.help}{" "}
-      <button
-        type="button"
-        className="text-ui-primary underline underline-offset-2"
-        onClick={() => setCallOpen(true)}
-      >
-        Kontakta oss
-      </button>{" "}
-      så löser vi det.
-    </>
-  ) : financingStep ? (
-    "Alla priser visas exkl. moms. Slutliga villkor bekräftas av säljare."
-  ) : undefined;
+  // The screen's steps' notes, one line each.
+  const helps = currentSteps.flatMap((choice) => choice.help || []);
+  const help = helps.length
+    ? helps.map((text) => (
+        <span key={text} className="block">
+          {text}{" "}
+          <button
+            type="button"
+            className="text-ui-primary underline underline-offset-2"
+            onClick={() => setCallOpen(true)}
+          >
+            Kontakta oss
+          </button>{" "}
+          så löser vi det.
+        </span>
+      ))
+    : financingStep
+      ? "Alla priser visas exkl. moms. Slutliga villkor bekräftas av säljare."
+      : undefined;
 
   const next = financingStep ? (
     currentComplete ? (

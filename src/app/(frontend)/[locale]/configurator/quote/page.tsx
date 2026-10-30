@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import type { TypedLocale } from "payload";
 import { getConfiguratorCatalog } from "@/features/configurator/data";
-import { buildQuote, chosenModel, truckImage, visibleSteps } from "@/features/configurator/engine";
+import { buildQuote, chosenModel, truckImage, stepScreens } from "@/features/configurator/engine";
 import { QuoteView } from "@/features/configurator/QuoteView";
 import {
   buildConfiguratorSearchParams,
@@ -73,8 +73,8 @@ export default async function QuotePage({ params, searchParams }: QuotePageProps
     financingKey: quote.financing.key,
     months: quote.financing.kind === "monthly" ? quote.financing.months : undefined,
     serviceAgreement: Boolean(quote.serviceAgreement),
-    // Back on the financing step, after the steps there is something to choose in.
-    step: family ? visibleSteps(family, quote.selections).length + 1 : undefined,
+    // Back on the financing step, after the screens of steps there is something to choose in.
+    step: family ? stepScreens(family, quote.selections).length + 1 : undefined,
   });
 
   // The site's overlaid navigation, Light here as on the configurator, and the page's light grey

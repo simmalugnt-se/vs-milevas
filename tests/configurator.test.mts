@@ -16,6 +16,7 @@ import {
   resolveSpecifications,
   sanitizeSelections,
   shownResidualPercent,
+  stepScreens,
   truckImage,
   visibleSteps,
   withTerm,
@@ -557,6 +558,37 @@ test("a step with one option left is chosen for the customer and not shown", () 
   assert.deepEqual(
     visibleSteps(single, sanitizeSelections(single, {})).map((choice) => choice.key),
     ["mast", "extras"],
+  );
+});
+
+test("a step marked to show with the step before shares its screen", () => {
+  const screens = (withPrevious: string[], selections: Record<string, string[]> = {}) => {
+    const joined = { ...counterbalance, withPrevious };
+    return stepScreens(joined, sanitizeSelections(joined, selections)).map((screen) =>
+      screen.map((choice) => choice.key),
+    );
+  };
+  assert.deepEqual(screens(["extras"], { capacity: ["1800"] }), [
+    ["capacity"],
+    ["wheels"],
+    ["mast", "extras"],
+  ]);
+  // With the step before hidden, the one before that; the first step has a screen of its own.
+  assert.deepEqual(screens(["capacity", "mast"], { capacity: ["2500"] }), [
+    ["capacity", "mast"],
+    ["extras"],
+  ]);
+  // Screens, not steps, count for the first one open: extras is on the third.
+  const joined = { ...counterbalance, withPrevious: ["extras"] };
+  const optional = {
+    ...joined,
+    choices: joined.choices.map((choice) =>
+      choice.key === "extras" ? { ...choice, required: true } : choice,
+    ),
+  };
+  assert.equal(
+    firstIncompleteStep(optional, sanitizeSelections(optional, { capacity: ["1800"] })),
+    2,
   );
 });
 

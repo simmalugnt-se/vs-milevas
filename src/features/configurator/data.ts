@@ -205,6 +205,9 @@ export function mapFamily(family: TruckFamily, allModels: TruckModel[]): Configu
     models: configurable ? models.map(mapModel) : [],
     choices: configurable ? (family.choices ?? []).flatMap(groupChoice) : [],
     order: (family.stepOrder ?? []).flatMap(({ step }) => step || []),
+    withPrevious: (family.stepOrder ?? []).flatMap(({ step, withPrevious }) =>
+      step && withPrevious ? [step] : [],
+    ),
   };
 }
 

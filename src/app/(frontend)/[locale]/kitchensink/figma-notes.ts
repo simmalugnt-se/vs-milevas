@@ -412,6 +412,12 @@ export const designQuestions: DesignQuestion[] = [
   {
     target: "configurator",
     question:
+      'Beställningspopupen visar nu "Vad händer nu?" bredvid formuläret (9613:21684), och tacksidan (`type=TNX!`) visar samma fem steg igen när beställningen är skickad. Ska tacksidan ha kvar stegen, eller ska de bytas mot något annat? Utan dem står bara tacket, prisrutan och trucken, med en tom yta till vänster.',
+    figma: "9321:46803",
+  },
+  {
+    target: "configurator",
+    question:
       "Hur ska ÅF-priset visas för en inloggad återförsäljare i konfiguratorn och offerten? Koden har bara raden \"Ditt ÅF-pris\" under totalpriset i prisrutan. Ska månadskostnaderna också ha ett ÅF-pris?",
   },
   {
@@ -2368,8 +2374,9 @@ export const figmaNotes: FigmaNote[] = [
   {
     target: "configurator",
     topic: "Popupen",
-    figma: "En vit panel `grid/margin` från kanterna, högra halvan på desktop; inget bakom",
-    code: "En `<dialog>` på samma plats, utan nedtoning bakom; Escape och krysset stänger",
+    figma:
+      'En vit panel `grid/margin` från kanterna, högra halvan på desktop; beställningen med "Vad händer nu?" bredvid formuläret i hela bredden (9613:21684, uppdaterad 2026-10-30); inget bakom',
+    code: 'En `<dialog>` på samma plats, utan nedtoning bakom; Escape och krysset stänger. Beställningen tar hela bredden med stegen från konfiguratorinställningarna bredvid, och under formuläret på Tablet och Mobile; utan steg har den halva bredden som samtalet',
     why: "Inte ritat; se frågan",
     status: "Lucka",
     date: "2026-10-23",
@@ -2436,5 +2443,15 @@ export const figmaNotes: FigmaNote[] = [
     why: "Kunden vill kunna öppna broschyren för specen per modell (Stefan Normann, Milevas_input 3)",
     status: "Beslut",
     date: "2026-10-29",
+  },
+  {
+    target: "configurator",
+    topic: "Två steg på samma skärm",
+    figma:
+      "Bluespot och Övriga tillval på samma skärm, numrerade [01] och [02], `spacing/2xs` mellan rutorna (`9264:6653`). Ingen hjälptext under",
+    code: 'Ett steg med "Visa med föregående steg" i trucktypens stegordning står på skärmen före, med sitt eget nummer i ordningen (till exempel [09] och [10]). "Nästa" kräver att alla stegen på skärmen är klara. Har flera av stegen en text under alternativen står de på var sin rad i samma ruta',
+    why: "Figma ritar två steg tillsammans men inte hur numren eller hjälptexterna blir",
+    status: "Antagande",
+    date: "2026-10-30",
   },
 ];

@@ -201,11 +201,17 @@ export function QuoteView({
       <RequestDialog open={dialog === "call"} onClose={close} labelledBy="quote-call-heading">
         <CallRequestForm headingId="quote-call-heading" onClose={close} {...configuration} />
       </RequestDialog>
-      <RequestDialog open={dialog === "order"} onClose={close} labelledBy="quote-order-heading">
+      <RequestDialog
+        open={dialog === "order"}
+        onClose={close}
+        labelledBy="quote-order-heading"
+        wide={nextSteps.length > 0}
+      >
         <OrderRequestForm
           headingId="quote-order-heading"
           onClose={close}
           onSent={onSent}
+          nextSteps={nextSteps}
           {...configuration}
         />
       </RequestDialog>

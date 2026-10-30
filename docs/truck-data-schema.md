@@ -385,7 +385,9 @@ Modellsidan visar också vilka alternativ modellen har i de val som skiljer sig 
   har; det finns ingen förvalsruta.
 - **Steg i konfiguratorn:** `stepOrder[]`, stegen i ordning: ett av modellernas fält (`capacity`,
   `wheels`, `series`, `model`) eller en grupp (dess rad-id, `StepSelect.tsx`). Sparas inte om
-  stegen från modellernas fält inte skiljer modellerna åt (utan Modell bland dem).
+  stegen från modellernas fält inte skiljer modellerna åt (utan Modell bland dem). Ett steg med
+  `withPrevious` ("Visa med föregående steg") står på samma skärm som det synliga steget före
+  (`stepScreens`); konfiguratorns `step` och `firstIncompleteStep` räknar skärmar.
 
 **Konfiguratorn** (`engine.ts`) bygger stegen i den ordningen (`familySteps`); en grupp som inte
 står i ordningen kommer sist, och utan Modell läggs den efter det sista av modellernas fält (det är

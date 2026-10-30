@@ -34,6 +34,7 @@ import * as migration_20261029_152204_equipment_and_step_order from './20261029_
 import * as migration_20261029_162214_series_text from './20261029_162214_series_text';
 import * as migration_20261030_090742_choice_groups from './20261030_090742_choice_groups';
 import * as migration_20261030_101939_service_rates_in_settings from './20261030_101939_service_rates_in_settings';
+import * as migration_20261030_131846_steps_with_previous from './20261030_131846_steps_with_previous';
 
 export const migrations = [
   {
@@ -214,6 +215,11 @@ export const migrations = [
   {
     up: migration_20261030_101939_service_rates_in_settings.up,
     down: migration_20261030_101939_service_rates_in_settings.down,
-    name: '20261030_101939_service_rates_in_settings'
+    name: '20261030_101939_service_rates_in_settings',
+  },
+  {
+    up: migration_20261030_131846_steps_with_previous.up,
+    down: migration_20261030_131846_steps_with_previous.down,
+    name: '20261030_131846_steps_with_previous'
   },
 ];
