@@ -6,6 +6,8 @@ import { frontendPath } from "@/i18n/frontend-path";
 import { routing } from "@/i18n/routing";
 import { getSiteOrigin, isSearchIndexingEnabled } from "@/lib/seo/indexing";
 import { getPayloadDbReady } from "@/payload/data/db-ready";
+import { pagePathname } from "@/payload/data/redirects-core";
+import { pageAddress } from "@/payload/utilities/page-path";
 
 const getPagesSitemap = unstable_cache(
   async () => {
@@ -37,16 +39,18 @@ const getPagesSitemap = unstable_cache(
           },
         },
         select: {
+          path: true,
           slug: true,
           updatedAt: true,
         },
       });
 
       for (const page of results.docs ?? []) {
-        if (!page?.slug) {
+        const address = pageAddress(page);
+        if (!address) {
           continue;
         }
-        const path = page.slug === "home" ? "/" : `/${page.slug as string}`;
+        const path = pagePathname(address);
         entries.push({
           loc: `${base}${frontendPath(path, locale)}`,
           lastmod: (page.updatedAt as string) || dateFallback,

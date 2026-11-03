@@ -10,20 +10,21 @@ import {
   type RedirectDoc,
   referenceId,
 } from "@/payload/data/redirects-core";
+import { pageAddress } from "@/payload/utilities/page-path";
 import type { Page } from "@/payload-types";
 
 /**
  * Redirects are off unless `PAYLOAD_REDIRECTS_ENABLED=true`: the collection is hidden in Admin and
- * a new slug adds no redirect. Its table stays, so turning them on needs no migration.
+ * a new address adds no redirect. Its table stays, so turning them on needs no migration.
  */
 export const redirectsEnabled = process.env.PAYLOAD_REDIRECTS_ENABLED === "true";
 
 const contextKey = (id: string | number) => `publishedSlug:${id}`;
 
 /**
- * The slug the page was published with before this publish, if it was published. Read in
- * `beforeChange`: Payload's `originalDoc` and `previousDoc` are the latest draft, which already has
- * the new slug once the editor has typed it.
+ * The address (`path`) the page was published with before this publish, if it was published. Read
+ * in `beforeChange`: Payload's `originalDoc` and `previousDoc` are the latest draft, which already
+ * has the new slug or parent once the editor has set it.
  */
 export function publishedSlugBefore(req: PayloadRequest, id: string | number) {
   const value = req.context[contextKey(id)];
@@ -48,29 +49,29 @@ export const rememberPublishedSlug: CollectionBeforeChangeHook<Page> = async ({
     draft: false,
     overrideAccess: true,
     req,
-    select: { slug: true, _status: true },
+    select: { path: true, slug: true, _status: true },
   });
 
-  if (published?._status === "published" && published.slug) {
-    req.context[contextKey(originalDoc.id)] = published.slug;
+  if (published?._status === "published" && pageAddress(published)) {
+    req.context[contextKey(originalDoc.id)] = pageAddress(published);
   }
 
   return data;
 };
 
 /**
- * Publishing a page under a new slug adds a redirect from the old address to the page. It points
- * at the page, not at a path, so it follows later renames. Runs in the publish's transaction: if
+ * Publishing a page under a new address (a new slug or parent, or a parent's) adds a redirect from
+ * the old address to the page. It points at the page, not at a path, so it follows later renames. Runs in the publish's transaction: if
  * the redirect cannot be written, the publish fails with it.
  */
 export const redirectOldSlug: CollectionAfterChangeHook<Page> = async ({ doc, req }) => {
-  const previousSlug = publishedSlugBefore(req, doc.id);
-  if (doc._status !== "published" || !previousSlug || previousSlug === doc.slug) {
+  const previousPath = publishedSlugBefore(req, doc.id);
+  if (doc._status !== "published" || !previousPath || previousPath === pageAddress(doc)) {
     return doc;
   }
 
-  const from = pagePathname(previousSlug);
-  const to = pagePathname(doc.slug);
+  const from = pagePathname(previousPath);
+  const to = pagePathname(pageAddress(doc));
   const { docs: redirects } = await req.payload.find({
     collection: "redirects",
     depth: 0,

@@ -4,7 +4,8 @@ Next.js 16 + Payload 3 starter for a **content-managed marketing site** (localiz
 
 ## Included
 
-- Localized frontend (`en`, `sv`) with CMS-driven **home** and **`/[slug]`** pages from the `pages` collection
+- Localized frontend (`en`, `sv`) with CMS-driven **home** and **`/[...slug]`** pages from the `pages`
+  collection, a page under a parent page at `/parent/child`
 - Payload admin at `/admin`, REST at `/api`, GraphQL at `/graphql`
 - SEO plugin on `pages`, `images` and Mux `videos` collections, optional Cloudflare R2 for uploads
 - Draftable `header` / `footer` globals with scheduled publishing
@@ -75,7 +76,8 @@ database, applies the existing migrations and checks the seed, localized content
 block markers. It drops its temporary database afterward. It finds this project's Postgres
 container through Compose; set `EXAMPLE_BLOCKS_TEST_CONTAINER` to use another one.
 `pnpm test:slug-redirects` does the same for the redirects made when a published page changes its
-slug.
+slug, and `pnpm test:page-parents` for pages under a parent page: their addresses, moved with a
+published parent and kept for drafts.
 
 ## Preview and revalidation
 

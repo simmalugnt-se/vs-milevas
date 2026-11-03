@@ -56,8 +56,8 @@ export function resolveLinkReferenceHref(reference?: LinkReference) {
     return url;
   }
 
-  const normalizedSlug = getReferenceString(value, "slug");
-  return getPageHref(normalizedSlug);
+  // The page's address under its parents, or its slug when read without it.
+  return getPageHref(getReferenceString(value, "path") || getReferenceString(value, "slug"));
 }
 
 function getInternalHref(reference?: LinkReference) {

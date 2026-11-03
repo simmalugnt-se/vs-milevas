@@ -35,7 +35,7 @@ File uploads (PDF, Office, CSV, text) that rich text can link to.
 
 ### `pages`
 
-Editorial pages with shared `title`, stable `slug`, shared block structure, localized block copy, SEO fields, and drafts/scheduled publishing.
+Editorial pages with shared `title`, stable `slug`, an optional parent page (the address is then `/parent/child`, stored in `path`), shared block structure, localized block copy, SEO fields, and drafts/scheduled publishing.
 
 ### `header` / `footer`
 
@@ -43,7 +43,7 @@ Global layout content used by the site shell. Nav labels, tagline, and footer co
 
 ### redirects
 
-Managed through Payload's redirects plugin, cached through Next.js tags, and resolved server-side before frontend routes return `notFound`. Publishing a page under a new slug adds a redirect from the old address to the page (a reference, so it follows later renames); none from the start page, and none over a redirect that already exists for that address.
+Managed through Payload's redirects plugin, cached through Next.js tags, and resolved server-side before frontend routes return `notFound`. Publishing a page under a new address (slug or parent) adds a redirect from the old address to the page (a reference, so it follows later renames); none from the start page, and none over a redirect that already exists for that address.
 
 ## Environment variables
 

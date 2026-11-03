@@ -1,6 +1,8 @@
 import type { TypedLocale } from "payload";
 import { frontendPath } from "@/i18n/frontend-path";
 import { routing } from "@/i18n/routing";
+import { pagePathname } from "@/payload/data/redirects-core";
+import { pageAddress } from "@/payload/utilities/page-path";
 
 type LayoutBlockValue = {
   blockType?: string | null;
@@ -29,6 +31,7 @@ type UploadValue =
 
 type PageLike = {
   layout?: LayoutBlockValue[] | null;
+  path?: string | null;
   slug?: string | null;
   title?: string | null;
 };
@@ -136,11 +139,5 @@ export const getDocumentURL = (
     return "";
   }
 
-  const slug = asString(doc.slug);
-
-  if (!slug || slug === "home") {
-    return `${siteURL}${frontendPath("/", locale)}`;
-  }
-
-  return `${siteURL}${frontendPath(`/${slug}`, locale)}`;
+  return `${siteURL}${frontendPath(pagePathname(pageAddress(doc)), locale)}`;
 };

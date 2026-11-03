@@ -6,6 +6,7 @@
 export type RedirectReferenceValue =
   | {
       id?: string | number | null;
+      path?: string | null;
       slug?: string | null;
     }
   | string
@@ -52,9 +53,9 @@ export function normalizePathname(pathname: string) {
   return withLeadingSlash.replace(/\/+$/, "");
 }
 
-/** The public path of a page with this slug, without a language prefix. */
-export function pagePathname(slug: string | null | undefined) {
-  const value = typeof slug === "string" ? slug.trim() : "";
+/** The public path of a page with this address (`path`), without a language prefix. */
+export function pagePathname(address: string | null | undefined) {
+  const value = typeof address === "string" ? address.trim() : "";
   return !value || value === "home" ? "/" : `/${value}`;
 }
 
@@ -146,7 +147,9 @@ async function resolveReferencePath(
     value = await args.loadReference(reference.relationTo, value);
   }
 
-  return value ? frontendPath(pagePathname(value.slug), args.locale, args.defaultLocale) : null;
+  return value
+    ? frontendPath(pagePathname(value.path || value.slug), args.locale, args.defaultLocale)
+    : null;
 }
 
 export async function resolveRedirectDestination(args: ResolveRedirectDestinationArgs) {

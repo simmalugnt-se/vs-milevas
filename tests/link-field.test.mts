@@ -17,3 +17,14 @@ test("an internal link goes to its page, at a block's anchor when it has one", (
   // No page, no link, whatever the anchor.
   assert.equal(resolveLinkFieldHref({ type: "internal", anchor: "kontakt" }), null);
 });
+
+test("a link to a page under another goes to its address under its parents", () => {
+  const child = {
+    relationTo: "pages",
+    value: { slug: "trehjuliga", path: "motviktstruckar/trehjuliga" },
+  };
+  assert.equal(
+    resolveLinkFieldHref({ type: "internal", reference: child }),
+    "/motviktstruckar/trehjuliga",
+  );
+});

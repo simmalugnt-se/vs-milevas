@@ -54,7 +54,8 @@ export const generatePreviewPath = ({ collection, slug, req }: GeneratePreviewPa
     return null;
   }
 
-  const encodedSlug = encodeURIComponent(routeKey);
+  // A page's address keeps its slashes: "motviktstruckar/trehjuliga".
+  const encodedSlug = routeKey.split("/").map(encodeURIComponent).join("/");
   const locale = previewLocale(req);
 
   let unlocalizedPath: string | null = null;

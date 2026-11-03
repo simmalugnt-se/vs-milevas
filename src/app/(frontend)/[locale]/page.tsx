@@ -6,7 +6,7 @@ import { PageLayout } from "@/components/cms/page-layout";
 import { PayloadRedirects } from "@/components/cms/payload-redirects";
 import { frontendPath } from "@/i18n/frontend-path";
 import { getPayloadDbReady } from "@/payload/data/db-ready";
-import { getPageBySlug } from "@/payload/data/documents";
+import { getPageByPath } from "@/payload/data/documents";
 import { buildPageMetadata } from "@/payload/utilities/frontend-metadata";
 
 type HomePageProps = {
@@ -16,7 +16,7 @@ type HomePageProps = {
 export async function generateMetadata({ params }: HomePageProps) {
   const { locale: localeParam } = await params;
   const locale = localeParam as TypedLocale;
-  const page = await getPageBySlug("home", false, locale);
+  const page = await getPageByPath("home", false, locale);
 
   return buildPageMetadata(page, locale);
 }
@@ -25,7 +25,7 @@ export default async function HomePage({ params }: HomePageProps) {
   const { locale: localeParam } = await params;
   const locale = localeParam as TypedLocale;
   const { isEnabled: draft } = await draftMode();
-  const page = await getPageBySlug("home", draft, locale);
+  const page = await getPageByPath("home", draft, locale);
 
   if (!page) {
     const dbStatus = await getPayloadDbReady();

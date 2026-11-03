@@ -20,7 +20,8 @@ a plugin.
   dealer prices beside customer prices, with the model's own discount or the shared one; they
   sign in with the site's own cookie, never Payload's, and only `users` count as editors in
   access checks, `isEditorUser`), the temporary landing
-  page (`MILEVAS_LANDING_ONLY` in `src/proxy.ts`) and Swedish: the admin is in Swedish only, and
+  page (`MILEVAS_LANDING_ONLY` in `src/proxy.ts`), pages under a parent page ("Överordnad sida",
+  `/parent/child`, `Pages/hooks/page-path.ts`) and Swedish: the admin is in Swedish only, and
   `sv` is the only locale in `src/i18n/routing.ts` for now (the multi-locale code stays). Everything else
   follows the boilerplate; keep it close so later updates merge cleanly.
 - Design system from Figma "Milevas — Website": start from `docs/design-system.md` (where things

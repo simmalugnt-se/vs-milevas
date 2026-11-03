@@ -3,8 +3,10 @@ import type { TypedLocale } from "payload";
 import { cache } from "react";
 import { getPayloadDbReady } from "@/payload/data/db-ready";
 import { getPayloadClient } from "@/payload/get-payload";
+import { pageAddress } from "@/payload/utilities/page-path";
 
-async function fetchPageBySlug(slug: string, draft: boolean, locale: TypedLocale) {
+/** A page by its address (`path`): "om-oss", "motviktstruckar/trehjuliga", or "home". */
+async function fetchPageByPath(path: string, draft: boolean, locale: TypedLocale) {
   const payload = await getPayloadClient();
 
   const result = await payload.find({
@@ -16,8 +18,8 @@ async function fetchPageBySlug(slug: string, draft: boolean, locale: TypedLocale
     overrideAccess: draft,
     pagination: false,
     where: {
-      slug: {
-        equals: slug,
+      path: {
+        equals: path,
       },
     },
   });
@@ -31,35 +33,36 @@ async function fetchPageBySlug(slug: string, draft: boolean, locale: TypedLocale
  */
 const PAGE_CACHE_VERSION = "2026-10-28";
 
-const getCachedPageBySlug = (slug: string, locale: TypedLocale) =>
+const getCachedPageByPath = (path: string, locale: TypedLocale) =>
   unstable_cache(
-    async () => fetchPageBySlug(slug, false, locale),
-    ["page-by-slug", PAGE_CACHE_VERSION, slug, locale],
-    { tags: ["pages", `page:${slug}`] },
+    async () => fetchPageByPath(path, false, locale),
+    ["page-by-path", PAGE_CACHE_VERSION, path, locale],
+    { tags: ["pages", `page:${path}`] },
   );
 
 /**
  * Deduplicated per request with React `cache`. When `draft` is true, bypasses
  * `unstable_cache` so preview always hits Payload.
  */
-export const getPageBySlug = cache(async (slug: string, draft: boolean, locale: TypedLocale) => {
+export const getPageByPath = cache(async (path: string, draft: boolean, locale: TypedLocale) => {
   if (!(await getPayloadDbReady()).ready) {
     return null;
   }
 
   if (draft) {
     unstable_noStore();
-    const draftDoc = await fetchPageBySlug(slug, true, locale);
+    const draftDoc = await fetchPageByPath(path, true, locale);
     if (draftDoc) {
       return draftDoc;
     }
-    return fetchPageBySlug(slug, false, locale);
+    return fetchPageByPath(path, false, locale);
   }
 
-  return getCachedPageBySlug(slug, locale)();
+  return getCachedPageByPath(path, locale)();
 });
 
-export async function getPageSlugs(locale: TypedLocale) {
+/** The published pages' addresses (`path`). */
+export async function getPagePaths(locale: TypedLocale) {
   if (!(await getPayloadDbReady()).ready) {
     return [];
   }
@@ -72,9 +75,10 @@ export async function getPageSlugs(locale: TypedLocale) {
     overrideAccess: false,
     pagination: false,
     select: {
+      path: true,
       slug: true,
     },
   });
 
-  return result.docs.map((page) => page.slug).filter((slug): slug is string => Boolean(slug));
+  return result.docs.map(pageAddress).filter(Boolean);
 }

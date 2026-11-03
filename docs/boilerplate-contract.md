@@ -6,6 +6,11 @@ This repo is meant to stay close to the shared Payload + Next baseline.
 
 - Slugs are auto-generated from the title on the first save.
 - Existing slugs stay stable unless an editor explicitly changes them.
+- A page can have a parent ("Överordnad sida", Milevas' own): its address is then the parent's
+  followed by its slug, `/motviktstruckar/trehjuliga`, stored in `path` on save (`setPagePath`).
+  The parent's published address counts. Publishing a page under a new address saves its children
+  again, published version first and then a newer draft; a deleted page's children move to the top
+  level. Slugs stay unique across all pages.
 - Preview and live preview are only shown when the document already has a valid route key.
 - CMS page SEO is driven by Payload's SEO fields first, with layout-derived fallbacks when those fields are empty.
 - `pages`, `header`, and `footer` all support drafts and scheduled publishing.
@@ -16,7 +21,8 @@ This repo is meant to stay close to the shared Payload + Next baseline.
 - Locale segments are generated at the layout level; child CMS routes only generate the params they own.
 - CMS routes keep `dynamicParams` behavior so new content can be rendered after deploys, while cache invalidation is handled through Payload hooks.
 - Frontend routes resolve Payload-managed redirects before returning `notFound`, as permanent (308)
-  redirects. A catch-all route answers paths deeper than a page's with a redirect or a 404.
+  redirects. Pages are served by one catch-all route, `[...slug]`, which looks the page up by its
+  `path`, and otherwise answers with a redirect or a 404.
 
 ## Localization
 
@@ -31,9 +37,10 @@ This repo is meant to stay close to the shared Payload + Next baseline.
 - Header and footer changes revalidate their global tags.
 - Redirect changes expire the `redirects` tag at once (`{ expire: 0 }`), so the next visitor gets
   the redirect, not a stale 404.
-- Publishing a page under a new slug adds a redirect from the old address to the page and expires
-  the old page at once. The old slug is read from the published version in `beforeChange`: Payload's
-  `previousDoc` is the latest draft, which already has the new slug.
+- Publishing a page under a new address (a new slug or parent, or a parent's new address) adds a
+  redirect from the old address to the page and expires the old page at once. The old address is
+  read from the published version in `beforeChange`: Payload's `previousDoc` is the latest draft,
+  which already has the new slug.
 - Media and document changes revalidate their respective tags.
 - All revalidation hooks optionally notify a remote deployment via `PAYLOAD_REVALIDATE_REMOTE_URL`.
 - The admin dashboard includes a "Revalidate all cache" button for manual cache purging.

@@ -209,6 +209,11 @@ export interface Page {
    */
   slug: string;
   /**
+   * Sidans adress börjar med den överordnade sidans.
+   */
+  parent?: (string | null) | Page;
+  path?: string | null;
+  /**
    * Sidan bakom blocken; den syns i mellanrummen mellan dem och runt sidfoten.
    */
   background?: ('dark' | 'light') | null;
@@ -1446,6 +1451,8 @@ export interface PagesSelect<T extends boolean = true> {
   title?: T;
   publishedAt?: T;
   slug?: T;
+  parent?: T;
+  path?: T;
   background?: T;
   layout?:
     | T

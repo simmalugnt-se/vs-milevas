@@ -1,11 +1,18 @@
-import type { CollectionConfig } from "payload";
+import type { CollectionConfig, Where } from "payload";
 import { ADMIN_GROUPS } from "@/payload/admin-groups.ts";
 import { authenticatedOrPublished } from "../../access/authenticatedOrPublished.ts";
 import { isAuthenticated } from "../../access/isAuthenticated.ts";
 import { layoutBlocks } from "../../blocks/index.ts";
 import { slugField } from "../../fields/slug.ts";
 import { populatePublishedAt } from "../../hooks/populatePublishedAt.ts";
+import { pageAddress } from "../../utilities/page-path.ts";
 import { generatePreviewPath } from "../../utilities/preview.ts";
+import {
+  rememberChildren,
+  setPagePath,
+  updateChildPaths,
+  updateOrphanPaths,
+} from "./hooks/page-path.ts";
 import {
   redirectOldSlug,
   redirectsEnabled,
@@ -23,19 +30,19 @@ export const Pages: CollectionConfig = {
     update: isAuthenticated,
   },
   admin: {
-    defaultColumns: ["title", "slug", "updatedAt"],
+    defaultColumns: ["title", "path", "updatedAt"],
     group: ADMIN_GROUPS.content,
     livePreview: {
       url: ({ data, req }) =>
         generatePreviewPath({
-          slug: data?.slug,
+          slug: pageAddress(data),
           collection: "pages",
           req,
         }),
     },
     preview: (data, { req }) =>
       generatePreviewPath({
-        slug: data?.slug as string,
+        slug: pageAddress(data),
         collection: "pages",
         req,
       }),
@@ -60,6 +67,30 @@ export const Pages: CollectionConfig = {
     },
     slugField({ localized: false }),
     {
+      name: "parent",
+      label: "Överordnad sida",
+      type: "relationship",
+      relationTo: "pages",
+      // Not the page itself nor the start page, which is the site's root.
+      filterOptions: ({ id }): Where => ({
+        and: [{ slug: { not_equals: "home" } }, ...(id ? [{ id: { not_equals: id } }] : [])],
+      }),
+      admin: {
+        position: "sidebar",
+        description: "Sidans adress börjar med den överordnade sidans.",
+        condition: (data) => data?.slug !== "home",
+      },
+    },
+    {
+      // Set from the parent and the slug on save (`setPagePath`).
+      name: "path",
+      label: "Hela adressen",
+      type: "text",
+      index: true,
+      localized: false,
+      admin: { position: "sidebar", readOnly: true },
+    },
+    {
       name: "background",
       label: "Bakgrund",
       type: "select",
@@ -83,9 +114,18 @@ export const Pages: CollectionConfig = {
     },
   ],
   hooks: {
-    afterChange: [...(redirectsEnabled ? [redirectOldSlug] : []), revalidateCollection],
-    afterDelete: [revalidateCollectionDelete],
-    beforeChange: [populatePublishedAt, ...(redirectsEnabled ? [rememberPublishedSlug] : [])],
+    afterChange: [
+      ...(redirectsEnabled ? [redirectOldSlug] : []),
+      revalidateCollection,
+      updateChildPaths,
+    ],
+    afterDelete: [revalidateCollectionDelete, updateOrphanPaths],
+    beforeChange: [
+      populatePublishedAt,
+      setPagePath,
+      ...(redirectsEnabled ? [rememberPublishedSlug] : []),
+    ],
+    beforeDelete: [rememberChildren],
   },
   versions: {
     drafts: {

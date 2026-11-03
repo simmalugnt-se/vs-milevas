@@ -2,10 +2,12 @@ import type { Metadata } from "next";
 import type { TypedLocale } from "payload";
 import { frontendPath } from "@/i18n/frontend-path";
 import { getSiteUrl } from "@/lib/site";
+import { pagePathname } from "@/payload/data/redirects-core";
+import { pageAddress } from "@/payload/utilities/page-path";
 import type { Image, Page } from "@/payload-types";
 import { getDocumentDescription, getDocumentTitle } from "./seo";
 
-type PageMetadataDoc = Pick<Page, "layout" | "meta" | "slug" | "title">;
+type PageMetadataDoc = Pick<Page, "layout" | "meta" | "path" | "slug" | "title">;
 
 function asTrimmedString(value: unknown) {
   return typeof value === "string" ? value.trim() : "";
@@ -51,8 +53,7 @@ export function buildPageMetadata(page: PageMetadataDoc | null, locale: TypedLoc
   const title = asTrimmedString(page.meta?.title) || getDocumentTitle(page);
   const description = asTrimmedString(page.meta?.description) || getDocumentDescription(page);
   const image = resolvePayloadImage(page.meta?.image);
-  const pathname =
-    page.slug === "home" ? frontendPath("/", locale) : frontendPath(`/${page.slug}`, locale);
+  const pathname = frontendPath(pagePathname(pageAddress(page)), locale);
 
   return {
     alternates: {

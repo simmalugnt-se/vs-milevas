@@ -56,6 +56,7 @@
     "test": "tsx --test tests/*.test.mjs tests/*.test.mts",
     "test:example-blocks": "node --import ./scripts/register-style-imports-loader.mjs --import tsx tests/example-blocks.integration.ts",
     "test:slug-redirects": "node --import ./scripts/register-style-imports-loader.mjs --import tsx tests/slug-redirects.integration.ts",
+    "test:page-parents": "node --import ./scripts/register-style-imports-loader.mjs --import tsx tests/page-parents.integration.ts",
     "test:setup-config": "node --import ./scripts/register-style-imports-loader.mjs --import tsx tests/setup-config.integration.ts",
     "typecheck": "tsc --noEmit",
     "seed:homepage": "cross-env NODE_OPTIONS=\"--no-deprecation --import ./scripts/register-style-imports-loader.mjs\" tsx scripts/seed-homepage.ts",
