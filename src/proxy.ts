@@ -51,6 +51,6 @@ export default function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!api|admin|_next/static|_next/image|favicon.ico|icon.svg|apple-icon.png|milevas-logo.svg|milevas-og.png|robots.txt|sitemap|.*\\.xml$|routes).*)",
+    "/((?!api|admin|_next/static|_next/image|favicon.ico|icon.svg|apple-icon.png|milevas-logo.svg|milevas-og.png|block-thumbnails|robots.txt|sitemap|.*\\.xml$|routes).*)",
   ],
 };

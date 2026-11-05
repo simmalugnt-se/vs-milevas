@@ -12,6 +12,7 @@
     "assets:cors": "node ./scripts/set-bucket-cors.mjs",
     "build": "next build",
     "check": "biome check .",
+    "check:block-thumbnails": "node --env-file-if-exists=.env.local --import ./scripts/register-style-imports-loader.mjs --import tsx ./scripts/check-block-thumbnails.mjs",
     "check:write": "biome check . --write",
     "ci:build": "cross-env PAYLOAD_USE_DIRECT_DB=true NODE_OPTIONS=\"--no-deprecation --import ./scripts/register-style-imports-loader.mjs\" payload migrate && pnpm build",
     "db:local:up": "node ./scripts/db-local.mjs up",
@@ -33,6 +34,7 @@
     "dev": "cross-env NODE_OPTIONS=--no-deprecation next dev",
     "format": "biome format . --write",
     "format:check": "biome format .",
+    "generate:block-thumbnails": "node --env-file-if-exists=.env.local --import ./scripts/register-style-imports-loader.mjs --import tsx ./scripts/generate-block-thumbnails.mjs",
     "generate:importmap": "cross-env NODE_OPTIONS=\"--no-deprecation --import ./scripts/register-style-imports-loader.mjs\" payload generate:importmap",
     "generate:types": "cross-env NODE_OPTIONS=\"--no-deprecation --import ./scripts/register-style-imports-loader.mjs\" payload generate:types",
     "db:copy:local-to-staging": "node ./scripts/copy-local-db-to-remote.mjs --to staging --confirm OVERWRITE_STAGING",
@@ -105,6 +107,7 @@
     "@types/react-dom": "^19.2.4",
     "eslint": "^9",
     "eslint-config-next": "16.3.6",
+    "playwright": "1.63.0",
     "tailwindcss": "^4",
     "tsx": "^4.21.0",
     "typescript": "^5"

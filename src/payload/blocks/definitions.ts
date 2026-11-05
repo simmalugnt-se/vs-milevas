@@ -49,6 +49,7 @@ import { TextColumnsBlock } from "./TextColumns/config";
 import { TextGridBlockComponent } from "./TextGrid/Component";
 import { TextGridBlock } from "./TextGrid/config";
 import type { LayoutBlock, LayoutBlockComponentProps } from "./types";
+import { withBlockThumbnails } from "./with-thumbnails";
 
 export type { LayoutBlock } from "./types";
 
@@ -79,7 +80,7 @@ function renderTypedBlock<TType extends LayoutBlock["blockType"]>(
   };
 }
 
-export const layoutBlocks: Block[] = [
+export const layoutBlocks: Block[] = withBlockThumbnails([
   HeroBlock,
   RichTextBlock,
   MediaBlock,
@@ -104,7 +105,7 @@ export const layoutBlocks: Block[] = [
   ArticleImageBlock,
 
   // sl-cli:layout-blocks (do not remove)
-];
+]);
 
 export const blockComponents = {
   hero: renderTypedBlock("hero", (props) => HeroBlockComponent(props)),

@@ -52,7 +52,9 @@ Figma, och säg vilket nummer i backloggen det är.
    dem i Dev Mode: markera ramen, öppna Motion → Transitions, fäll ut en rad och kopiera dess CSS.
    Tider och kurvor följer prototypen; "Transitions (no code)" är Instant, alltså ingen rörelse.
    Lägg till `motion-reduce:transition-none`.
-6. `pnpm check`, `pnpm typecheck`, `pnpm lint` och `pnpm test` ska gå igenom. Committa när
+6. Ett Payload-block får en bild i blockväljaren: `pnpm generate:block-thumbnails <slug>`
+   ([`block-thumbnails.md`](./block-thumbnails.md)).
+7. `pnpm check`, `pnpm typecheck`, `pnpm lint` och `pnpm test` ska gå igenom. Committa när
    användaren ber om det, och aldrig till `main`.
 
 ## Bra att veta
