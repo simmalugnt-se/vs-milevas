@@ -3,7 +3,7 @@ import { sectionID } from "../milevas-fields";
 
 export const CardSliderBlock: Block = {
   slug: "cardSlider",
-  labels: { singular: "Milevas: Kortslider", plural: "Milevas: Kortslider" },
+  labels: { singular: "Kortslider", plural: "Kortslider" },
   fields: [
     sectionID,
     {

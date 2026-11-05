@@ -4,7 +4,7 @@ import { sectionID } from "../milevas-fields";
 
 export const ImageTextBlock: Block = {
   slug: "imageText",
-  labels: { singular: "Milevas: Bild och text", plural: "Milevas: Bild och text" },
+  labels: { singular: "Bild och text", plural: "Bild och text" },
   fields: [
     sectionID,
     {

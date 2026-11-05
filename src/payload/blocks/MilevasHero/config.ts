@@ -4,7 +4,7 @@ import { FAMILY_ROW_LABEL, familyField, sectionID } from "../milevas-fields";
 
 export const MilevasHeroBlock: Block = {
   slug: "milevasHero",
-  labels: { singular: "Milevas: Hero", plural: "Milevas: Hero" },
+  labels: { singular: "Hero med truckar", plural: "Hero med truckar" },
   fields: [
     sectionID,
     coloredHeadingField({

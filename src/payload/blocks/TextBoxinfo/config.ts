@@ -5,7 +5,7 @@ import { sectionID } from "../milevas-fields";
 
 export const TextBoxinfoBlock: Block = {
   slug: "textBoxinfo",
-  labels: { singular: "Milevas: Text och inforuta", plural: "Milevas: Text och inforuta" },
+  labels: { singular: "Text och inforuta", plural: "Text och inforuta" },
   fields: [
     sectionID,
     coloredHeadingField({

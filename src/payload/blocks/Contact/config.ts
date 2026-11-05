@@ -3,7 +3,7 @@ import { sectionID } from "../milevas-fields";
 
 export const ContactBlock: Block = {
   slug: "contact",
-  labels: { singular: "Milevas: Kontakt", plural: "Milevas: Kontakt" },
+  labels: { singular: "Kontakt", plural: "Kontakt" },
   fields: [
     sectionID,
     {

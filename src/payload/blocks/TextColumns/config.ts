@@ -4,7 +4,7 @@ import { sectionID } from "../milevas-fields";
 
 export const TextColumnsBlock: Block = {
   slug: "textColumns",
-  labels: { singular: "Milevas: Text och logotyper", plural: "Milevas: Text och logotyper" },
+  labels: { singular: "Text och logotyper", plural: "Text och logotyper" },
   fields: [
     sectionID,
     coloredHeadingField({

@@ -3,7 +3,7 @@ import { FAMILY_ROW_LABEL, familyField, sectionID } from "../milevas-fields";
 
 export const ProductGridBlock: Block = {
   slug: "productGrid",
-  labels: { singular: "Milevas: Produktgrid", plural: "Milevas: Produktgrid" },
+  labels: { singular: "Produktgrid", plural: "Produktgrid" },
   fields: [
     sectionID,
     {

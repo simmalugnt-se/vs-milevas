@@ -3,7 +3,7 @@ import { sectionID } from "../milevas-fields";
 
 export const TextGridBlock: Block = {
   slug: "textGrid",
-  labels: { singular: "Milevas: Text och bildkort", plural: "Milevas: Text och bildkort" },
+  labels: { singular: "Text och bildkort", plural: "Text och bildkort" },
   fields: [
     sectionID,
     { name: "heading", label: "Rubrik", type: "textarea", required: true, localized: true },

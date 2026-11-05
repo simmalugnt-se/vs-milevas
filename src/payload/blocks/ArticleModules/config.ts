@@ -8,8 +8,6 @@ import type { Block, Field } from "payload";
 import { link } from "../../fields/link";
 import { sectionID } from "../milevas-fields";
 
-const group = "Artikel";
-
 const heading: Field = {
   name: "heading",
   label: "Rubrik",
@@ -53,8 +51,7 @@ const button = (condition?: (siblingData: Record<string, unknown>) => boolean): 
 
 export const ArticleTextBlock: Block = {
   slug: "articleText",
-  labels: { singular: "Artikel: Text", plural: "Artikel: Text" },
-  admin: { group },
+  labels: { singular: "Text", plural: "Text" },
   fields: [
     sectionID,
     {
@@ -92,8 +89,7 @@ export const ArticleTextBlock: Block = {
 
 export const ArticleListBlock: Block = {
   slug: "articleList",
-  labels: { singular: "Artikel: Lista", plural: "Artikel: Lista" },
-  admin: { group },
+  labels: { singular: "Lista", plural: "Lista" },
   fields: [
     sectionID,
     heading,
@@ -129,8 +125,7 @@ export const ArticleListBlock: Block = {
 
 export const ArticleHeadingBlock: Block = {
   slug: "articleHeading",
-  labels: { singular: "Artikel: Rubrik", plural: "Artikel: Rubrik" },
-  admin: { group },
+  labels: { singular: "Rubrik", plural: "Rubrik" },
   fields: [
     sectionID,
     { ...heading, required: true },
@@ -142,7 +137,6 @@ export const ArticleHeadingBlock: Block = {
 
 export const ArticleImageBlock: Block = {
   slug: "articleImage",
-  labels: { singular: "Artikel: Helbild", plural: "Artikel: Helbild" },
-  admin: { group },
+  labels: { singular: "Helbild", plural: "Helbild" },
   fields: [sectionID, { ...image, required: true }],
 };

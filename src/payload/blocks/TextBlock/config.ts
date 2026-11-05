@@ -3,7 +3,7 @@ import { sectionID } from "../milevas-fields";
 
 export const TextBlockBlock: Block = {
   slug: "textBlock",
-  labels: { singular: "Milevas: Text med pil", plural: "Milevas: Text med pil" },
+  labels: { singular: "Text med pil", plural: "Text med pil" },
   fields: [
     sectionID,
     {
