@@ -11,7 +11,7 @@ omgångar: "01 — Foundations" och "02 — Components" är klara, och "04 — B
 | Figmas variabler som JSON (en fil per samling och läge) | `docs/figma-variables/`; `tests/design-tokens.test.mts` jämför CSS:en med dem |
 | Clash Grotesk Variable (WOFF2, vikter 200–700) och licens | `src/app/(frontend)/fonts/clash-grotesk/`; laddas via `next/font/local` i `[locale]/layout.tsx` |
 | Komponenter (Icon, Arrow, Logo, Button, TextLink, NavLink, FooterLink, TextField, TextAreaField, Alternative, TimePicker, ContactForm, ProductCard, TruckInfo, Card, ColorImageCard, ConfiguratorTopbar, Choice, FinancingChoice, CheckboxChoice, ConfiguratorBox, PriceBox, TextBox, TruckColumn) | `src/components/ui/` |
-| Block som komponenter (Navigation, Footer, Milevas Hero, Product-Grid, Text+Grid, Text & boxinfo) | `src/components/blocks/`; Navigation och Footer matas av Header- och Footer-globalerna i `src/payload/globals/*/Component.tsx` |
+| Block som komponenter (Navigation, Footer, Milevas Hero, Product-Grid, Text+Grid, Text & boxinfo, Article modules) | `src/components/blocks/`; Navigation och Footer matas av Header- och Footer-globalerna i `src/payload/globals/*/Component.tsx` |
 | Referenssidor, noindex och 404 i produktion | `/kitchensink` (Grunder: tokens, ikoner, knappar, länkar, formfält), `/kitchensink/components` (sammansatta komponenter), `/kitchensink/blocks` (hela block), `/kitchensink/notes` (alla frågor och avvikelser) |
 | Kitchensinks sidor och sektioner, layout och delade delar | `kitchensink/sections.ts` (flikar, sektionsindex och länkar), `layout.tsx`, `ui.tsx` (`KitchensinkPage`, `Group`, `Section`, `Example`) |
 | Listorna kitchensink visar, som testet jämför med CSS:en | `src/app/(frontend)/[locale]/kitchensink/*.ts` |
@@ -106,7 +106,9 @@ Figma, och säg vilket nummer i backloggen det är.
 ## Startsidan som Payload-block (2026-10-07)
 
 Nio egna block finns i `src/payload/blocks`: `MilevasHero`, `TextColumns`, `TextBlock`,
-`ImageText`, `ProductGrid`, `TextGrid`, `TextBoxinfo`, `CardSlider` och `Contact`. De återanvänder kitchensinks komponenter, har lokaliserade innehållsfält,
+`ImageText`, `ProductGrid`, `TextGrid`, `TextBoxinfo`, `CardSlider` och `Contact`, och därtill
+artikelmodulerna i `ArticleModules` (`articleText`, `articleList`, `articleHeading`, `articleImage`),
+som en artikel byggs av på en vanlig sida. De återanvänder kitchensinks komponenter, har lokaliserade innehållsfält,
 bildfält, länkar och markörer för visual editing. Boilerplatens block är kvar.
 
 - Den publika sidlayouten är global: fullbredd utan yttre padding, sammanhängande CMS-block

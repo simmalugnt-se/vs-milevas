@@ -1,5 +1,17 @@
 import type { Block } from "payload";
 import { createElement, type ReactNode } from "react";
+import {
+  ArticleHeadingBlockComponent,
+  ArticleImageBlockComponent,
+  ArticleListBlockComponent,
+  ArticleTextBlockComponent,
+} from "./ArticleModules/Component";
+import {
+  ArticleHeadingBlock,
+  ArticleImageBlock,
+  ArticleListBlock,
+  ArticleTextBlock,
+} from "./ArticleModules/config";
 import { CallToActionBlockComponent } from "./CallToAction/Component";
 import { CallToActionBlock } from "./CallToAction/config";
 import { CardSliderBlockComponent } from "./CardSlider/Component";
@@ -86,6 +98,10 @@ export const layoutBlocks: Block[] = [
   CardSliderBlock,
   TextBlockBlock,
   ContactBlock,
+  ArticleTextBlock,
+  ArticleListBlock,
+  ArticleHeadingBlock,
+  ArticleImageBlock,
 
   // sl-cli:layout-blocks (do not remove)
 ];
@@ -130,6 +146,18 @@ export const blockComponents = {
   ),
   contact: renderTypedBlock("contact", (props) =>
     createElement(ContactBlockComponent, props),
+  ),
+  articleText: renderTypedBlock("articleText", (props) =>
+    createElement(ArticleTextBlockComponent, props),
+  ),
+  articleList: renderTypedBlock("articleList", (props) =>
+    createElement(ArticleListBlockComponent, props),
+  ),
+  articleHeading: renderTypedBlock("articleHeading", (props) =>
+    createElement(ArticleHeadingBlockComponent, props),
+  ),
+  articleImage: renderTypedBlock("articleImage", (props) =>
+    createElement(ArticleImageBlockComponent, props),
   ),
   // sl-cli:block-components-map (do not remove)
 } satisfies Record<string, LayoutBlockRenderer>;

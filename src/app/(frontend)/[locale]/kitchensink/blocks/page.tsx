@@ -1,6 +1,14 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import { Fragment, type ReactNode } from "react";
+import {
+  ARTICLE_CENTER_IMAGE_SIZES,
+  ARTICLE_SIDE_IMAGE_SIZES,
+  ArticleHeading,
+  ArticleImage,
+  ArticleList,
+  ArticleText,
+} from "@/components/blocks/article-modules";
 import { CardSlider, type CardSliderCard } from "@/components/blocks/card-slider";
 import { ConfiguratorQuote } from "@/components/blocks/configurator-quote";
 import { ConfiguratorScreen } from "@/components/blocks/configurator-screen";
@@ -38,6 +46,7 @@ import logoKion from "../../../../../../scripts/figma-homepage-assets/logo-kion.
 import logoLinde from "../../../../../../scripts/figma-homepage-assets/logo-linde.png";
 import logoStill from "../../../../../../scripts/figma-homepage-assets/logo-still.png";
 import loginForklift from "../../login/login-forklift.jpg";
+import articleForklift from "../assets/article-forklift.jpg";
 import navigationTruck from "../assets/navigation-truck.png";
 import truckCounterbalance from "../assets/truck-counterbalance.png";
 import truckPallet from "../assets/truck-pallet.png";
@@ -337,6 +346,44 @@ function Block({ id, figma, children }: { id: SectionId; figma: string; children
   );
 }
 
+/** Figma's placeholder copy for the article modules. */
+const articleHeading =
+  "Duis enim lobortis pulvinar rhoncus. Eget justo elit magna orci. Sed feugiat pellentesque turpis tempus.";
+const articleBody = (
+  <>
+    <p>
+      Lorem ipsum dolor sit amet consectetur. Nec odio nullam etiam id. Sed ac neque ultrices
+      aliquet nulla nulla sit suspendisse interdum. Duis enim lobortis pulvinar rhoncus. Eget justo
+      elit magna orci.
+    </p>
+    <p>
+      Duis nullam enim fermentum odio consequat natoque ultrices. Tellus quis tincidunt rhoncus a
+      etiam vel at vel elementum. Malesuada erat sagittis tristique neque ultricies ut nibh. Diam
+      leo mattis ultricies pretium senectus libero tortor viverra ut. Sit sed pellentesque convallis
+      sit libero netus in. Ultrices auctor at erat molestie adipiscing libero. Sit sit fermentum sit
+      eget. Ultricies ornare sit eget egestas tortor. Donec morbi vulputate id imperdiet odio quis
+      dolor ipsum nisl. Quisque massa odio netus nisi metus.
+    </p>
+  </>
+);
+const articleItems = [
+  "Duis nullam enim fermentum odio consequat natoque ultrices.",
+  "Tellus quis tincidunt rhoncus",
+  "Sit sed pellentesque convallis sit libero",
+  "Ultricies ornare sit",
+  "Onec morbi vulputate id imperdiet",
+];
+const articleCta = { label: "Bygg din truck", href: "/kitchensink/blocks#configurator" };
+const articlePhoto = (sizes: string) => (
+  <Image
+    src={articleForklift}
+    alt="Truckförare vid ett lagerställ"
+    fill
+    sizes={sizes}
+    className="object-cover"
+  />
+);
+
 /** The hero's trucks, from its Figma Make prototype; Plocktruckar from Figma's product-grid. */
 const heroTrucks = [
   ["Elektriska motviktstruckar", heroCounterbalance],
@@ -451,6 +498,63 @@ export default function BlocksPage() {
           text="Baoli EMEA har ett av branschens största reservdelslager i Europa. Tillsammans med ett centralt produktlager i Italien med över 1 000 truckar redo för leverans ger det korta ledtider."
           cta={{ label: "Bygg din truck", href: "/kitchensink/blocks#configurator" }}
         />
+      </Block>
+
+      <Block id="article-modules" figma="9670:17197">
+        <div className="flex flex-col gap-(--grid-gap)">
+          {(["center", "left", "right"] as const).map((placement) => (
+            <ArticleText
+              key={placement}
+              data-article-variant={`text-${placement}`}
+              heading={articleHeading}
+              body={articleBody}
+              cta={articleCta}
+              placement={placement}
+            />
+          ))}
+          {(["left", "right", "center"] as const).map((placement) => (
+            <ArticleText
+              key={placement}
+              data-article-variant={`text-${placement}-image`}
+              heading={articleHeading}
+              body={articleBody}
+              cta={articleCta}
+              placement={placement}
+              image={articlePhoto(
+                placement === "center" ? ARTICLE_CENTER_IMAGE_SIZES : ARTICLE_SIDE_IMAGE_SIZES,
+              )}
+            />
+          ))}
+          <ArticleList
+            data-article-variant="list"
+            heading="Lista om nått:"
+            items={articleItems}
+            cta={articleCta}
+          />
+          {(["left", "right"] as const).map((placement) => (
+            <ArticleList
+              key={placement}
+              data-article-variant={`list-${placement}-image`}
+              heading="Lista om nått:"
+              items={articleItems}
+              cta={articleCta}
+              placement={placement}
+              image={articlePhoto(ARTICLE_SIDE_IMAGE_SIZES)}
+            />
+          ))}
+          <ArticleImage data-article-variant="image-full" image={articlePhoto("100vw")} />
+          <ArticleHeading
+            data-article-variant="heading"
+            heading="Malesuada erat sagittis tristique neque ultricies ut nibh."
+            text={articleHeading}
+          />
+          <ArticleHeading
+            data-article-variant="heading-image"
+            heading="Malesuada erat sagittis tristique neque ultricies ut nibh."
+            cta={articleCta}
+            image={articlePhoto("100vw")}
+          />
+        </div>
       </Block>
 
       {/* Hover a card for the Desktop look; below Desktop S the arrow and prices always show. */}

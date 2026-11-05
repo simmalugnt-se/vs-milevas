@@ -97,6 +97,88 @@ async function main() {
     const repeated = await seedMilevasHomepage(payload, true);
     assert.equal(repeated.seeded, false);
     const images = await payload.find({ collection: "images", pagination: false });
+    // The article modules, with Text's rich text body and List's localized rows.
+    const articleImage = images.docs[0]?.id;
+    assert.ok(articleImage);
+    const body = {
+      root: {
+        type: "root",
+        version: 1,
+        direction: null,
+        format: "",
+        indent: 0,
+        children: [
+          {
+            type: "paragraph",
+            version: 1,
+            direction: null,
+            format: "",
+            indent: 0,
+            textFormat: 0,
+            children: [
+              {
+                type: "text",
+                version: 1,
+                text: "Brödtext",
+                detail: 0,
+                format: 0,
+                mode: "normal",
+                style: "",
+              },
+            ],
+          },
+        ],
+      },
+    };
+    const article = await payload.create({
+      collection: "pages",
+      locale: "sv",
+      context: { disableRevalidate: true },
+      data: {
+        title: "Artikel",
+        slug: "artikel",
+        _status: "published",
+        layout: [
+          { blockType: "articleHeading", heading: "Rubrik", image: articleImage },
+          {
+            blockType: "articleText",
+            placement: "right",
+            heading: "Text XL",
+            body,
+            image: articleImage,
+          },
+          { blockType: "articleList", placement: "left", items: [{ text: "Rad" }] },
+          { blockType: "articleImage", image: articleImage },
+        ],
+      },
+    });
+    const savedArticle = await payload.findByID({
+      collection: "pages",
+      id: article.id,
+      locale: "sv",
+      depth: 1,
+    });
+    assert.deepEqual(
+      savedArticle.layout?.map((block) => block.blockType),
+      ["articleHeading", "articleText", "articleList", "articleImage"],
+    );
+    const articleText = savedArticle.layout?.find((block) => block.blockType === "articleText");
+    assert.equal(articleText?.placement, "right");
+    assert.deepEqual(articleText?.body, body);
+    const articleList = savedArticle.layout?.find((block) => block.blockType === "articleList");
+    assert.equal(articleList?.items[0]?.text, "Rad");
+    await assert.rejects(
+      payload.create({
+        collection: "pages",
+        locale: "sv",
+        context: { disableRevalidate: true },
+        data: {
+          title: "Artikel utan bild",
+          slug: "artikel-utan-bild",
+          layout: [{ blockType: "articleImage" } as never],
+        },
+      }),
+    );
     for (const image of images.docs) {
       for (const filename of [
         image.filename,
@@ -107,7 +189,7 @@ async function main() {
       }
     }
     console.log(
-      "PASS: nine CMS blocks on the start page and Om oss, cards and columns pointing at their truck families, three distinct photos and repeat-safe seed.",
+      "PASS: nine CMS blocks on the start page and Om oss, the article modules, cards and columns pointing at their truck families, three distinct photos and repeat-safe seed.",
     );
   } finally {
     try {

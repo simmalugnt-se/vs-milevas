@@ -44,6 +44,7 @@ eller en global.
 | 13 | Text-block | `8946:10622` | Mörk rad med en pil till vänster och Text XL; med `paragraph=true` även en brödtext under. Pilen pekar nedåt på Mobile | ✓ Byggt, ✓ Payload `textBlock` (2026-10-23) | Arrow | S |
 | 14 | Contact | `9098:22568` | Mörk sektion: "Kontakt" i Display, en numrerad lista (e-post, telefon, Facebook och LinkedIn) och ett formulär med fyra fält, ett textfält och en Tejp-knapp "Skicka" | ✓ Byggt, ✓ Payload `contact` (2026-10-23): uppgifterna från Footer-globalen, formuläret sparar i Meddelanden och mejlar | ContactForm, TextField | M |
 | 15 | Login | `9170:26321` | Logga in och Skapa konto: foto till vänster och formuläret till höger på desktop, bara formuläret på Tablet och Mobile | ✓ Byggt (2026-10-23) som hårdkodad sida `/login` med Figmas foto, båda lägena och mockad validering; inte kopplad till någon inloggning. Header-globalens "Dealer login" kan peka dit | TextField, Button | M |
+| 16 | Article modules | `9670:17197` | Moduler att bygga artiklar av, på Dark: Text (mitten, vänster, höger, med eller utan bild), Lista (`[01]`-rader, med eller utan bild), Rubrik (Display M, med eller utan bild) och Helbild | ✓ Byggt, ✓ Payload `articleText`, `articleList`, `articleHeading`, `articleImage` (2026-11-04), jämfört med Figma | Button | M |
 
 Komponenterna text-box och truck-column ligger i ramen "blabla" på "02 — Components", som var ett
 utkast 2026-10-22. Det kontrollerades inte 2026-10-23.

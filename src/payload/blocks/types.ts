@@ -38,3 +38,11 @@ export type CardSliderBlock = Extract<LayoutBlock, { blockType: "cardSlider" }>;
 export type TextBlockBlock = Extract<LayoutBlock, { blockType: "textBlock" }>;
 
 export type ContactBlock = Extract<LayoutBlock, { blockType: "contact" }>;
+
+export type ArticleTextBlock = Extract<LayoutBlock, { blockType: "articleText" }>;
+
+export type ArticleListBlock = Extract<LayoutBlock, { blockType: "articleList" }>;
+
+export type ArticleHeadingBlock = Extract<LayoutBlock, { blockType: "articleHeading" }>;
+
+export type ArticleImageBlock = Extract<LayoutBlock, { blockType: "articleImage" }>;

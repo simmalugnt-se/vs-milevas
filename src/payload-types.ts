@@ -662,6 +662,127 @@ export interface Page {
             blockName?: string | null;
             blockType: 'contact';
           }
+        | {
+            /**
+             * Valfritt, för länkar inom sidan. Exempel: modeller (utan #).
+             */
+            anchor?: string | null;
+            /**
+             * Var texten står. I mitten hamnar bilden under den.
+             */
+            placement: 'left' | 'center' | 'right';
+            heading?: string | null;
+            lead?: string | null;
+            body?: {
+              root: {
+                type: string;
+                children: {
+                  type: any;
+                  version: number;
+                  [k: string]: unknown;
+                }[];
+                direction: ('ltr' | 'rtl') | null;
+                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                indent: number;
+                version: number;
+              };
+              [k: string]: unknown;
+            } | null;
+            image?: (string | null) | Image;
+            showButton?: boolean | null;
+            cta: {
+              type?: ('internal' | 'external') | null;
+              reference?: {
+                relationTo: 'pages';
+                value: string | Page;
+              } | null;
+              /**
+               * Valfritt: ankaret på ett block på sidan, utan #. Exempel: "kontakt".
+               */
+              anchor?: string | null;
+              url?: string | null;
+              label: string;
+              newTab?: boolean | null;
+            };
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'articleText';
+          }
+        | {
+            /**
+             * Valfritt, för länkar inom sidan. Exempel: modeller (utan #).
+             */
+            anchor?: string | null;
+            heading?: string | null;
+            lead?: string | null;
+            items: {
+              text: string;
+              id?: string | null;
+            }[];
+            image?: (string | null) | Image;
+            /**
+             * Var texten står, med bilden på andra sidan.
+             */
+            placement?: ('left' | 'right') | null;
+            showButton?: boolean | null;
+            cta: {
+              type?: ('internal' | 'external') | null;
+              reference?: {
+                relationTo: 'pages';
+                value: string | Page;
+              } | null;
+              /**
+               * Valfritt: ankaret på ett block på sidan, utan #. Exempel: "kontakt".
+               */
+              anchor?: string | null;
+              url?: string | null;
+              label: string;
+              newTab?: boolean | null;
+            };
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'articleList';
+          }
+        | {
+            /**
+             * Valfritt, för länkar inom sidan. Exempel: modeller (utan #).
+             */
+            anchor?: string | null;
+            heading: string;
+            text?: string | null;
+            /**
+             * Fyller hela modulen, bakom texten.
+             */
+            image?: (string | null) | Image;
+            showButton?: boolean | null;
+            cta: {
+              type?: ('internal' | 'external') | null;
+              reference?: {
+                relationTo: 'pages';
+                value: string | Page;
+              } | null;
+              /**
+               * Valfritt: ankaret på ett block på sidan, utan #. Exempel: "kontakt".
+               */
+              anchor?: string | null;
+              url?: string | null;
+              label: string;
+              newTab?: boolean | null;
+            };
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'articleHeading';
+          }
+        | {
+            /**
+             * Valfritt, för länkar inom sidan. Exempel: modeller (utan #).
+             */
+            anchor?: string | null;
+            image: string | Image;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'articleImage';
+          }
       )[]
     | null;
   meta?: {
@@ -1734,6 +1855,86 @@ export interface PagesSelect<T extends boolean = true> {
           | {
               anchor?: T;
               heading?: T;
+              id?: T;
+              blockName?: T;
+            };
+        articleText?:
+          | T
+          | {
+              anchor?: T;
+              placement?: T;
+              heading?: T;
+              lead?: T;
+              body?: T;
+              image?: T;
+              showButton?: T;
+              cta?:
+                | T
+                | {
+                    type?: T;
+                    reference?: T;
+                    anchor?: T;
+                    url?: T;
+                    label?: T;
+                    newTab?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        articleList?:
+          | T
+          | {
+              anchor?: T;
+              heading?: T;
+              lead?: T;
+              items?:
+                | T
+                | {
+                    text?: T;
+                    id?: T;
+                  };
+              image?: T;
+              placement?: T;
+              showButton?: T;
+              cta?:
+                | T
+                | {
+                    type?: T;
+                    reference?: T;
+                    anchor?: T;
+                    url?: T;
+                    label?: T;
+                    newTab?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        articleHeading?:
+          | T
+          | {
+              anchor?: T;
+              heading?: T;
+              text?: T;
+              image?: T;
+              showButton?: T;
+              cta?:
+                | T
+                | {
+                    type?: T;
+                    reference?: T;
+                    anchor?: T;
+                    url?: T;
+                    label?: T;
+                    newTab?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        articleImage?:
+          | T
+          | {
+              anchor?: T;
+              image?: T;
               id?: T;
               blockName?: T;
             };
