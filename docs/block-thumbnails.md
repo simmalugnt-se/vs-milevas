@@ -9,8 +9,8 @@ Bilderna är skärmdumpar av blockets riktiga komponent vid 1024 px bredd, så a
 Routen `/preview-block/<slug>` renderar ett enda block utan navigation och sidfot. Blocket hämtas
 från den första publicerade sidan med blocket, sorterad på slug, eller från sidan som anges i
 `src/block-preview/catalog.ts`. Block som ingen sida använder får exempelinnehåll från
-`src/block-preview/samples.ts`. Alla bilder är mörka; `darkPreviewBlocks` gäller block som är ljusa
-på sin sida, som konfiguratorn. Routen finns bara i utvecklingsläge eller med
+`src/block-preview/samples.ts`. Bilderna visar blocken som på sajten: mörka, utom konfiguratorn, som
+står på ljusgrå bakgrund (`lightBackgroundBlocks`). Routen finns bara i utvecklingsläge eller med
 `BLOCK_PREVIEW_ENABLED=true`, och den är `noindex`.
 
 ## Generera och kontrollera

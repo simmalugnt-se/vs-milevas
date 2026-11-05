@@ -4,5 +4,5 @@ export const blockPreviewPages: Record<string, string> = {
   textBoxinfo: "home",
 };
 
-/** Blocks that are light on their page: dark in the picker, so that all the pictures match. */
-export const darkPreviewBlocks = new Set(["configurator"]);
+/** Blocks shown on a Light grey page, as on the site. */
+export const lightBackgroundBlocks = new Set(["configurator"]);

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { darkPreviewBlocks } from "@/block-preview/catalog";
+import { lightBackgroundBlocks } from "@/block-preview/catalog";
 import { findBlockPreviewSource } from "@/block-preview/find-source";
 import { PageLayout } from "@/components/cms/page-layout";
 import { isTypedLocale } from "@/i18n/routing";
@@ -36,9 +36,10 @@ export default async function BlockPreview({ params }: Props) {
   return (
     <div data-block-preview={blockType} id="block-preview-capture">
       <style>{hideChrome}</style>
-      <div className={darkPreviewBlocks.has(blockType) ? "mode-dark" : undefined}>
-        <PageLayout layout={[block]} />
-      </div>
+      <PageLayout
+        background={lightBackgroundBlocks.has(blockType) ? "light" : "dark"}
+        layout={[block]}
+      />
     </div>
   );
 }
