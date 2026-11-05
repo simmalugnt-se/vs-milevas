@@ -2,7 +2,7 @@ import type { CollectionConfig, Where } from "payload";
 import { ADMIN_GROUPS } from "@/payload/admin-groups.ts";
 import { authenticatedOrPublished } from "../../access/authenticatedOrPublished.ts";
 import { isAuthenticated } from "../../access/isAuthenticated.ts";
-import { layoutBlocks } from "../../blocks/index.ts";
+import { layoutBlocks, pickerBlockSlugs } from "../../blocks/index.ts";
 import { slugField } from "../../fields/slug.ts";
 import { populatePublishedAt } from "../../hooks/populatePublishedAt.ts";
 import { pageAddress } from "../../utilities/page-path.ts";
@@ -110,6 +110,13 @@ export const Pages: CollectionConfig = {
       labels: { singular: "Block", plural: "Block" },
       type: "blocks",
       blocks: layoutBlocks,
+      // Blocks already on the page stay valid, so that older content can still be saved.
+      filterOptions: ({ data }) => [
+        ...new Set([
+          ...pickerBlockSlugs,
+          ...((data?.layout ?? []) as { blockType: string }[]).map((block) => block.blockType),
+        ]),
+      ],
       localized: false,
     },
   ],

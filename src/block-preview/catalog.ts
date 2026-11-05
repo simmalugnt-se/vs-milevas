@@ -4,15 +4,5 @@ export const blockPreviewPages: Record<string, string> = {
   textBoxinfo: "home",
 };
 
-/** Blocks shown on a Light grey page: the boilerplate's dark text, and the configurator. */
-export const lightBackgroundBlocks = new Set([
-  "hero",
-  "richText",
-  "media",
-  "gallery",
-  "cards",
-  "faq",
-  "callToAction",
-  "columns",
-  "configurator",
-]);
+/** Blocks that are light on their page: dark in the picker, so that all the pictures match. */
+export const darkPreviewBlocks = new Set(["configurator"]);

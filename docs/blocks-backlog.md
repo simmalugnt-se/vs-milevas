@@ -19,7 +19,7 @@ Beslutat 2026-10-02: full bredd med `grid/margin` för allt innehåll, även hea
 - **Navigation och Footer** är egna komponenter som Header- och Footer-globalerna matar sedan
   2026-10-05 (`src/payload/globals/*/Component.tsx`).
 - **Boilerplatens block** (Hero, Cards, CallToAction, FAQ, Columns, Gallery, Media och RichText) är
-  kvar. Att byta deras utseende ger konflikter vid nästa boilerplate-uppdatering, så Milevas block är
+  kvar i koden, men visas inte i blockväljaren (2026-11-05). Att byta deras utseende ger konflikter vid nästa boilerplate-uppdatering, så Milevas block är
   egna.
 
 ## Blocken, i Figmas ordning

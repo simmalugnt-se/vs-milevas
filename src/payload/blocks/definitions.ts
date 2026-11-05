@@ -80,7 +80,8 @@ function renderTypedBlock<TType extends LayoutBlock["blockType"]>(
   };
 }
 
-export const layoutBlocks: Block[] = withBlockThumbnails([
+/** The boilerplate's blocks: pages can hold them, but editors do not pick them (`pickerBlockSlugs`). */
+const boilerplateBlocks: Block[] = [
   HeroBlock,
   RichTextBlock,
   MediaBlock,
@@ -89,6 +90,10 @@ export const layoutBlocks: Block[] = withBlockThumbnails([
   FAQBlock,
   CallToActionBlock,
   ColumnsBlock,
+];
+
+/** The blocks editors pick from, each with its thumbnail (`docs/block-thumbnails.md`). */
+const pickerBlocks: Block[] = withBlockThumbnails([
   ConfiguratorBlock,
   MilevasHeroBlock,
   TextColumnsBlock,
@@ -106,6 +111,10 @@ export const layoutBlocks: Block[] = withBlockThumbnails([
 
   // sl-cli:layout-blocks (do not remove)
 ]);
+
+export const layoutBlocks: Block[] = [...boilerplateBlocks, ...pickerBlocks];
+
+export const pickerBlockSlugs = pickerBlocks.map((block) => block.slug);
 
 export const blockComponents = {
   hero: renderTypedBlock("hero", (props) => HeroBlockComponent(props)),

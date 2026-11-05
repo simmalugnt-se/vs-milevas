@@ -4,9 +4,9 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
 import sharp from "sharp";
-import { getLayoutBlocks } from "./block-thumbnail-blocks.mjs";
+import { getPickerBlocks } from "./block-thumbnail-blocks.mjs";
 
-/** Screenshots each block at Desktop L, from the running dev server. See docs/block-thumbnails.md. */
+/** Screenshots each block at Desktop S, from the running dev server. See docs/block-thumbnails.md. */
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const baseUrl = process.env.BLOCK_PREVIEW_BASE_URL ?? "http://localhost:3000";
 const browserChannel =
@@ -16,7 +16,7 @@ const only = process.argv[2];
 const WIDTH = 600;
 const HEIGHT = 400;
 
-const allBlockTypes = (await getLayoutBlocks()).map((block) => block.slug);
+const allBlockTypes = (await getPickerBlocks()).map((block) => block.slug);
 if (only && !allBlockTypes.includes(only)) throw new Error(`Unknown block: ${only}`);
 const blockTypes = only ? [only] : allBlockTypes;
 
@@ -28,7 +28,8 @@ const browser = await chromium.launch({
   ...(browserChannel ? { channel: browserChannel } : {}),
 });
 const page = await browser.newPage({
-  viewport: { width: 1440, height: 900 },
+  // The narrowest desktop layout, so that the text can be read in a 600 px picture.
+  viewport: { width: 1024, height: 683 },
   deviceScaleFactor: 1,
   reducedMotion: "reduce",
 });

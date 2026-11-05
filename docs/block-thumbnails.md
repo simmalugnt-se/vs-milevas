@@ -1,14 +1,16 @@
 # Blockbilder i Payload
 
-Blockväljaren i Payload visar en förhandsbild (600 × 400 WebP) för varje block. Bilderna är
-skärmdumpar av blockets riktiga komponent vid 1440 px bredd. De ligger i
+Blockväljaren i Payload visar en förhandsbild (600 × 400 WebP) för varje block. Boilerplatens block
+visas inte där (`pickerBlockSlugs`), men är kvar i koden och går att spara på sidor som redan har dem.
+Bilderna är skärmdumpar av blockets riktiga komponent vid 1024 px bredd, så att texten går att läsa. De ligger i
 `public/block-thumbnails/<slug>.webp` och kopplas in med `withBlockThumbnails` i
 `src/payload/blocks/definitions.ts`.
 
 Routen `/preview-block/<slug>` renderar ett enda block utan navigation och sidfot. Blocket hämtas
 från den första publicerade sidan med blocket, sorterad på slug, eller från sidan som anges i
 `src/block-preview/catalog.ts`. Block som ingen sida använder får exempelinnehåll från
-`src/block-preview/samples.ts`. Routen finns bara i utvecklingsläge eller med
+`src/block-preview/samples.ts`. Alla bilder är mörka; `darkPreviewBlocks` gäller block som är ljusa
+på sin sida, som konfiguratorn. Routen finns bara i utvecklingsläge eller med
 `BLOCK_PREVIEW_ENABLED=true`, och den är `noindex`.
 
 ## Generera och kontrollera

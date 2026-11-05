@@ -2,13 +2,13 @@ import { access } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
-import { getLayoutBlocks } from "./block-thumbnail-blocks.mjs";
+import { getPickerBlocks } from "./block-thumbnail-blocks.mjs";
 
 /** Every block in the picker has its thumbnail URL and a 600 × 400 image. */
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const errors = [];
 
-for (const block of await getLayoutBlocks()) {
+for (const block of await getPickerBlocks()) {
   const expectedUrl = `/block-thumbnails/${block.slug}.webp`;
   const thumbnail = block.admin?.images?.thumbnail;
   const actualUrl = typeof thumbnail === "string" ? thumbnail : thumbnail?.url;
