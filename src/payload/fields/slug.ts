@@ -37,7 +37,9 @@ export const slugField = ({
           return existingValue;
         }
 
-        return formatSlug(fallbackValue);
+        // Payload creates a draft before there is a title. Null, unlike an empty string,
+        // doesn't collide with the unique index when the next draft is created.
+        return formatSlug(fallbackValue) || null;
       },
     ],
   },
